@@ -11,8 +11,8 @@ if [[ ! -d "$BACKGROUNDS_DIR" ]]; then
     exit 1
 fi
 
-# Get all background files, sorted
-mapfile -t BACKGROUNDS < <(find "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
+# Get all background files, sorted (follow symlinks)
+mapfile -t BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
 TOTAL=${#BACKGROUNDS[@]}
 
 # Check if any backgrounds exist
