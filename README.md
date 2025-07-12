@@ -10,7 +10,33 @@ OhmArchy is an even more opiniated personal fork of [Basecamp's Omarchy](https:/
 
 ## 🚀 Installation
 
-### Method 1: Setup Script (Fresh Arch Systems)
+### Prerequisites: Fresh Arch Linux Setup
+
+Download the Arch Linux ISO, put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick.
+
+If you're on wifi, start by running `iwctl`, then type `station wlan0 scan`, then `station wlan0 connect <tab>`, pick your network, and enter the password. If you're on ethernet, you don't need this.
+
+Run `archinstall` and pick these options (and leave anything not mentioned as-is):
+
+| Section                  | Option                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| Mirrors and repositories | Select regions > Your country                                                  |
+| Disk configuration       | Partitioning > Default partitioning layout > Select disk (with space + return) |
+| Disk > File system       | btrfs (default structure: yes + use compression)                               |
+| Disk > Disk encryption   | Encryption type: LUKS + Encryption password + Partitions (select the one)      |
+| Hostname                 | Give your computer a name                                                      |
+| Root password            | Set yours                                                                      |
+| User account             | Add a user > Superuser: Yes > Confirm and exit                                 |
+| Audio                    | pipewire                                                                       |
+| Network configuration    | Copy ISO network config                                                        |
+| Additional packages      | Add wget (type "/wget" to filter list)                                         |
+| Timezone                 | Set yours                                                                      |
+
+**⚠️ Important:** You must setup disk encryption to use OhmArchy as designed! The setup relies exclusively on disk encryption to secure your device, as it'll auto-login the user after the disk has been decrypted at boot.
+
+Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install OhmArchy.
+
+### Method 1: One-Line Install (Recommended)
 
 ```bash
 curl -fsSL https://cyphrriot.github.io/OhmArchy/setup.sh | bash
@@ -112,13 +138,11 @@ vm.dirty_ratio=5              # Limit dirty page cache buildup
 
 ### Updates
 
-_Currently a work in progress... may not work as expected._
-
 ```bash
 omarchy-update
 ```
 
-Pulls the latest OhmArchy changes and updates system packages.
+Updates system packages and applies any available OhmArchy migrations.
 
 ### Backup & Restore
 
