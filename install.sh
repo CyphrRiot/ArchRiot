@@ -3,12 +3,29 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Simple error handler that gives retry instructions
-trap 'echo "❌ OhmArchy installation failed! You can retry by running: source $HOME/.local/share/omarchy/install.sh"' ERR
+# Simple error handler that gives retry instructions and cleans up sudo
+cleanup_on_exit() {
+    echo "❌ OhmArchy installation failed! You can retry by running: source $HOME/.local/share/omarchy/install.sh"
+    # Clean up sudo if helper is available
+    if command -v cleanup_passwordless_sudo &>/dev/null; then
+        echo "🔒 Cleaning up sudo configuration..."
+        cleanup_passwordless_sudo 2>/dev/null || true
+    fi
+}
+trap cleanup_on_exit ERR
 
 # Load shared installation helpers
 if [ -f "$HOME/.local/share/omarchy/install/lib/install-helpers.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/install-helpers.sh"
+fi
+
+# Load and setup sudo helper for passwordless installation
+if [ -f "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh" ]; then
+    source "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh"
+    echo "🔒 Setting up temporary passwordless sudo for installation..."
+    setup_passwordless_sudo || {
+        echo "⚠️ Failed to setup passwordless sudo - installation will prompt for passwords"
+    }
 fi
 
 # Define installation order for modular structure
@@ -74,6 +91,7 @@ echo "🚀 Starting OhmArchy Installation (Modular Structure)"
 echo "===================================================="
 echo "Total installers: $total"
 echo "Start time: $(date)"
+echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless ✓"; else echo "Will prompt for password"; fi)"
 echo
 
 # Process each installer
@@ -152,6 +170,14 @@ fi
 echo "================================="
 echo "🎉 OhmArchy installation complete!"
 echo "Completed at: $(date)"
+
+# Clean up temporary passwordless sudo
+if command -v cleanup_passwordless_sudo &>/dev/null; then
+    echo "🔒 Restoring original sudo configuration..."
+    cleanup_passwordless_sudo || {
+        echo "⚠️ Warning: Could not restore sudo config - may need manual cleanup"
+    }
+fi
 
 # Ensure gum is available for final prompt
 if ! command -v gum &>/dev/null; then

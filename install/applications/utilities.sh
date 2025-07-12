@@ -8,15 +8,14 @@
 
 # Install system utilities
 yay -S --noconfirm --needed \
-    htop \
     btop \
     neofetch \
+    fastfetch \
     tree \
     wget \
     curl \
     unzip \
-    p7zip \
-    ark
+    p7zip
 
 # Install file management utilities
 yay -S --noconfirm --needed \
@@ -28,19 +27,16 @@ yay -S --noconfirm --needed \
 
 # Install system monitoring
 yay -S --noconfirm --needed \
-    gnome-system-monitor \
-    baobab \
-    gnome-disk-utility
+    gnome-system-monitor
 
 # Install network utilities
 yay -S --noconfirm --needed \
     nm-connection-editor \
     networkmanager-applet
 
-# Install calculator and simple tools
+# Install essential tools
 yay -S --noconfirm --needed \
     gnome-calculator \
-    gnome-font-viewer \
     file-roller
 
 echo "✅ Utilities setup complete!"

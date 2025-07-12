@@ -6,30 +6,13 @@
 # Simple media application installation
 # ==============================================================================
 
-# Install audio applications
+# Install essential media tools
 yay -S --noconfirm --needed \
     audacious \
-    audacity \
-    pavucontrol \
-    pulseeffects
-
-# Install video applications
-yay -S --noconfirm --needed \
-    vlc \
+    totem \
     mpv \
-    obs-studio \
-    ffmpeg
-
-# Install graphics applications
-yay -S --noconfirm --needed \
-    gimp \
-    inkscape \
-    krita \
-    blender
-
-# Install media downloaders
-yay -S --noconfirm --needed \
-    yt-dlp \
-    gallery-dl
+    pavucontrol \
+    ffmpeg \
+    yt-dlp
 
 echo "✅ Media applications setup complete!"
