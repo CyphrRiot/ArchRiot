@@ -187,13 +187,8 @@ install_web_browser() {
     if yay -S --noconfirm --needed "brave-bin"; then
         echo "✓ Brave browser installed"
     else
-        echo "⚠ Brave installation failed, trying Firefox..."
-        if yay -S --noconfirm --needed "firefox"; then
-            echo "✓ Firefox browser installed as fallback"
-        else
-            echo "❌ Failed to install any web browser"
-            return 1
-        fi
+        echo "❌ Failed to install Brave browser"
+        return 1
     fi
 
     echo "✓ Web browser installation complete"
@@ -241,7 +236,6 @@ validate_desktop_apps() {
         "mpv:Video player"
         "imv:Image viewer"
         "brave:Web browser"
-        "firefox:Web browser"
         "gnome-calculator:Calculator"
     )
 
@@ -250,7 +244,7 @@ validate_desktop_apps() {
         IFS=':' read -r app desc <<< "$app_info"
         if command -v "$app" &>/dev/null; then
             echo "✓ $desc ($app) available"
-            [[ "$app" == "brave" || "$app" == "firefox" ]] && browser_found=true
+            [[ "$app" == "brave" ]] && browser_found=true
         fi
     done
 
@@ -307,7 +301,7 @@ display_apps_summary() {
     echo "  • Input methods (fcitx5 for international input)"
     echo "  • Session utilities (clipboard, keyring, blue light filter)"
     echo "  • Media applications (mpv, imv, evince)"
-    echo "  • Web browser (Brave or Firefox)"
+    echo "  • Web browser (Brave)"
     echo "  • UI enhancements (notification center, app drawer)"
     echo ""
     echo "🚀 Quick access:"

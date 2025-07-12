@@ -15,8 +15,6 @@ yay -S --noconfirm --needed \
     ninja \
     rust \
     python-pip \
-    nodejs \
-    npm \
     go
 
 # Install common development utilities
