@@ -69,8 +69,9 @@ class SimplePomodoro:
             self.end_time = datetime.now() + timedelta(minutes=self.work_minutes)
         elif self.running:
             # Pause - save remaining time
-            remaining = (self.end_time - datetime.now()).total_seconds()
-            self.paused_remaining = max(0, remaining)
+            if self.end_time:
+                remaining = (self.end_time - datetime.now()).total_seconds()
+                self.paused_remaining = max(0, remaining)
             self.running = False
         else:
             # Resume - set new end time based on saved remaining time

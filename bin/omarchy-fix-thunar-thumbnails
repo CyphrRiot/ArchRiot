@@ -80,7 +80,7 @@ Locations=
 MaxFileSize=2147483648
 
 [PopelerThumbnailer]
-Disabled=false
+Disabled=true
 Priority=1
 Locations=
 MaxFileSize=2147483648
