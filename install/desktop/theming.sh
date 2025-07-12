@@ -183,6 +183,16 @@ setup_theme_backgrounds() {
     local theme_name="$1"
     echo "🖼️  Setting up backgrounds for theme: $theme_name"
 
+    # Set BACKGROUNDS_DIR for background scripts
+    export BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
+    mkdir -p "$BACKGROUNDS_DIR"
+
+    # Load background functions if available
+    local bg_functions="$HOME/.local/share/omarchy/install/backgrounds.sh"
+    if [[ -f "$bg_functions" ]]; then
+        source "$bg_functions"
+    fi
+
     # Source background script if available
     local bg_script="$HOME/.local/share/omarchy/themes/$theme_name/backgrounds.sh"
     if [[ -f "$bg_script" ]]; then
@@ -190,7 +200,7 @@ setup_theme_backgrounds() {
     fi
 
     # Link background directory
-    local bg_dir="$HOME/.config/omarchy/backgrounds/$theme_name"
+    local bg_dir="$BACKGROUNDS_DIR/$theme_name"
     if [[ -d "$bg_dir" ]]; then
         ln -snf "$bg_dir" ~/.config/omarchy/current/backgrounds
 
@@ -225,6 +235,7 @@ link_theme_configs() {
         "neovim.lua:$HOME/.config/nvim/lua/plugins/theme.lua"
         "btop.theme:$HOME/.config/btop/themes/current.theme"
         "mako.ini:$HOME/.config/mako/config"
+        "kitty.conf:$HOME/.config/kitty/current-theme.conf"
     )
 
     for link_info in "${config_links[@]}"; do
@@ -253,6 +264,7 @@ backup_existing_configs() {
         "$HOME/.config/wofi/style.css"
         "$HOME/.config/hypr/hyprlock.conf"
         "$HOME/.config/mako/config"
+        "$HOME/.config/kitty/current-theme.conf"
     )
 
     for config in "${configs_to_backup[@]}"; do
@@ -299,9 +311,17 @@ start_theme_services() {
 
     # Start background service
     local bg_file="$HOME/.config/omarchy/current/background"
-    if [[ -f "$bg_file" ]]; then
-        swaybg -i "$bg_file" -m fill >/dev/null 2>&1 &
-        echo "✓ Background service started"
+    if [[ -f "$bg_file" ]] || [[ -L "$bg_file" ]]; then
+        # Resolve symlink if needed
+        local actual_bg=$(readlink -f "$bg_file" 2>/dev/null || echo "$bg_file")
+        if [[ -f "$actual_bg" ]]; then
+            swaybg -i "$actual_bg" -m fill >/dev/null 2>&1 &
+            echo "✓ Background service started with: $(basename "$actual_bg")"
+        else
+            echo "⚠ Background file not found: $actual_bg"
+        fi
+    else
+        echo "⚠ No background configured"
     fi
 
     # Start waybar if config exists
