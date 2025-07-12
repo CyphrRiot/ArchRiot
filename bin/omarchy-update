@@ -20,7 +20,7 @@ fi
 
 # Update OhmArchy repository
 echo "⬇️  Pulling latest OhmArchy changes..."
-if git pull origin main; then
+if git pull origin master; then
     echo "✓ Repository updated successfully"
 else
     echo "❌ Failed to update repository"
