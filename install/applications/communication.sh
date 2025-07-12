@@ -8,9 +8,7 @@
 
 # Install browsers (no corporate messaging apps)
 yay -S --noconfirm --needed \
-    brave-bin \
-    firefox \
-    chromium
+    brave-bin
 
 # Terminal already installed in core, but ensure kitty available
 yay -S --noconfirm --needed \
