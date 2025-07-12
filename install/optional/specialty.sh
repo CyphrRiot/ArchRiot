@@ -17,11 +17,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/shared.sh" || {
     exit 1
 }
 
-# Load user environment
-load_user_environment() {
-    local env_file="$HOME/.config/omarchy/user.env"
-    [[ -f "$env_file" ]] && source "$env_file"
-}
+# Initialize installer
+init_installer "specialty"
 
 # Detect existing specialty applications
 detect_existing_specialty() {
@@ -235,6 +232,7 @@ main() {
     fi
 
     echo "✅ Specialty applications setup complete!"
+    show_install_summary
 }
 
 # Run main function if script is executed directly
