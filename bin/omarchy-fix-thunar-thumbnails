@@ -1,0 +1,149 @@
+#!/bin/bash
+
+# =============================================================================
+# OhmArchy Thunar Thumbnail Fix
+# Fixes missing thumbnails for images, videos, and other media files
+# =============================================================================
+
+echo "🖼️  Fixing Thunar thumbnail generation..."
+
+# Required packages for thumbnail generation
+THUMBNAIL_PACKAGES=(
+    "tumbler"                    # Main thumbnail service
+    "ffmpegthumbnailer"         # Video thumbnails
+    "poppler-glib"              # PDF thumbnails
+    "libgsf"                    # Office document thumbnails
+    "raw-thumbnailer"           # RAW image thumbnails
+    "libgepub"                  # EPUB thumbnails
+)
+
+# Install missing packages
+echo "📦 Installing thumbnail packages..."
+for package in "${THUMBNAIL_PACKAGES[@]}"; do
+    if ! pacman -Qi "$package" >/dev/null 2>&1; then
+        echo "  Installing $package..."
+        yay -S --noconfirm --needed "$package" || {
+            echo "  ⚠ Failed to install $package, continuing..."
+        }
+    else
+        echo "  ✓ $package already installed"
+    fi
+done
+
+# Create tumbler config directory
+TUMBLER_CONFIG_DIR="$HOME/.config/tumbler"
+mkdir -p "$TUMBLER_CONFIG_DIR"
+
+# Copy default tumbler configuration if it doesn't exist
+if [[ ! -f "$TUMBLER_CONFIG_DIR/tumbler.rc" ]]; then
+    echo "⚙️  Setting up tumbler configuration..."
+    if [[ -f "/etc/xdg/tumbler/tumbler.rc" ]]; then
+        cp "/etc/xdg/tumbler/tumbler.rc" "$TUMBLER_CONFIG_DIR/"
+        echo "  ✓ Copied default tumbler configuration"
+    else
+        echo "  ⚠ Default tumbler config not found, creating basic one..."
+        cat > "$TUMBLER_CONFIG_DIR/tumbler.rc" << 'EOF'
+[FfmpegThumbnailer]
+Disabled=false
+Priority=2
+Locations=
+MaxFileSize=2147483648
+
+[GstThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=2147483648
+
+[PixbufThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=2147483648
+
+[FontThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=2147483648
+
+[JpegThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=2147483648
+
+[RawThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=2147483648
+
+[PopelerThumbnailer]
+Disabled=false
+Priority=1
+Locations=
+MaxFileSize=2147483648
+EOF
+    fi
+fi
+
+# Clear existing thumbnail cache to force regeneration
+echo "🗑️  Clearing thumbnail cache..."
+if [[ -d "$HOME/.cache/thumbnails" ]]; then
+    rm -rf "$HOME/.cache/thumbnails"
+    echo "  ✓ Cleared old thumbnail cache"
+fi
+
+if [[ -d "$HOME/.thumbnails" ]]; then
+    rm -rf "$HOME/.thumbnails"
+    echo "  ✓ Cleared legacy thumbnail cache"
+fi
+
+# Kill existing tumbler processes
+echo "🔄 Restarting thumbnail services..."
+pkill -f tumblerd 2>/dev/null || true
+pkill -f thunar 2>/dev/null || true
+
+# Start tumbler service
+echo "🚀 Starting tumbler service..."
+if command -v tumblerd >/dev/null; then
+    tumblerd &
+    echo "  ✓ Tumbler service started"
+else
+    echo "  ⚠ Tumbler not found, please restart your session"
+fi
+
+# Update desktop database
+echo "🔄 Updating desktop database..."
+if command -v update-desktop-database >/dev/null; then
+    update-desktop-database ~/.local/share/applications 2>/dev/null || true
+    echo "  ✓ Desktop database updated"
+fi
+
+# Update mime database
+echo "🔄 Updating MIME database..."
+if command -v update-mime-database >/dev/null; then
+    update-mime-database ~/.local/share/mime 2>/dev/null || true
+    echo "  ✓ MIME database updated"
+fi
+
+echo ""
+echo "✅ Thunar thumbnail fix complete!"
+echo ""
+echo "📋 What was fixed:"
+echo "  • Installed thumbnail generation packages"
+echo "  • Configured tumbler service"
+echo "  • Cleared old thumbnail cache"
+echo "  • Restarted thumbnail services"
+echo ""
+echo "💡 Next steps:"
+echo "  1. Open Thunar and navigate to a folder with images/videos"
+echo "  2. Enable 'View as Icons' if not already enabled"
+echo "  3. Thumbnails should generate automatically"
+echo "  4. If issues persist, restart your session"
+echo ""
+echo "🔧 Thunar Preferences:"
+echo "  • Edit → Preferences → Display → Show thumbnails"
+echo "  • Make sure 'Show thumbnails' is enabled"
+echo ""

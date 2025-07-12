@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# =============================================================================
+# OhmArchy Background Fix
+# Fixes background issues and properly sets CypherRiot theme backgrounds
+# =============================================================================
+
+echo "🖼️  Fixing background and theme issues..."
+
+# Define directories
+THEMES_DIR="$HOME/.config/omarchy/themes"
+BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
+CURRENT_DIR="$HOME/.config/omarchy/current"
+CURRENT_BACKGROUND_LINK="$CURRENT_DIR/background"
+CURRENT_THEME_LINK="$CURRENT_DIR/theme"
+
+# Create necessary directories
+echo "📁 Creating directories..."
+mkdir -p "$THEMES_DIR"
+mkdir -p "$BACKGROUNDS_DIR"
+mkdir -p "$CURRENT_DIR"
+
+# Check if CypherRiot theme exists
+CYPHERRIOT_THEME="$THEMES_DIR/cypherriot"
+if [[ ! -d "$CYPHERRIOT_THEME" ]]; then
+    echo "❌ CypherRiot theme not found at $CYPHERRIOT_THEME"
+    echo "   Creating symlink to repository theme..."
+
+    # Find the repository theme
+    REPO_THEME="$HOME/.local/share/omarchy/themes/cypherriot"
+    if [[ -d "$REPO_THEME" ]]; then
+        ln -nsf "$REPO_THEME" "$CYPHERRIOT_THEME"
+        echo "   ✓ Linked CypherRiot theme from repository"
+    else
+        echo "   ❌ CypherRiot theme not found in repository either"
+        echo "   Please ensure the theme is properly installed"
+        exit 1
+    fi
+fi
+
+# Set up CypherRiot backgrounds
+echo "🎨 Setting up CypherRiot backgrounds..."
+CYPHERRIOT_BACKGROUNDS="$BACKGROUNDS_DIR/cypherriot"
+mkdir -p "$CYPHERRIOT_BACKGROUNDS"
+
+# Copy backgrounds from theme if they don't exist
+if [[ -d "$CYPHERRIOT_THEME/backgrounds" ]]; then
+    echo "  📋 Copying backgrounds from theme..."
+
+    # Copy with proper naming
+    cp "$CYPHERRIOT_THEME/backgrounds/escape_velocity.jpg" "$CYPHERRIOT_BACKGROUNDS/1-escape_velocity.jpg" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/blue_night_moon_over_lake.jpg" "$CYPHERRIOT_BACKGROUNDS/2-blue_night_moon_over_lake.jpg" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/City-Rainy-Night.png" "$CYPHERRIOT_BACKGROUNDS/3-City-Rainy-Night.png" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/Staircase.png" "$CYPHERRIOT_BACKGROUNDS/4-Staircase.png" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/Anime-Purple-eyes.png" "$CYPHERRIOT_BACKGROUNDS/5-Anime-Purple-eyes.png" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/cyber.jpg" "$CYPHERRIOT_BACKGROUNDS/6-cyber.jpg" 2>/dev/null || true
+
+    echo "  ✓ CypherRiot backgrounds copied"
+else
+    echo "  ⚠ CypherRiot theme backgrounds directory not found"
+fi
+
+# Remove any old cyber-1.png or similar files
+echo "🗑️  Cleaning up old background references..."
+find "$HOME/.config" -name "*cyber-1.png" -type f -delete 2>/dev/null || true
+find "$HOME/.config" -name "*cyber-*.png" -type f -delete 2>/dev/null || true
+echo "  ✓ Cleaned up old background files"
+
+# Set current theme to CypherRiot
+echo "🎯 Setting current theme to CypherRiot..."
+ln -nsf "$CYPHERRIOT_THEME" "$CURRENT_THEME_LINK"
+ln -nsf "$CYPHERRIOT_BACKGROUNDS" "$CURRENT_DIR/backgrounds"
+echo "  ✓ Current theme set to CypherRiot"
+
+# Set default background (escape_velocity.jpg)
+echo "🖼️  Setting default background..."
+DEFAULT_BACKGROUND="$CYPHERRIOT_BACKGROUNDS/1-escape_velocity.jpg"
+if [[ -f "$DEFAULT_BACKGROUND" ]]; then
+    ln -nsf "$DEFAULT_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+    echo "  ✓ Default background set to escape_velocity.jpg"
+else
+    # Fallback to any available background
+    FALLBACK_BG=$(find "$CYPHERRIOT_BACKGROUNDS" -type f \( -name "*.jpg" -o -name "*.png" \) | head -n 1)
+    if [[ -n "$FALLBACK_BG" ]]; then
+        ln -nsf "$FALLBACK_BG" "$CURRENT_BACKGROUND_LINK"
+        echo "  ✓ Fallback background set to $(basename "$FALLBACK_BG")"
+    else
+        echo "  ❌ No background files found!"
+        exit 1
+    fi
+fi
+
+# Verify the background file exists and is accessible
+if [[ -f "$CURRENT_BACKGROUND_LINK" ]]; then
+    CURRENT_BG=$(readlink "$CURRENT_BACKGROUND_LINK")
+    echo "  ✓ Current background: $(basename "$CURRENT_BG")"
+else
+    echo "  ❌ Background link is broken!"
+    exit 1
+fi
+
+# Restart swaybg with new background
+echo "🔄 Restarting background service..."
+pkill -x swaybg 2>/dev/null || true
+sleep 0.5
+
+# Start swaybg with the new background
+setsid swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
+
+# Verify swaybg started
+sleep 1
+if pgrep -x swaybg >/dev/null; then
+    echo "  ✓ Background service restarted successfully"
+else
+    echo "  ⚠ Background service may not have started properly"
+    echo "  Trying alternative method..."
+    nohup swaybg -i "$CURRENT_BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
+fi
+
+# Reload Hyprland configuration if available
+if command -v hyprctl >/dev/null; then
+    echo "🔄 Reloading Hyprland configuration..."
+    hyprctl reload 2>/dev/null || true
+    echo "  ✓ Hyprland configuration reloaded"
+fi
+
+echo ""
+echo "✅ Background fix complete!"
+echo ""
+echo "📋 What was fixed:"
+echo "  • Cleaned up old cyber-1.png references"
+echo "  • Set up proper CypherRiot theme structure"
+echo "  • Linked correct background files"
+echo "  • Set escape_velocity.jpg as default"
+echo "  • Restarted background service"
+echo ""
+echo "🎮 Available backgrounds:"
+if [[ -d "$CYPHERRIOT_BACKGROUNDS" ]]; then
+    for bg in "$CYPHERRIOT_BACKGROUNDS"/*; do
+        if [[ -f "$bg" ]]; then
+            echo "  • $(basename "$bg")"
+        fi
+    done
+fi
+echo ""
+echo "💡 Usage:"
+echo "  • Switch themes: Super + Ctrl + Shift + Space"
+echo "  • Change background: Super + Ctrl + Space"
+echo "  • Command line: omarchy-theme-next"
+echo "  • Background cycle: swaybg-next"
+echo ""
