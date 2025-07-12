@@ -1,0 +1,9 @@
+#custom-hypridle,
+#idle_inhibitor {
+    color: #ff0000;
+}
+
+#custom-hypridle.notactive,
+#idle_inhibitor.activated {
+    color: #00ff00;
+}

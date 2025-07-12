@@ -1,0 +1,74 @@
+/* CypherRiot theme for Wofi */
+/* Based on your waybar color scheme */
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 14px;
+}
+
+window {
+    background-color: rgba(26, 27, 38, 0.95);  /* Darker background with transparency */
+    border: 2px solid #9d7bd8;                /* workspace_active purple border */
+    border-radius: 10px;
+}
+
+#input {
+    background-color: #222436;    /* waybar bgcolor */
+    color: #ffffff;               /* waybar fgcolor */
+    border: 1px solid #bb9af7;   /* accent4 purple */
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 10px;
+    outline: none;
+}
+
+#input:focus {
+    border-color: #7da6ff;        /* accent5 blue when focused */
+}
+
+#inner-box {
+    background-color: transparent;
+    margin: 5px;
+}
+
+#outer-box {
+    background-color: transparent;
+    padding: 5px;
+}
+
+#scroll {
+    background-color: transparent;
+}
+
+#text {
+    background-color: transparent;
+    color: #ffffff;
+    padding: 2px;
+}
+
+#entry {
+    background-color: transparent;
+    color: #ffffff;
+    padding: 8px;
+    margin: 2px;
+    border-radius: 6px;
+}
+
+#entry:selected {
+    background-color: rgba(157, 123, 216, 0.3);  /* workspace_active purple with transparency */
+    color: #ffffff;
+    border: 1px solid #9d7bd8;
+}
+
+#entry:hover {
+    background-color: rgba(125, 166, 255, 0.2);  /* accent5 blue with transparency */
+}
+
+#entry:selected #text {
+    color: #ffffff;
+}
+
+/* App icon styling */
+#entry #icon {
+    margin-right: 8px;
+}

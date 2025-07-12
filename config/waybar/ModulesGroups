@@ -1,0 +1,130 @@
+{
+    "group/mobo_drawer": {
+        "drawer": {
+            "transition-left-to-right": true,
+            "transition-duration": 500,
+            "children-class": "cpu"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "temperature",
+            "cpu",
+            "power-profiles-daemon",
+            "memory",
+            "disk"
+        ]
+    },
+    "group/status": {
+        "orientation": "inherit",
+        "modules": [
+            "custom/power"
+        ]
+    },
+    "group/laptop": {
+        "orientation": "inherit",
+        "modules": [
+            "backlight",
+            "battery"
+        ]
+    },
+    "group/app_drawer": {
+        "drawer": {
+            "transition-left-to-right": true,
+            "transition-duration": 500,
+            "children-class": "custom/menu"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "custom/menu",
+            "custom/light_dark",
+            "custom/file_manager",
+            "custom/tty",
+            "custom/browser",
+            "custom/settings"
+        ]
+    },
+    "group/app_icons": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/menu",
+            "custom/light_dark",
+            "custom/file_manager",
+            "custom/tty",
+            "custom/browser",
+            "custom/settings"
+        ]
+    },
+    "group/notify": {
+        "drawer": {
+            "transition-left-to-right": false,
+            "transition-duration": 500,
+            "children-class": "custom/swaync"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "custom/swaync"
+        ]
+    },
+    "group/motherboard": {
+        "orientation": "horizontal",
+        "modules": [
+            "cpu",
+            "power-profiles-daemon",
+            "memory",
+            "temperature",
+            "disk"
+        ]
+    },
+    "group/connections": {
+        "drawer": {
+            "transition-left-to-right": true,
+            "transition-duration": 500,
+            "children-class": "bluetooth"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "network",
+            "bluetooth"
+        ]
+    },
+    "group/power#vert": {
+        "drawer": {
+            "transition-left-to-right": false,
+            "transition-duration": 300,
+            "children-class": "not-memory"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "custom/lock",
+            "custom/power",
+            "custom/logout",
+            "custom/reboot"
+        ]
+    },
+    "group/audio": {
+        "drawer": {
+            "transition-left-to-right": true,
+            "transition-duration": 500,
+            "children-class": "pulseaudio"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "pulseaudio",
+            "pulseaudio#microphone"
+        ]
+    },
+    "group/power": {
+        "drawer": {
+            "transition-left-to-right": false,
+            "transition-duration": 500,
+            "children-class": "drawer-child"
+        },
+        "orientation": "inherit",
+        "modules": [
+            "custom/lock",
+            "custom/power",
+            "custom/quit",
+            "custom/reboot"
+        ]
+    }
+}

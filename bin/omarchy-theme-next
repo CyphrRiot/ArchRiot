@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Theme directories
+themes_dir="$HOME/.config/omarchy/themes/"
+current_link="$HOME/.config/omarchy/current/theme"
+
+# Get available themes
+readarray -t themes < <(find "$themes_dir" -mindepth 1 -maxdepth 1 -type d | sort)
+[[ ${#themes[@]} -eq 0 ]] && { echo "No themes found"; exit 1; }
+
+# Find current theme index
+current_theme=$(readlink "$current_link" 2>/dev/null || echo "${themes[0]}")
+current_index=0
+for i in "${!themes[@]}"; do
+    [[ "${themes[$i]}" == "$current_theme" ]] && { current_index=$i; break; }
+done
+
+# Calculate next theme
+next_index=$(( (current_index + 1) % ${#themes[@]} ))
+new_theme="${themes[$next_index]}"
+theme_name=$(basename "$new_theme")
+
+echo "🎨 Switching to theme: $theme_name"
+
+# Update theme links
+ln -nsf "$HOME/.config/omarchy/backgrounds/$theme_name" "$HOME/.config/omarchy/current/backgrounds"
+ln -nsf "$new_theme" "$current_link"
+
+# Set background
+background=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n 1)
+[[ -n "$background" ]] && {
+    ln -nsf "$background" "$HOME/.config/omarchy/current/background"
+    pkill -x swaybg 2>/dev/null
+    setsid swaybg -i "$HOME/.config/omarchy/current/background" -m fill &
+}
+
+# Reload components
+touch "$HOME/.config/kitty/kitty.conf"  # Use kitty instead of alacritty
+pkill -SIGUSR2 waybar 2>/dev/null
+makoctl reload 2>/dev/null
+hyprctl reload 2>/dev/null
+
+# Notify user
+command -v notify-send >/dev/null && notify-send "Theme: $theme_name" -t 2000
+
+echo "✓ Theme switched to $theme_name"

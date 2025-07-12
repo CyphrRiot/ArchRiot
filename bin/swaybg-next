@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Cycles through the background images available
+
+BACKGROUNDS_DIR="$HOME/.config/omarchy/current/backgrounds"
+CURRENT_BACKGROUND_LINK="$HOME/.config/omarchy/current/background"
+
+# Check if backgrounds directory exists
+if [[ ! -d "$BACKGROUNDS_DIR" ]]; then
+    echo "❌ Backgrounds directory not found: $BACKGROUNDS_DIR"
+    exit 1
+fi
+
+# Get all background files, sorted
+mapfile -t BACKGROUNDS < <(find "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
+TOTAL=${#BACKGROUNDS[@]}
+
+# Check if any backgrounds exist
+if [[ $TOTAL -eq 0 ]]; then
+    echo "❌ No background images found in $BACKGROUNDS_DIR"
+    exit 1
+fi
+
+# Get current background from symlink
+CURRENT_BACKGROUND=""
+if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
+    CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
+fi
+
+# Find current background index
+INDEX=0
+if [[ -n "$CURRENT_BACKGROUND" ]]; then
+    for i in "${!BACKGROUNDS[@]}"; do
+        if [[ "${BACKGROUNDS[$i]}" == "$CURRENT_BACKGROUND" ]]; then
+            INDEX=$i
+            break
+        fi
+    done
+fi
+
+# Get next background (wrap around)
+NEXT_INDEX=$(((INDEX + 1) % TOTAL))
+NEW_BACKGROUND=${BACKGROUNDS[$NEXT_INDEX]}
+
+# Verify new background file exists
+if [[ ! -f "$NEW_BACKGROUND" ]]; then
+    echo "❌ Next background file not found: $NEW_BACKGROUND"
+    exit 1
+fi
+
+# Set new background symlink
+ln -snf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+
+echo "🖼️  Switched to background: $(basename "$NEW_BACKGROUND")"
+
+# Relaunch swaybg
+pkill -x swaybg 2>/dev/null
+sleep 0.5
+setsid swaybg -i "$NEW_BACKGROUND" -m fill >/dev/null 2>&1 &
+
+# Verify swaybg started
+sleep 1
+if pgrep -x swaybg >/dev/null; then
+    echo "✓ Background service restarted"
+else
+    echo "⚠ Background service may not have started properly"
+fi

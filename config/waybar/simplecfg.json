@@ -1,0 +1,28 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "modules-left": ["clock"],
+    "modules-center": ["mpris"],
+    "modules-right": ["tray"],
+
+    "clock": {
+        "format": "{:%H:%M}"
+    },
+
+    "mpris": {
+        "format": "{player_icon} {artist} - {title}",
+        "format-paused": "⏸ {artist} - {title}",
+        "player-icons": {
+            "default": "▶",
+            "mpv": "🎵",
+            "spotify": "🎵"
+        },
+        "max-length": 100
+    },
+
+    "tray": {
+        "icon-size": 21,
+        "spacing": 10
+    }
+}

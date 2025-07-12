@@ -1,0 +1,56 @@
+#!/bin/bash
+
+echo "🔄 OhmArchy System Update"
+echo "========================="
+
+# Navigate to OhmArchy directory
+cd ~/.local/share/omarchy || {
+    echo "❌ Error: OhmArchy directory not found"
+    exit 1
+}
+
+# Determine migration starting point
+if [[ $1 == "all" ]]; then
+    last_updated_at=1
+    echo "📦 Running all migrations"
+else
+    last_updated_at=$(git log -1 --format=%cd --date=unix 2>/dev/null || echo "1")
+    echo "📦 Incremental update from $(date -d @$last_updated_at)"
+fi
+
+# Update OhmArchy repository
+echo "⬇️  Pulling latest OhmArchy changes..."
+if git pull origin main; then
+    echo "✓ Repository updated successfully"
+else
+    echo "❌ Failed to update repository"
+    exit 1
+fi
+
+# Run pending migrations
+echo "🔧 Processing migrations..."
+migration_count=0
+for file in migrations/*.sh; do
+    [[ -f "$file" ]] || continue
+
+    migrate_at="${file##*/}"
+    migrate_at="${migrate_at%.sh}"
+
+    if [[ $migrate_at =~ ^[0-9]+$ ]] && [[ $migrate_at -gt $last_updated_at ]]; then
+        echo "  🚀 Running migration: $migrate_at"
+        if source "$file"; then
+            ((migration_count++))
+        else
+            echo "  ❌ Migration $migrate_at failed"
+        fi
+    fi
+done
+
+echo "✓ Processed $migration_count migrations"
+
+# Update system packages
+echo "📦 Updating system packages..."
+yay -Syu --noconfirm && echo "✓ System packages updated" || echo "⚠ Package update had issues"
+
+echo "✅ OhmArchy update complete!"
+cd - >/dev/null

@@ -1,0 +1,7 @@
+@import ".config/omarchy/current/theme/wofi.css";
+@import ".local/share/omarchy/default/wofi/search.css";
+
+#input {
+    opacity: 0;
+    margin-top: -200px;
+}
