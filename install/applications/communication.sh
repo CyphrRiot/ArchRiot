@@ -6,25 +6,14 @@
 # Simple communication application installation
 # ==============================================================================
 
-# Install messaging applications
+# Install browsers (no corporate messaging apps)
 yay -S --noconfirm --needed \
-    signal-desktop \
-    discord \
-    element-desktop \
-    telegram-desktop
-
-# Install video conferencing
-yay -S --noconfirm --needed \
-    zoom \
-    teams
-
-# Install email clients
-yay -S --noconfirm --needed \
-    thunderbird
-
-# Install browsers for web-based communication
-yay -S --noconfirm --needed \
+    brave-bin \
     firefox \
     chromium
+
+# Terminal already installed in core, but ensure kitty available
+yay -S --noconfirm --needed \
+    kitty
 
 echo "✅ Communication applications setup complete!"
