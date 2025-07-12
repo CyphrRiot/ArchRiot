@@ -57,6 +57,78 @@ git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy
 - **Error handling** - Clear feedback and rollback capability
 - **100% confidence** - Comprehensive testing and validation
 
+## ⌨️ Essential Commands
+
+### Theme & Appearance
+```bash
+omarchy-theme-next                    # Switch to next theme
+SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
+SUPER + CTRL + SPACE                 # Cycle through backgrounds
+```
+
+### System Management
+```bash
+omarchy-update                       # Update system packages
+migrate                              # Backup/restore system (interactive TUI)
+sudo systemctl reboot               # Restart system
+sudo systemctl poweroff             # Shutdown system
+```
+
+### Applications (Keybinds)
+```bash
+SUPER + RETURN                       # Open terminal (Kitty)
+SUPER + D  or  SUPER + SPACE         # App launcher (wofi)
+SUPER + F                            # File manager (Thunar)
+SUPER + B                            # Browser (Brave)
+SUPER + E                            # Email (Proton Mail)
+SUPER + N                            # Text editor (Neovim)
+SUPER + T                            # System monitor (btop)
+SUPER + ESCAPE                       # Power menu
+```
+
+### Screenshots
+```bash
+SUPER + SHIFT + S                    # Region screenshot
+SUPER + SHIFT + W                    # Window screenshot  
+SUPER + SHIFT + F                    # Full screen screenshot
+SUPER + PRINT                        # Color picker
+```
+
+### Window Management
+```bash
+SUPER + W  or  SUPER + Q             # Close window
+SUPER + V                            # Toggle floating
+SUPER + J                            # Toggle split
+SUPER + Arrow Keys                   # Move focus
+SUPER + SHIFT + Arrow Keys           # Swap windows
+SUPER + 1-9                          # Switch workspace
+SUPER + SHIFT + 1-9                  # Move window to workspace
+```
+
+### Audio & Media
+```bash
+XF86AudioRaiseVolume                 # Volume up
+XF86AudioLowerVolume                 # Volume down
+XF86AudioMute                        # Toggle mute
+XF86AudioMicMute                     # Toggle microphone
+XF86AudioPlay/Pause                  # Media play/pause
+```
+
+### Waybar Controls
+```bash
+Click tomato timer                   # Start/pause Pomodoro timer
+Double-click tomato timer            # Reset timer to 25:00
+Click microphone icon               # Toggle microphone mute
+Click network icon                  # Open network manager
+```
+
+### Fix Scripts (If Needed)
+```bash
+omarchy-fix-thunar-thumbnails        # Fix thumbnail generation
+omarchy-fix-background               # Fix theme backgrounds
+omarchy-fix-waybar-theme             # Fix waybar styling
+```
+
 ## 🎯 Key Customizations
 
 ### 🔧 **Core System Changes**
