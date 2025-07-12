@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Display Hyprland keybindings in searchable wofi menu
+
+user_conf="$HOME/.config/hypr/hyprland.conf"
+omarchy_conf="$HOME/.local/share/omarchy/default/hypr/bindings.conf"
+
+# Check if config files exist
+for conf in "$user_conf" "$omarchy_conf"; do
+    [[ -f "$conf" ]] || { echo "Warning: $conf not found"; }
+done
+
+# Extract and format keybindings
+{
+    [[ -f "$user_conf" ]] && grep '^[[:space:]]*bind' "$user_conf"
+    [[ -f "$omarchy_conf" ]] && grep '^[[:space:]]*bind' "$omarchy_conf"
+} | awk -F, '
+{
+    # Remove comments and bind prefix
+    sub(/#.*/, "")
+    sub(/^[[:space:]]*bind[^=]*=(\+[[:space:]])?(exec, )?[[:space:]]*/, "", $1)
+
+    # Build key combination and action
+    key = $1 " + " $2
+    gsub(/^[ \t]*\+?[ \t]*|[ \t]+$/, "", key)
+    gsub(/[ \t]+/, " ", key)
+
+    action = ""
+    for (i = 3; i <= NF; i++) action = action $i (i < NF ? "," : "")
+    gsub(/(^|,)[[:space:]]*exec[[:space:]]*,?|,$/, "", action)
+    gsub(/^[ \t]+|[ \t]+$/, "", action)
+
+    if (action != "") printf "%-35s → %s\n", key, action
+}' | flock --nonblock /tmp/.wofi.lock -c "wofi -dmenu -i --width 60% --height 70% -p 'Hyprland Keybindings' -O alphabetical --style=\"$HOME/.local/share/omarchy/default/wofi/search.css\""

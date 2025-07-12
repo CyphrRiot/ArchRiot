@@ -1,0 +1,33 @@
+{
+    "include": ["$HOME/.config/waybar/Modules", "$HOME/.config/waybar/ModulesWorkspaces", "$HOME/.config/waybar/ModulesCustom", "$HOME/.config/waybar/ModulesGroups", "$HOME/.config/waybar/UserModules"],
+    "fixed-center": true,
+    // "output": ["DP-1", "eDP-1", "HDMI-A-1"],  // Commented out to prevent dual Waybar when disconnecting from monitors
+    "modules-right": [
+        "custom/separator#blank_3",
+        "tray", "custom/separator#blank", "temperature", "custom/separator#blank", "custom/cpu-aggregate", "custom/separator#blank", "custom/memory-accurate",
+        "custom/separator#line-tray", "pulseaudio", "custom/separator#blank", "custom/mic", "custom/separator#blank", "bluetooth", "custom/separator#blank", "custom/tomato-timer", "custom/separator#blank", "network", "custom/mullvad", "custom/separator#blank", "battery", "custom/separator#blank", "group/notify", "custom/separator#blank", "group/status", "custom/lock"
+    ],
+    "modules-center": ["clock"],
+    "layer": "top",
+    "margin-right": 8,
+    "modules-left": [
+        "custom/arch", "custom/separator#blank", "hyprland/workspaces#rw", "custom/separator#blank",
+        "mpris", "hyprland/window"
+    ],
+    "margin-left": 8,
+    "spacing": 10,
+    "passthrough": false,
+    "exclusive": true,
+    "margin-top": 3,
+    "position": "top",
+    "ipc": false,
+
+    // CypherRiot theme specific overrides
+    "custom/arch": {
+        "format": "󰣇",
+        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || wofi --show drun",
+        "on-click-right": "pkill wofi || wofi --show drun",
+        "tooltip": true,
+        "tooltip-format": "Left Click: App Grid\nRight Click: App Launcher"
+    }
+}

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# OhmArchy Simple Temperature Setup
+# Auto-detects CPU temperature sensor for waybar
+
+WAYBAR_MODULES="$HOME/.config/waybar/Modules"
+
+# Find coretemp hwmon path
+find_coretemp() {
+    for hwmon in /sys/class/hwmon/hwmon*; do
+        if [[ -r "$hwmon/name" ]] && [[ "$(cat "$hwmon/name" 2>/dev/null)" == "coretemp" ]]; then
+            if [[ -r "$hwmon/temp1_input" ]]; then
+                echo "$hwmon/temp1_input"
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
+# Find x86_pkg_temp thermal zone
+find_pkg_temp() {
+    for zone in /sys/class/thermal/thermal_zone*; do
+        if [[ -r "$zone/type" ]] && [[ "$(cat "$zone/type" 2>/dev/null)" == "x86_pkg_temp" ]]; then
+            echo "$zone/temp"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Main setup
+echo "Setting up temperature sensor for waybar..."
+
+# Find best paths
+CORETEMP=$(find_coretemp)
+PKG_TEMP=$(find_pkg_temp)
+
+# Create hwmon-path array
+PATHS=()
+[[ -n "$CORETEMP" ]] && PATHS+=("\"$CORETEMP\"")
+[[ -n "$PKG_TEMP" ]] && PATHS+=("\"$PKG_TEMP\"")
+PATHS+=("\"/sys/class/thermal/thermal_zone0/temp\"")
+
+# Join paths with commas
+HWMON_PATHS=$(IFS=','; echo "${PATHS[*]}")
+
+# Update Modules file
+if [[ -f "$WAYBAR_MODULES" ]]; then
+    # Backup original
+    cp "$WAYBAR_MODULES" "$WAYBAR_MODULES.backup"
+
+    # Replace hwmon-path section
+    sed -i '/hwmon-path/,/]/c\
+	"hwmon-path": [\
+		'"$HWMON_PATHS"'\
+	],' "$WAYBAR_MODULES"
+
+    echo "✓ Updated waybar temperature configuration"
+    echo "Paths: $HWMON_PATHS"
+else
+    echo "✗ Waybar Modules file not found: $WAYBAR_MODULES"
+fi
+
+# Test current temp
+if [[ -n "$CORETEMP" ]]; then
+    TEMP=$(($(cat "$CORETEMP") / 1000))
+    echo "Current CPU temp: ${TEMP}°C"
+fi

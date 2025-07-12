@@ -1,0 +1,19 @@
+#custom-dropbox {
+    padding: 0px 8px;
+}
+#custom-dropbox.running {
+    color: #8888ff;
+}
+#custom-dropbox.syncing {
+    color: #ffff33;
+    animation: blinker 1.5s linear infinite;
+}
+#custom-dropbox.stopped {
+    color: #999999;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0.5;
+    }
+}

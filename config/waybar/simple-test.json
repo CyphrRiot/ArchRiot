@@ -1,0 +1,8 @@
+{
+"custom/apps": {
+    "interval": 1,
+    "exec": "echo 'BRAVE: ' && hyprctl clients -j | grep -c \"class.*brave\" || echo 0",
+    "format": "Brave Count: {}",
+    "on-click": "hyprctl hyprpaper"
+}
+}
