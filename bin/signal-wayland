@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# ==============================================================================
+# Signal Wayland Launcher
+# ==============================================================================
+# Forces Signal to run with native Wayland support instead of XWayland
+# ==============================================================================
+
+# Force Wayland backend for Electron apps
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
+export MOZ_ENABLE_WAYLAND=1
+export GDK_BACKEND=wayland
+export QT_QPA_PLATFORM=wayland
+export SDL_VIDEODRIVER=wayland
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# Electron-specific Wayland flags
+export ELECTRON_OZONE_PLATFORM_HINT=wayland
+export ELECTRON_IS_DEV=0
+export ELECTRON_FORCE_IS_PACKAGED=true
+
+# Improve theme integration for Electron
+export GTK_THEME="Adwaita:dark"
+export QT_STYLE_OVERRIDE="Adwaita-Dark"
+export XCURSOR_THEME="Adwaita"
+
+# Force dark theme preference
+export GTK_APPLICATION_PREFER_DARK_THEME=1
+export QT_QPA_PLATFORMTHEME=gtk3
+
+# Ensure proper client-side decorations
+export GDK_USE_CSD=1
+
+# Disable X11 fallback to ensure native Wayland
+export GDK_SCALE=1
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_WAYLAND_FORCE_DPI=physical
+
+# Launch Signal with Wayland flags and all arguments passed through
+exec signal-desktop --enable-features=UseOzonePlatform,WaylandWindowDecorations,WebRTCPipeWireCapturer --ozone-platform=wayland --enable-wayland-ime --gtk-version=4 "$@"
