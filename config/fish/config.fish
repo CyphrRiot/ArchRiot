@@ -2,10 +2,12 @@
 # Dependency-Free Fish Configuration with Git Integration
 # =============================================================================
 
-# Greeting with fastfetch if available
+# Greeting with fastfetch if available - with delay for terminal sizing
 function fish_greeting
     if command -v fastfetch >/dev/null 2>&1
-        fastfetch --logo arch
+        # Small delay to ensure terminal is fully sized
+        sleep 0.1
+        command fastfetch --logo-width 20 --logo arch
     end
 end
 
@@ -58,3 +60,6 @@ end
 
 # Vim alias to nvim
 alias vim='nvim'
+
+# Fastfetch with correct logo width
+alias fastfetch='command fastfetch --logo-width 20'

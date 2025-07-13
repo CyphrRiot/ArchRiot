@@ -7,7 +7,7 @@ setup_packages() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install essentials (critical)
-    local essentials="wget curl unzip inetutils git neovim kitty"
+    local essentials="wget curl unzip inetutils git neovim ghostty ghostty-shell-integration"
     yay -S --noconfirm --needed $essentials || return 1
 
     # Install shell tools (best effort)
@@ -63,7 +63,7 @@ show_summary() {
     echo ""
     echo "🎉 Terminal and shell setup complete!"
     echo ""
-    echo "📋 Installed: Fish shell, modern CLI tools, Kitty terminal, Neovim"
+    echo "📋 Installed: Fish shell, modern CLI tools, Ghostty terminal, Neovim"
     echo "✨ Features: Ω prompt, Git integration, Fastfetch greeting, vim→nvim alias"
     echo "🚀 Quick start: Type 'fish' to test or log out/in for default shell"
 

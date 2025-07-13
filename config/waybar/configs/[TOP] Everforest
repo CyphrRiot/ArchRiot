@@ -24,7 +24,7 @@
 
 "modules-left": [
   "custom/arch",
-	"custom/separator#blank_2", 
+	"custom/separator#blank_2",
 	"hyprland/workspaces#rw",
 	"custom/separator#blank_2",
 //	"mpris",
@@ -124,7 +124,7 @@
 	"format-alt-click": "click",
 	"tooltip": true,
 	"tooltip-format": "Ram    {used:0.1f}GB/{total:0.1f}G",
-	"on-click-right": "kitty --title btop sh -c 'btop'"
+	"on-click-right": "ghostty --title btop sh -c 'btop'"
 },
 "temperature#forest": {
 	"interval": 10,
@@ -140,7 +140,6 @@
 	"format-icons": [
 		" 󰈸"
 	],
-	"on-click-right": "kitty --title nvtop sh -c 'nvtop'"
+	"on-click-right": "ghostty --title nvtop sh -c 'nvtop'"
 },
 }
-

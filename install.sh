@@ -87,8 +87,15 @@ readarray -t installers < <(get_installer_files)
 total=${#installers[@]}
 current=0
 
+# Read version
+OMARCHY_VERSION="unknown"
+if [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
+    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
+fi
+
 echo "🚀 Starting OhmArchy Installation (Modular Structure)"
 echo "===================================================="
+echo "Version: $OMARCHY_VERSION"
 echo "Total installers: $total"
 echo "Start time: $(date)"
 echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless ✓"; else echo "Will prompt for password"; fi)"
@@ -206,6 +213,7 @@ fi
 
 echo "================================="
 echo "🎉 OhmArchy installation complete!"
+echo "Version: $OMARCHY_VERSION"
 echo "Completed at: $(date)"
 
 # Clean up temporary passwordless sudo

@@ -215,18 +215,18 @@ test_thunar_thumbnails() {
 test_terminal_configuration() {
     print_test "Terminal configuration"
 
-    # Check kitty config
-    if [[ -f ~/.config/kitty/current-theme.conf ]]; then
-        test_pass "Kitty theme config exists"
+    # Check ghostty config
+    if [[ -f ~/.config/ghostty/config ]]; then
+        test_pass "Ghostty config exists"
 
         # Check background color
-        if grep -q "#0f1016" ~/.config/kitty/current-theme.conf; then
-            test_pass "Kitty has dark background (#0f1016)"
+        if grep -q "background.*=" ~/.config/ghostty/config; then
+            test_pass "Ghostty has background color configured"
         else
-            test_warn "Kitty background may not be optimal"
+            test_warn "Ghostty background may not be optimal"
         fi
     else
-        test_fail "Kitty theme config missing"
+        test_fail "Ghostty config missing"
     fi
 }
 

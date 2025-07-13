@@ -1,0 +1,25 @@
+# OhmArchy Ghostty Terminal Configuration
+# Integrates with OhmArchy theme system for consistent styling
+
+# Import theme colors from current theme
+config-file = ~/.config/ghostty/current-theme.conf
+
+# Font configuration
+font-family = "CaskaydiaMono Nerd Font"
+font-size = 14
+
+# Window settings
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = false
+gtk-single-instance = false
+gtk-adwaita = false
+window-width = 120
+
+# Terminal behavior
+command = /usr/bin/fish
+cursor-style = block
+cursor-style-blink = true
+scrollback-limit = 10000
+mouse-hide-while-typing = true
+copy-on-select = false

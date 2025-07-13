@@ -35,7 +35,7 @@ background=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n
 }
 
 # Reload components
-touch "$HOME/.config/kitty/kitty.conf"  # Use kitty instead of alacritty
+touch "$HOME/.config/ghostty/config"  # Use ghostty instead of kitty
 pkill -SIGUSR2 waybar 2>/dev/null
 makoctl reload 2>/dev/null
 hyprctl reload 2>/dev/null

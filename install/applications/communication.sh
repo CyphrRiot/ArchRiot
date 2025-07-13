@@ -10,9 +10,7 @@
 yay -S --noconfirm --needed \
     brave-bin
 
-# Terminal already installed in core, but ensure kitty available
-yay -S --noconfirm --needed \
-    kitty
+
 
 # Source web2app function for creating web application launchers
 source ~/.local/share/omarchy/default/bash/functions

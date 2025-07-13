@@ -32,7 +32,7 @@ This theme extracts and harmonizes the colors from your current setup:
 
 ### Applications Themed:
 
-- **Kitty** - Terminal emulator with custom color scheme
+- **Ghostty** - Terminal emulator with custom color scheme
 - **BTOp** - System monitor with gradient themes
 - **Hyprland** - Window manager with purple borders and effects
 - **Hyprlock** - Lock screen with purple accents
