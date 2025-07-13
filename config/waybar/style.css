@@ -552,47 +552,45 @@ label:focus {
     margin: 0 5px;
     padding: 0 8px;
     border-radius: 8px;
-    background: transparent !important;
-    background-color: transparent !important;
     transition: all 0.2s ease;
 }
 
 #custom-mic.muted {
     color: #7aa2f7; /* Dark blue when muted (like tray parentheses) */
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 #custom-mic:hover {
-    background: rgba(158, 206, 106, 0.2) !important;
-    background-color: rgba(158, 206, 106, 0.2) !important;
+    background: rgba(158, 206, 106, 0.2);
+    background-color: rgba(158, 206, 106, 0.2);
 }
 
 #custom-mic.muted:hover {
-    background: rgba(122, 162, 247, 0.2) !important;
-    background-color: rgba(122, 162, 247, 0.2) !important;
+    background: rgba(122, 162, 247, 0.2);
+    background-color: rgba(122, 162, 247, 0.2);
 }
 
 /* Additional specific selectors to override any inherited styles */
 .modules-right #custom-mic {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 .modules-right #custom-mic.muted {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 /* Override any widget-level background inheritance */
 widget > #custom-mic {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 widget > #custom-mic.muted {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 /* Arch logo styling */
