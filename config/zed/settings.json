@@ -1,0 +1,136 @@
+{
+    "icon_theme": "Catppuccin Mocha",
+    "agent": {
+        "inline_assistant_model": {
+            "provider": "zed.dev",
+            "model": "claude-sonnet-4-thinking"
+        },
+        "always_allow_tool_actions": true,
+        "default_profile": "write",
+        "default_model": {
+            "provider": "zed.dev",
+            "model": "claude-sonnet-4"
+        }
+    },
+    "language_models": {
+        "ollama": {
+            "api_url": "http://localhost:11434",
+            "available_models": [
+                {
+                    "name": "open-llama-3b",
+                    "display_name": "OpenLlama-3B-INT4 Local",
+                    "max_tokens": 4096,
+                    "supports_tools": true
+                },
+                {
+                    "name": "Qwen3",
+                    "display_name": "Qwen3 Local",
+                    "max_tokens": 4096,
+                    "supports_tools": true
+                },
+                {
+                    "name": "qwen2.5-coder",
+                    "display_name": "Qwen",
+                    "max_tokens": 32768,
+                    "supports_tools": true
+                }
+            ]
+        }
+    },
+    "features": {
+        "edit_prediction_provider": "zed"
+    },
+    "show_edit_predictions": false,
+    "edit_predictions": {
+        "disabled_globs": [".env", "bitbuild"]
+    },
+    "lsp": {
+        "clangd": {
+            "binary": {
+                "ignore_system_version": true
+            }
+        }
+    },
+    "languages": {
+        "Shell Script": {
+            "show_edit_predictions": false
+        },
+        "Markdown": {
+            "show_edit_predictions": false
+        },
+        "JSON": {
+            "show_edit_predictions": false
+        },
+        "JSONC": {
+            "show_edit_predictions": false
+        },
+        "Go": {
+            "show_edit_predictions": true
+        }
+    },
+    "cursor_blink": false,
+    "relative_line_numbers": false,
+    "unnecessary_code_fade": 50,
+    "hover_popover_delay": 500,
+    "cursor_shape": "hollow",
+    "scrollbar": {
+        "show": "never"
+    },
+    "vertical_scroll_margin": 0,
+    "tab_bar": {
+        "show": true
+    },
+    "toolbar": {
+        "breadcrumbs": true,
+        "quick_actions": false
+    },
+    "format_on_save": "on",
+    "auto_signature_help": true,
+    "current_line_highlight": "gutter",
+    "autosave": "on_focus_change",
+    "tab_size": 4,
+    "hard_tabs": false,
+    "wrap_guides": [120, 121],
+    "show_wrap_guides": false,
+    "soft_wrap": "editor_width",
+    "buffer_font_family": "Noto Sans Mono",
+    "buffer_font_size": 16,
+    "ui_font_size": 16,
+    "buffer_line_height": "comfortable",
+    "terminal": {
+        "font_family": "Noto Sans Mono",
+        "font_size": 16,
+        "line_height": "standard",
+        "env": {
+            "EDITOR": "zed --wait"
+        },
+        "dock": "right"
+    },
+    "tabs": {
+        "file_icons": true
+    },
+    "theme": "Ayu Dark",
+    "experimental.theme_overrides": {
+        "editor.gutter.background": "#000005",
+        "panel.background": "#000005",
+        "background.appearance": "opaque",
+        "toolbar.background": "#0000009",
+        "editor.indent_guide": "#000002",
+        "syntax": {
+            "comment": { "color": "#4d6878" },
+            "string": { "color": "#9d7dd8" }
+        }
+    },
+    "file_scan_exclusions": [
+        "**/.git*",
+        "**/.golang*",
+        "**/.cursor*",
+        "go.sum",
+        "**/backups",
+        "**/old_wallets"
+    ],
+    "telemetry": {
+        "diagnostics": false,
+        "metrics": false
+    }
+}
