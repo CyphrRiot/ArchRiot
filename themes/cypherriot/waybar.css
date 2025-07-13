@@ -553,24 +553,20 @@ label:focus {
     margin: 0 5px;
     padding: 0 8px;
     border-radius: 8px;
-    background: transparent;
     background-color: transparent;
     transition: all 0.2s ease;
 }
 
 #custom-mic.muted {
     color: #7aa2f7; /* Dark blue when muted (like tray parentheses) */
-    background: transparent;
     background-color: transparent;
 }
 
 #custom-mic:hover {
-    background: transparent;
     background-color: transparent;
 }
 
 #custom-mic.muted:hover {
-    background: transparent;
     background-color: transparent;
 }
 
