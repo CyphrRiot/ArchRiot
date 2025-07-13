@@ -1,5 +1,7 @@
 # OhmArchy
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
 **A customized Arch Linux setup based on Omarchy, optimized for the CypherRiot workflow.**
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
@@ -80,7 +82,7 @@ This comprehensive test validates:
 ### Theme & Appearance
 
 ```bash
-omarchy-theme-next                    # Switch to next theme
+ohmarchy-theme-next                   # Switch to next theme
 SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
 SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ```
@@ -88,7 +90,7 @@ SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ### System Management
 
 ```bash
-omarchy-update                       # Update system packages
+ohmarchy-update                      # Update system packages
 migrate                              # Backup/restore system (interactive TUI)
 sudo systemctl reboot               # Restart system
 sudo systemctl poweroff             # Shutdown system
@@ -97,7 +99,8 @@ sudo systemctl poweroff             # Shutdown system
 ### Applications (Keybinds)
 
 ```bash
-SUPER + RETURN                       # Open terminal (Kitty)
+SUPER + RETURN                       # Open terminal (Ghostty)
+SUPER + SHIFT + RETURN               # Centered floating terminal
 SUPER + D  or  SUPER + SPACE         # App launcher (wofi)
 SUPER + F                            # File manager (Thunar)
 SUPER + B                            # Browser (Brave)
@@ -163,16 +166,16 @@ Click network icon                  # Open network manager
 ### Fix Scripts (If Needed)
 
 ```bash
-omarchy-fix-thunar-thumbnails        # Fix thumbnail generation
-omarchy-fix-background               # Fix theme backgrounds
-omarchy-fix-waybar-theme             # Fix waybar styling
+ohmarchy-fix-thunar-thumbnails       # Fix thumbnail generation
+ohmarchy-fix-background              # Fix theme backgrounds
+ohmarchy-fix-waybar-theme            # Fix waybar styling
 ```
 
 ## 🎯 Key Customizations
 
 ### 🔧 **Core System Changes**
 
-- **Terminal:** Kitty (replaces Alacritty) with 90% transparency and dark theme
+- **Terminal:** Ghostty (replaces Kitty) with 90% transparency and dark theme
 - **Browser:** Brave (replaces Chromium) with native Wayland support
 - **File Manager:** Thunar (replaces Nautilus) with comprehensive dark theming
 - **Shell:** Fish as default (replaces Bash) with proper PATH configuration
@@ -301,7 +304,7 @@ OhmArchy provides automatic GPU detection and driver installation for all major 
 ### Updates
 
 ```bash
-omarchy-update
+ohmarchy-update
 ```
 
 Updates system packages and applies any available OhmArchy migrations.
@@ -337,7 +340,7 @@ OhmArchy includes multiple themes with CypherRiot as the default:
 
 ### Theme Management
 
-- **Switch themes:** `omarchy-theme-next` or manually symlink
+- **Switch themes:** `ohmarchy-theme-next` or manually symlink
 - **Theme location:** `~/.config/omarchy/current/theme`
 - **Backgrounds:** Automatically matched to theme with time-based variants
 
@@ -427,7 +430,7 @@ After installation completes, verify everything is working correctly:
 The installer automatically runs a post-installation check. If you need to run it manually:
 
 ```bash
-~/.local/share/omarchy/bin/omarchy-post-install-check
+~/.local/share/omarchy/bin/ohmarchy-post-install-check
 ```
 
 ### Manual Verification
@@ -443,7 +446,7 @@ ls ~/.config/omarchy/current/background # Should show escape_velocity.jpg
 SUPER + CTRL + SPACE                   # Should cycle through 6 backgrounds
 
 # Test theme switching
-omarchy-theme-next                     # Should switch to next theme
+ohmarchy-theme-next                    # Should switch to next theme
 
 # Verify waybar
 pgrep waybar                          # Should show running process
@@ -482,11 +485,11 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-
 ## 🛠️ Management Tools
 
 ```bash
-omarchy-update                       # Update system packages
-omarchy-theme-next                   # Switch to next theme
-omarchy-fix-background               # Reset background system
-omarchy-fix-waybar-theme             # Reset waybar styling
-omarchy-validate-system              # Check system health
+ohmarchy-update                      # Update system packages
+ohmarchy-theme-next                  # Switch to next theme
+ohmarchy-fix-background              # Reset background system
+ohmarchy-fix-waybar-theme            # Reset waybar styling
+ohmarchy-validate-system             # Check system health
 ```
 
 ## 📂 Repository Information

@@ -37,9 +37,18 @@ print_status() {
 
 # Header
 print_header() {
+    # Read version
+    local version="unknown"
+    if [[ -f "./VERSION" ]]; then
+        version=$(cat "./VERSION" 2>/dev/null || echo "unknown")
+    elif [[ -f "$HOME/.local/share/omarchy/VERSION" ]]; then
+        version=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
+    fi
+
     echo -e "${PURPLE}"
     echo "============================================================"
     echo "           OhmArchy Installation Validation"
+    echo "                     Version: $version"
     echo "============================================================"
     echo -e "${NC}"
     echo "This script validates that OhmArchy will install successfully"
@@ -149,6 +158,8 @@ test_installation_files() {
         "install/core/01-base.sh"
         "install/desktop/hyprland.sh"
         "install/desktop/theming.sh"
+        "config/ghostty/config"
+        "config/fish/config.fish"
         "themes/cypherriot/config"
         "themes/cypherriot/backgrounds.sh"
     )
@@ -186,6 +197,7 @@ test_cypherriot_theme() {
         "hyprlock.conf"
         "wofi.css"
         "neovim.lua"
+        "ghostty.conf"
         "backgrounds/escape_velocity.jpg"
     )
 
@@ -286,7 +298,8 @@ test_package_availability() {
     local critical_packages=(
         "hyprland"
         "waybar"
-        "kitty"
+        "ghostty"
+        "ghostty-shell-integration"
         "fish"
         "git"
         "curl"
@@ -318,10 +331,23 @@ test_package_availability() {
 test_installation_simulation() {
     print_status "TEST" "Simulating critical installation steps..."
 
-    # Test git clone (in tmp)
+    # Test using local repo if available, otherwise clone from GitHub
     local test_dir="/tmp/omarchy-validation-$$"
-    if git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
+    local using_local=false
+
+    # Check if we're running from within the OhmArchy repo
+    if [[ -f "./config/ghostty/config" && -f "./config/fish/config.fish" && -f "./install.sh" ]]; then
+        print_status "PASS" "Using local OhmArchy repository for validation"
+        test_dir="."
+        using_local=true
+    elif git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
         print_status "PASS" "Repository clone simulation successful"
+    else
+        print_status "FAIL" "Repository clone simulation failed"
+        return 1
+    fi
+
+    if [[ "$using_local" == "true" || -d "$test_dir" ]]; then
 
         # Test if install.sh exists and is executable
         if [[ -x "$test_dir/install.sh" ]]; then
@@ -337,10 +363,23 @@ test_installation_simulation() {
             print_status "FAIL" "CypherRiot theme files missing in clone"
         fi
 
-        rm -rf "$test_dir"
-    else
-        print_status "FAIL" "Repository clone simulation failed"
-        return 1
+        # Test Ghostty config
+        if [[ -f "$test_dir/config/ghostty/config" ]]; then
+            print_status "PASS" "Ghostty config present in clone"
+        else
+            print_status "FAIL" "Ghostty config missing in clone"
+        fi
+
+        # Test Fish config with fastfetch fix
+        if [[ -f "$test_dir/config/fish/config.fish" ]] && grep -q "sleep 0.1" "$test_dir/config/fish/config.fish"; then
+            print_status "PASS" "Fish config with fastfetch timing fix present"
+        else
+            print_status "FAIL" "Fish config with fastfetch timing fix missing"
+        fi
+
+        if [[ "$using_local" == "false" ]]; then
+            rm -rf "$test_dir"
+        fi
     fi
 
     # Test directory creation
@@ -362,19 +401,20 @@ test_expected_outcome() {
     print_status "INFO" "  • Hyprland Wayland compositor"
     print_status "INFO" "  • CypherRiot theme with purple/blue aesthetics"
     print_status "INFO" "  • Waybar with custom modules (tomato timer, VPN status, etc.)"
-    print_status "INFO" "  • Kitty terminal with Fish shell"
+    print_status "INFO" "  • Ghostty terminal with Fish shell and fastfetch greeting"
+    print_status "INFO" "  • Floating terminal support (SUPER+SHIFT+RETURN)"
     print_status "INFO" "  • Multiple wallpapers including escape_velocity.jpg default"
     print_status "INFO" "  • Auto-login to Hyprland from TTY1"
     print_status "INFO" "  • Blue light filter (hyprsunset) at 3500K (if enabled during install)"
 
     # Check if system is already configured
     if [[ -f "$HOME/.config/hypr/hyprland.conf" ]]; then
-        print_status "INFO" "Hyprland config already exists - this may be a re-install"
+        print_status "INFO" " Hyprland config already exists - this may be a re-install"
     fi
 
     if [[ -L "$HOME/.config/omarchy/current/theme" ]]; then
         local current_theme=$(basename "$(readlink "$HOME/.config/omarchy/current/theme")")
-        print_status "INFO" "Current theme already set: $current_theme"
+        print_status "INFO" " Current theme already set: $current_theme"
     fi
 }
 

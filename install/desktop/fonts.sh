@@ -8,7 +8,7 @@ install_fonts() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install system fonts via package manager
-    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra"
+    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation"
     yay -S --noconfirm --needed $system_fonts || echo "⚠ Some system fonts may have failed"
 
     echo "✓ System fonts installed"

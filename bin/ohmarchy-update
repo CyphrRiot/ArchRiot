@@ -20,6 +20,10 @@ fi
 
 # Update OhmArchy repository
 echo "⬇️  Pulling latest OhmArchy changes..."
+
+# Ensure remote points to correct fork
+git remote set-url origin https://github.com/CyphrRiot/OhmArchy.git 2>/dev/null || true
+
 if git pull origin master; then
     echo "✓ Repository updated successfully"
 else
