@@ -70,7 +70,7 @@ get_installer_files() {
                 skip_file=true ;;
             "development.sh"|"nvim.sh"|"docker.sh")
                 skip_file=true ;;
-            "xtras.sh"|"webapps.sh")
+            "xtras.sh")
                 skip_file=true ;;
         esac
 

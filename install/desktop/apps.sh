@@ -72,7 +72,7 @@ install_session_utilities() {
     local session_packages=(
         "wl-clip-persist"   # Clipboard persistence
         "gnome-keyring"     # Credential storage
-        "hyprsunset"        # Blue light filter
+        "hyprsunset"        # Blue light filter (theming.sh controls usage)
     )
 
     for package in "${session_packages[@]}"; do
