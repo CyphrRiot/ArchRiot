@@ -19,5 +19,17 @@ export GDK_SCALE=1
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_WAYLAND_FORCE_DPI=physical
 
+# Improve theme integration
+export GTK_THEME="Adwaita:dark"
+export QT_STYLE_OVERRIDE="Adwaita-Dark"
+export XCURSOR_THEME="Adwaita"
+
+# Force dark theme preference
+export GTK_APPLICATION_PREFER_DARK_THEME=1
+export QT_QPA_PLATFORMTHEME=gtk3
+
+# Ensure proper client-side decorations
+export GDK_USE_CSD=1
+
 # Launch Zed with all arguments passed through
 exec zeditor "$@"
