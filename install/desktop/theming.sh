@@ -87,6 +87,9 @@ configure_gtk_settings() {
         gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark" 2>/dev/null || true
         gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" 2>/dev/null || true
 
+        # Set window manager theme to match GTK theme (prevents grey-brown borders)
+        gsettings set org.gnome.desktop.wm.preferences theme "Adwaita-dark" 2>/dev/null || true
+
         # Set icon theme
         gsettings set org.gnome.desktop.interface icon-theme "kora" 2>/dev/null || true
 
