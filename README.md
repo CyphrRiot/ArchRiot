@@ -49,6 +49,24 @@ git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy
 ~/.local/share/omarchy/install.sh
 ```
 
+### Optional: Pre-Installation Validation
+
+Want confidence before installing? Run the validation script to test compatibility:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-installation.sh | bash
+```
+
+This comprehensive test validates:
+
+- System requirements (Arch Linux, internet, disk space)
+- Package availability (Hyprland, Waybar, etc.)
+- GPU compatibility and Wayland support
+- Repository accessibility and theme integrity
+- User environment and permissions
+
+**Results**: Pass/fail report with specific guidance before you commit to installation.
+
 ### Installation Features
 
 - **Automatic backup** - Creates timestamped backup of existing configs
@@ -376,6 +394,26 @@ After fresh installation, you should see:
 - **PDF files:** Show proper document icons (not thumbnails)
 - **Image files:** Show thumbnail previews in Thunar
 - **Waybar:** Running with tomato timer, system stats, and transparent microphone button
+
+## 🧪 Validation & Testing
+
+### Pre-Installation Validation
+
+Before installing, you can run a comprehensive validation script:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-installation.sh | bash
+```
+
+**What it tests:**
+
+- System compatibility (Arch Linux, hardware, drivers)
+- Internet connectivity and package availability
+- Repository accessibility and file integrity
+- Wayland/Hyprland compatibility
+- Theme files and expected installation outcome
+
+**Results**: Detailed pass/fail report with 30+ validation checks
 
 ## 🛠️ Management Tools
 
