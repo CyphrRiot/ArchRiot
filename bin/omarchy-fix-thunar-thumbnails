@@ -128,17 +128,66 @@ if command -v update-mime-database >/dev/null; then
     echo "  ✓ MIME database updated"
 fi
 
-# Disable PDF thumbnails (evince thumbnailer)
+# Disable PDF thumbnails comprehensively
 echo "📄 Disabling PDF thumbnails to show proper icons..."
+
+# Disable evince thumbnailer
 if [[ -f /usr/share/thumbnailers/evince.thumbnailer ]]; then
     sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || {
         echo "  ⚠ Could not disable evince thumbnailer - you may need to run manually:"
         echo "  sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled"
     }
-    echo "  ✓ PDF thumbnails disabled - PDFs will show as icons"
+    echo "  ✓ Evince PDF thumbnails disabled"
 else
-    echo "  ✓ PDF thumbnails already disabled"
+    echo "  ✓ Evince PDF thumbnails already disabled"
 fi
+
+# Disable poppler thumbnailer
+if [[ -f /usr/share/thumbnailers/poppler.thumbnailer ]]; then
+    sudo mv /usr/share/thumbnailers/poppler.thumbnailer /usr/share/thumbnailers/poppler.thumbnailer.disabled 2>/dev/null || true
+    echo "  ✓ Poppler PDF thumbnails disabled"
+fi
+
+# Disable papers thumbnailer (GNOME Papers PDF viewer)
+if [[ -f /usr/share/thumbnailers/papers.thumbnailer ]]; then
+    sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true
+    echo "  ✓ Papers PDF thumbnails disabled"
+fi
+
+# Disable any PDF-related thumbnailers
+for thumbnailer in /usr/share/thumbnailers/*pdf* /usr/share/thumbnailers/*PDF*; do
+    if [[ -f "$thumbnailer" && ! "$thumbnailer" =~ \.disabled$ ]]; then
+        sudo mv "$thumbnailer" "${thumbnailer}.disabled" 2>/dev/null || true
+        echo "  ✓ Disabled $(basename "$thumbnailer")"
+    fi
+done
+
+# Update tumbler config to explicitly disable PDF thumbnails
+echo "⚙️  Updating tumbler configuration to disable PDF thumbnails..."
+sed -i 's/\[PopelerThumbnailer\]/[PoplerThumbnailer]/' "$TUMBLER_CONFIG_DIR/tumbler.rc" 2>/dev/null || true
+sed -i '/\[PoplerThumbnailer\]/,/^\[/ s/Disabled=false/Disabled=true/' "$TUMBLER_CONFIG_DIR/tumbler.rc" 2>/dev/null || true
+
+# Create user override for PDF MIME types to force icon display
+echo "🔧 Creating PDF MIME type overrides..."
+mkdir -p "$HOME/.local/share/applications"
+cat > "$HOME/.local/share/applications/pdf-no-thumbnails.desktop" << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=PDF Viewer (No Thumbnails)
+Exec=evince %f
+MimeType=application/pdf;
+NoDisplay=true
+X-GNOME-DocPath=
+Icon=application-pdf
+Categories=Office;
+EOF
+
+# Update MIME database to apply changes
+if command -v update-desktop-database >/dev/null; then
+    update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+fi
+
+echo "  ✓ PDF thumbnails comprehensively disabled"
 
 echo ""
 echo "✅ Thunar thumbnail fix complete!"

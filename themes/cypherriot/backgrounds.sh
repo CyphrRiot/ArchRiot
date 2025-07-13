@@ -7,6 +7,9 @@ BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
 
 mkdir -p "$BACKGROUNDS_DIR/cypherriot"
 
+# Clear existing backgrounds to prevent duplicates
+rm -f "$BACKGROUNDS_DIR/cypherriot"/*.jpg "$BACKGROUNDS_DIR/cypherriot"/*.png 2>/dev/null || true
+
 # Copy escape velocity wallpaper as default (already in repo)
 cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/escape_velocity.jpg "$BACKGROUNDS_DIR/cypherriot/1-escape_velocity.jpg"
 

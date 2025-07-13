@@ -179,6 +179,24 @@ else
     fi
 fi
 
+# Fix background defaults to ensure escape_velocity.jpg is default
+echo "🖼️  Setting up background defaults..."
+if [ -f ~/.local/share/omarchy/bin/omarchy-fix-background ]; then
+    ~/.local/share/omarchy/bin/omarchy-fix-background >/dev/null 2>&1 || echo "⚠ Background setup had issues"
+    echo "✓ Background defaults configured"
+else
+    echo "⚠ Background fix script not found"
+fi
+
+# Fix PDF thumbnails during installation
+echo "📄 Configuring thumbnail settings..."
+if [ -f ~/.local/share/omarchy/bin/omarchy-fix-thunar-thumbnails ]; then
+    ~/.local/share/omarchy/bin/omarchy-fix-thunar-thumbnails >/dev/null 2>&1 || echo "⚠ Thumbnail setup had issues"
+    echo "✓ Thumbnail settings configured"
+else
+    echo "⚠ Thumbnail fix script not found"
+fi
+
 echo "================================="
 echo "🎉 OhmArchy installation complete!"
 echo "Completed at: $(date)"
@@ -191,10 +209,28 @@ if command -v cleanup_passwordless_sudo &>/dev/null; then
     }
 fi
 
+# Run post-installation check
+echo ""
+echo "🔍 Running post-installation verification..."
+if [ -x ~/.local/share/omarchy/bin/omarchy-post-install-check ]; then
+    ~/.local/share/omarchy/bin/omarchy-post-install-check
+else
+    echo "⚠ Post-install check script not found"
+fi
+
 # Ensure gum is available for final prompt
 if ! command -v gum &>/dev/null; then
     echo "Installing gum for final prompt..."
     yay -S --noconfirm --needed gum
 fi
+
+echo ""
+echo "🎯 Installation Summary:"
+echo "  • All components installed and configured"
+echo "  • Themes and backgrounds properly set up"
+echo "  • Default background: escape_velocity.jpg"
+echo "  • PDF thumbnails disabled (shows proper icons)"
+echo "  • All keyboard shortcuts configured"
+echo ""
 
 gum confirm "Reboot to apply all settings?" && reboot

@@ -204,11 +204,25 @@ setup_theme_backgrounds() {
     if [[ -d "$bg_dir" ]]; then
         ln -snf "$bg_dir" ~/.config/omarchy/current/backgrounds
 
-        # Set default background (first available)
-        local first_bg=$(find "$bg_dir" -name "*.jpg" -o -name "*.png" | head -1)
-        if [[ -n "$first_bg" ]]; then
-            ln -snf "$first_bg" ~/.config/omarchy/current/background
-            echo "✓ Default background set: $(basename "$first_bg")"
+        # Set default background (escape_velocity.jpg or first available)
+        local default_bg="$bg_dir/1-escape_velocity.jpg"
+        if [[ -f "$default_bg" ]]; then
+            ln -snf "$default_bg" ~/.config/omarchy/current/background
+            echo "✓ Default background set: escape_velocity.jpg"
+        else
+            # Fallback to any escape_velocity variant
+            local escape_bg=$(find "$bg_dir" -name "*escape_velocity*" | head -1)
+            if [[ -n "$escape_bg" ]]; then
+                ln -snf "$escape_bg" ~/.config/omarchy/current/background
+                echo "✓ Default background set: $(basename "$escape_bg")"
+            else
+                # Final fallback to first available
+                local first_bg=$(find "$bg_dir" -name "*.jpg" -o -name "*.png" | head -1)
+                if [[ -n "$first_bg" ]]; then
+                    ln -snf "$first_bg" ~/.config/omarchy/current/background
+                    echo "✓ Default background set: $(basename "$first_bg")"
+                fi
+            fi
         fi
     else
         echo "⚠ Background directory not found for theme: $theme_name"
