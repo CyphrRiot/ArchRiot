@@ -97,6 +97,9 @@ configure_gtk_settings() {
         gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice" 2>/dev/null || true
         gsettings set org.gnome.desktop.interface cursor-size 24 2>/dev/null || true
 
+        # Fix window button layout (ensure close button is on right side)
+        gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close" 2>/dev/null || true
+
         echo "✓ GTK settings configured"
     else
         echo "⚠ gsettings not available, will use environment variables"
