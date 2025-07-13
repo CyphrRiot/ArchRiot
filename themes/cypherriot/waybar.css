@@ -576,3 +576,33 @@ label:focus {
     font-size: 110%;
     padding: 0 5px;
 }
+
+/* Microphone transparency fixes */
+#custom-mic {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+#custom-mic.muted {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+#custom-mic:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+#custom-mic.muted:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Additional specific selectors to override any inherited styles */
+.modules-right #custom-mic,
+.modules-right #custom-mic.muted,
+widget > #custom-mic,
+widget > #custom-mic.muted {
+    background: transparent !important;
+    background-color: transparent !important;
+}
