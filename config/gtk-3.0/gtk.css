@@ -1,0 +1,237 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+ * OhmArchy GTK3 Custom CSS - CypherRiot Theme
+ * Dark theme overrides for Thunar and other GTK applications
+ * ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Thunar File Manager - Dark Theme */
+window.thunar {
+    background-color: #0a0b10;
+    color: #c0caf5;
+}
+
+/* Thunar main content area */
+.thunar .view,
+.thunar treeview,
+.thunar iconview,
+.thunar listview {
+    background-color: #0f1016;
+    color: #c0caf5;
+    border: none;
+}
+
+/* Thunar sidebar */
+.thunar sidebar,
+.thunar .sidebar {
+    background-color: #16161e;
+    color: #a9b1d6;
+    border-right: 1px solid #292e42;
+}
+
+/* Thunar sidebar selected items */
+.thunar sidebar row:selected,
+.thunar .sidebar row:selected {
+    background-color: #7aa2f7;
+    color: #0f1016;
+}
+
+/* Thunar sidebar hover */
+.thunar sidebar row:hover,
+.thunar .sidebar row:hover {
+    background-color: #292e42;
+    color: #c0caf5;
+}
+
+/* Thunar toolbar/headerbar */
+.thunar headerbar,
+.thunar toolbar {
+    background-color: #1a1b26;
+    color: #c0caf5;
+    border-bottom: 1px solid #292e42;
+}
+
+/* Thunar buttons in toolbar */
+.thunar headerbar button,
+.thunar toolbar button {
+    background-color: transparent;
+    color: #a9b1d6;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.thunar headerbar button:hover,
+.thunar toolbar button:hover {
+    background-color: #292e42;
+    color: #c0caf5;
+}
+
+.thunar headerbar button:active,
+.thunar toolbar button:active {
+    background-color: #7aa2f7;
+    color: #0f1016;
+}
+
+/* Thunar location bar */
+.thunar .location-bar,
+.thunar pathbar {
+    background-color: #1a1b26;
+    color: #c0caf5;
+}
+
+/* Thunar pathbar buttons */
+.thunar pathbar button {
+    background-color: transparent;
+    color: #a9b1d6;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.thunar pathbar button:hover {
+    background-color: #292e42;
+    color: #c0caf5;
+}
+
+.thunar pathbar button:active {
+    background-color: #7aa2f7;
+    color: #0f1016;
+}
+
+/* Thunar status bar */
+.thunar statusbar {
+    background-color: #16161e;
+    color: #565f89;
+    border-top: 1px solid #292e42;
+}
+
+/* Thunar scrollbars */
+.thunar scrollbar {
+    background-color: #1a1b26;
+}
+
+.thunar scrollbar slider {
+    background-color: #414868;
+    border-radius: 6px;
+}
+
+.thunar scrollbar slider:hover {
+    background-color: #565f89;
+}
+
+/* Thunar selection */
+.thunar .view:selected,
+.thunar treeview:selected,
+.thunar iconview:selected,
+.thunar listview:selected {
+    background-color: rgba(122, 162, 247, 0.3);
+    color: #c0caf5;
+}
+
+/* Thunar file/folder icons hover */
+.thunar .view:hover,
+.thunar iconview:hover,
+.thunar listview row:hover {
+    background-color: rgba(122, 162, 247, 0.1);
+    color: #c0caf5;
+}
+
+/* Thunar context menus */
+.thunar menu,
+.thunar .menu {
+    background-color: #1a1b26;
+    color: #c0caf5;
+    border: 1px solid #292e42;
+}
+
+.thunar menu separator,
+.thunar .menu separator {
+    background-color: #292e42;
+}
+
+.thunar menu menuitem,
+.thunar .menu menuitem {
+    color: #c0caf5;
+}
+
+.thunar menu menuitem:hover,
+.thunar .menu menuitem:hover {
+    background-color: #7aa2f7;
+    color: #0f1016;
+}
+
+/* Generic GTK dark theme improvements */
+window {
+    background-color: #0f1016;
+    color: #c0caf5;
+}
+
+/* Entry fields (address bar, etc.) */
+entry {
+    background-color: #1a1b26;
+    color: #c0caf5;
+    border: 1px solid #414868;
+    border-radius: 6px;
+}
+
+entry:focus {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 3px rgba(122, 162, 247, 0.3);
+}
+
+/* Generic buttons */
+button {
+    background-color: #292e42;
+    color: #c0caf5;
+    border: 1px solid #414868;
+    border-radius: 6px;
+}
+
+button:hover {
+    background-color: #414868;
+    color: #c0caf5;
+}
+
+button:active {
+    background-color: #7aa2f7;
+    color: #0f1016;
+}
+
+/* Tooltips */
+tooltip {
+    background-color: #1a1b26;
+    color: #c0caf5;
+    border: 1px solid #414868;
+    border-radius: 6px;
+}
+
+/* Progress bars */
+progressbar progress {
+    background-color: #7aa2f7;
+}
+
+progressbar trough {
+    background-color: #292e42;
+}
+
+/* Notebook tabs */
+notebook tab {
+    background-color: #1a1b26;
+    color: #a9b1d6;
+    border: 1px solid #292e42;
+}
+
+notebook tab:checked {
+    background-color: #0f1016;
+    color: #c0caf5;
+}
+
+/* Generic tree/list views */
+treeview,
+listview {
+    background-color: #0f1016;
+    color: #c0caf5;
+}
+
+treeview:selected,
+listview:selected {
+    background-color: rgba(122, 162, 247, 0.3);
+    color: #c0caf5;
+}

@@ -315,6 +315,144 @@ This is a **heavily customized fork** optimized for:
 - **Improved theming** - Consistent dark mode throughout
 - **Advanced backup** - Comprehensive migration capabilities
 
+## 🔍 Post-Installation Validation
+
+After installation completes, verify everything is working correctly:
+
+### Automatic Validation
+
+The installer automatically runs a post-installation check. If you need to run it manually:
+
+```bash
+~/.local/share/omarchy/bin/omarchy-post-install-check
+```
+
+### Manual Verification
+
+Check these key components:
+
+```bash
+# Verify theme system
+ls ~/.config/omarchy/current/theme     # Should show active theme
+ls ~/.config/omarchy/current/background # Should show escape_velocity.jpg
+
+# Test background cycling
+SUPER + CTRL + SPACE                   # Should cycle through 6 backgrounds
+
+# Test theme switching  
+omarchy-theme-next                     # Should switch to next theme
+
+# Verify waybar
+pgrep waybar                          # Should show running process
+```
+
+### Expected Defaults
+
+After fresh installation, you should see:
+
+- **Default theme:** CypherRiot (purple/blue aesthetic)
+- **Default background:** escape_velocity.jpg (space/galaxy scene)
+- **PDF files:** Show proper document icons (not thumbnails)
+- **Image files:** Show thumbnail previews in Thunar
+- **Waybar:** Running with tomato timer, system stats, and transparent microphone button
+
+## 🛠️ Troubleshooting
+
+### Common Issues & Solutions
+
+#### Background Problems
+
+**Issue:** Background stuck on wrong image or not switching
+
+```bash
+# Fix background system
+omarchy-fix-background
+
+# Manually restart background service
+pkill swaybg
+swaybg -i ~/.config/omarchy/current/background -m fill &
+```
+
+#### Waybar Issues
+
+**Issue:** Waybar not starting or CSS errors
+
+```bash
+# Fix waybar theming
+omarchy-fix-waybar-theme
+
+# Restart waybar
+pkill waybar
+waybar &
+```
+
+#### Thumbnail Problems
+
+**Issue:** No thumbnails in file manager or PDFs showing thumbnails instead of icons
+
+```bash
+# Fix thumbnail system
+omarchy-fix-thunar-thumbnails
+
+# Clear thumbnail cache
+rm -rf ~/.cache/thumbnails ~/.thumbnails
+```
+
+#### Theme System Issues
+
+**Issue:** Theme switching not working or broken theme links
+
+```bash
+# Reset theme system
+rm -rf ~/.config/omarchy/current
+mkdir -p ~/.config/omarchy/current
+
+# Set CypherRiot as default
+ln -sf ~/.config/omarchy/themes/cypherriot ~/.config/omarchy/current/theme
+omarchy-fix-background
+```
+
+#### Keyboard Shortcuts Not Working
+
+**Issue:** SUPER+CTRL+SPACE or other shortcuts not responding
+
+```bash
+# Reload Hyprland configuration
+hyprctl reload
+
+# Check if scripts exist
+ls ~/.local/bin/swaybg-next           # Background cycling
+ls ~/.local/bin/omarchy-theme-next    # Theme switching
+```
+
+#### System Validation
+
+**Issue:** Want to check overall system health
+
+```bash
+# Comprehensive system validation
+~/.local/share/omarchy/bin/omarchy-validate-system
+
+# Quick installation check
+~/.local/share/omarchy/bin/omarchy-post-install-check
+```
+
+### System Recovery
+
+If you encounter major issues:
+
+1. **Reboot** - Many issues resolve after restart
+2. **Re-run installer** - Safe to run multiple times
+3. **Check logs** - Look in `~/.config/hypr/hyprland.conf`
+4. **Reset configs** - Backup and regenerate configurations
+
+### Getting Help
+
+1. **Check validation output** - Run post-install check for specific issues
+2. **Review error messages** - Most scripts provide clear feedback
+3. **Check repository issues** - Common problems may have solutions
+4. **Fresh installation** - When in doubt, start clean
+
 ## 📂 Repository Information
 
 - **Main Repository:** https://github.com/CyphrRiot/OhmArchy

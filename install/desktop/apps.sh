@@ -23,6 +23,7 @@ install_system_controls() {
         "pamixer"          # Audio mixer control
         "pavucontrol"      # Audio control GUI
         "wireplumber"      # Audio session manager
+        "xdg-user-dirs"    # XDG folder icons (Downloads, Documents, etc.)
     )
 
     for package in "${control_packages[@]}"; do
@@ -204,7 +205,27 @@ install_vpn_client() {
         echo "⚠ Failed to install Mullvad VPN (privacy features limited)"
     fi
 
-    echo "✓ VPN client setup complete"
+    echo "✅ VPN client setup completed!"
+}
+
+# Setup XDG user directories for proper folder icons
+setup_xdg_directories() {
+    echo "📁 Setting up XDG user directories..."
+
+    # Create standard user directories and configure them
+    if command -v xdg-user-dirs-update >/dev/null 2>&1; then
+        xdg-user-dirs-update
+        echo "✓ XDG user directories configured"
+
+        # Verify the configuration was created
+        if [[ -f "$HOME/.config/user-dirs.dirs" ]]; then
+            echo "✓ XDG configuration file created"
+        else
+            echo "⚠ XDG configuration file not found"
+        fi
+    else
+        echo "⚠ xdg-user-dirs-update not available"
+    fi
 }
 
 # Validate critical applications are working
@@ -342,6 +363,9 @@ main() {
     install_ui_enhancements
     install_media_apps
     install_vpn_client
+
+    # Setup XDG user directories for proper folder icons
+    setup_xdg_directories
 
     # Validate installation
     validate_desktop_apps || {
