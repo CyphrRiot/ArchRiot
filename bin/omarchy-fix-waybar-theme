@@ -63,23 +63,23 @@ CSS_FIX=$(cat << 'EOF'
 
 /* Microphone transparency fixes */
 #custom-mic {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 #custom-mic.muted {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 #custom-mic:hover {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 #custom-mic.muted:hover {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 /* Additional specific selectors to override any inherited styles */
@@ -87,8 +87,8 @@ CSS_FIX=$(cat << 'EOF'
 .modules-right #custom-mic.muted,
 widget > #custom-mic,
 widget > #custom-mic.muted {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 EOF
 )
@@ -106,12 +106,12 @@ if [[ -f "$THEME_WAYBAR_CSS" ]]; then
     echo "🔧 Updating theme source CSS for consistency..."
 
     # Use sed to replace microphone background properties
-    sed -i 's/background: rgba([^)]*)/background: transparent !important/g' "$THEME_WAYBAR_CSS"
-    sed -i 's/background-color: rgba([^)]*)/background-color: transparent !important/g' "$THEME_WAYBAR_CSS"
+    sed -i 's/background: rgba([^)]*)/background: transparent/g' "$THEME_WAYBAR_CSS"
+    sed -i 's/background-color: rgba([^)]*)/background-color: transparent/g' "$THEME_WAYBAR_CSS"
 
     # Specifically target custom-mic sections
-    sed -i '/^#custom-mic/,/^}/ s/background: [^;]*/background: transparent !important/g' "$THEME_WAYBAR_CSS"
-    sed -i '/^#custom-mic/,/^}/ s/background-color: [^;]*/background-color: transparent !important/g' "$THEME_WAYBAR_CSS"
+    sed -i '/^#custom-mic/,/^}/ s/background: [^;]*/background: transparent/g' "$THEME_WAYBAR_CSS"
+    sed -i '/^#custom-mic/,/^}/ s/background-color: [^;]*/background-color: transparent/g' "$THEME_WAYBAR_CSS"
 
     echo "   ✓ Updated theme source CSS"
 fi
@@ -187,8 +187,8 @@ if [[ -L "$CURRENT_THEME_LINK" ]]; then
 
 /* Microphone transparency fixes */
 #custom-mic, #custom-mic.muted, #custom-mic:hover, #custom-mic.muted:hover {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 INNER_EOF
         fi
