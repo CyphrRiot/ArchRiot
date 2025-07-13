@@ -97,7 +97,7 @@
 
 "clock": {
 	"interval": 1,
-    "format": " {:%I:%M %p  %A, %B %d}", // 12:22 AM  Friday, July 04 format
+    "format": " {:%A • %B %d • %I:%M %p}", // Sunday • July 13 • 01:49 PM format
     //"format": " {:%H:%M:%S}",// 24H
 	"format-alt": " {:%H:%M   %d %B, %A}",
 	"tooltip-format": "<tt><small>{calendar}</small></tt>",
