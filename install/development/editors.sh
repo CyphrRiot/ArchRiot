@@ -13,8 +13,7 @@ yay -S --noconfirm --needed \
     ripgrep \
     fd \
     fzf \
-    zed \
-    micro
+    zed
 
 # Install common LSP servers
 yay -S --noconfirm --needed \

@@ -39,4 +39,8 @@ yay -S --noconfirm --needed \
     gnome-calculator \
     file-roller
 
+# Install financial tools
+yay -S --noconfirm --needed \
+    featherwallet-bin
+
 echo "✅ Utilities setup complete!"

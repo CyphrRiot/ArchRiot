@@ -13,8 +13,7 @@ yay -S --noconfirm --needed \
     papers \
     thunar \
     unzip \
-    p7zip \
-    ark
+    p7zip
 
 # Install calendar and time management
 yay -S --noconfirm --needed \

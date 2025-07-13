@@ -13,6 +13,7 @@ yay -S --noconfirm --needed \
     mpv \
     pavucontrol \
     ffmpeg \
-    yt-dlp
+    yt-dlp \
+    spotdl
 
 echo "✅ Media applications setup complete!"
