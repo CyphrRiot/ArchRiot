@@ -3,38 +3,13 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "zed.dev",
-            "model": "claude-sonnet-4-thinking"
+            "model": "claude-sonnet-4"
         },
         "always_allow_tool_actions": true,
         "default_profile": "write",
         "default_model": {
             "provider": "zed.dev",
             "model": "claude-sonnet-4"
-        }
-    },
-    "language_models": {
-        "ollama": {
-            "api_url": "http://localhost:11434",
-            "available_models": [
-                {
-                    "name": "open-llama-3b",
-                    "display_name": "OpenLlama-3B-INT4 Local",
-                    "max_tokens": 4096,
-                    "supports_tools": true
-                },
-                {
-                    "name": "Qwen3",
-                    "display_name": "Qwen3 Local",
-                    "max_tokens": 4096,
-                    "supports_tools": true
-                },
-                {
-                    "name": "qwen2.5-coder",
-                    "display_name": "Qwen",
-                    "max_tokens": 32768,
-                    "supports_tools": true
-                }
-            ]
         }
     },
     "features": {
@@ -116,6 +91,8 @@
         "background.appearance": "opaque",
         "toolbar.background": "#0000009",
         "editor.indent_guide": "#000002",
+        "title_bar.background": "#1a1a2e",
+        "status_bar.background": "#1a1a2e",
         "syntax": {
             "comment": { "color": "#4d6878" },
             "string": { "color": "#9d7dd8" }
