@@ -78,6 +78,14 @@ else
     echo "⚠ Signal desktop file not found in OhmArchy applications"
 fi
 
+# Install Brave Private desktop file
+if [[ -f "$HOME/.local/share/omarchy/applications/brave-private.desktop" ]]; then
+    cp "$HOME/.local/share/omarchy/applications/brave-private.desktop" ~/.local/share/applications/
+    echo "✓ Brave Private desktop file installed"
+else
+    echo "⚠ Brave Private desktop file not found in OhmArchy applications"
+fi
+
 # Update desktop database
 update-desktop-database ~/.local/share/applications/
 
