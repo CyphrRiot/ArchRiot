@@ -31,10 +31,13 @@ export QT_QPA_PLATFORMTHEME=gtk3
 # Ensure proper client-side decorations
 export GDK_USE_CSD=1
 
-# Disable X11 fallback to ensure native Wayland
+# Disable X11 fallback and fix DPI scaling issues
 export GDK_SCALE=1
-export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export GDK_DPI_SCALE=1
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
+export QT_SCALE_FACTOR=1
 export QT_WAYLAND_FORCE_DPI=physical
+export ELECTRON_FORCE_DEVICE_SCALE_FACTOR=1
 
 # Launch Signal with Wayland flags and all arguments passed through
 exec signal-desktop --enable-features=UseOzonePlatform,WaylandWindowDecorations,WebRTCPipeWireCapturer --ozone-platform=wayland --enable-wayland-ime --gtk-version=4 "$@"
