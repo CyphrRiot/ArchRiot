@@ -257,7 +257,7 @@ test_theme_system() {
     fi
 
     # Check theme switching scripts
-    if [[ -x ~/.local/bin/omarchy-theme-next ]]; then
+    if [[ -x ~/.local/bin/ohmarchy-theme-next ]]; then
         test_pass "Theme switching script exists"
     else
         test_fail "Theme switching script missing"

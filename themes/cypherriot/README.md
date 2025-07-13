@@ -47,7 +47,7 @@ Custom curated purple and blue abstract backgrounds that complement the color sc
 
 ## 🚀 Usage
 
-After installation, the theme will be available in the Omarchy theme rotation. Use `omarchy-theme-next` to cycle to the CypherRiot theme.
+After installation, the theme will be available in the Omarchy theme rotation. Use `ohmarchy-theme-next` to cycle to the CypherRiot theme.
 
 ## ✨ Philosophy
 

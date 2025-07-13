@@ -16,7 +16,7 @@ REPO_THEMES_DIR="$HOME/.local/share/omarchy/themes"
 # Check if current theme is linked
 if [[ ! -L "$CURRENT_THEME_LINK" ]]; then
     echo "❌ No current theme linked"
-    echo "   Please run omarchy-theme-next to set a theme first"
+    echo "   Please run ohmarchy-theme-next to set a theme first"
     exit 1
 fi
 
@@ -222,5 +222,5 @@ echo ""
 echo "🔧 Manual commands:"
 echo "  • Restart waybar: pkill waybar && waybar"
 echo "  • Check waybar status: pgrep waybar"
-echo "  • Test theme switching: omarchy-theme-next"
+echo "  • Test theme switching: ohmarchy-theme-next"
 echo ""
