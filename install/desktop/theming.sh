@@ -187,11 +187,7 @@ setup_theme_backgrounds() {
     export BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
     mkdir -p "$BACKGROUNDS_DIR"
 
-    # Load background functions if available
-    local bg_functions="$HOME/.local/share/omarchy/install/backgrounds.sh"
-    if [[ -f "$bg_functions" ]]; then
-        source "$bg_functions"
-    fi
+    # Skip global background functions - use theme-specific only
 
     # Source background script if available
     local bg_script="$HOME/.local/share/omarchy/themes/$theme_name/backgrounds.sh"
@@ -242,6 +238,13 @@ link_theme_configs() {
     # Backup existing configs
     backup_existing_configs
 
+    # Copy GTK CSS for Thunar dark theme
+    if [[ -f "$HOME/.local/share/omarchy/config/gtk-3.0/gtk.css" ]]; then
+        mkdir -p "$HOME/.config/gtk-3.0"
+        cp "$HOME/.local/share/omarchy/config/gtk-3.0/gtk.css" "$HOME/.config/gtk-3.0/gtk.css"
+        echo "✓ GTK dark theme CSS applied"
+    fi
+
     # Link application configs
     local config_links=(
         "hyprlock.conf:$HOME/.config/hypr/hyprlock.conf"
@@ -279,6 +282,7 @@ backup_existing_configs() {
         "$HOME/.config/hypr/hyprlock.conf"
         "$HOME/.config/mako/config"
         "$HOME/.config/kitty/current-theme.conf"
+        "$HOME/.config/gtk-3.0/gtk.css"
     )
 
     for config in "${configs_to_backup[@]}"; do
