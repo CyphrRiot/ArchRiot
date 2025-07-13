@@ -209,14 +209,14 @@ if command -v cleanup_passwordless_sudo &>/dev/null; then
     }
 fi
 
-# Run post-installation check
-echo ""
-echo "🔍 Running post-installation verification..."
-if [ -x ~/.local/share/omarchy/bin/omarchy-post-install-check ]; then
-    ~/.local/share/omarchy/bin/omarchy-post-install-check
-else
-    echo "⚠ Post-install check script not found"
-fi
+# DISABLED: Post-installation check was destroying working waybar
+# echo ""
+# echo "🔍 Running post-installation verification..."
+# if [ -x ~/.local/share/omarchy/bin/omarchy-post-install-check ]; then
+#     ~/.local/share/omarchy/bin/omarchy-post-install-check
+# else
+#     echo "⚠ Post-install check script not found"
+# fi
 
 # Ensure gum is available for final prompt
 if ! command -v gum &>/dev/null; then
