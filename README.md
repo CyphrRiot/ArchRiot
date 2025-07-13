@@ -107,6 +107,7 @@ SUPER + M                            # Google Messages
 SUPER + O                            # Text editor (Gnome Text Editor)
 SUPER + N                            # Text editor (Neovim)
 SUPER + T                            # System monitor (btop)
+SUPER + Z                            # Code editor (Zed)
 SUPER + X                            # X/Twitter
 SUPER + L                            # Lock screen (CypherRiot theme)
 SUPER + ESCAPE                       # Power menu
