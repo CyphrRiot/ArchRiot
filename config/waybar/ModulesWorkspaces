@@ -265,7 +265,7 @@
 		"class<org.gnome.Nautilus|nautilus>": "󰝰 ",
 		"class<org.gnome.Contacts>": "󰀉 ",
     "class<org.pwmt.zathura>": "󰈦 ",
-		"class<org.gnome.gitlab.somas.Apostrophe>": "󰍔 ",
+		"class<org.gnome.TextEditor>": "󰍔 ",
 		}
 	},
 }

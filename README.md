@@ -102,8 +102,12 @@ SUPER + D  or  SUPER + SPACE         # App launcher (wofi)
 SUPER + F                            # File manager (Thunar)
 SUPER + B                            # Browser (Brave)
 SUPER + E                            # Email (Proton Mail)
+SUPER + G                            # Signal messenger
+SUPER + M                            # Google Messages
+SUPER + O                            # Text editor (Gnome Text Editor)
 SUPER + N                            # Text editor (Neovim)
 SUPER + T                            # System monitor (btop)
+SUPER + X                            # X/Twitter
 SUPER + ESCAPE                       # Power menu
 ```
 
@@ -116,6 +120,12 @@ SUPER + SHIFT + F                    # Full screen screenshot
 SUPER + PRINT                        # Color picker
 ```
 
+### Screen Recording
+
+```bash
+Kooha                                # GUI screen recorder (launch from SUPER+D)
+```
+
 ### Window Management
 
 ```bash
@@ -124,6 +134,7 @@ SUPER + V                            # Toggle floating
 SUPER + J                            # Toggle split
 SUPER + Arrow Keys                   # Move focus
 SUPER + SHIFT + Arrow Keys           # Swap windows
+SUPER + CTRL + Arrow Keys            # Smart window movement
 SUPER + 1-9                          # Switch workspace
 SUPER + SHIFT + 1-9                  # Move window to workspace
 ```
@@ -205,8 +216,9 @@ vm.dirty_ratio=5              # Limit dirty page cache buildup
 ### 📱 **Clean Web Applications**
 
 - **Proton Mail** (SUPER+E / XF86Mail) - Privacy-focused email in floating window
-- **Google Messages** (SUPER+ALT+G) - Communication
-- **X/Twitter** (SUPER+X) - Social platform
+- **Signal** (SUPER+G) - Private messaging app
+- **Google Messages** (SUPER+M) - Web-based messaging in floating window
+- **X/Twitter** (SUPER+X) - Social platform in floating window
 - **GitHub** - Development platform with proper icons from homarr-labs
 
 ### ⌨️ **Enhanced Keybindings & Productivity**
@@ -223,11 +235,12 @@ vm.dirty_ratio=5              # Limit dirty page cache buildup
 
 ### 🎨 **Document & Media Handling**
 
-- **Apostrophe** - Default for text/markdown files (clean, distraction-free writing)
+- **Gnome Text Editor** - Default for text/markdown files (clean, modern text editing with Tokyo Night theme)
 - **Papers** - Default PDF viewer (GNOME's modern document viewer)
 - **MPV** - Video playback with optimal performance
 - **Better waybar network** - nmtui instead of impala for reliable WiFi management
 - **Screenshot tools** - grim/slurp/hyprshot integration for all capture needs
+- **Screen recording** - Kooha for simple GUI-based screen recording
 
 ### 🚫 **Removed Bloat & Corporate Apps**
 

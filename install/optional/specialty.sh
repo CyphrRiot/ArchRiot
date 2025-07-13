@@ -26,7 +26,7 @@ detect_existing_specialty() {
 
     local specialty_apps=(
         "feather-wallet-bin:Feather Monero Wallet"
-        "apostrophe:Apostrophe Markdown Editor"
+        "gnome-text-editor:Gnome Text Editor"
         "papers:Papers Reference Manager"
         "yt-dlp:YouTube Downloader"
         "spotdl:Spotify Downloader"
@@ -63,7 +63,7 @@ install_writing_tools() {
     echo "✍️ Installing advanced writing tools..."
 
     local writing_apps=(
-        "apostrophe"            # Distraction-free Markdown editor
+        "gnome-text-editor"     # Modern text editor with Tokyo Night theme
         "abiword"               # Lightweight word processor
     )
 
@@ -111,8 +111,8 @@ configure_specialty_apps() {
 
     # Set up file associations for writing tools
     if command -v xdg-mime >/dev/null; then
-        if command -v apostrophe >/dev/null; then
-            xdg-mime default org.gnome.gitlab.somas.Apostrophe.desktop text/markdown 2>/dev/null || true
+        if command -v gnome-text-editor >/dev/null; then
+            xdg-mime default org.gnome.TextEditor.desktop text/markdown 2>/dev/null || true
         fi
     fi
 
@@ -144,7 +144,7 @@ validate_specialty_apps() {
     done
 
     # Test writing tools
-    local writing_apps=("apostrophe" "typora")
+    local writing_apps=("gnome-text-editor" "typora")
     for app in "${writing_apps[@]}"; do
         if command -v "$app" >/dev/null; then
             echo "✓ $app available"
@@ -183,7 +183,7 @@ display_specialty_summary() {
     echo "  • Feather Wallet - Lightweight Monero wallet"
     echo ""
     echo "✍️ Creative Writing:"
-    echo "  • Apostrophe - Distraction-free Markdown editor"
+    echo "  • Gnome Text Editor - Modern text editor with Tokyo Night theme"
     echo "  • AbiWord - Lightweight word processor"
     echo ""
     echo "📚 Research & Academic:"
