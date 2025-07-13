@@ -8,16 +8,21 @@
 }
 
 window {
-    background-color: rgba(26, 27, 38, 0.95);  /* Darker background with transparency */
-    border: 2px solid #9d7bd8;                /* workspace_active purple border */
+    background-color: rgba(
+        26,
+        27,
+        38,
+        0.95
+    ); /* Darker background with transparency */
+    border: 2px solid #9d7bd8; /* workspace_active purple border */
     border-radius: 10px;
     padding: 0px;
 }
 
 #input {
-    background-color: #222436;    /* waybar bgcolor */
-    color: #ffffff;               /* waybar fgcolor */
-    border: 1px solid #bb9af7;   /* accent4 purple */
+    background-color: #222436; /* waybar bgcolor */
+    color: #ffffff; /* waybar fgcolor */
+    border: 1px solid #bb9af7; /* accent4 purple */
     border-radius: 6px;
     padding: 12px 16px;
     margin: 12px;
@@ -26,7 +31,7 @@ window {
 }
 
 #input:focus {
-    border-color: #7da6ff;        /* accent5 blue when focused */
+    border-color: #7da6ff; /* accent5 blue when focused */
     box-shadow: 0 0 5px rgba(125, 166, 255, 0.3);
 }
 
@@ -62,13 +67,23 @@ window {
 }
 
 #entry:selected {
-    background-color: rgba(157, 123, 216, 0.3);  /* workspace_active purple with transparency */
+    background-color: rgba(
+        157,
+        123,
+        216,
+        0.3
+    ); /* workspace_active purple with transparency */
     color: #ffffff;
     border: 1px solid #9d7bd8;
 }
 
 #entry:hover {
-    background-color: rgba(125, 166, 255, 0.2);  /* accent5 blue with transparency */
+    background-color: rgba(
+        125,
+        166,
+        255,
+        0.2
+    ); /* accent5 blue with transparency */
 }
 
 #entry:selected #text {
@@ -78,7 +93,7 @@ window {
 
 /* App icon styling - balanced with text */
 #entry image {
-    margin-right: 12px;
+    margin-right: 20px;
     padding: 2px;
 }
 

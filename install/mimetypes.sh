@@ -19,7 +19,7 @@ done
 
 # Set text editor for text and markdown
 for mimetype in text/plain text/markdown text/x-markdown application/x-markdown; do
-    xdg-mime default org.gnome.gitlab.somas.Apostrophe.desktop "$mimetype"
+    xdg-mime default org.gnome.TextEditor.desktop "$mimetype"
 done
 
 # Set video player (mpv) for all video formats
