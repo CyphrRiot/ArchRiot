@@ -190,8 +190,8 @@ main() {
     esac
 }
 
-# Set up trap for emergency cleanup on script exit/failure
-trap emergency_cleanup EXIT ERR
+# DISABLED: Emergency cleanup trap was causing installation issues
+# trap emergency_cleanup EXIT ERR
 
 # Execute main function
 main "$@"
