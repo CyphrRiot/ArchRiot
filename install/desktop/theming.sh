@@ -511,7 +511,7 @@ display_theming_summary() {
     echo "  • Consistent theming across applications"
     echo ""
     echo "🔧 Theme management:"
-    echo "  • Use omarchy-theme-next to cycle themes"
+    echo "  • Use ohmarchy-theme-next to cycle themes"
     echo "  • Themes located in ~/.config/omarchy/themes/"
     echo "  • Current theme: ~/.config/omarchy/current/theme"
 }
