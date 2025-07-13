@@ -2,6 +2,7 @@
 
 # Planning and development files
 plan.md
+.ropeproject
 
 # Backup files
 *.backup

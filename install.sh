@@ -152,6 +152,13 @@ command -v waybar &>/dev/null && echo "✓ Waybar installed" || echo "⚠ Waybar
 command -v hyprland &>/dev/null && echo "✓ Hyprland installed" || echo "⚠ Hyprland installation issue"
 command -v mullvad &>/dev/null && echo "✓ Mullvad installed" || echo "⚠ Mullvad installation issue"
 
+# Check Zed Wayland integration
+if command -v zed-wayland &>/dev/null && [ -f ~/.local/share/applications/zed.desktop ]; then
+    echo "✓ Zed with Wayland support installed"
+else
+    echo "⚠ Zed Wayland integration issue"
+fi
+
 # Check theme system
 if [ -L ~/.config/omarchy/current/theme ]; then
     echo "✓ Theme system configured"
