@@ -2,26 +2,26 @@
 
 #custom-menu,
 #custom-file_manager,
-#custom-tty, 
+#custom-tty,
 #custom-browser,
 #custom-settings,
 #custom-lock {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: transparent;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 /* Force all buttons to have the same background */
 button {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: transparent;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 /* Override any other module styling that might be causing this */
 .modules-right > widget > * {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
