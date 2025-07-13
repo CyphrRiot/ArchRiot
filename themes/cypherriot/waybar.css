@@ -67,6 +67,7 @@ tooltip {
     margin-left: 8px;
     margin-right: 8px;
     border-radius: 9px;
+    border: none;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(0.55, -0.68, 0.48, 1.682);
 }
