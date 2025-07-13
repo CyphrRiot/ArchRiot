@@ -117,13 +117,10 @@ window.thunar {
     background-color: #565f89;
 }
 
-/* Thunar selection */
-.thunar .view:selected,
-.thunar treeview:selected,
-.thunar iconview:selected,
-.thunar listview:selected {
-    background-color: rgba(122, 162, 247, 0.3);
-    color: #c0caf5;
+/* Thunar selection - simple fix for bright white highlight */
+.thunar *:selected {
+    background-color: rgba(122, 162, 247, 0.3) !important;
+    color: #c0caf5 !important;
 }
 
 /* Thunar file/folder icons hover */
@@ -231,8 +228,8 @@ listview {
     color: #c0caf5;
 }
 
-treeview:selected,
-listview:selected {
-    background-color: rgba(122, 162, 247, 0.3);
-    color: #c0caf5;
+/* Generic selection fix */
+*:selected {
+    background-color: rgba(122, 162, 247, 0.3) !important;
+    color: #c0caf5 !important;
 }
