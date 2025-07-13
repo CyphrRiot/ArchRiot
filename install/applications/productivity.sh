@@ -9,6 +9,7 @@
 # Install productivity tools (no heavy office suites)
 yay -S --noconfirm --needed \
     apostrophe \
+    abiword \
     papers \
     thunar \
     unzip \
