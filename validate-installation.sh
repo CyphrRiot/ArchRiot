@@ -365,7 +365,7 @@ test_expected_outcome() {
     print_status "INFO" "  • Kitty terminal with Fish shell"
     print_status "INFO" "  • Multiple wallpapers including escape_velocity.jpg default"
     print_status "INFO" "  • Auto-login to Hyprland from TTY1"
-    print_status "INFO" "  • Blue light filter (hyprsunset) at 3500K"
+    print_status "INFO" "  • Blue light filter (hyprsunset) at 3500K (if enabled during install)"
 
     # Check if system is already configured
     if [[ -f "$HOME/.config/hypr/hyprland.conf" ]]; then

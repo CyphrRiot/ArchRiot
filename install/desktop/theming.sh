@@ -353,8 +353,20 @@ start_theme_services() {
         fi
     fi
 
-    # Start blue light filter
-    start_blue_light_filter
+    # Ask about and optionally start blue light filter
+    if ask_blue_light_filter; then
+        start_blue_light_filter
+
+        # Add hyprsunset to hyprland autostart if user wants it
+        if ! grep -q "exec-once = hyprsunset" ~/.config/hypr/hyprland.conf; then
+            sed -i '/exec-once = mako/a exec-once = hyprsunset -t 3500' ~/.config/hypr/hyprland.conf
+            echo "✓ Added hyprsunset to Hyprland autostart"
+        fi
+    else
+        # Remove hyprsunset from hyprland autostart if user doesn't want it
+        sed -i '/exec-once = hyprsunset/d' ~/.config/hypr/hyprland.conf
+        echo "✓ Removed hyprsunset from Hyprland autostart"
+    fi
 }
 
 # Stop theme-related services safely
@@ -371,6 +383,38 @@ stop_theme_services() {
 
     echo "✓ Services stopped"
 }
+
+# Ask user about blue light filtering
+ask_blue_light_filter() {
+    echo ""
+    echo "🌙 Blue Light Filter Setup"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Blue light filtering reduces eye strain and improves sleep quality by"
+    echo "warming your screen color temperature, especially during evening hours."
+    echo ""
+    echo "Benefits:"
+    echo "  • Reduces eye fatigue and strain"
+    echo "  • Improves sleep quality (reduces blue light impact on melatonin)"
+    echo "  • More comfortable viewing in low-light environments"
+    echo "  • 3500K temperature - scientifically optimal warm setting"
+    echo ""
+    echo -n "Would you like to preserve your eyes and your brain and filter blue light? [Y/n]: "
+    read -r response
+
+    case "$response" in
+        [nN]|[nN][oO])
+            echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
+            return 1
+            ;;
+        *)
+            echo "✓ Blue light filtering enabled - your eyes and brain will thank you!"
+            return 0
+            ;;
+    esac
+}
+
+
 
 # Setup blue light filtering
 start_blue_light_filter() {

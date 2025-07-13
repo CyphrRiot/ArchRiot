@@ -180,7 +180,7 @@ omarchy-fix-waybar-theme             # Fix waybar styling
 - **Applications:** All major apps now run native Wayland (no more XWayland issues)
 - **Backup Tool:** Latest migrate binary for comprehensive system backup/restore
 - **Memory Optimization:** Intelligent memory management that actually works
-- **Blue Light Filter:** Automatic hyprsunset at 3500K for reduced eye strain
+- **Blue Light Filter:** Optional hyprsunset at 3500K for reduced eye strain (configurable during install)
 - **GTK Theming:** Dark theme everywhere - no more jarring white dialogs
 - **DPI Scaling:** Fixed scaling issues for consistent UI across all applications
 
@@ -305,7 +305,7 @@ OhmArchy includes multiple themes with CypherRiot as the default:
 - **Tiling & floating** - Flexible window arrangements
 - **Multi-workspace** - Organized workflow separation
 - **Auto-login** - Direct to tty1 with Hyprland autostart
-- **Blue light filter** - Automatic hyprsunset reduces eye strain during evening use
+- **Blue light filter** - Optional hyprsunset reduces eye strain during evening use (installer asks user preference)
 
 ### Development Ready
 
@@ -330,8 +330,9 @@ OhmArchy includes multiple themes with CypherRiot as the default:
 
 ### Health & Comfort Features
 
-- **Automatic blue light filtering** - hyprsunset configured with `exec-once = hyprsunset -t 3500` for immediate warm temperature on startup
+- **Optional blue light filtering** - installer asks if you want hyprsunset configured with `exec-once = hyprsunset -t 3500` for immediate warm temperature on startup
 - **3500K color temperature** - Scientifically optimal warm setting reduces blue light exposure without color distortion
+- **Simple management** - Enable/disable by editing `~/.config/hypr/hyprland.conf` (add/remove `exec-once = hyprsunset -t 3500`)
 - **No manual switching needed** - Runs continuously from login, unlike redshift/f.lux time-based switching
 - **GPU accelerated filtering** - Native Wayland compositor integration for smooth, lag-free color adjustment
 - **Memory pressure relief** - Intelligent VM tuning prevents system lag and swap thrashing
