@@ -167,6 +167,18 @@ else
     echo "⚠ Missing waybar scripts (found $script_count, expected 4+)"
 fi
 
+# Fix waybar theme CSS to prevent CSS errors
+echo "🎨 Setting up waybar theme..."
+if [ -f ~/.local/share/omarchy/bin/omarchy-fix-waybar-theme ]; then
+    ~/.local/share/omarchy/bin/omarchy-fix-waybar-theme >/dev/null 2>&1 || echo "⚠ Waybar theme setup had issues"
+else
+    # Fallback: copy CypherRiot CSS directly
+    if [ -f ~/.local/share/omarchy/themes/cypherriot/waybar.css ]; then
+        cp ~/.local/share/omarchy/themes/cypherriot/waybar.css ~/.config/waybar/style.css
+        echo "✓ Applied CypherRiot waybar theme"
+    fi
+fi
+
 echo "================================="
 echo "🎉 OhmArchy installation complete!"
 echo "Completed at: $(date)"

@@ -128,6 +128,18 @@ if command -v update-mime-database >/dev/null; then
     echo "  ✓ MIME database updated"
 fi
 
+# Disable PDF thumbnails (evince thumbnailer)
+echo "📄 Disabling PDF thumbnails to show proper icons..."
+if [[ -f /usr/share/thumbnailers/evince.thumbnailer ]]; then
+    sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || {
+        echo "  ⚠ Could not disable evince thumbnailer - you may need to run manually:"
+        echo "  sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled"
+    }
+    echo "  ✓ PDF thumbnails disabled - PDFs will show as icons"
+else
+    echo "  ✓ PDF thumbnails already disabled"
+fi
+
 echo ""
 echo "✅ Thunar thumbnail fix complete!"
 echo ""
