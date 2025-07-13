@@ -223,6 +223,50 @@ vm.dirty_ratio=5              # Limit dirty page cache buildup
 - **X/Twitter** (SUPER+X) - Social platform in floating window
 - **GitHub** - Development platform with proper icons from homarr-labs
 
+### 🪟 **Responsive Window Management**
+
+- **Percentage-based sizing** - Windows scale properly across different screen resolutions (1080p, 1440p, 4K, ultrawide)
+- **Smart centering** - All floating windows automatically center regardless of monitor size
+- **Cross-resolution compatibility** - No hardcoded pixel positions, works on any display setup
+- **Optimized app windows**:
+    - **X/Twitter**: `850x90%` (mobile-style layout with responsive height)
+    - **Proton Mail**: `1000x75%` (perfect email reading dimensions)
+    - **Google Messages**: `1000x75%` (comfortable messaging interface)
+    - **Signal**: `1000x1080` (maintains native desktop experience)
+- **Future-proof design** - Window rules adapt automatically to new monitor configurations
+
+### 🎮 **GPU Support**
+
+OhmArchy provides automatic GPU detection and driver installation for all major graphics vendors:
+
+**NVIDIA GPUs:**
+
+- Automatic proprietary driver installation (open/legacy as appropriate)
+- Wayland support with proper environment variables
+- Hardware video acceleration (NVENC/NVDEC)
+- Early KMS and automatic driver selection
+
+**AMD/Radeon GPUs:**
+
+- Open-source Mesa/RADV drivers with Vulkan support
+- Hardware video acceleration (VA-API/VDPAU)
+- 32-bit gaming support for compatibility
+- Optimized for Wayland/Hyprland performance
+
+**Intel GPUs:**
+
+- Mesa/ANV drivers with Vulkan API support
+- Intel Arc discrete GPU support
+- GuC firmware optimization
+- GPU monitoring tools (`intel_gpu_top`)
+
+**Installation Process:**
+
+- Hardware detection via `lspci` during installation
+- Automatic driver selection and configuration
+- Hyprland environment variable setup
+- Verification and performance optimization
+
 ### ⌨️ **Enhanced Keybindings & Productivity**
 
 - **SUPER+D** = **SUPER+SPACE** (Unified app launcher)
@@ -302,7 +346,7 @@ OhmArchy includes multiple themes with CypherRiot as the default:
 ### Window Management
 
 - **Hyprland compositor** - Smooth animations, efficient memory usage
-- **GPU acceleration** - Automatic NVIDIA, AMD/Radeon, and Intel driver setup with Vulkan support
+- **GPU acceleration** - Comprehensive automatic GPU driver setup (see GPU Support section)
 - **Tiling & floating** - Flexible window arrangements
 - **Multi-workspace** - Organized workflow separation
 - **Auto-login** - Direct to tty1 with Hyprland autostart
@@ -363,8 +407,12 @@ This is a **heavily customized fork** optimized for:
 - **Modern shell** - Fish with intelligent defaults
 - **Better package selection** - Proven, lightweight alternatives (removed Ark, Micro)
 - **Enhanced keybindings** - More intuitive, conflict-free shortcuts
+- **Responsive window management** - Percentage-based sizing that works across all screen resolutions
 - **Wayland-first approach** - Native Wayland for all major applications
 - **Improved theming** - Consistent dark mode throughout with proper GTK integration
+- **Fixed GTK selection highlighting** - No more jarring bright white highlights in file managers
+- **Waybar improvements** - Better font sizing (100%) and improved date format (Sunday • July 13 • 01:49 PM)
+- **Zed editor integration** - Native Wayland support with SUPER+Z keybinding
 - **Application launcher fixes** - All applications properly integrated in Wofi
 - **Advanced backup** - Comprehensive migration capabilities
 - **DPI scaling fixes** - Consistent scaling across all applications
