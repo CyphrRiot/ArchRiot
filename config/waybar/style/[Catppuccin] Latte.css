@@ -30,16 +30,19 @@ window#waybar.hidden {
     box-shadow: none;
 	text-shadow: none;
     padding: 4px;
-    border-radius: 9px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
 #taskbar button:hover,
 #workspaces button:hover {
-	border-radius: 10px;
+	border-radius: 0px;
 	color: @overlay0;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	background-color: @surface0;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
  	padding-left: 2px;
     padding-right: 2px;
     animation: gradient_f 20s ease-in infinite;
@@ -48,13 +51,14 @@ window#waybar.hidden {
 
 #workspaces button.persistent {
 	color: @surface1;
-	border-radius: 10px;
+	border-radius: 0px;
 }
 
 #taskbar button.active,
 #workspaces button.active {
 	color: @peach;
-  	border-radius: 10px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+  	border-radius: 0px;
     padding-left: 8px;
     padding-right: 8px;
     animation: gradient_f 20s ease-in infinite;
@@ -63,6 +67,7 @@ window#waybar.hidden {
 
 #workspaces button.urgent {
 	color: @red;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
  	border-radius: 0px;
 }
 

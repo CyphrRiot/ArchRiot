@@ -54,6 +54,7 @@ window#waybar {
 
 #workspaces button.active {
     color: @textcolor1;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     background: @workspacesbackground2;
     border-radius: 3px 3px 3px 3px;
     min-width: 30px;
@@ -62,6 +63,7 @@ window#waybar {
 
 #workspaces button:hover {
     color: @textcolor1;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     background: @workspacesbackground2;
     border-radius: 5px 5px 5px 5px;
     opacity:0.7;

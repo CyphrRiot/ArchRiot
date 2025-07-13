@@ -44,26 +44,30 @@ tooltip label {
 #taskbar button.active,
 #workspaces button.active {
   color: @maroon;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #taskbar button.focused,
 #workspaces button.focused {
   color: @rosewater;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   background: transparent;
-  border-radius: 15px;
+  border-radius: 0px;
 }
 
 #workspaces button.urgent {
   color: #11111b;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   background: transparent;
-  border-radius: 15px;
+  border-radius: 0px;
 }
 
 #taskbar button:hover,
 #workspaces button:hover {
   background: transparent;
   color: @flamingo;
-  border-radius: 15px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+  border-radius: 0px;
 }
 
 #backlight,

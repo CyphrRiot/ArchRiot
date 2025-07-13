@@ -76,6 +76,7 @@ tooltip label {
 
 #workspaces button.active {
     color: black;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     border-bottom: 2px solid transparent;
     /* border-top: 2px solid transparent; */
     border-image: linear-gradient(45deg, #FA8BFF, #2BD2FF) 1;
@@ -93,6 +94,7 @@ tooltip label {
 #workspaces button.urgent {
     background: red;
     color: black;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     padding: 0 5px;
 }
 

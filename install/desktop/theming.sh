@@ -384,11 +384,11 @@ start_blue_light_filter() {
 
     # Start hyprsunset
     if command -v hyprsunset >/dev/null 2>&1; then
-        hyprsunset -t 4000 >/dev/null 2>&1 &
+        hyprsunset -t 3500 >/dev/null 2>&1 &
         sleep 2
 
         if pgrep hyprsunset >/dev/null; then
-            echo "✓ Blue light filter started (4000K)"
+            echo "✓ Blue light filter started (3500K)"
         else
             echo "⚠ Blue light filter failed to start"
         fi

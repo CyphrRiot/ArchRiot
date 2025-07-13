@@ -113,7 +113,8 @@ tooltip {
 #custom-weather.snowyIcyNight,
 #custom-weather.sunnyDay {
 	background-color: @background-module;
-    border-radius: 25px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     margin: 5px 5px 5px 5px;
     opacity:0.8;
    	padding-top: 4px;
@@ -204,7 +205,8 @@ tooltip {
 #taskbar button,
 #workspaces button {
     margin: 1px 1px;
-    border-radius: 15px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     border:0px;
     color: @color13;
     padding-left: 2px;
@@ -217,8 +219,9 @@ tooltip {
 #taskbar button.active,
 #workspaces button.active {
     color: #FFFFFF;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     background: @button-color;
-    border-radius: 15px;
+    border-radius: 0px;
     padding-left: 4px;
     padding-right: 4px;
     animation: gradient_f 20s ease-in infinite;
@@ -234,8 +237,9 @@ tooltip {
 #taskbar button:hover,
 #workspaces button:hover {
     color: #FFFFFF;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     background: @button-hover;
-    border-radius: 15px;
+    border-radius: 0px;
     opacity:1.0;
     padding-left: 2px;
     padding-right: 2px;
