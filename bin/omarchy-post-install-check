@@ -100,7 +100,7 @@ verify_theme_system() {
 
     # Check background configuration
     if [[ -L ~/.config/omarchy/current/background ]]; then
-        local bg_file=$(readlink ~/.config/omarchy/current/background" 2>/dev/null)
+        local bg_file=$(readlink ~/.config/omarchy/current/background 2>/dev/null)
         local bg_name=$(basename "$bg_file" 2>/dev/null)
         if [[ -f "$bg_file" ]]; then
             if [[ "$bg_name" == *"escape_velocity"* ]]; then
