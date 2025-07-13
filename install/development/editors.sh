@@ -50,4 +50,13 @@ else
     echo "⚠ Zed desktop file not found in OhmArchy applications"
 fi
 
+# Override system Zed desktop file to prevent duplicates
+if [[ -f /usr/share/applications/dev.zed.Zed.desktop ]]; then
+    echo -e "[Desktop Entry]\nHidden=true" > ~/.local/share/applications/dev.zed.Zed.desktop
+    echo "✓ System Zed desktop file overridden (hidden from launcher)"
+fi
+
+# Update desktop database
+update-desktop-database ~/.local/share/applications/
+
 echo "✅ Development editors setup complete!"
