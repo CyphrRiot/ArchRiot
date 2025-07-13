@@ -47,7 +47,8 @@ tooltip label{
     box-shadow: none;
 	text-shadow: none;
     padding: 0px;
-    border-radius: 9px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     padding-left: 4px;
     padding-right: 4px;
     animation: gradient_f 20s ease-in infinite;
@@ -57,7 +58,9 @@ tooltip label{
 #taskbar button.active,
 #workspaces button.active {
   	background-color: #eba0ac;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   	color: #3A3B3C;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     padding-left: 8px;
     padding-right: 8px;
     animation: gradient_f 20s ease-in infinite;
@@ -68,6 +71,7 @@ tooltip label{
 #workspaces button:hover {
     background: #eb6f92;
     color: #f6c177;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     padding-left: 3px;
     padding-right: 3px;
     animation: gradient_f 20s ease-in infinite;
@@ -131,7 +135,8 @@ tooltip label{
 #custom-weather.showyIcyDay,
 #custom-weather.snowyIcyNight,
 #custom-weather.sunnyDay {
-	border-radius: 16px;
+	border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
   	color: #3A3B3C;
   	border: 1px solid #b4befe;
 	padding-top: 4px;

@@ -36,7 +36,8 @@ tooltip label {
     box-shadow: none;
 	text-shadow: none;
     padding: 0px;
-    border-radius: 9px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     padding-left: 4px;
     padding-right: 4px;
     animation: gradient_f 20s ease-in infinite;
@@ -45,7 +46,9 @@ tooltip label {
 
 #workspaces button.active {
 	background-color: dimgrey;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	color: #000000;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     border-radius: 15px 15px 15px 15px;
     padding-left: 8px;
     padding-right: 8px;
@@ -55,16 +58,19 @@ tooltip label {
 
 #workspaces button.focused {
 	color: #000000;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #workspaces button.urgent {
 	color: #000000;
-	border-radius: 10px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+	border-radius: 0px;
 }
 
 #workspaces button:hover {
 	color: #000000;
-    border-radius: 15px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+    border-radius: 0px;
  	padding-left: 2px;
     padding-right: 2px;
     animation: gradient_f 20s ease-in infinite;

@@ -92,7 +92,9 @@ window#waybar.hidden {
 #taskbar button.active,
 #workspaces button.active {
   background-color: @grey0;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   color: @black;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   animation: gradient_f 20s ease-in infinite;
   /*transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);*/
 }
@@ -100,17 +102,23 @@ window#waybar.hidden {
 #taskbar button:hover,
 #workspaces button:hover {
   background-color: @purple;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   color: @black;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #workspaces button.focused {
   background-color: @green;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   color: @bg0;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #workspaces button.urgent {
   background-color: @red; /* Keeps the original color */
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   color: @white; /* Sets text color to white for better contrast */
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
   border: 2px solid @red; /* Adds a border with the same color */
   box-shadow: 0 0 10px @red; /* Adds a glow effect */
   font-weight: bold; /* Makes text bold for more emphasis */

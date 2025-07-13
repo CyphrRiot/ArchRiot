@@ -54,7 +54,8 @@ tooltip {
     box-shadow: none;
 	text-shadow: none;
     padding: 0px;
-    border-radius: 9px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     padding-left: 4px;
     padding-right: 4px;
     animation: gradient_f 20s ease-in infinite;
@@ -64,8 +65,10 @@ tooltip {
 #taskbar button.active,
 #workspaces button.active {
 	color: #1e1e1e;
-	border-radius: 30%;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+	border-radius: 0px;
 	background-color: #cba6f7;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     padding-left: 6px;
     padding-right: 8px;
     animation: gradient_f 20s ease-in infinite;
@@ -74,28 +77,35 @@ tooltip {
 
 #workspaces button.active:hover {
 	color: #1e1e1e;
-	border-radius: 30%;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+	border-radius: 0px;
 	background-color: #cba6f7;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     padding-left: 6px;
     padding-right: 8px;
 }
 
 #workspaces button.focused {
 	color: #d8dee9;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #workspaces button.urgent {
-	border-radius: 30%;
+	border-radius: 0px;
 	background-color: #cba6f7;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	color: #1e1e1e;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #taskbar button:hover,
 #workspaces button:hover {
 	color: #1e1e1e;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	border: 3px solid #1e1e2e;
 	background-color: #cba6f7;
-    border-radius: 30%;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+    border-radius: 0px;
  	padding-left: 4px;
     padding-right: 4px;
     animation: gradient_f 20s ease-in infinite;

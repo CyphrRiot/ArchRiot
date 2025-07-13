@@ -46,7 +46,8 @@ tooltip {
     box-shadow: none;
 	text-shadow: none;
     padding: 4px;
-    border-radius: 9px;
+    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
 }
@@ -54,7 +55,9 @@ tooltip {
 #taskbar button.active,	   
 #workspaces button.active {
 	color: rgb(108, 18, 18);
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	background-color: #000000;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	border: 1px solid grey;
     border-radius: 15px 15px 15px 15px;
     padding-left: 8px;
@@ -65,18 +68,22 @@ tooltip {
 	  
 #workspaces button.focused {
 	color: #d8dee9;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 	   
 #workspaces button.urgent {
 	color: #11111b;
-	border-radius: 10px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+	border-radius: 0px;
 }
 
 #taskbar button:hover,		   
 #workspaces button:hover {
 	color: rgb(71, 14, 14);
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 	background-color: #000000;
-    border-radius: 15px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
+    border-radius: 0px;
  	padding-left: 3px;
     padding-right: 3px;
     animation: gradient_f 20s ease-in infinite;
