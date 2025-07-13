@@ -97,7 +97,4 @@ window {
     padding: 2px;
 }
 
-/* Ensure proper alignment */
-#entry box {
-    align-items: center;
-}
+/* Ensure proper alignment - removed problematic CSS property */

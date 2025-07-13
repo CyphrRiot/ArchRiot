@@ -4,8 +4,8 @@ Type=Application
 Name=Zed
 GenericName=Code Editor
 Comment=A high-performance, multiplayer code editor from the creators of Atom and Tree-sitter
-TryExec=zed-wayland
-Exec=zed-wayland %U
+TryExec=$HOME/.local/bin/zed-wayland
+Exec=$HOME/.local/bin/zed-wayland %U
 Icon=zed
 Terminal=false
 Categories=Development;IDE;TextEditor;Utility;
@@ -17,4 +17,4 @@ Actions=NewWindow;
 
 [Desktop Action NewWindow]
 Name=New Window
-Exec=zed-wayland --new %U
+Exec=$HOME/.local/bin/zed-wayland --new %U
