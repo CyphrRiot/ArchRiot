@@ -39,8 +39,9 @@ print_status() {
 print_header() {
     # Read version
     local version="unknown"
-    if [[ -f "./VERSION" ]]; then
-        version=$(cat "./VERSION" 2>/dev/null || echo "unknown")
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [[ -f "$script_dir/VERSION" ]]; then
+        version=$(cat "$script_dir/VERSION" 2>/dev/null || echo "unknown")
     elif [[ -f "$HOME/.local/share/omarchy/VERSION" ]]; then
         version=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
     fi

@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Sudo Helper - Safe Passwordless Setup
+# OhmArchy Sudo Helper - Simple and Safe
 # ==============================================================================
-# Temporarily enables passwordless sudo for package management during install
-# Automatically reverts after installation for security
+# Ensures user is in wheel group and enables passwordless package management
+# Uses surgical changes instead of dangerous file backups
 # ==============================================================================
 
-SUDOERS_BACKUP="/tmp/omarchy-sudoers-backup-$$"
-SUDOERS_TEMP="/tmp/omarchy-sudoers-temp-$$"
 CURRENT_USER="$(whoami)"
+OMARCHY_SUDO_RULE="%wheel ALL=(ALL) NOPASSWD: /usr/bin/pacman, /usr/bin/yay, /usr/bin/systemctl"
+OMARCHY_SUDO_MARKER="# OhmArchy temporary rule"
 
 # Colors for output
 RED='\033[0;31m'
@@ -27,171 +27,142 @@ print_status() {
     esac
 }
 
-# Check if user is already passwordless
-is_passwordless() {
-    sudo -n true 2>/dev/null
+# Check if user is in wheel group
+is_in_wheel() {
+    groups "$CURRENT_USER" | grep -q '\bwheel\b'
 }
 
-# Setup temporary passwordless sudo for package management only
-setup_passwordless_sudo() {
-    print_status "INFO" "Setting up temporary passwordless sudo for package management..."
+# Check if passwordless sudo works for our commands
+is_passwordless() {
+    sudo -n pacman --version >/dev/null 2>&1
+}
 
-    # Check if already passwordless
-    if is_passwordless; then
-        print_status "INFO" "Sudo is already passwordless - no changes needed"
-        return 0
-    fi
+# Check if our rule is already active
+has_omarchy_rule() {
+    sudo grep -q "$OMARCHY_SUDO_MARKER" /etc/sudoers 2>/dev/null
+}
 
-    # Backup current sudoers
-    if ! sudo cp /etc/sudoers "$SUDOERS_BACKUP" 2>/dev/null; then
-        print_status "ERROR" "Failed to backup sudoers file"
-        return 1
-    fi
-
-    # Create temporary sudoers rule for package management
-    cat > "$SUDOERS_TEMP" <<EOF
-# Temporary OhmArchy installation rule - will be auto-removed
-$CURRENT_USER ALL=(ALL) NOPASSWD: /usr/bin/pacman, /usr/bin/yay, /usr/bin/systemctl
-EOF
-
-    # Validate the temporary rule
-    if ! sudo visudo -c -f "$SUDOERS_TEMP" >/dev/null 2>&1; then
-        print_status "ERROR" "Invalid sudoers rule generated"
-        return 1
-    fi
-
-    # Append the rule to sudoers
-    if sudo sh -c "cat '$SUDOERS_TEMP' >> /etc/sudoers" 2>/dev/null; then
-        print_status "INFO" "Temporary passwordless sudo enabled for package management"
-        print_status "INFO" "Commands: pacman, yay, systemctl"
-        rm -f "$SUDOERS_TEMP"
+# Add user to wheel group
+add_to_wheel() {
+    print_status "INFO" "Adding $CURRENT_USER to wheel group..."
+    if sudo usermod -aG wheel "$CURRENT_USER"; then
+        print_status "INFO" "✓ User added to wheel group"
         return 0
     else
-        print_status "ERROR" "Failed to update sudoers file"
+        print_status "ERROR" "Failed to add user to wheel group"
         return 1
     fi
 }
 
-# Remove temporary passwordless sudo rules
+# Add passwordless rule for package management
+add_passwordless_rule() {
+    print_status "INFO" "Adding passwordless sudo rule for package management..."
+
+    # Create the rule with marker
+    local rule_line="$OMARCHY_SUDO_RULE $OMARCHY_SUDO_MARKER"
+
+    # Add the rule using visudo for safety
+    if echo "$rule_line" | sudo EDITOR='tee -a' visudo >/dev/null 2>&1; then
+        print_status "INFO" "✓ Passwordless sudo enabled for: pacman, yay, systemctl"
+        return 0
+    else
+        print_status "ERROR" "Failed to add sudo rule"
+        return 1
+    fi
+}
+
+# Remove our passwordless rule
+remove_passwordless_rule() {
+    print_status "INFO" "Removing temporary passwordless sudo rule..."
+
+    if has_omarchy_rule; then
+        # Use sed to remove only our marked line
+        if sudo sed -i "/$OMARCHY_SUDO_MARKER/d" /etc/sudoers; then
+            print_status "INFO" "✓ Temporary sudo rule removed"
+            return 0
+        else
+            print_status "ERROR" "Failed to remove sudo rule"
+            return 1
+        fi
+    else
+        print_status "INFO" "No temporary rule found to remove"
+        return 0
+    fi
+}
+
+# Setup passwordless sudo (main function)
+setup_passwordless_sudo() {
+    print_status "INFO" "Setting up passwordless sudo for package management..."
+
+    # Check if already working
+    if is_passwordless; then
+        print_status "INFO" "Passwordless sudo already working - no changes needed"
+        return 0
+    fi
+
+    # Ensure user is in wheel group
+    if ! is_in_wheel; then
+        add_to_wheel || return 1
+        # Need to reload groups - user will need to re-login or use newgrp
+        print_status "WARN" "Group membership updated - you may need to log out and back in"
+    fi
+
+    # Add passwordless rule if not already present
+    if ! has_omarchy_rule; then
+        add_passwordless_rule || return 1
+    fi
+
+    # Test if it works
+    if is_passwordless; then
+        print_status "INFO" "✓ Passwordless sudo setup complete"
+        return 0
+    else
+        print_status "WARN" "Setup completed but may require re-login to take effect"
+        return 0
+    fi
+}
+
+# Cleanup passwordless sudo (main function)
 cleanup_passwordless_sudo() {
     print_status "INFO" "Cleaning up temporary passwordless sudo..."
-
-    # Check if backup exists
-    if [[ ! -f "$SUDOERS_BACKUP" ]]; then
-        print_status "WARN" "No sudoers backup found - manual cleanup may be needed"
-        return 1
-    fi
-
-    # Restore original sudoers
-    if sudo cp "$SUDOERS_BACKUP" /etc/sudoers 2>/dev/null; then
-        print_status "INFO" "Original sudoers configuration restored"
-        rm -f "$SUDOERS_BACKUP"
-        return 0
-    else
-        print_status "ERROR" "Failed to restore sudoers - check /etc/sudoers manually"
-        return 1
-    fi
+    remove_passwordless_rule
 }
 
-# Emergency cleanup function
-emergency_cleanup() {
-    print_status "WARN" "Emergency cleanup triggered"
-
-    if [[ -f "$SUDOERS_BACKUP" ]]; then
-        print_status "INFO" "Restoring sudoers from backup..."
-        sudo cp "$SUDOERS_BACKUP" /etc/sudoers 2>/dev/null || {
-            print_status "ERROR" "Emergency restore failed - manual intervention required"
-            print_status "ERROR" "Backup location: $SUDOERS_BACKUP"
-        }
-    fi
-
-    # Clean up temp files
-    rm -f "$SUDOERS_TEMP" "$SUDOERS_BACKUP" 2>/dev/null
-}
-
-# Test if passwordless sudo is working for our commands
+# Test passwordless sudo functionality
 test_passwordless_sudo() {
-    print_status "INFO" "Testing passwordless sudo setup..."
+    print_status "INFO" "Testing passwordless sudo..."
 
-    local test_commands=("pacman --version" "systemctl --version")
+    local test_commands=("pacman --version" "yay --version" "systemctl --version")
+    local success=true
 
     for cmd in "${test_commands[@]}"; do
         if sudo -n $cmd >/dev/null 2>&1; then
-            print_status "INFO" "✓ Passwordless sudo working for: $cmd"
+            print_status "INFO" "✓ Working: $cmd"
         else
-            print_status "WARN" "✗ Passwordless sudo failed for: $cmd"
-            return 1
+            print_status "WARN" "✗ Failed: $cmd"
+            success=false
         fi
     done
 
-    return 0
+    if $success; then
+        print_status "INFO" "✓ All package management commands working"
+        return 0
+    else
+        return 1
+    fi
 }
 
 # Show current sudo status
 show_sudo_status() {
-    print_status "INFO" "Current sudo status:"
-
-    if is_passwordless; then
-        print_status "INFO" "  • Passwordless: YES"
-    else
-        print_status "INFO" "  • Passwordless: NO"
-    fi
-
-    if groups | grep -q wheel; then
-        print_status "INFO" "  • In wheel group: YES"
-    else
-        print_status "INFO" "  • In wheel group: NO"
-    fi
-
-    if sudo -l 2>/dev/null | grep -q NOPASSWD; then
-        print_status "INFO" "  • Has NOPASSWD rules: YES"
-    else
-        print_status "INFO" "  • Has NOPASSWD rules: NO"
-    fi
+    print_status "INFO" "Current sudo configuration:"
+    print_status "INFO" "  • User: $CURRENT_USER"
+    print_status "INFO" "  • In wheel group: $(is_in_wheel && echo "YES" || echo "NO")"
+    print_status "INFO" "  • Passwordless for packages: $(is_passwordless && echo "YES" || echo "NO")"
+    print_status "INFO" "  • OhmArchy rule active: $(has_omarchy_rule && echo "YES" || echo "NO")"
 }
 
-# Main function based on command
-main() {
-    local command="${1:-status}"
-
-    case "$command" in
-        "setup"|"enable")
-            show_sudo_status
-            setup_passwordless_sudo
-            test_passwordless_sudo
-            ;;
-        "cleanup"|"disable"|"restore")
-            cleanup_passwordless_sudo
-            show_sudo_status
-            ;;
-        "test")
-            test_passwordless_sudo
-            ;;
-        "status")
-            show_sudo_status
-            ;;
-        "emergency")
-            emergency_cleanup
-            ;;
-        *)
-            echo "Usage: $0 {setup|cleanup|test|status|emergency}"
-            echo ""
-            echo "Commands:"
-            echo "  setup     - Enable temporary passwordless sudo for package management"
-            echo "  cleanup   - Restore original sudo configuration"
-            echo "  test      - Test if passwordless sudo is working"
-            echo "  status    - Show current sudo configuration"
-            echo "  emergency - Emergency restore (use if installation fails)"
-            echo ""
-            echo "This tool temporarily enables passwordless sudo for pacman/yay/systemctl"
-            echo "during OhmArchy installation, then automatically restores security."
-            exit 1
-            ;;
-    esac
+# Emergency cleanup (removes any OhmArchy rules)
+emergency_cleanup() {
+    print_status "WARN" "Emergency cleanup - removing all OhmArchy sudo rules..."
+    remove_passwordless_rule
 }
-
-# DISABLED: Emergency cleanup trap was causing installation issues
-# trap emergency_cleanup EXIT ERR
-
-# Execute main function
-main "$@"
