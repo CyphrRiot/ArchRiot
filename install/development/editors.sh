@@ -41,18 +41,12 @@ else
     echo "⚠ Zed Wayland launcher not found in OhmArchy bin"
 fi
 
-# Install desktop file
+# Replace system desktop file with OhmArchy version
 if [[ -f "$HOME/.local/share/omarchy/applications/zed.desktop" ]]; then
-    cp "$HOME/.local/share/omarchy/applications/zed.desktop" ~/.local/share/applications/
-    echo "✓ Zed desktop file installed with Wayland support"
+    sudo cp "$HOME/.local/share/omarchy/applications/zed.desktop" /usr/share/applications/dev.zed.Zed.desktop
+    echo "✓ System Zed desktop file replaced with Wayland support"
 else
     echo "⚠ Zed desktop file not found in OhmArchy applications"
-fi
-
-# Override system Zed desktop file to prevent duplicates
-if [[ -f /usr/share/applications/dev.zed.Zed.desktop ]]; then
-    echo -e "[Desktop Entry]\nHidden=true" > ~/.local/share/applications/dev.zed.Zed.desktop
-    echo "✓ System Zed desktop file overridden (hidden from launcher)"
 fi
 
 # Update desktop database
