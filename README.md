@@ -1,8 +1,8 @@
 # OhmArchy
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.1-blue)
 
-**A customized Arch Linux setup based on Omarchy, optimized for the CypherRiot workflow.**
+**A customized Arch Linux setup based on Omarchy, optimized for the Cypher Riot workflow.**
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
 
@@ -171,6 +171,15 @@ ohmarchy-fix-background              # Fix theme backgrounds
 ohmarchy-fix-waybar-theme            # Fix waybar styling
 ```
 
+### 🔧 Troubleshooting
+
+Quick fixes for common issues:
+
+- **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
+- **Theme not applying**: Run `ohmarchy-fix-waybar-theme`
+- **Background issues**: Run `ohmarchy-fix-background`
+- **Thumbnail problems**: Run `ohmarchy-fix-thunar-thumbnails`
+
 ## 🎯 Key Customizations
 
 ### 🔧 **Core System Changes**
@@ -190,23 +199,16 @@ ohmarchy-fix-waybar-theme            # Fix waybar styling
 
 #### 🧠 **Memory Management Fix**
 
-Linux's default memory management is **aggressively stupid** about caching. The kernel will happily consume 90%+ of your RAM for file caches, then struggle to free it when applications actually need memory. This causes:
+Linux's default memory management is **aggressively stupid** about caching. The kernel will happily consume 90%+ of your RAM for file caches, then struggle to free it when applications actually need memory.
 
-- **Lag spikes** when opening new applications
-- **Swap thrashing** even with plenty of "free" RAM
-- **Poor responsiveness** during memory pressure
-- **Misleading memory reports** (cached ≠ available)
+OhmArchy fixes this with intelligent memory management tuning:
 
-**OhmArchy fixes this with intelligent sysctl tuning:**
+- **No more lag spikes** when opening applications
+- **Better responsiveness** under memory pressure
+- **Reduced swap usage** with proper RAM utilization
+- **Optimized caching** that doesn't hog system resources
 
-```bash
-vm.min_free_kbytes=1048576    # Always keep 1GB truly free
-vm.vfs_cache_pressure=50      # Be less aggressive about caching
-vm.swappiness=10              # Prefer RAM over swap usage
-vm.dirty_ratio=5              # Limit dirty page cache buildup
-```
-
-**Result:** Your system maintains responsive performance with proper memory pressure handling, ensuring applications get the RAM they need without the kernel being stubborn about giving up its precious caches.
+**Result:** Your system stays fast and responsive even when running multiple applications.
 
 ### 📱 **Advanced Waybar Integration**
 
@@ -240,35 +242,13 @@ vm.dirty_ratio=5              # Limit dirty page cache buildup
 
 ### 🎮 **GPU Support**
 
-OhmArchy provides automatic GPU detection and driver installation for all major graphics vendors:
+OhmArchy automatically detects and installs optimal drivers for all major GPUs:
 
-**NVIDIA GPUs:**
+- **NVIDIA**: Proprietary drivers with Wayland and hardware acceleration
+- **AMD/Radeon**: Open-source Mesa drivers with Vulkan support
+- **Intel**: Mesa drivers including Intel Arc support
 
-- Automatic proprietary driver installation (open/legacy as appropriate)
-- Wayland support with proper environment variables
-- Hardware video acceleration (NVENC/NVDEC)
-- Early KMS and automatic driver selection
-
-**AMD/Radeon GPUs:**
-
-- Open-source Mesa/RADV drivers with Vulkan support
-- Hardware video acceleration (VA-API/VDPAU)
-- 32-bit gaming support for compatibility
-- Optimized for Wayland/Hyprland performance
-
-**Intel GPUs:**
-
-- Mesa/ANV drivers with Vulkan API support
-- Intel Arc discrete GPU support
-- GuC firmware optimization
-- GPU monitoring tools (`intel_gpu_top`)
-
-**Installation Process:**
-
-- Hardware detection via `lspci` during installation
-- Automatic driver selection and configuration
-- Hyprland environment variable setup
-- Verification and performance optimization
+All GPUs get proper Wayland integration and hardware video acceleration for optimal performance.
 
 ### ⌨️ **Enhanced Keybindings & Productivity**
 
