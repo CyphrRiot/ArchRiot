@@ -1,42 +1,35 @@
-# OhmArchy .gitignore
+# OhmArchy - Git Ignore File
+# Prevents sensitive information from being committed
 
-# Planning and development files
+# Mail configuration with credentials
 plan.md
-.ropeproject
 
-# Backup files
-*.backup
-*.bak
-*.orig
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# User-specific configurations
+config/omarchy/user.env
 
 # Temporary files
 *.tmp
 *.temp
 *~
+.DS_Store
+Thumbs.db
 
 # Editor files
 .vscode/
+.idea/
 *.swp
 *.swo
-*~
+*.orig
 
-# Personal configuration files
-config.personal
-*.personal
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Log files
 *.log
 
-# Python cache files
-__pycache__/
-*.pyc
-*.pyo
+# Personal customizations
+personal/
+local/
