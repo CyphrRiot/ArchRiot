@@ -27,7 +27,6 @@
             "title<.*zapzap.*>": " ",
             "title<.*messenger.*>": " ",
             "title<.*facebook.*>": " ",
-            "title<.*reddit.*>": " ",
             "title<.*ChatGPT.*>": "󰚩 ",
             "title<.*deepseek.*>": "󰚩 ",
             "title<.*qwen.*>": "󰚩 ",

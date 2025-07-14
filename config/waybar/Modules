@@ -392,7 +392,6 @@
 	"on-click": "activate",
 	"on-click-middle": "close",
 	"ignore-list": [
-		"wofi",
 		"rofi",
 		"fuzzel"
 		],
