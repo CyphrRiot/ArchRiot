@@ -50,10 +50,10 @@ if [[ -d "$CYPHERRIOT_THEME/backgrounds" ]]; then
     # Clear existing backgrounds to prevent duplicates
     rm -f "$CYPHERRIOT_BACKGROUNDS"/*.jpg "$CYPHERRIOT_BACKGROUNDS"/*.png 2>/dev/null || true
 
-    # Copy with proper naming (no duplicates)
-    cp "$CYPHERRIOT_THEME/backgrounds/escape_velocity.jpg" "$CYPHERRIOT_BACKGROUNDS/1-escape_velocity.jpg" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/blue_night_moon_over_lake.jpg" "$CYPHERRIOT_BACKGROUNDS/2-blue_night_moon_over_lake.jpg" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/City-Rainy-Night.png" "$CYPHERRIOT_BACKGROUNDS/3-City-Rainy-Night.png" 2>/dev/null || true
+    # Copy with proper naming (City-Rainy-Night as #1 default)
+    cp "$CYPHERRIOT_THEME/backgrounds/City-Rainy-Night.png" "$CYPHERRIOT_BACKGROUNDS/1-City-Rainy-Night.png" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/escape_velocity.jpg" "$CYPHERRIOT_BACKGROUNDS/2-escape_velocity.jpg" 2>/dev/null || true
+    cp "$CYPHERRIOT_THEME/backgrounds/blue_night_moon_over_lake.jpg" "$CYPHERRIOT_BACKGROUNDS/3-blue_night_moon_over_lake.jpg" 2>/dev/null || true
     cp "$CYPHERRIOT_THEME/backgrounds/Staircase.png" "$CYPHERRIOT_BACKGROUNDS/4-Staircase.png" 2>/dev/null || true
     cp "$CYPHERRIOT_THEME/backgrounds/Anime-Purple-eyes.png" "$CYPHERRIOT_BACKGROUNDS/5-Anime-Purple-eyes.png" 2>/dev/null || true
     cp "$CYPHERRIOT_THEME/backgrounds/cyber.jpg" "$CYPHERRIOT_BACKGROUNDS/6-cyber.jpg" 2>/dev/null || true
@@ -134,7 +134,7 @@ echo "📋 What was fixed:"
 echo "  • Cleaned up old cyber-1.png references"
 echo "  • Set up proper CypherRiot theme structure"
 echo "  • Linked correct background files"
-echo "  • Set escape_velocity.jpg as default"
+echo "  • Set City-Rainy-Night.png as default"
 echo "  • Restarted background service"
 echo ""
 echo "🎮 Available backgrounds:"
