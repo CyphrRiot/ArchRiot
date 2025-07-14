@@ -8,9 +8,10 @@ ascii_art=' ██████╗ ██╗  ██╗███╗   ███�
 echo -e "\n$ascii_art\n"
 
 # Read and display version
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OMARCHY_VERSION="unknown"
-if [[ -f "./VERSION" ]]; then
-    OMARCHY_VERSION=$(cat "./VERSION" 2>/dev/null || echo "unknown")
+if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
+    OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 fi
 
 echo -e "🚀 OhmArchy Setup - Version: $OMARCHY_VERSION"
