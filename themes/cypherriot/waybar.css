@@ -579,7 +579,7 @@ label:focus {
 /* Arch logo styling */
 #custom-arch {
     color: @accent5; /* Same cyan color as battery and other menu items */
-    font-size: 120%;
+    font-size: 150%;
     padding: 0 5px;
 }
 

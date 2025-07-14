@@ -1,0 +1,22 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=kitty
+Comment=Fast, feature-rich, cross-platform, GPU-based terminal
+TryExec=kitty
+Exec=kitty
+Icon=kitty
+Categories=System;TerminalEmulator;
+Keywords=shell;prompt;command;commandline;cmd;
+StartupWMClass=kitty
+MimeType=inode/directory;
+Actions=new-window;new-tab;
+Hidden=true
+
+[Desktop Action new-window]
+Name=New Window
+Exec=kitty
+
+[Desktop Action new-tab]
+Name=New Tab
+Exec=kitty --single-instance
