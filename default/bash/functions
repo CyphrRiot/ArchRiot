@@ -41,11 +41,12 @@ web2app() {
 Version=1.0
 Name=$APP_NAME
 Comment=$APP_NAME
-Exec=brave --new-window --app="$APP_URL"
+Exec=sh -c 'brave --new-window --ozone-platform=wayland --new-window --ozone-platform=wayland --app="$APP_URL"'
 Terminal=false
 Type=Application
-Icon=$ICON_PATH
+Icon=$APP_NAME
 StartupNotify=true
+Categories=Network;WebBrowser;
 EOF
 
   chmod +x "$DESKTOP_FILE"

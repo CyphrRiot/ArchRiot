@@ -139,6 +139,7 @@ install_ui_enhancements() {
     local ui_packages=(
         "nwg-drawer"    # Application drawer
         "swaync"        # Notification center
+        "fuzzel"        # Application launcher (replaces wofi)
     )
 
     for package in "${ui_packages[@]}"; do
@@ -240,6 +241,7 @@ validate_desktop_apps() {
         "brightnessctl:Brightness control"
         "playerctl:Media control"
         "pamixer:Audio control"
+        "fuzzel:Application launcher"
     )
 
     for app_info in "${critical_apps[@]}"; do
@@ -258,6 +260,8 @@ validate_desktop_apps() {
         "imv:Image viewer"
         "brave:Web browser"
         "gnome-calculator:Calculator"
+        "nwg-drawer:App drawer"
+        "swaync:Notification center"
     )
 
     local browser_found=false
@@ -323,7 +327,7 @@ display_apps_summary() {
     echo "  • Session utilities (clipboard, keyring, blue light filter)"
     echo "  • Media applications (mpv, imv, evince)"
     echo "  • Web browser (Brave)"
-    echo "  • UI enhancements (notification center, app drawer)"
+    echo "  • UI enhancements (fuzzel launcher, notification center, app drawer)"
     echo ""
     echo "🚀 Quick access:"
     echo "  • Super+E for file manager"
@@ -331,7 +335,7 @@ display_apps_summary() {
     echo "  • Media keys for volume/brightness control"
     echo "  • Super+N for notification center"
     echo ""
-    echo "💡 Tip: All applications are available in the app drawer (Super+A)"
+    echo "💡 Tip: All applications are available via fuzzel launcher (Super+D) or app drawer (Super+A)"
 }
 
 # Main execution with comprehensive error handling

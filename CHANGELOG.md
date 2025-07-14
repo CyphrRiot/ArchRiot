@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Version Command**: New `ohmarchy-version` command to check installed version and system status
 - **Enhanced Validation**: Updated pre-install validation to check Ghostty components
 - **Floating Terminal**: Centered floating terminal window (1200x800) with proper opacity
-- **Theme Conversion**: CypherRiot and Nord themes converted to Ghostty format
+- **Theme Conversion**: CypherRiot and Tokyo Night themes converted to Ghostty format
 
 ### 🔧 Fixed Issues
 
