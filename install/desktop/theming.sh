@@ -34,7 +34,7 @@ install_cursor_theme() {
 
     local cursor_found=false
     for location in "${cursor_locations[@]}"; do
-        if [[ -d "$location" ]]; thenave
+        if [[ -d "$location" ]]; then
             cursor_found=true
             echo "✓ Cursor theme found at: $location"
             break
