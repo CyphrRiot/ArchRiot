@@ -18,7 +18,18 @@ if ! command -v plymouth &>/dev/null; then
     exit 1
   fi
 
+  # Change to safe directory before rebuilding initramfs to avoid getcwd issues
+  ORIGINAL_DIR="$(pwd)"
+  cd /tmp 2>/dev/null || cd /
+
+  # Set environment variables for stable operation
+  export HOME="${HOME:-/root}"
+  export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
   sudo mkinitcpio -P
+
+  # Return to original directory
+  cd "$ORIGINAL_DIR" 2>/dev/null || true
 
   # Configure bootloader with splash parameters
   configure_bootloader() {

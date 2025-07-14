@@ -136,7 +136,16 @@ if command -v plymouth-set-default-theme &> /dev/null; then
 
     # Regenerate initramfs to apply changes
     echo -e "${YELLOW}Regenerating initramfs (this may take a moment)...${NC}"
+
+    # Change to safe directory before rebuilding initramfs to avoid getcwd issues
+    ORIGINAL_DIR="$(pwd)"
+    cd /tmp 2>/dev/null || cd /
+
     sudo mkinitcpio -P
+
+    # Return to original directory
+    cd "$ORIGINAL_DIR" 2>/dev/null || true
+
     echo -e "${GREEN}✓ Initramfs regenerated${NC}"
 else
     echo -e "${YELLOW}⚠ Plymouth not available, logo installed but theme not activated${NC}"
