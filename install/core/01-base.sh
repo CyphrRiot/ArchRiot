@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# Fix mirrors if needed
+fix_mirrors() {
+    echo "🔧 Checking mirrors..."
+    if ! sudo pacman -Sy 2>/dev/null; then
+        echo "⚠ Mirror issues detected, fixing..."
+        sudo pacman -S --noconfirm reflector 2>/dev/null || true
+        if command -v reflector &>/dev/null; then
+            sudo reflector --country US --age 12 --protocol https --sort rate --fastest 10 --save /etc/pacman.d/mirrorlist
+            sudo pacman -Syy
+            echo "✓ Mirrors fixed"
+        else
+            echo "⚠ Could not fix mirrors automatically"
+        fi
+    fi
+}
+
 # Install base development tools and yay AUR helper
 install_base_devel() {
     echo "📦 Installing base development tools..."
@@ -28,4 +44,4 @@ install_yay() {
 }
 
 # Main execution
-install_base_devel && install_yay
+fix_mirrors && install_base_devel && install_yay
