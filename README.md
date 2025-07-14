@@ -308,15 +308,10 @@ The migrate tool automatically downloads the latest version during installation 
 
 ### Available Themes
 
-OhmArchy includes multiple themes with CypherRiot as the default:
+OhmArchy includes two carefully curated themes with CypherRiot as the default:
 
 - **cypherriot** (default) - Custom purple/blue aesthetic with full waybar integration
-- **catppuccin** - Pastel perfection
-- **everforest** - Green nature vibes
-- **gruvbox** - Retro warm colors
-- **kanagawa** - Japanese ink painting
-- **nord** - Arctic cool tones
-- **tokyo-night** - Vibrant city lights
+- **tokyo-night** - Vibrant city lights with modern cyberpunk vibes
 
 ### Theme Management
 

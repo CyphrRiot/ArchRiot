@@ -4,7 +4,7 @@
         "custom/separator#blank",
         "idle_inhibitor",
         "custom/separator#blank",
-        "tray", 
+        "tray",
         "custom/separator#blank_2",
         "hyprland/window"
     ],
@@ -14,7 +14,7 @@
         "custom/separator#dot-line",
         "only-four-workspaces",
         "custom/separator#dot-line",
-        "group/notify"	
+        "group/notify"
     ],
 
     "modules-right": [
@@ -25,11 +25,11 @@
         "cpu",
         "custom/separator#blank",
         "memory",
-        "custom/separator#blank", 
+        "custom/separator#blank",
         "group/audio",
         "custom/separator#dot-line",
         "mpris",
-        "custom/separator#blank", 
+        "custom/separator#blank",
         "group/status"
     ],
 
@@ -55,7 +55,7 @@
             "3": " ",
             "4": " "
         },
-        "window-rewrite": {		
+        "window-rewrite": {
             "title<.*amazon.*>": " ",
             "title<.*reddit.*>": " ",
             "class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>": " ",
@@ -66,9 +66,9 @@
             "class<brave-browser|Brave-browser|Brave|brave>": " ",
             "class<tor browser>": " ",
             "class<firefox-developer-edition>": "🦊 ",
-            "class<kitty|konsole>": " ",
-            "class<kitty-dropterm>": " ",
+            "class<konsole>": " ",
             "class<com.mitchellh.ghostty>": " ",
+            "class<com.mitchellh.ghostty-floating>": " ",
             "class<org.wezfurlong.wezterm>": " ",
             "class<[Tt]hunderbird|[Tt]hunderbird-esr>": " ",
             "class<eu.betterbird.Betterbird>": " ",
@@ -117,8 +117,8 @@
             "class<nwg-look>": " ",
             "class<[Pp]avucontrol|org.pulseaudio.pavucontrol>": "󱡫 ",
             "class<steam>": " ",
-            "class<thunar|nemo>": "󰝰 ",	
-            "class<Gparted>":"",
+            "class<thunar|nemo>": "󰝰 ",
+            "class<Gparted>": "",
             "class<gimp>": " "
         }
     }
