@@ -39,7 +39,7 @@ This theme extracts and harmonizes the colors from your current setup:
 - **Mako** - Notification daemon with dark theme
 - **Neovim** - Editor theme based on Tokyo Night with CypherRiot colors
 - **Waybar** - Imports your existing personalized style
-- **Wofi** - Application launcher with dark purple theme
+- **Fuzzel** - Application launcher with dark purple theme
 
 ### Backgrounds:
 

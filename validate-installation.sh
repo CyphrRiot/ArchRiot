@@ -196,7 +196,7 @@ test_cypherriot_theme() {
         "waybar.css"
         "hyprland.conf"
         "hyprlock.conf"
-        "wofi.css"
+        "fuzzel.ini"
         "neovim.lua"
         "ghostty.conf"
         "backgrounds/escape_velocity.jpg"

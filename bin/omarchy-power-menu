@@ -13,7 +13,7 @@ show_power_menu() {
 \u200D Relaunch
 \u2060󰜉 Restart
 \u2063󰐥 Shutdown"
-  local selection=$(echo -e "$menu_options" | wofi --show dmenu --prompt "Power Options" --width 150 --height 195 -O alphabetical --style ~/.local/share/omarchy/default/wofi/select.css)
+  local selection=$(echo -e "$menu_options" | fuzzel --dmenu --prompt "Power Options" --width 20 --lines 5)
 
   case "$selection" in
   *Lock*) hyprlock ;;
