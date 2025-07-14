@@ -5,6 +5,29 @@ All notable changes to OhmArchy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-01-15
+
+### 🔧 Bug Fixes
+
+- **Waybar Configuration**: Fixed duplicate JSON key in 4workspaces.json
+    - Removed duplicate `"title<.*reddit.*>"` entry causing validation warnings
+    - All diagnostics now pass clean without warnings
+
+### 🔍 Quality Improvements
+
+- **Configuration Validation**: Enhanced JSON structure integrity
+- **Code Quality**: Eliminated duplicate entries in waybar window-rewrite rules
+
+---
+
+## [1.0.1] - 2025-01-14
+
+### 🔧 Minor Fixes
+
+- **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
+
+---
+
 ## [1.0.0] - 2025-01-14
 
 ### 🚀 Major Changes

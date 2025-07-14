@@ -139,7 +139,7 @@ install_ui_enhancements() {
     local ui_packages=(
         "nwg-drawer"    # Application drawer
         "swaync"        # Notification center
-        "fuzzel"        # Application launcher (replaces wofi)
+        "fuzzel"        # Application launcher (replaces fuzzel)
     )
 
     for package in "${ui_packages[@]}"; do

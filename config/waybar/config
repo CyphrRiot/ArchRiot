@@ -25,7 +25,7 @@
     // CypherRiot theme specific overrides
     "custom/arch": {
         "format": "󰣇",
-        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || wofi --show drun",
+        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
         "on-click-right": "pkill fuzzel || fuzzel",
         "tooltip": true,
         "tooltip-format": "Left Click: App Grid\nRight Click: App Launcher"
