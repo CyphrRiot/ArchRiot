@@ -206,17 +206,17 @@ setup_theme_backgrounds() {
     if [[ -d "$bg_dir" ]]; then
         ln -snf "$bg_dir" ~/.config/omarchy/current/backgrounds
 
-        # Set default background (escape_velocity.jpg or first available)
-        local default_bg="$bg_dir/1-escape_velocity.jpg"
+        # Set default background (City-Rainy-Night.png or first available)
+        local default_bg="$bg_dir/1-City-Rainy-Night.png"
         if [[ -f "$default_bg" ]]; then
             ln -snf "$default_bg" ~/.config/omarchy/current/background
-            echo "✓ Default background set: escape_velocity.jpg"
+            echo "✓ Default background set: City-Rainy-Night.png"
         else
-            # Fallback to any escape_velocity variant
-            local escape_bg=$(find "$bg_dir" -name "*escape_velocity*" | head -1)
-            if [[ -n "$escape_bg" ]]; then
-                ln -snf "$escape_bg" ~/.config/omarchy/current/background
-                echo "✓ Default background set: $(basename "$escape_bg")"
+            # Fallback to any City-Rainy-Night variant
+            local city_bg=$(find "$bg_dir" -name "*City-Rainy-Night*" | head -1)
+            if [[ -n "$city_bg" ]]; then
+                ln -snf "$city_bg" ~/.config/omarchy/current/background
+                echo "✓ Default background set: $(basename "$city_bg")"
             else
                 # Final fallback to first available
                 local first_bg=$(find "$bg_dir" -name "*.jpg" -o -name "*.png" | head -1)

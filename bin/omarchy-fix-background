@@ -75,12 +75,12 @@ ln -nsf "$CYPHERRIOT_THEME" "$CURRENT_THEME_LINK"
 ln -nsf "$CYPHERRIOT_BACKGROUNDS" "$CURRENT_DIR/backgrounds"
 echo "  ✓ Current theme set to CypherRiot"
 
-# Set default background (escape_velocity.jpg)
+# Set default background (City-Rainy-Night.png)
 echo "🖼️  Setting default background..."
-DEFAULT_BACKGROUND="$CYPHERRIOT_BACKGROUNDS/1-escape_velocity.jpg"
+DEFAULT_BACKGROUND="$CYPHERRIOT_BACKGROUNDS/1-City-Rainy-Night.png"
 if [[ -f "$DEFAULT_BACKGROUND" ]]; then
     ln -nsf "$DEFAULT_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
-    echo "  ✓ Default background set to escape_velocity.jpg"
+    echo "  ✓ Default background set to City-Rainy-Night.png"
 else
     # Fallback to any available background
     FALLBACK_BG=$(find "$CYPHERRIOT_BACKGROUNDS" -type f \( -name "*.jpg" -o -name "*.png" \) | head -n 1)

@@ -193,7 +193,7 @@ fi
 #     fi
 # fi
 
-# Fix background defaults to ensure escape_velocity.jpg is default
+# Fix background defaults to ensure City-Rainy-Night.png is default
 echo "🖼️  Setting up background defaults..."
 if [ -f ~/.local/share/omarchy/bin/omarchy-fix-background ]; then
     ~/.local/share/omarchy/bin/omarchy-fix-background >/dev/null 2>&1 || echo "⚠ Background setup had issues"
@@ -243,7 +243,7 @@ echo ""
 echo "🎯 Installation Summary:"
 echo "  • All components installed and configured"
 echo "  • Themes and backgrounds properly set up"
-echo "  • Default background: escape_velocity.jpg"
+echo "  • Default background: City-Rainy-Night.png"
 echo "  • PDF thumbnails disabled (shows proper icons)"
 echo "  • All keyboard shortcuts configured"
 echo ""

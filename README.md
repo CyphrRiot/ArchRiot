@@ -457,7 +457,7 @@ pgrep waybar                          # Should show running process
 After fresh installation, you should see:
 
 - **Default theme:** CypherRiot (purple/blue aesthetic)
-- **Default background:** escape_velocity.jpg (space/galaxy scene)
+- **Default background:** City-Rainy-Night.png (atmospheric cityscape)
 - **PDF files:** Show proper document icons (not thumbnails)
 - **Image files:** Show thumbnail previews in Thunar
 - **Waybar:** Running with tomato timer, system stats, and transparent microphone button

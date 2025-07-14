@@ -81,11 +81,11 @@ test_background_system() {
         local bg_file=$(readlink ~/.config/omarchy/current/background)
         local bg_name=$(basename "$bg_file")
 
-        # Check if it's escape_velocity (preferred default)
-        if [[ "$bg_name" == *"escape_velocity"* ]]; then
-            test_pass "Default background is escape_velocity: $bg_name"
+        # Check if it's City-Rainy-Night (preferred default)
+        if [[ "$bg_name" == *"City-Rainy-Night"* ]]; then
+            test_pass "Default background is City-Rainy-Night: $bg_name"
         else
-            test_warn "Background is not escape_velocity: $bg_name"
+            test_warn "Background is not City-Rainy-Night: $bg_name"
         fi
 
         # Check if file exists
