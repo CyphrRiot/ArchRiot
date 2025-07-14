@@ -1,9 +1,10 @@
 # OhmArchy Ω
 
+<div align="center">
+
 ![Version](https://img.shields.io/badge/version-1.0.2-blue)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
 ![Language](https://img.shields.io/badge/language-Shell-89e051)
-![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
 ![Wayland](https://img.shields.io/badge/Wayland-FFCB3B?logo=wayland&logoColor=black)
@@ -11,6 +12,9 @@
 ![Maintained](https://img.shields.io/maintenance/yes/2025)
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy)
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy)
+![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy)
+
+</div>
 
 **A customized Arch Linux setup based on Omarchy, optimized for the Cypher Riot workflow.**
 
