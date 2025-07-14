@@ -390,8 +390,7 @@
 	"ignore-list": [
 		"wofi",
 		"rofi",
-		"kitty",
-    "kitty-dropterm"
+		"fuzzel"
 		],
 	"icon-theme": "Papirus",
 },

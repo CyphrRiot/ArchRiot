@@ -1,6 +1,17 @@
-# OhmArchy
+# OhmArchy Ω
 
 ![Version](https://img.shields.io/badge/version-1.0.1-blue)
+![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
+![Language](https://img.shields.io/badge/language-Shell-89e051)
+![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy)
+
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
+![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
+![Wayland](https://img.shields.io/badge/Wayland-FFCB3B?logo=wayland&logoColor=black)
+
+![Maintained](https://img.shields.io/maintenance/yes/2024)
+![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy)
+![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy)
 
 **A customized Arch Linux setup based on Omarchy, optimized for the Cypher Riot workflow.**
 
@@ -101,7 +112,7 @@ sudo systemctl poweroff             # Shutdown system
 ```bash
 SUPER + RETURN                       # Open terminal (Ghostty)
 SUPER + SHIFT + RETURN               # Centered floating terminal
-SUPER + D  or  SUPER + SPACE         # App launcher (wofi)
+SUPER + D  or  SUPER + SPACE         # App launcher (fuzzel)
 SUPER + F                            # File manager (Thunar)
 SUPER + B                            # Browser (Brave)
 SUPER + E                            # Email (Proton Mail)
@@ -254,7 +265,7 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 
 - **SUPER+D** = **SUPER+SPACE** (Unified app launcher)
 - **Left-click Arch icon** - nwg-drawer app grid
-- **Right-click Arch icon** - wofi app launcher
+- **Right-click Arch icon** - fuzzel app launcher
 - **XF86Mail** - Floating Proton Mail window
 - **SUPER+SHIFT+S** - Region screenshot (primary)
 - **SUPER+SHIFT+W** - Window screenshot
@@ -391,7 +402,7 @@ This is a **heavily customized fork** optimized for:
 - **Fixed GTK selection highlighting** - No more jarring bright white highlights in file managers
 - **Waybar improvements** - Better font sizing (100%) and improved date format (Sunday • July 13 • 01:49 PM)
 - **Zed editor integration** - Native Wayland support with SUPER+Z keybinding
-- **Application launcher fixes** - All applications properly integrated in Wofi
+- **Application launcher fixes** - All applications properly integrated in Fuzzel
 - **Advanced backup** - Comprehensive migration capabilities
 - **DPI scaling fixes** - Consistent scaling across all applications
 - **File dialog theming** - Dark themes for all application file choosers

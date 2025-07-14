@@ -12,7 +12,7 @@ setup_hyprland_packages() {
     yay -S --noconfirm --needed $core || return 1
 
     # Utilities (best effort)
-    local utilities="waybar wofi mako swaybg hyprlock hypridle grim slurp hyprshot hyprpicker hyprland-qtutils kooha gst-libav"
+    local utilities="waybar fuzzel mako swaybg hyprlock hypridle grim slurp hyprshot hyprpicker hyprland-qtutils kooha gst-libav"
     yay -S --noconfirm --needed $utilities || echo "⚠ Some Hyprland utilities may have failed"
 
     # Python dependencies
@@ -29,7 +29,7 @@ validate_installation() {
     local issues=0
 
     # Check critical binaries
-    for cmd in Hyprland waybar hyprlock wofi; do
+    for cmd in Hyprland waybar hyprlock fuzzel; do
         command -v "$cmd" &>/dev/null || ((issues++))
     done
 
@@ -81,7 +81,7 @@ show_summary() {
     echo ""
     echo "🎉 Hyprland desktop environment setup complete!"
     echo ""
-    echo "📦 Installed: Hyprland WM, Waybar, Wofi launcher, Mako notifications, screen tools, Kooha recorder"
+    echo "📦 Installed: Hyprland WM, Waybar, Fuzzel launcher, Mako notifications, screen tools, Kooha recorder"
     echo "🚀 Getting started: Log out/in to start Hyprland, or type 'Hyprland'"
     echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher)"
 }

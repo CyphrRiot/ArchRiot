@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Display Hyprland keybindings in searchable wofi menu
+# Display Hyprland keybindings in searchable fuzzel menu
 
 user_conf="$HOME/.config/hypr/hyprland.conf"
 omarchy_conf="$HOME/.local/share/omarchy/default/hypr/bindings.conf"
@@ -31,4 +31,4 @@ done
     gsub(/^[ \t]+|[ \t]+$/, "", action)
 
     if (action != "") printf "%-35s → %s\n", key, action
-}' | flock --nonblock /tmp/.wofi.lock -c "wofi -dmenu -i --width 60% --height 70% -p 'Hyprland Keybindings' -O alphabetical --style=\"$HOME/.local/share/omarchy/default/wofi/search.css\""
+}' | flock --nonblock /tmp/.fuzzel.lock -c "fuzzel --dmenu --prompt 'Hyprland Keybindings' --width 50 --lines 20"

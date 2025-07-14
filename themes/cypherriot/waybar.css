@@ -68,6 +68,7 @@ tooltip {
     margin-right: 8px;
     border-radius: 9px;
     border: none;
+    font-size: 110%; /* 10% larger than base font size */
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(0.55, -0.68, 0.48, 1.682);
 }
@@ -192,6 +193,11 @@ tooltip {
 /* Added spacing between workspaces */
 #workspaces {
     margin: 0 10px;
+}
+
+/* Increase workspace window icon size */
+#workspaces .window {
+    font-size: 110%;
 }
 
 #workspaces > * {
@@ -573,19 +579,19 @@ label:focus {
 /* Arch logo styling */
 #custom-arch {
     color: @accent5; /* Same cyan color as battery and other menu items */
-    font-size: 130%;
+    font-size: 120%;
     padding: 0 5px;
 }
 
 /* Microphone transparency fixes */
 #custom-mic {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 #custom-mic.muted {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 #custom-mic:hover {
