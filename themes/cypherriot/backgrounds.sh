@@ -10,14 +10,14 @@ mkdir -p "$BACKGROUNDS_DIR/cypherriot"
 # Clear existing backgrounds to prevent duplicates
 rm -f "$BACKGROUNDS_DIR/cypherriot"/*.jpg "$BACKGROUNDS_DIR/cypherriot"/*.png 2>/dev/null || true
 
-# Copy escape velocity wallpaper as default (already in repo)
-cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/escape_velocity.jpg "$BACKGROUNDS_DIR/cypherriot/1-escape_velocity.jpg"
+# Copy City Rainy Night wallpaper as default (already in repo)
+cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/City-Rainy-Night.png "$BACKGROUNDS_DIR/cypherriot/1-City-Rainy-Night.png"
 
 # Copy blue night moon over lake wallpaper (already in repo)
 cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/blue_night_moon_over_lake.jpg "$BACKGROUNDS_DIR/cypherriot/2-blue_night_moon_over_lake.jpg"
 
-# Copy City Rainy Night wallpaper (already in repo)
-cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/City-Rainy-Night.png "$BACKGROUNDS_DIR/cypherriot/3-City-Rainy-Night.png"
+# Copy escape velocity wallpaper (already in repo)
+cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/escape_velocity.jpg "$BACKGROUNDS_DIR/cypherriot/3-escape_velocity.jpg"
 
 # Copy Staircase wallpaper (already in repo)
 cp ~/.local/share/omarchy/themes/cypherriot/backgrounds/Staircase.png "$BACKGROUNDS_DIR/cypherriot/4-Staircase.png"
