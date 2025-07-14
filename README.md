@@ -1,6 +1,6 @@
 # OhmArchy Ω
 
-<div align="center">
+<div align="center" size=+1>
 
 ![Version](https://img.shields.io/badge/version-1.0.2-blue)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
