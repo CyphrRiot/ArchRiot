@@ -4,7 +4,6 @@
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
 ![Language](https://img.shields.io/badge/language-Shell-89e051)
 ![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy)
-
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
 ![Wayland](https://img.shields.io/badge/Wayland-FFCB3B?logo=wayland&logoColor=black)
