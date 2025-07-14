@@ -36,6 +36,8 @@ background=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n
 
 # Reload components
 touch "$HOME/.config/ghostty/config"  # Use ghostty instead of kitty
+# Copy theme-specific fuzzel config if it exists
+[[ -f "$new_theme/fuzzel.ini" ]] && cp "$new_theme/fuzzel.ini" "$HOME/.config/fuzzel/fuzzel.ini"
 pkill -SIGUSR2 waybar 2>/dev/null
 makoctl reload 2>/dev/null
 hyprctl reload 2>/dev/null

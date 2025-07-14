@@ -255,6 +255,7 @@ link_theme_configs() {
     local config_links=(
         "hyprlock.conf:$HOME/.config/hypr/hyprlock.conf"
         "wofi.css:$HOME/.config/wofi/style.css"
+        "fuzzel.ini:$HOME/.config/fuzzel/fuzzel.ini"
         "neovim.lua:$HOME/.config/nvim/lua/plugins/theme.lua"
         "btop.theme:$HOME/.config/btop/themes/current.theme"
         "mako.ini:$HOME/.config/mako/config"
@@ -285,6 +286,7 @@ backup_existing_configs() {
     local configs_to_backup=(
         "$HOME/.config/waybar/config"
         "$HOME/.config/wofi/style.css"
+        "$HOME/.config/fuzzel/fuzzel.ini"
         "$HOME/.config/hypr/hyprlock.conf"
         "$HOME/.config/mako/config"
         "$HOME/.config/ghostty/current-theme.conf"
