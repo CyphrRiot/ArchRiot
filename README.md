@@ -9,7 +9,7 @@
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
 ![Wayland](https://img.shields.io/badge/Wayland-FFCB3B?logo=wayland&logoColor=black)
 
-![Maintained](https://img.shields.io/maintenance/yes/2024)
+![Maintained](https://img.shields.io/maintenance/yes/2025)
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy)
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy)
 
