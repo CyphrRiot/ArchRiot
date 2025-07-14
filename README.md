@@ -307,7 +307,7 @@ OhmArchy provides automatic GPU detection and driver installation for all major 
 ohmarchy-update
 ```
 
-Updates system packages and applies any available OhmArchy migrations.
+Updates OhmArchy by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.
 
 ### Backup & Restore
 
