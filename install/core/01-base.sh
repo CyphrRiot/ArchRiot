@@ -19,7 +19,7 @@ fix_mirrors() {
 # Install base development tools and yay AUR helper
 install_base_devel() {
     echo "📦 Installing base development tools..."
-    sudo pacman -S --needed --noconfirm base-devel || return 1
+    sudo pacman -S --needed --noconfirm base-devel rsync || return 1
 }
 
 install_yay() {
