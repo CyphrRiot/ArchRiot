@@ -33,3 +33,6 @@ __pycache__/
 # Personal customizations
 personal/
 local/
+
+# Python Rope IDE artifacts
+.ropeproject/
