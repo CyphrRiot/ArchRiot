@@ -251,24 +251,14 @@ link_theme_configs() {
         echo "✓ GTK dark theme CSS applied"
     fi
 
-    # Copy hyprlock config (to prevent recursive sourcing)
-    local hyprlock_source="$theme_dir/hyprlock.conf"
-    if [[ -f "$hyprlock_source" ]]; then
+    # Handle hyprlock config specially (link main config that sources theme)
+    local main_hyprlock="$HOME/.local/share/omarchy/config/hypr/hyprlock.conf"
+    if [[ -f "$main_hyprlock" ]]; then
         mkdir -p "$HOME/.config/hypr"
-        cp "$hyprlock_source" "$HOME/.config/hypr/hyprlock.conf"
-        echo "✓ Copied: hyprlock.conf"
+        ln -snf "$main_hyprlock" "$HOME/.config/hypr/hyprlock.conf"
+        echo "✓ Linked: hyprlock.conf (sources theme)"
     else
-        echo "⚠ Theme file not found: hyprlock.conf"
-    fi
-
-    # Handle hyprlock config specially (copy to prevent recursive sourcing)
-    local hyprlock_source="$theme_dir/hyprlock.conf"
-    if [[ -f "$hyprlock_source" ]]; then
-        mkdir -p "$HOME/.config/hypr"
-        cp "$hyprlock_source" "$HOME/.config/hypr/hyprlock.conf"
-        echo "✓ Copied: hyprlock.conf"
-    else
-        echo "⚠ Theme file not found: hyprlock.conf"
+        echo "⚠ Main hyprlock config not found"
     fi
 
     # Link other application configs
