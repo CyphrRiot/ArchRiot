@@ -297,6 +297,9 @@ link_theme_configs() {
 backup_existing_configs() {
     echo "💾 Creating configuration backups..."
 
+    local backup_dir="$HOME/.config/omarchy-backups/$(date +%Y-%m-%d-%H%M%S)"
+    mkdir -p "$backup_dir"
+
     local configs_to_backup=(
         "$HOME/.config/waybar/config"
         "$HOME/.config/fuzzel/fuzzel.ini"
@@ -306,17 +309,23 @@ backup_existing_configs() {
         "$HOME/.config/gtk-3.0/gtk.css"
     )
 
+    local backed_up=0
     for config in "${configs_to_backup[@]}"; do
         if [[ -f "$config" && ! -L "$config" ]]; then
-            local backup_name="${config}.backup-$(date +%s)"
-            # Only backup if source and destination are different
-            if [[ "$config" != "$backup_name" ]]; then
-                cp "$config" "$backup_name" 2>/dev/null || true
-            fi
+            local relative_path="${config#$HOME/.config/}"
+            local backup_path="$backup_dir/$relative_path"
+
+            mkdir -p "$(dirname "$backup_path")"
+            cp "$config" "$backup_path" 2>/dev/null && ((backed_up++))
         fi
     done
 
-    echo "✓ Configuration backups created"
+    if [[ $backed_up -gt 0 ]]; then
+        echo "✓ Configuration backups created at: $backup_dir"
+    else
+        rmdir "$backup_dir" 2>/dev/null || true
+        echo "✓ No configurations to backup"
+    fi
 }
 
 # Link waybar configuration with special handling
