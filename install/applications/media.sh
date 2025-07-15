@@ -8,7 +8,7 @@
 
 # Install essential media tools
 yay -S --noconfirm --needed \
-    audacious \
+    lollypop \
     totem \
     mpv \
     pavucontrol \
