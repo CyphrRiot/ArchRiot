@@ -32,7 +32,7 @@
     font-weight: bold;
     min-height: 0;
     /* set font-size to 100% if font scaling is set to 1.00 using nwg-look */
-    font-size: 98%;
+    font-size: 102%;
     font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
 }
 
@@ -210,7 +210,7 @@ tooltip {
 }
 
 #workspaces > * {
-    margin: 0 1px;
+    margin: 0 6px;
 }
 
 /* If workspaces is the leftmost module, omit left margin */
@@ -519,7 +519,7 @@ label:focus {
     padding-left: 2px; /* Reduced padding */
     padding-right: 6px;
     border-radius: 6px;
-    font-size: 102%; /* Match the global waybar font size */
+    font-size: 98%; /* Match the global waybar font size */
     transition: all 0.3s ease;
 }
 
