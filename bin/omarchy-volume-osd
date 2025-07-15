@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# OhmArchy Volume OSD - Simple Hyprland notification for volume changes
+# Shows beautiful volume bar in top middle of screen for 1 second
+
+# Get current volume and mute status
+get_volume_info() {
+    local volume=$(pamixer --get-volume)
+    local muted=$(pamixer --get-mute)
+
+    if [[ "$muted" == "true" ]]; then
+        echo "muted|0"
+    else
+        echo "unmuted|$volume"
+    fi
+}
+
+# Create volume bar visual
+create_volume_bar() {
+    local volume=$1
+    local muted=$2
+    local bar_length=20
+    local filled_length=$((volume * bar_length / 100))
+
+    local bar=""
+    local icon=""
+
+    if [[ "$muted" == "true" ]]; then
+        icon="MUTED"
+        bar="[$(printf '%*s' $bar_length | tr ' ' '-')]"
+    else
+        if [[ $volume -eq 0 ]]; then
+            icon="VOL"
+        elif [[ $volume -lt 50 ]]; then
+            icon="VOL"
+        else
+            icon="VOL"
+        fi
+
+        # Create filled and empty parts
+        local filled=$(printf '%*s' $filled_length | tr ' ' '=')
+        local empty=$(printf '%*s' $((bar_length - filled_length)) | tr ' ' '-')
+        bar="[$filled$empty]"
+    fi
+
+    echo "$icon $bar $volume%"
+}
+
+# Show notification using Hyprland
+show_volume_notification() {
+    local info=$(get_volume_info)
+    local muted=$(echo "$info" | cut -d'|' -f1)
+    local volume=$(echo "$info" | cut -d'|' -f2)
+
+    local display_text=$(create_volume_bar "$volume" "$muted")
+
+    # Send notification via Hyprland
+    hyprctl notify -1 1000 "rgb(9d7bd8)" "$display_text"
+}
+
+# Handle volume changes
+case "$1" in
+    "up")
+        pamixer --increase 5
+        show_volume_notification
+        ;;
+    "down")
+        pamixer --decrease 5
+        show_volume_notification
+        ;;
+    "mute")
+        pamixer --toggle-mute
+        show_volume_notification
+        ;;
+    "show")
+        show_volume_notification
+        ;;
+    *)
+        echo "Usage: $0 {up|down|mute|show}"
+        exit 1
+        ;;
+esac
