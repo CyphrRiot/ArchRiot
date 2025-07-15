@@ -38,6 +38,11 @@ declare -a install_modules=(
     "optional"       # Optional components (specialty apps)
 )
 
+# Additional standalone installers to run after modules
+declare -a standalone_installers=(
+    "plymouth.sh"    # Boot splash screen with OhmArchy branding
+)
+
 # Function to get all installer files in proper order
 get_installer_files() {
     local install_dir="$HOME/.local/share/omarchy/install"
@@ -139,6 +144,30 @@ for installer_file in "${installers[@]}"; do
     else
         echo "❌ Failed: $installer_name"
         exit 1
+    fi
+done
+
+# Run standalone installers
+echo -e "\n🎨 Running Standalone Installers"
+echo "================================="
+
+for standalone in "${standalone_installers[@]}"; do
+    standalone_path="$HOME/.local/share/omarchy/install/$standalone"
+    standalone_name=$(basename "$standalone" .sh)
+
+    if [[ -f "$standalone_path" ]]; then
+        echo "🔧 Installing: $standalone_name"
+        start_time=$(date +%s)
+
+        if bash "$standalone_path"; then
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            echo "✓ Completed: $standalone_name (${duration}s)"
+        else
+            echo "❌ Failed: $standalone_name (continuing anyway)"
+        fi
+    else
+        echo "⚠ Standalone installer not found: $standalone"
     fi
 done
 
