@@ -8,7 +8,7 @@ install_fonts() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install system fonts via package manager
-    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation"
+    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-jetbrains-mono-nerd ttf-cascadia-mono-nerd"
     yay -S --noconfirm --needed $system_fonts || echo "⚠ Some system fonts may have failed"
 
     echo "✓ System fonts installed"
@@ -19,22 +19,6 @@ install_programming_fonts() {
     echo "💻 Installing programming fonts..."
 
     mkdir -p ~/.local/share/fonts
-
-    # Install Cascadia Mono Nerd Font
-    if ! fc-list | grep -qi "CaskaydiaMono Nerd Font"; then
-        echo "⬇️  Downloading Cascadia Mono..."
-        local temp_dir="/tmp/cascadia-$$"
-        mkdir -p "$temp_dir"
-
-        if wget -q "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaMono.zip" -O "$temp_dir/CascadiaMono.zip" &&
-           cd "$temp_dir" && unzip -q CascadiaMono.zip &&
-           find . -name "CaskaydiaMonoNerdFont-*.ttf" -exec cp {} ~/.local/share/fonts/ \;; then
-            echo "✓ Cascadia Mono Nerd Font installed"
-        else
-            echo "⚠ Cascadia Mono installation failed"
-        fi
-        rm -rf "$temp_dir"
-    fi
 
     # Install iA Writer Mono fonts
     if ! fc-list | grep -qi "iA Writer Mono"; then
@@ -79,7 +63,7 @@ show_summary() {
     echo ""
     echo "🎉 Font installation complete!"
     echo ""
-    echo "📝 Installed: Noto fonts, Font Awesome icons, Cascadia Mono, iA Writer Mono"
+    echo "📝 Installed: Noto fonts, Font Awesome icons, JetBrainsMono Nerd Font, Cascadia Mono Nerd Font, iA Writer Mono"
     echo "💡 Usage: Terminal fonts available, restart apps to use new fonts"
 }
 

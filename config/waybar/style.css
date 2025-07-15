@@ -66,12 +66,10 @@ tooltip {
     border: none;
     outline: none;
     padding: 4px;
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 2px;
+    margin-right: 2px;
     border-radius: 0px;
-    border: none;
-    outline: none;
-    box-shadow: none;
+    border: none;    outline: none;    box-shadow: none;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(0.55, -0.68, 0.48, 1.682);
 }
@@ -79,21 +77,15 @@ tooltip {
 #taskbar button.active,
 #workspaces button.active {
     background-color: transparent;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     color: #3584e8; /* Active workspace now uses the old inactive color (bright blue) */
-    border: none;
-    outline: none;
-    box-shadow: none;
-    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     border: none;
     outline: none;
     box-shadow: none;
     padding: 4px;
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 2px;
+    margin-right: 2px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -103,17 +95,14 @@ tooltip {
 #workspaces button:hover {
     background: rgba(0, 0, 0, 0.2);
     color: #6b8ba6; /* Lighter than inactive, darker than active for hover */
-    border: none;
-    outline: none;
-    box-shadow: none;
-    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     border: none;
     outline: none;
     box-shadow: none;
     /* Keep the same padding as the normal state */
     padding: 4px;
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 2px;
+    margin-right: 2px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -121,15 +110,9 @@ tooltip {
 
 #workspaces button.focused {
     background-color: transparent;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     color: #3584e8; /* Use new active color for focused state too */
-    border: none;
-    outline: none;
-    box-shadow: none;
-    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
     border: none;
     outline: none;
     box-shadow: none;
@@ -138,10 +121,7 @@ tooltip {
 
 #workspaces button.urgent {
     background-color: #eb4d4b;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    border-radius: 0px;
+    border: none;    outline: none;    box-shadow: none;    border-radius: 0px;
 }
 
 #mode {
@@ -230,11 +210,11 @@ tooltip {
 
 /* Added spacing between workspaces */
 #workspaces {
-    margin: 0 10px;
+    margin: 0 4px;
 }
 
 #workspaces > * {
-    margin: 0 6px;
+    margin: 0 2px;
 }
 
 /* If workspaces is the leftmost module, omit left margin */
@@ -588,7 +568,7 @@ label:focus {
 /* Microphone button styling */
 #custom-mic {
     color: #9ece6a; /* Green when active */
-    font-size: 110%;
+    font-size: 150%;
     margin: 0 5px;
     padding: 0 8px;
     border-radius: 8px;
