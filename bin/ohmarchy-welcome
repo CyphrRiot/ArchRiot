@@ -88,7 +88,8 @@ class WelcomeWindow:
             "SUPER+ENTER = Open Terminal\n",
             "SUPER+F = Open File Browser\n",
             "SUPER+X = Open Twitter/X (Special Window)\n",
-            "SUPER+SPACE = Launch App Search Window\n\n",
+            "SUPER+SPACE = Launch App Search Window\n",
+            "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
             "Many other commands!\n\n",
 
             "I hope you enjoy using OhmArchy as much as I enjoyed putting it together. If you need to contact me, I'm at "
