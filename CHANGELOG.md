@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Removed duplicate `"title<.*reddit.*>"` entry causing validation warnings
     - All diagnostics now pass clean without warnings
 
+### ✨ Enhancements
+
+- **Base System**: Added `bc` (basic calculator) to core installation
+    - Fixes script failures when mathematical calculations are needed
+    - Resolves `sync-media` and other script compatibility issues on minimal installations
+
 ### 🔍 Quality Improvements
 
 - **Configuration Validation**: Enhanced JSON structure integrity
