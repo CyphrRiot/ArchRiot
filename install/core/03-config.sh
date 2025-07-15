@@ -76,23 +76,25 @@ setup_scripts_and_env() {
 configure_system() {
     echo "🔐 Configuring system services..."
 
-    # Detect and handle existing display managers
+    # Remove existing display managers (we use LUKS + hyprlock instead)
     local display_managers=("sddm" "gdm" "lightdm" "lxdm")
-    local active_dm=""
+    local removed_any=false
 
     for dm in "${display_managers[@]}"; do
-        if systemctl is-enabled "$dm" &>/dev/null; then
-            active_dm="$dm"
-            break
+        if pacman -Qi "$dm" &>/dev/null; then
+            echo "🔍 Found display manager: $dm"
+            echo "🗑️ Removing $dm (redundant with LUKS + hyprlock)..."
+            sudo systemctl stop "$dm" 2>/dev/null || true
+            sudo systemctl disable "$dm" 2>/dev/null || true
+            sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true
+            removed_any=true
         fi
     done
 
-    if [[ -n "$active_dm" ]]; then
-        echo "🔍 Found active display manager: $active_dm"
-        echo "🔄 Disabling $active_dm to enable OhmArchy autologin..."
-        sudo systemctl disable "$active_dm" || true
-        sudo systemctl stop "$active_dm" || true
-        echo "✓ Display manager disabled - OhmArchy will use autologin"
+    if [[ "$removed_any" == true ]]; then
+        echo "✓ Display managers removed - using LUKS + autologin + hyprlock"
+    else
+        echo "✓ No display managers found to remove"
     fi
 
     # Setup autologin
