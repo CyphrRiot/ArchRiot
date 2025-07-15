@@ -26,7 +26,18 @@ install_configs() {
     local source_config="$HOME/.local/share/omarchy/config"
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
-    cp -R "$source_config"/* ~/.config/ || return 1
+    # Copy configs while handling existing symlinks
+    for item in "$source_config"/*; do
+        local basename=$(basename "$item")
+        local target="$HOME/.config/$basename"
+
+        # Remove existing symlinks/files to prevent "same file" errors
+        if [[ -e "$target" ]]; then
+            rm -rf "$target"
+        fi
+
+        cp -R "$item" "$target" || return 1
+    done
 
     echo "✓ Configurations installed"
 }
