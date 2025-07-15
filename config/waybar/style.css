@@ -564,7 +564,7 @@ label:focus {
 /* Microphone button styling */
 #custom-mic {
     color: #9ece6a; /* Green when active */
-    font-size: 150%;
+    font-size: 110%;
     margin: 0 5px;
     padding: 0 8px;
     border-radius: 8px;
