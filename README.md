@@ -168,6 +168,8 @@ XF86AudioLowerVolume                 # Volume down
 XF86AudioMute                        # Toggle mute
 XF86AudioMicMute                     # Toggle microphone
 XF86AudioPlay/Pause                  # Media play/pause
+
+# Beautiful volume overlay appears for 1 second with progress bar
 ```
 
 ### Waybar Controls
