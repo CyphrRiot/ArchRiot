@@ -22,8 +22,8 @@
     },
     "custom/arch": {
         "format": "󰣇",
-        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
-        "on-click-right": "pkill fuzzel || fuzzel",
+        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || XDG_CACHE_HOME=$HOME/.cache fuzzel",
+        "on-click-right": "pkill fuzzel || XDG_CACHE_HOME=$HOME/.cache fuzzel",
         "tooltip": true,
         "tooltip-format": "Left Click: Application Grid\nRight Click: Fuzzel Launcher"
     }
