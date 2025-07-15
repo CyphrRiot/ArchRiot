@@ -1,0 +1,268 @@
+#!/usr/bin/env python3
+
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
+import os
+import json
+import sys
+
+class WelcomeWindow:
+    def __init__(self):
+        self.window = Gtk.Window()
+        self.window.set_title("Welcome to OhmArchy")
+        self.window.set_default_size(800, 600)
+        self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.set_resizable(False)
+
+        # Set window to be 80% of screen height
+        try:
+            display = Gdk.Display.get_default()
+            monitor = display.get_primary_monitor()
+            if monitor:
+                geometry = monitor.get_geometry()
+                window_height = int(geometry.height * 0.9)
+            else:
+                window_height = 700  # fallback
+        except:
+            window_height = 700  # fallback
+        self.window.set_default_size(800, window_height)
+
+        # Create main container
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
+        main_box.set_margin_start(40)
+        main_box.set_margin_end(40)
+        main_box.set_margin_top(30)
+        main_box.set_margin_bottom(30)
+
+        # Add title
+        title_label = Gtk.Label()
+        title_label.set_markup('<span size="28000" weight="bold">Welcome to OhmArchy!</span>')
+        title_label.set_halign(Gtk.Align.CENTER)
+        main_box.pack_start(title_label, False, False, 0)
+
+        # Add subtitle
+        subtitle_label = Gtk.Label()
+        subtitle_label.set_markup('<span size="18000" style="italic">You are through the looking glass now...</span>')
+        subtitle_label.set_halign(Gtk.Align.CENTER)
+        main_box.pack_start(subtitle_label, False, False, 0)
+
+        # Add main text
+        self.add_main_text(main_box)
+
+        # Add buttons
+        self.add_buttons(main_box)
+
+        self.window.add(main_box)
+        self.window.connect("destroy", Gtk.main_quit)
+        self.window.show_all()
+
+    def add_main_text(self, container):
+        # Create scrollable text view
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_size_request(-1, 400)
+
+        text_view = Gtk.TextView()
+        text_view.set_editable(False)
+        text_view.set_cursor_visible(False)
+        text_view.set_wrap_mode(Gtk.WrapMode.WORD)
+        text_view.set_left_margin(20)
+        text_view.set_right_margin(20)
+        text_view.set_top_margin(10)
+        text_view.set_bottom_margin(10)
+
+        # Set font size for text view
+        font_desc = text_view.get_pango_context().get_font_description()
+        font_desc.set_size(13 * 1024)  # 13pt font
+        text_view.override_font(font_desc)
+
+        buffer = text_view.get_buffer()
+
+        # Create text with markup for clickable links
+        text_content_parts = [
+            "OhmArchy is based on Hyprland. Hyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. I've tried to make OhmArchy as intuitive as possible, while still respecting the user and their abilities.\n\n",
+            "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
+            "SUPER+B = Open Brave Browser\n",
+            "SUPER+ENTER = Open Terminal\n",
+            "SUPER+F = Open File Browser\n",
+            "SUPER+SPACE = Launch App Search Window\n\n",
+            "I hope you enjoy using OhmArchy as much as I enjoyed putting it together. If you need to contact me, I'm at "
+        ]
+
+        # Insert text parts
+        iter_end = buffer.get_end_iter()
+        for part in text_content_parts:
+            buffer.insert(iter_end, part)
+            iter_end = buffer.get_end_iter()
+
+        # Insert clickable link for Twitter
+        twitter_tag = buffer.create_tag("twitter_link", foreground="#89b4fa", underline=True)
+        buffer.insert_with_tags(iter_end, "Cypher Riot on X", twitter_tag)
+        iter_end = buffer.get_end_iter()
+
+        buffer.insert(iter_end, " or ")
+        iter_end = buffer.get_end_iter()
+
+        # Insert clickable link for GitHub
+        github_tag = buffer.create_tag("github_link", foreground="#89b4fa", underline=True)
+        buffer.insert_with_tags(iter_end, "OhmArchy on GitHub", github_tag)
+        iter_end = buffer.get_end_iter()
+
+        # Insert signature with larger font
+        signature_tag = buffer.create_tag("signature", scale=1.2)
+        buffer.insert_with_tags(iter_end, ".\n\n𝓒𝔂𝓹𝓱𝓮𝓻 𝓡𝓲𝓸𝓽", signature_tag)
+
+        # Connect click events for links
+        text_view.connect("button-press-event", self.on_text_clicked)
+
+        scrolled_window.add(text_view)
+        container.pack_start(scrolled_window, True, True, 0)
+
+    def add_buttons(self, container):
+        # Create button box
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        button_box.set_halign(Gtk.Align.FILL)
+
+        # Dismiss Forever button (left)
+        dismiss_button = Gtk.Button(label="Dismiss Forever")
+        dismiss_button.connect("clicked", self.on_dismiss_forever)
+        dismiss_button.set_halign(Gtk.Align.START)
+        button_box.pack_start(dismiss_button, False, False, 0)
+
+        # Spacer
+        spacer = Gtk.Box()
+        button_box.pack_start(spacer, True, True, 0)
+
+        # Close button (right)
+        close_button = Gtk.Button(label="Close")
+        close_button.connect("clicked", self.on_close)
+        close_button.set_halign(Gtk.Align.END)
+        button_box.pack_start(close_button, False, False, 0)
+
+        container.pack_start(button_box, False, False, 0)
+
+    def on_dismiss_forever(self, button):
+        # Create config directory if it doesn't exist
+        config_dir = os.path.expanduser("~/.config/ohmarchy")
+        os.makedirs(config_dir, exist_ok=True)
+
+        # Write welcome.json to indicate welcome has been dismissed
+        welcome_config = {
+            "dismissed": True,
+            "timestamp": GLib.get_real_time()
+        }
+
+        config_file = os.path.join(config_dir, "welcome.json")
+        try:
+            with open(config_file, 'w') as f:
+                json.dump(welcome_config, f, indent=2)
+            print("Welcome dismissed forever")
+        except Exception as e:
+            print(f"Error saving welcome config: {e}")
+
+        Gtk.main_quit()
+
+    def on_close(self, button):
+        Gtk.main_quit()
+
+    def on_text_clicked(self, text_view, event):
+        """Handle clicks on text view to open links"""
+        if event.button == 1:  # Left click
+            x, y = text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET, int(event.x), int(event.y))
+            iter_result = text_view.get_iter_at_location(x, y)
+
+            if iter_result[0]:  # Check if location was found
+                iter_pos = iter_result[1]
+                tags = iter_pos.get_tags()
+
+                for tag in tags:
+                    if hasattr(tag, 'get_property'):
+                        tag_name = tag.get_property('name')
+                        if tag_name == "twitter_link":
+                            os.system("xdg-open https://x.com/CyphrRiot &")
+                            return True
+                        elif tag_name == "github_link":
+                            os.system("xdg-open https://github.com/CyphrRiot/OhmArchy &")
+                            return True
+
+        return False
+
+def should_show_welcome():
+    """Check if welcome should be shown"""
+    config_file = os.path.expanduser("~/.config/ohmarchy/welcome.json")
+
+    if not os.path.exists(config_file):
+        return True
+
+    try:
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+        return not config.get("dismissed", False)
+    except:
+        return True
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--force":
+        # Force show welcome even if dismissed
+        pass
+    elif not should_show_welcome():
+        print("Welcome has been dismissed")
+        return
+
+    # Set up CSS for styling
+    css_provider = Gtk.CssProvider()
+    css_data = """
+    window {
+        background: #1e1e2e;
+        color: #cdd6f4;
+    }
+
+    label {
+        color: #cdd6f4;
+    }
+
+    textview {
+        background: #1e1e2e;
+        color: #cdd6f4;
+        border: none;
+    }
+
+    textview text {
+        background: #1e1e2e;
+        color: #cdd6f4;
+    }
+
+    button {
+        background: #4B0082;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: bold;
+        min-width: 100px;
+        min-height: 32px;
+    }
+
+    button:hover {
+        background: #663399;
+    }
+
+    scrolledwindow {
+        border: none;
+        background: #1e1e2e;
+    }
+    """
+
+    css_provider.load_from_data(css_data.encode())
+
+    # Apply CSS to default screen
+    screen = Gdk.Screen.get_default()
+    Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+    app = WelcomeWindow()
+    Gtk.main()
+
+if __name__ == "__main__":
+    main()
