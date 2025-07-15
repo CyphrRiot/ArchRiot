@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# OhmArchy Volume OSD - Simple Hyprland notification for volume changes
-# Shows beautiful volume bar in top middle of screen for 1 second
+# OhmArchy Volume OSD - Simple and clean Hyprland notification for volume changes
+# Shows clean volume bar in top middle of screen for 1.5 seconds
 
 # Get current volume and mute status
 get_volume_info() {
@@ -15,38 +15,33 @@ get_volume_info() {
     fi
 }
 
-# Create volume bar visual
+# Create clean volume display
 create_volume_bar() {
     local volume=$1
     local muted=$2
-    local bar_length=20
-    local filled_length=$((volume * bar_length / 100))
 
-    local bar=""
     local icon=""
 
     if [[ "$muted" == "true" ]]; then
-        icon="MUTED"
-        bar="[$(printf '%*s' $bar_length | tr ' ' '-')]"
+        icon="󰖁"  # Muted speaker icon
+        echo "$icon  MUTED     "
     else
+        # Choose icon based on volume level
         if [[ $volume -eq 0 ]]; then
-            icon="VOL"
-        elif [[ $volume -lt 50 ]]; then
-            icon="VOL"
+            icon="󰕿"  # No volume
+        elif [[ $volume -lt 33 ]]; then
+            icon="󰖀"  # Low volume
+        elif [[ $volume -lt 66 ]]; then
+            icon="󰕾"  # Medium volume
         else
-            icon="VOL"
+            icon="󰕾"  # High volume
         fi
 
-        # Create filled and empty parts
-        local filled=$(printf '%*s' $filled_length | tr ' ' '=')
-        local empty=$(printf '%*s' $((bar_length - filled_length)) | tr ' ' '-')
-        bar="[$filled$empty]"
+        echo "$icon  $volume%     "
     fi
-
-    echo "$icon $bar $volume%"
 }
 
-# Show notification using Hyprland
+# Show notification using Hyprland with clean styling
 show_volume_notification() {
     local info=$(get_volume_info)
     local muted=$(echo "$info" | cut -d'|' -f1)
@@ -54,14 +49,30 @@ show_volume_notification() {
 
     local display_text=$(create_volume_bar "$volume" "$muted")
 
+    # Choose color: Blue -> Purple -> Red
+    local color="rgb(100,149,237)"  # Blue default
+    if [[ "$muted" == "true" ]]; then
+        color="rgb(128,128,128)"    # Gray for muted
+    elif [[ $volume -lt 33 ]]; then
+        color="rgb(100,149,237)"    # Blue for low volume
+    elif [[ $volume -lt 66 ]]; then
+        color="rgb(147,112,219)"    # Purple for medium volume
+    else
+        color="rgb(220,20,60)"      # Red for high volume
+    fi
+
     # Send notification via Hyprland
-    hyprctl notify -1 1000 "rgb(9d7bd8)" "$display_text"
+    hyprctl notify -1 1500 "$color" "$display_text"
 }
 
-# Handle volume changes
+# Handle volume changes with bounds checking
 case "$1" in
     "up")
-        pamixer --increase 5
+        # Get current volume and check if it's already at max
+        current_vol=$(pamixer --get-volume)
+        if [[ $current_vol -lt 100 ]]; then
+            pamixer --increase 5 --allow-boost
+        fi
         show_volume_notification
         ;;
     "down")
@@ -77,6 +88,7 @@ case "$1" in
         ;;
     *)
         echo "Usage: $0 {up|down|mute|show}"
+        echo "Clean volume control with simple bar notifications"
         exit 1
         ;;
 esac

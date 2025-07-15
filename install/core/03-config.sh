@@ -44,6 +44,16 @@ setup_scripts_and_env() {
     find "$script_source" -type f \( -name "*.py" -o -name "*.sh" \) -exec cp {} "$script_dest/" \;
     chmod +x "$script_dest"/*
 
+    # Install volume OSD script
+    local volume_script="$HOME/.local/share/omarchy/bin/omarchy-volume-osd"
+    if [[ -f "$volume_script" ]]; then
+        cp "$volume_script" "$script_dest/"
+        chmod +x "$script_dest/omarchy-volume-osd"
+        echo "✓ Volume OSD script installed"
+    else
+        echo "⚠ Volume OSD script not found"
+    fi
+
     # Setup bash environment
     local omarchy_bashrc="$HOME/.local/share/omarchy/default/bash/rc"
     [[ -f "$omarchy_bashrc" ]] && echo "source $omarchy_bashrc" > ~/.bashrc
@@ -103,7 +113,7 @@ validate_installation() {
     python3 -c "import psutil" 2>/dev/null || ((issues++))
 
     # Check essential scripts
-    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py; do
+    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py omarchy-volume-osd; do
         [[ -x "$HOME/.local/bin/$script" ]] || ((issues++))
     done
 
