@@ -86,25 +86,30 @@ setup_scripts_and_env() {
 configure_system() {
     echo "🔐 Configuring system services..."
 
-    # Remove existing display managers (we use LUKS + hyprlock instead)
-    local display_managers=("sddm" "gdm" "lightdm" "lxdm")
-    local removed_any=false
-
-    for dm in "${display_managers[@]}"; do
-        if pacman -Qi "$dm" &>/dev/null; then
-            echo "🔍 Found display manager: $dm"
-            echo "🗑️ Removing $dm (redundant with LUKS + hyprlock)..."
-            sudo systemctl stop "$dm" 2>/dev/null || true
-            sudo systemctl disable "$dm" 2>/dev/null || true
-            sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true
-            removed_any=true
-        fi
-    done
-
-    if [[ "$removed_any" == true ]]; then
-        echo "✓ Display managers removed - using LUKS + autologin + hyprlock"
+    # Skip display manager removal if we're already running Hyprland
+    if [[ "$XDG_CURRENT_DESKTOP" == "Hyprland" ]] || [[ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]]; then
+        echo "✓ Running in Hyprland session - skipping display manager changes"
     else
-        echo "✓ No display managers found to remove"
+        # Remove existing display managers (we use LUKS + hyprlock instead)
+        local display_managers=("sddm" "gdm" "lightdm" "lxdm")
+        local removed_any=false
+
+        for dm in "${display_managers[@]}"; do
+            if pacman -Qi "$dm" &>/dev/null; then
+                echo "🔍 Found display manager: $dm"
+                echo "🗑️ Removing $dm (redundant with LUKS + hyprlock)..."
+                sudo systemctl stop "$dm" 2>/dev/null || true
+                sudo systemctl disable "$dm" 2>/dev/null || true
+                sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true
+                removed_any=true
+            fi
+        done
+
+        if [[ "$removed_any" == true ]]; then
+            echo "✓ Display managers removed - using LUKS + autologin + hyprlock"
+        else
+            echo "✓ No display managers found to remove"
+        fi
     fi
 
     # Setup autologin
