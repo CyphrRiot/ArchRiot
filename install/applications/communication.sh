@@ -17,8 +17,28 @@ source ~/.local/share/omarchy/default/bash/functions
 
 # Install essential web applications
 echo "🌐 Installing essential web applications..."
-web2app "Proton Mail" https://mail.proton.me/u/11/inbox https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/protonmail.png
-web2app "Google Messages" https://messages.google.com/web/conversations https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/google-messages.png
-web2app "X" https://x.com/ https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/x-light.png
+
+# Copy desktop files for web apps
+if [[ -f "$HOME/.local/share/omarchy/applications/Proton Mail.desktop" ]]; then
+    cp "$HOME/.local/share/omarchy/applications/Proton Mail.desktop" ~/.local/share/applications/
+    echo "✓ Proton Mail desktop file installed"
+fi
+
+if [[ -f "$HOME/.local/share/omarchy/applications/Google Messages.desktop" ]]; then
+    cp "$HOME/.local/share/omarchy/applications/Google Messages.desktop" ~/.local/share/applications/
+    echo "✓ Google Messages desktop file installed"
+fi
+
+if [[ -f "$HOME/.local/share/omarchy/applications/X.desktop" ]]; then
+    cp "$HOME/.local/share/omarchy/applications/X.desktop" ~/.local/share/applications/
+    echo "✓ X (Twitter) desktop file installed"
+fi
+
+# Copy icons
+if [[ -d "$HOME/.local/share/omarchy/applications/icons" ]]; then
+    mkdir -p ~/.local/share/icons
+    cp -r "$HOME/.local/share/omarchy/applications/icons"/* ~/.local/share/icons/ 2>/dev/null || true
+    echo "✓ Web app icons installed"
+fi
 
 echo "✅ Communication applications and web apps setup complete!"
