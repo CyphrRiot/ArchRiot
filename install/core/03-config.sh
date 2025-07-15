@@ -76,6 +76,25 @@ setup_scripts_and_env() {
 configure_system() {
     echo "🔐 Configuring system services..."
 
+    # Detect and handle existing display managers
+    local display_managers=("sddm" "gdm" "lightdm" "lxdm")
+    local active_dm=""
+
+    for dm in "${display_managers[@]}"; do
+        if systemctl is-enabled "$dm" &>/dev/null; then
+            active_dm="$dm"
+            break
+        fi
+    done
+
+    if [[ -n "$active_dm" ]]; then
+        echo "🔍 Found active display manager: $active_dm"
+        echo "🔄 Disabling $active_dm to enable OhmArchy autologin..."
+        sudo systemctl disable "$active_dm" || true
+        sudo systemctl stop "$active_dm" || true
+        echo "✓ Display manager disabled - OhmArchy will use autologin"
+    fi
+
     # Setup autologin
     [[ -n "$USER" ]] || return 1
     sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
