@@ -65,6 +65,16 @@ setup_scripts_and_env() {
         echo "⚠ Volume OSD script not found"
     fi
 
+    # Install welcome script
+    local welcome_script="$HOME/.local/share/omarchy/bin/ohmarchy-welcome"
+    if [[ -f "$welcome_script" ]]; then
+        cp "$welcome_script" "$script_dest/"
+        chmod +x "$script_dest/ohmarchy-welcome"
+        echo "✓ Welcome script installed"
+    else
+        echo "⚠ Welcome script not found"
+    fi
+
     # Setup bash environment
     local omarchy_bashrc="$HOME/.local/share/omarchy/default/bash/rc"
     [[ -f "$omarchy_bashrc" ]] && echo "source $omarchy_bashrc" > ~/.bashrc
@@ -145,7 +155,7 @@ validate_installation() {
     python3 -c "import psutil" 2>/dev/null || ((issues++))
 
     # Check essential scripts
-    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py omarchy-volume-osd; do
+    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py omarchy-volume-osd ohmarchy-welcome; do
         [[ -x "$HOME/.local/bin/$script" ]] || ((issues++))
     done
 
