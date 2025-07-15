@@ -99,7 +99,7 @@ install_experimental_apps() {
     echo "🧪 Installing experimental applications..."
 
     local experimental_apps=(
-        "audacious"             # Audio player from original xtras.sh
+        "lollypop"              # Modern GTK music player
     )
 
     install_packages "Experimental Tools" "${experimental_apps[@]}"
@@ -195,7 +195,7 @@ display_specialty_summary() {
     echo "  • FFmpeg - Media conversion Swiss Army knife"
     echo ""
     echo "🧪 Experimental Tools:"
-    echo "  • Audacious - Audio player"
+    echo "  • Lollypop - Modern GTK music player"
     echo ""
     echo "💡 Quick Start Tips:"
     echo "  • Launch writing tools from applications menu"
