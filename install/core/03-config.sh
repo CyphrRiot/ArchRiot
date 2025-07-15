@@ -75,6 +75,16 @@ setup_scripts_and_env() {
         echo "⚠ Welcome script not found"
     fi
 
+    # Install welcome image
+    local welcome_image="$HOME/.local/share/omarchy/images/alice.png"
+    if [[ -f "$welcome_image" ]]; then
+        mkdir -p "$HOME/.local/share/omarchy/images"
+        cp "$welcome_image" "$HOME/.local/share/omarchy/images/"
+        echo "✓ Welcome image installed"
+    else
+        echo "⚠ Welcome image not found"
+    fi
+
     # Setup bash environment
     local omarchy_bashrc="$HOME/.local/share/omarchy/default/bash/rc"
     [[ -f "$omarchy_bashrc" ]] && echo "source $omarchy_bashrc" > ~/.bashrc
