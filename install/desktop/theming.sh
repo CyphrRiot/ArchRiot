@@ -253,9 +253,15 @@ link_theme_configs() {
 
     # Handle hyprlock config specially (link main config that sources theme)
     local main_hyprlock="$HOME/.local/share/omarchy/config/hypr/hyprlock.conf"
+    local target_hyprlock="$HOME/.config/hypr/hyprlock.conf"
+
     if [[ -f "$main_hyprlock" ]]; then
         mkdir -p "$HOME/.config/hypr"
-        ln -snf "$main_hyprlock" "$HOME/.config/hypr/hyprlock.conf"
+
+        # Remove existing file/symlink to prevent "same file" errors
+        [[ -e "$target_hyprlock" ]] && rm -f "$target_hyprlock"
+
+        ln -snf "$main_hyprlock" "$target_hyprlock"
         echo "✓ Linked: hyprlock.conf (sources theme)"
     else
         echo "⚠ Main hyprlock config not found"
@@ -302,7 +308,11 @@ backup_existing_configs() {
 
     for config in "${configs_to_backup[@]}"; do
         if [[ -f "$config" && ! -L "$config" ]]; then
-            cp "$config" "${config}.backup-$(date +%s)" 2>/dev/null || true
+            local backup_name="${config}.backup-$(date +%s)"
+            # Only backup if source and destination are different
+            if [[ "$config" != "$backup_name" ]]; then
+                cp "$config" "$backup_name" 2>/dev/null || true
+            fi
         fi
     done
 
