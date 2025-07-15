@@ -181,36 +181,6 @@ else
     echo "⚠ Missing waybar scripts (found $script_count, expected 4+)"
 fi
 
-# DISABLED: ALL waybar CSS copying was destroying working configurations
-# echo "🎨 Setting up waybar theme..."
-# if [ -f ~/.local/share/omarchy/bin/omarchy-fix-waybar-theme ]; then
-#     ~/.local/share/omarchy/bin/omarchy-fix-waybar-theme >/dev/null 2>&1 || echo "⚠ Waybar theme setup had issues"
-# else
-#     # Fallback: copy CypherRiot CSS directly
-#     if [ -f ~/.local/share/omarchy/themes/cypherriot/waybar.css ]; then
-#         cp ~/.local/share/omarchy/themes/cypherriot/waybar.css ~/.config/waybar/style.css
-#         echo "✓ Applied CypherRiot waybar theme"
-#     fi
-# fi
-
-# Fix background defaults to ensure City-Rainy-Night.png is default
-echo "🖼️  Setting up background defaults..."
-if [ -f ~/.local/share/omarchy/bin/omarchy-fix-background ]; then
-    ~/.local/share/omarchy/bin/omarchy-fix-background >/dev/null 2>&1 || echo "⚠ Background setup had issues"
-    echo "✓ Background defaults configured"
-else
-    echo "⚠ Background fix script not found"
-fi
-
-# Fix PDF thumbnails during installation
-echo "📄 Configuring thumbnail settings..."
-if [ -f ~/.local/share/omarchy/bin/omarchy-fix-thunar-thumbnails ]; then
-    ~/.local/share/omarchy/bin/omarchy-fix-thunar-thumbnails >/dev/null 2>&1 || echo "⚠ Thumbnail setup had issues"
-    echo "✓ Thumbnail settings configured"
-else
-    echo "⚠ Thumbnail fix script not found"
-fi
-
 echo "================================="
 echo "🎉 OhmArchy installation complete!"
 echo "Version: $OMARCHY_VERSION"
@@ -224,14 +194,7 @@ if command -v cleanup_passwordless_sudo &>/dev/null; then
     }
 fi
 
-# DISABLED: Post-installation check was destroying working waybar
-# echo ""
-# echo "🔍 Running post-installation verification..."
-# if [ -x ~/.local/share/omarchy/bin/omarchy-post-install-check ]; then
-#     ~/.local/share/omarchy/bin/omarchy-post-install-check
-# else
-#     echo "⚠ Post-install check script not found"
-# fi
+
 
 # Ensure gum is available for final prompt
 if ! command -v gum &>/dev/null; then
@@ -243,8 +206,6 @@ echo ""
 echo "🎯 Installation Summary:"
 echo "  • All components installed and configured"
 echo "  • Themes and backgrounds properly set up"
-echo "  • Default background: City-Rainy-Night.png"
-echo "  • PDF thumbnails disabled (shows proper icons)"
 echo "  • All keyboard shortcuts configured"
 echo ""
 

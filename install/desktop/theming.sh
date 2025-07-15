@@ -251,9 +251,28 @@ link_theme_configs() {
         echo "✓ GTK dark theme CSS applied"
     fi
 
-    # Link application configs
+    # Copy hyprlock config (to prevent recursive sourcing)
+    local hyprlock_source="$theme_dir/hyprlock.conf"
+    if [[ -f "$hyprlock_source" ]]; then
+        mkdir -p "$HOME/.config/hypr"
+        cp "$hyprlock_source" "$HOME/.config/hypr/hyprlock.conf"
+        echo "✓ Copied: hyprlock.conf"
+    else
+        echo "⚠ Theme file not found: hyprlock.conf"
+    fi
+
+    # Handle hyprlock config specially (copy to prevent recursive sourcing)
+    local hyprlock_source="$theme_dir/hyprlock.conf"
+    if [[ -f "$hyprlock_source" ]]; then
+        mkdir -p "$HOME/.config/hypr"
+        cp "$hyprlock_source" "$HOME/.config/hypr/hyprlock.conf"
+        echo "✓ Copied: hyprlock.conf"
+    else
+        echo "⚠ Theme file not found: hyprlock.conf"
+    fi
+
+    # Link other application configs
     local config_links=(
-        "hyprlock.conf:$HOME/.config/hypr/hyprlock.conf"
         "fuzzel.ini:$HOME/.config/fuzzel/fuzzel.ini"
         "neovim.lua:$HOME/.config/nvim/lua/plugins/theme.lua"
         "btop.theme:$HOME/.config/btop/themes/current.theme"
