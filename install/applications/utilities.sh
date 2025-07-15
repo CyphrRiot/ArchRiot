@@ -32,7 +32,8 @@ yay -S --noconfirm --needed \
 # Install network utilities
 yay -S --noconfirm --needed \
   nm-connection-editor \
-  networkmanager-applet
+  networkmanager-applet \
+  iwgtk
 
 # Install essential tools
 yay -S --noconfirm --needed \
