@@ -19,9 +19,9 @@ if [ -f "$HOME/.local/share/omarchy/install/lib/install-helpers.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/install-helpers.sh"
 fi
 
-# Load progress bar library
-if [ -f "$HOME/.local/share/omarchy/install/lib/progress-bars.sh" ]; then
-    source "$HOME/.local/share/omarchy/install/lib/progress-bars.sh"
+# Load clean progress system
+if [ -f "$HOME/.local/share/omarchy/install/lib/simple-progress.sh" ]; then
+    source "$HOME/.local/share/omarchy/install/lib/simple-progress.sh"
 fi
 
 # Load and setup sudo helper for passwordless installation
@@ -100,87 +100,95 @@ get_installer_files() {
 
 # Process installation modules in the correct order
 process_installation_modules() {
-    local total=${#install_modules[@]}
-    local current=0
+    # Initialize clean progress system
+    if command -v init_clean_progress &>/dev/null; then
+        init_clean_progress ${#install_modules[@]}
+    fi
 
     for module in "${install_modules[@]}"; do
-        current=$((current + 1))
-
         # Handle individual files vs module directories
         if [[ "$module" == *".sh" ]]; then
             # Individual file (like core/01-base.sh)
             local installer_file="$HOME/.local/share/omarchy/install/$module"
             local installer_name=$(basename "$module" .sh)
-            local module_name=$(basename "$(dirname "$module")")
-
-            echo -e "\n[$current/$total] 📦 $module_name/$installer_name"
-            echo "================================================"
 
             if [[ -f "$installer_file" ]]; then
                 process_installer_with_progress "$installer_file" "$installer_name"
             else
-                fail_task "Installer not found: $module"
+                if command -v fail_step &>/dev/null; then
+                    fail_step "Installer not found: $module"
+                fi
+                exit 1
             fi
         else
             # Module directory (like desktop, system, etc.)
             local module_dir="$HOME/.local/share/omarchy/install/$module"
 
             if [[ -d "$module_dir" ]]; then
-                echo -e "\n[$current/$total] 📦 Processing $module module"
-                echo "================================================"
-
                 # Process all .sh files in the module directory
                 for installer_file in "$module_dir"/*.sh; do
                     if [[ -f "$installer_file" ]]; then
-                        current=$((current + 1))
                         local installer_name=$(basename "$installer_file" .sh)
                         process_installer_with_progress "$installer_file" "$installer_name"
                     fi
                 done
             else
-                fail_task "Module directory not found: $module"
+                if command -v fail_step &>/dev/null; then
+                    fail_step "Module directory not found: $module"
+                fi
+                exit 1
             fi
         fi
     done
 }
 
-# Process individual installer with progress bars
+# Process individual installer with clean progress
 process_installer_with_progress() {
     local installer_file="$1"
     local installer_name="$2"
 
-    # Determine color based on installer type
+    # Get color for installer type
     local color="BLUE"
     case "$installer_name" in
-        *base*|*core*) color="BLUE" ;;
+        *base*|*core*|*yay*) color="BLUE" ;;
+        *identity*|*config*) color="CYAN" ;;
         *desktop*|*hypr*|*waybar*) color="PURPLE" ;;
-        *theme*|*font*) color="CYAN" ;;
-        *app*|*editor*|*media*) color="GREEN" ;;
-        *system*|*audio*|*network*) color="ORANGE" ;;
-        *optional*|*final*|*plymouth*) color="YELLOW" ;;
+        *theme*|*font*) color="YELLOW" ;;
+        *shell*|*terminal*) color="GREEN" ;;
+        *audio*|*network*|*bluetooth*|*power*) color="ORANGE" ;;
+        *development*|*nvim*|*docker*) color="CYAN" ;;
+        *application*|*media*|*productivity*) color="GREEN" ;;
+        *optional*|*xtras*) color="YELLOW" ;;
+        *plymouth*|*final*) color="PURPLE" ;;
     esac
 
-    echo "🔧 Installing: $installer_name"
-    start_time=$(date +%s)
-
-    # Initialize installer context if helpers are available
-    if command -v init_installer &>/dev/null; then
-        init_installer "$installer_name"
-    fi
-
-    # Execute installer
-    if source "$installer_file"; then
-        end_time=$(date +%s)
-        duration=$((end_time - start_time))
-
-        if command -v show_install_summary &>/dev/null; then
-            show_install_summary
-        else
-            echo "✓ Completed: $installer_name (${duration}s)"
-        fi
+    # Use clean progress system if available
+    if command -v run_command_clean &>/dev/null; then
+        run_command_clean "source '$installer_file'" "$installer_name" "$color"
     else
-        echo "❌ Failed: $installer_name"
-        exit 1
+        # Fallback to original method
+        echo "🔧 Installing: $installer_name"
+        start_time=$(date +%s)
+
+        # Initialize installer context if helpers are available
+        if command -v init_installer &>/dev/null; then
+            init_installer "$installer_name"
+        fi
+
+        # Execute installer
+        if source "$installer_file"; then
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+
+            if command -v show_install_summary &>/dev/null; then
+                show_install_summary
+            else
+                echo "✓ Completed: $installer_name (${duration}s)"
+            fi
+        else
+            echo "❌ Failed: $installer_name"
+            exit 1
+        fi
     fi
 }
 
@@ -208,27 +216,19 @@ echo
 # Process installation modules in correct order
 process_installation_modules
 
-# Run standalone installers
-echo -e "\n🎨 Running Standalone Installers"
-echo "================================="
-
+# Run standalone installers (included in progress tracking)
 for standalone in "${standalone_installers[@]}"; do
     standalone_path="$HOME/.local/share/omarchy/install/$standalone"
     standalone_name=$(basename "$standalone" .sh)
 
     if [[ -f "$standalone_path" ]]; then
-        echo "🔧 Installing: $standalone_name"
-        start_time=$(date +%s)
-
-        if bash "$standalone_path"; then
-            end_time=$(date +%s)
-            duration=$((end_time - start_time))
-            echo "✓ Completed: $standalone_name (${duration}s)"
-        else
-            echo "❌ Failed: $standalone_name (continuing anyway)"
-        fi
+        process_installer_with_progress "$standalone_path" "$standalone_name"
     else
-        echo "⚠ Standalone installer not found: $standalone"
+        if command -v fail_step &>/dev/null; then
+            fail_step "Standalone installer not found: $standalone"
+        else
+            echo "⚠ Standalone installer not found: $standalone"
+        fi
     fi
 done
 
@@ -277,6 +277,11 @@ if [ $script_count -ge 4 ]; then
     echo "✓ Waybar scripts installed ($script_count found)"
 else
     echo "⚠ Missing waybar scripts (found $script_count, expected 4+)"
+fi
+
+# Show completion summary with progress system
+if command -v complete_clean_installation &>/dev/null; then
+    complete_clean_installation
 fi
 
 echo "================================="
