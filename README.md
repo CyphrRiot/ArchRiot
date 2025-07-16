@@ -32,7 +32,13 @@ OhmArchy is an even more opiniated setup and was originally a fork of [DHH's ama
 
 Download the Arch Linux ISO, put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick.
 
-If you're on wifi, start by running `iwctl`, then type `station wlan0 scan`, then `station wlan0 connect <tab>`, pick your network, and enter the password. If you're on ethernet, you don't need this.
+**WiFi Setup** (skip if using ethernet):
+
+1. Run `iwctl`
+2. Type `station wlan0 scan`
+3. Type `station wlan0 connect <tab>`
+4. Pick your network from the list
+5. Enter your WiFi password
 
 Run `archinstall` and pick these options (and leave anything not mentioned as-is):
 
