@@ -344,7 +344,7 @@ test_installation_simulation() {
         print_status "PASS" "Using local OhmArchy repository for validation"
         test_dir="."
         using_local=true
-    elif git clone --depth 1 https://github.com/CypherRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
+    elif git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
         print_status "PASS" "Repository clone simulation successful"
     else
         print_status "FAIL" "Repository clone simulation failed"
@@ -443,7 +443,7 @@ generate_report() {
         echo -e "${GREEN}✓ CypherRiot theme should work properly${NC}"
         echo ""
         echo -e "${BLUE}Ready to install? Run:${NC}"
-        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CypherRiot/OhmArchy/master/setup.sh | bash${NC}"
+        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/setup.sh | bash${NC}"
         echo ""
 
         if [[ $WARNINGS -gt 0 ]]; then
