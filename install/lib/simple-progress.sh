@@ -55,28 +55,20 @@ init_clean_progress() {
     fi
 }
 
-# Show progress for current phase
-show_phase_progress() {
-    local phase_name="$1"
+# Start a new module
+start_module() {
+    local module_name="$1"
     local color="${2:-BLUE}"
 
     if [[ "$PROGRESS_ENABLED" != "true" ]]; then
         return 0
     fi
 
-    CURRENT_PHASE="$phase_name"
     PHASE_COUNT=$((PHASE_COUNT + 1))
+    CURRENT_PHASE="$module_name"
 
-    # Calculate progress based on phases completed + time elapsed
-    local phase_percent=$((PHASE_COUNT * 100 / TOTAL_PHASES))
-    local elapsed_seconds=$(($(date +%s) - START_TIME))
-    local time_percent=$((elapsed_seconds * 100 / (ESTIMATED_TOTAL_MINUTES * 60)))
-
-    # Use the higher of the two for more accurate progress
-    local percent=$phase_percent
-    if [[ $time_percent -gt $phase_percent ]]; then
-        percent=$time_percent
-    fi
+    # Calculate progress based on modules completed
+    local percent=$((PHASE_COUNT * 100 / TOTAL_PHASES))
 
     # Cap at 95% until completion
     if [[ $percent -gt 95 ]]; then
@@ -91,16 +83,27 @@ show_phase_progress() {
     for ((i=0; i<empty; i++)); do bar+="░"; done
 
     # Calculate time estimates
+    local elapsed_seconds=$(($(date +%s) - START_TIME))
     local elapsed_minutes=$((elapsed_seconds / 60))
     local remaining_minutes=$((ESTIMATED_TOTAL_MINUTES - elapsed_minutes))
     if [[ $remaining_minutes -lt 0 ]]; then
         remaining_minutes=0
     fi
 
-    # Clear previous progress and show new
-    echo -e "\033[2K\r${COLORS[WHITE]}[${PHASE_COUNT}/${TOTAL_PHASES}] ${COLORS[$color]}${phase_name}${COLORS[RESET]}"
+    # Show module progress
+    echo -e "${COLORS[WHITE]}[${PHASE_COUNT}/${TOTAL_PHASES}] ${COLORS[$color]}${module_name}${COLORS[RESET]}"
     echo -e "${COLORS[GREEN]}▐${bar}▌ ${COLORS[WHITE]}${percent}%${COLORS[RESET]} ${COLORS[GRAY]}(~${remaining_minutes}m remaining)${COLORS[RESET]}"
     echo
+}
+
+# Show progress for current phase (legacy compatibility)
+show_phase_progress() {
+    local phase_name="$1"
+    local color="${2:-BLUE}"
+    # Just show the phase name without incrementing counter
+    if [[ "$PROGRESS_ENABLED" == "true" ]]; then
+        echo -e "${COLORS[$color]}$phase_name${COLORS[RESET]}"
+    fi
 }
 
 # Install packages with clean progress and error handling
@@ -109,8 +112,6 @@ install_packages_clean() {
     local phase_name="$2"
     local color="${3:-BLUE}"
     local log_file="$LOG_DIR/$(date +%s)-$(echo "$phase_name" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').log"
-
-    show_phase_progress "$phase_name" "$color"
 
     echo -e "${COLORS[BLUE]}📦 Installing: $packages${COLORS[RESET]}"
     echo -e "${COLORS[GRAY]}   (Output logged to: $(basename "$log_file"))${COLORS[RESET]}"
@@ -242,6 +243,6 @@ install_optional() {
 }
 
 # Export functions for use in installers
-export -f init_clean_progress show_phase_progress install_packages_clean
+export -f init_clean_progress start_module show_phase_progress install_packages_clean
 export -f run_command_clean complete_clean_installation show_clean_failure
 export -f install_packages install_essential install_optional cleanup_old_logs

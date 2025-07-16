@@ -178,8 +178,8 @@ process_installer_with_progress() {
     # Check if this is an interactive installer that needs direct execution
     if [[ "$installer_name" == *"identity"* ]] || [[ "$installer_name" == *"config"* ]]; then
         # Interactive installers - run directly without output capture
-        if command -v show_phase_progress &>/dev/null; then
-            show_phase_progress "$installer_name" "$color"
+        if command -v start_module &>/dev/null; then
+            start_module "$installer_name" "$color"
         fi
         echo "⚙ Running: $installer_name (interactive)"
         if source "$installer_file"; then
@@ -190,6 +190,9 @@ process_installer_with_progress() {
         fi
     elif command -v run_command_clean &>/dev/null; then
         # Non-interactive installers - use clean progress with output capture
+        if command -v start_module &>/dev/null; then
+            start_module "$installer_name" "$color"
+        fi
         run_command_clean "source '$installer_file'" "$installer_name" "$color"
     else
         # Fallback to original method
