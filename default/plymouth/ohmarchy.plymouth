@@ -1,0 +1,9 @@
+[Plymouth Theme]
+Name=OhmArchy
+Description=OhmArchy splash screen.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/ohmarchy
+ScriptFile=/usr/share/plymouth/themes/ohmarchy/ohmarchy.script
+ConsoleLogBackgroundColor=0x1a1b26
