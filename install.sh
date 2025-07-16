@@ -107,13 +107,38 @@ get_installer_files() {
     printf '%s\n' "${files[@]}"
 }
 
+# Count total installer files for accurate progress tracking
+count_total_installers() {
+    local total=0
+    for module in "${install_modules[@]}"; do
+        if [[ "$module" == *".sh" ]]; then
+            # Individual file
+            total=$((total + 1))
+        else
+            # Module directory - count .sh files
+            local module_dir="$HOME/.local/share/omarchy/install/$module"
+            if [[ -d "$module_dir" ]]; then
+                local count=$(find "$module_dir" -name "*.sh" -type f | wc -l)
+                total=$((total + count))
+            fi
+        fi
+    done
+
+    # Add standalone installers
+    total=$((total + ${#standalone_installers[@]}))
+    echo $total
+}
+
 # Process installation modules in the correct order
 process_installation_modules() {
+    # Count total installers for accurate progress
+    local total_installers=$(count_total_installers)
+
     # Initialize clean progress system
-    echo "🔍 Attempting to initialize progress system with ${#install_modules[@]} modules..."
+    echo "🔍 Attempting to initialize progress system with $total_installers installers..."
     if command -v init_clean_progress &>/dev/null; then
         echo "✓ Initializing clean progress system..."
-        init_clean_progress ${#install_modules[@]}
+        init_clean_progress $total_installers
     else
         echo "❌ init_clean_progress function not found!"
     fi
