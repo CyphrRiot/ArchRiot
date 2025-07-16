@@ -132,9 +132,9 @@ echo "📦 Installing OhmArchy Plymouth theme from local files..."
 sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
 
 # First try to use local files (preferred - ensures correct logo)
-if [ -d "$HOME/.local/share/OhmArchy/default/plymouth" ] && [ -f "$HOME/.local/share/OhmArchy/default/plymouth/logo.png" ]; then
+if [ -d "$HOME/.local/share/omarchy/default/plymouth" ] && [ -f "$HOME/.local/share/omarchy/default/plymouth/logo.png" ]; then
     echo "✓ Using local Plymouth files (ensures correct OhmArchy logo)"
-    sudo cp -r "$HOME/.local/share/OhmArchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
+    sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
 
 else
     # Fallback: Download from GitHub only if local files missing
@@ -155,8 +155,8 @@ else
         sudo cp -r "$TEMP_PLYMOUTH_DIR"/* /usr/share/plymouth/themes/ohmarchy/
 
         # Update local installation for future use
-        mkdir -p "$HOME/.local/share/OhmArchy/default/plymouth"
-        cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/OhmArchy/default/plymouth/"
+        mkdir -p "$HOME/.local/share/omarchy/default/plymouth"
+        cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/omarchy/default/plymouth/"
         echo "✓ Updated local Plymouth files"
 
 
