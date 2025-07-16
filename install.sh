@@ -164,6 +164,12 @@ process_installer_with_progress() {
         *optional*|*final*|*plymouth*) color="YELLOW" ;;
     esac
 
+    # DISABLE progress bars for interactive modules
+    local original_progress="$PROGRESS_ENABLED"
+    if [[ "$installer_name" == *"identity"* ]]; then
+        PROGRESS_ENABLED=false
+    fi
+
     # Start task with progress
     start_task "Installing $installer_name" "$color"
 
@@ -182,7 +188,7 @@ process_installer_with_progress() {
     local exit_code=0
 
     # Run installer and track progress
-    if [[ "$PROGRESS_ENABLED" == "true" ]]; then
+    if [[ "$PROGRESS_ENABLED" == "true" && "$installer_name" != *"identity"* ]]; then
         # Simulate progress during installation
         {
             source "$installer_file"
@@ -229,6 +235,9 @@ process_installer_with_progress() {
         fi
         exit 1
     fi
+
+    # Restore original progress setting
+    PROGRESS_ENABLED="$original_progress"
 }
 
 # Read version
