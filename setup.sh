@@ -12,6 +12,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OMARCHY_VERSION="1.0.11"
 if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
     OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "1.0.11")
+else
+    # Fetch version from GitHub when running via curl
+    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "1.0.11")
 fi
 
 echo -e "🚀 OhmArchy Setup - Version: $OMARCHY_VERSION"
