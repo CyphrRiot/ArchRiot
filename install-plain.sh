@@ -168,7 +168,11 @@ process_installer() {
 }
 
 # Read version from VERSION file (single source of truth)
-if [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
+# Check local repo first (for development), then installed location, then GitHub
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/VERSION" ]; then
+    OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
+elif [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
     OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
 else
     # Fetch version from GitHub when running via curl
