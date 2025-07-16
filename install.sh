@@ -188,8 +188,9 @@ process_installer_with_progress() {
     local exit_code=0
 
     # Run installer and track progress
-    if [[ "$PROGRESS_ENABLED" == "true" && "$installer_name" != *"identity"* ]]; then
+    if [[ "$PROGRESS_ENABLED" == "true" && "$installer_name" != *"identity"* && "$installer_name" != *"base"* ]]; then
         # Run installer with output captured to prevent overwriting progress bars
+        # Skip capture for base installer (needs gum) and identity (interactive)
         local temp_output=$(mktemp)
         {
             source "$installer_file" > "$temp_output" 2>&1
@@ -385,4 +386,15 @@ echo "  • Themes and backgrounds properly set up"
 echo "  • All keyboard shortcuts configured"
 echo ""
 
-gum confirm "Reboot to apply all settings?" && reboot
+echo "🔍 DEBUG: Installation completed, checking for gum..."
+if command -v gum >/dev/null 2>&1; then
+    echo "✅ DEBUG: gum is available, showing reboot prompt"
+    gum confirm "Reboot to apply all settings?" && reboot
+else
+    echo "❌ DEBUG: gum not found, using fallback prompt"
+    read -p "Reboot to apply all settings? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        reboot
+    fi
+fi
