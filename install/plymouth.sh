@@ -189,4 +189,15 @@ if [[ "$CURRENT_THEME" != "ohmarchy" ]]; then
     exit 1
 fi
 
-echo "✅ Plymouth theme verified: $CURRENT_THEME (latest version from GitHub)"
+echo "✅ Plymouth theme verified: $CURRENT_THEME"
+
+# Generate fresh ASCII logo for LUKS screen
+echo "🎨 Generating OhmArchy ASCII logo for LUKS screen..."
+if [ -f "$HOME/.local/share/omarchy/bin/generate-boot-logo.sh" ]; then
+    echo "✓ Running ASCII logo generator..."
+    cd "$HOME/.local/share/omarchy"
+    ./bin/generate-boot-logo.sh
+    echo "✓ OhmArchy ASCII logo generated and installed"
+else
+    echo "⚠ Logo generator not found, using default logo"
+fi
