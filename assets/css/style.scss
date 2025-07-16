@@ -36,26 +36,28 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid var(--omarchy-border);
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0;
 }
 
-/* Header styling */
-header {
-  background: linear-gradient(90deg, var(--omarchy-purple-dark), var(--omarchy-blue)) !important;
-  border-bottom: 2px solid var(--omarchy-purple);
-  padding: 2rem 0;
-}
+/* Remove ugly header styling */
 
-header h1, header h2 {
-  color: white !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Main content area */
+/* Main content area - centered and properly aligned */
 .main-content, #main_content_wrap {
   background: var(--omarchy-dark-bg) !important;
   color: var(--omarchy-text) !important;
   padding: 2rem;
   border-radius: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#main_content {
+  max-width: none;
+  padding: 2rem 3rem;
+  text-align: left;
+  line-height: 1.7;
 }
 
 /* Headings with purple gradient */
@@ -76,6 +78,7 @@ h1:first-child {
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 2rem;
+  margin-top: 1rem;
 }
 
 /* Paragraph and text styling */
@@ -216,7 +219,11 @@ footer {
 @media (max-width: 768px) {
   .container, .wrapper {
     margin: 1rem;
-    padding: 1rem;
+    padding: 0;
+  }
+
+  #main_content {
+    padding: 1.5rem;
   }
 
   h1:first-child {
