@@ -51,7 +51,7 @@ exclude:
   - LICENSE
 
 # Custom variables for the theme
-show_downloads: true
+show_downloads: false
 github:
   repository_url: https://github.com/CyphrRiot/OhmArchy
   repository_name: OhmArchy
