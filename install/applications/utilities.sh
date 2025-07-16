@@ -7,44 +7,49 @@
 # ==============================================================================
 
 # Install system utilities
-yay -S --noconfirm --needed \
-  btop \
-  neofetch \
-  fastfetch \
-  tree \
-  wget \
-  curl \
-  unzip \
-  p7zip
+if command -v install_packages_clean &>/dev/null; then
+    install_packages_clean "btop neofetch fastfetch tree wget curl unzip p7zip" "Installing system utilities" "GREEN"
+    install_packages_clean "thunar thunar-volman thunar-archive-plugin gvfs gvfs-mtp" "Installing file management" "GREEN"
+    install_packages_clean "gnome-system-monitor" "Installing system monitoring" "GREEN"
+    install_packages_clean "iwgtk" "Installing network utilities" "GREEN"
+    install_packages_clean "gnome-calculator file-roller" "Installing essential tools" "GREEN"
+    install_packages_clean "featherwallet-bin" "Installing financial tools" "GREEN"
+    install_packages_clean "fragments" "Installing torrent client" "GREEN"
+else
+    # Fallback to direct yay commands
+    yay -S --noconfirm --needed \
+      btop \
+      neofetch \
+      fastfetch \
+      tree \
+      wget \
+      curl \
+      unzip \
+      p7zip
 
-# Install file management utilities
-yay -S --noconfirm --needed \
-  thunar \
-  thunar-volman \
-  thunar-archive-plugin \
-  gvfs \
-  gvfs-mtp
+    yay -S --noconfirm --needed \
+      thunar \
+      thunar-volman \
+      thunar-archive-plugin \
+      gvfs \
+      gvfs-mtp
 
-# Install system monitoring
-yay -S --noconfirm --needed \
-  gnome-system-monitor
+    yay -S --noconfirm --needed \
+      gnome-system-monitor
 
-# Install network utilities
-yay -S --noconfirm --needed \
-  iwgtk
+    yay -S --noconfirm --needed \
+      iwgtk
 
-# Install essential tools
-yay -S --noconfirm --needed \
-  gnome-calculator \
-  file-roller
+    yay -S --noconfirm --needed \
+      gnome-calculator \
+      file-roller
 
-# Install financial tools
-yay -S --noconfirm --needed \
-  featherwallet-bin
+    yay -S --noconfirm --needed \
+      featherwallet-bin
 
-# install fragments (torrent client)
-yay -S --noconfirm --needed \
-  fragments
+    yay -S --noconfirm --needed \
+      fragments
+fi
 
 # Install custom desktop files and launchers
 echo "🎯 Installing custom desktop integrations..."
