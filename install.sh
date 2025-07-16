@@ -45,7 +45,9 @@ declare -a standalone_installers=(
 
 # Function to get all installer files in proper order
 get_installer_files() {
-    local install_dir="$HOME/.local/share/omarchy/install"
+    # Detect script location - works from any directory
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local install_dir="$script_dir/install"
     local files=()
 
     # Add modular structure files in order
