@@ -6,7 +6,7 @@ config-file = ~/.config/ghostty/current-theme.conf
 
 # Font configuration
 font-family = "Hack Nerd Font"
-font-size = 14
+font-size = 12
 
 # Window settings
 window-padding-x = 10
