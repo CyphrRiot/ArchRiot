@@ -21,7 +21,7 @@ print_status() {
     local status="$1"
     local message="$2"
     case "$status" in
-        "INFO") echo -e "${GREEN}ℹ${NC} $message" ;;
+        "INFO") echo -e "${GREEN}ℹ ${NC} $message" ;;
         "WARN") echo -e "${YELLOW}⚠${NC} $message" ;;
         "ERROR") echo -e "${RED}❌${NC} $message" ;;
     esac
