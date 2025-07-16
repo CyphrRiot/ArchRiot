@@ -1,5 +1,5 @@
-//* ---- 💫 https://github.com/JaKooLit 💫 ---- *//
-/* Waybar Modules */
+/* OhmArchy Waybar Modules */
+/* Core system modules for waybar configuration */
 
 /* NOTE: hyprland-workspaces, Custom Modules, Custom Vertical & Groups on a separate files */
 

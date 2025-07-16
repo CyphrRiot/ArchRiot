@@ -25,7 +25,7 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     gsettings set org.gnome.TextEditor show-line-numbers true
     gsettings set org.gnome.TextEditor highlight-current-line true
     gsettings set org.gnome.TextEditor show-right-margin false
-    gsettings set org.gnome.TextEditor custom-font 'Noto Sans Mono 12'
+    gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font 12'
     gsettings set org.gnome.TextEditor line-height 1.2
     gsettings set org.gnome.TextEditor use-system-font false
     echo "✓ Gnome Text Editor configured"

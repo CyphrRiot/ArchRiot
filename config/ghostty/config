@@ -5,7 +5,7 @@
 config-file = ~/.config/ghostty/current-theme.conf
 
 # Font configuration
-font-family = "CaskaydiaMono Nerd Font"
+font-family = "Hack Nerd Font"
 font-size = 14
 
 # Window settings
