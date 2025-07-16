@@ -119,6 +119,7 @@ else
 fi
 
 # Always copy and update the Plymouth theme (even on re-installs for logo updates)
-sudo cp -r "$HOME/.local/share/ohmarchy/default/plymouth" /usr/share/plymouth/themes/ohmarchy/
+sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
+sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
 
 sudo plymouth-set-default-theme -R ohmarchy
