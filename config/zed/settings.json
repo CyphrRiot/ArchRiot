@@ -68,12 +68,12 @@
     "wrap_guides": [120, 121],
     "show_wrap_guides": false,
     "soft_wrap": "editor_width",
-    "buffer_font_family": "Noto Sans Mono",
+    "buffer_font_family": "Hack Nerd Font",
     "buffer_font_size": 16,
     "ui_font_size": 16,
     "buffer_line_height": "comfortable",
     "terminal": {
-        "font_family": "Noto Sans Mono",
+        "font_family": "Hack Nerd Font",
         "font_size": 16,
         "line_height": "standard",
         "env": {

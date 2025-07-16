@@ -1,6 +1,6 @@
-//* ---- 💫 https://github.com/JaKooLit 💫 ---- *//
-/* Waybar Modules - Custom Modules */
-/* Basically created to reduce the lines in Waybar Modules bank */
+/* OhmArchy Waybar Custom Modules */
+/* Custom modules for enhanced waybar functionality */
+/* Separated from main modules for better organization */
 /* NOTE: This is only for Custom Modules */
 /* Custom Modules like weather browser, tty, file manager at the beginning */
 

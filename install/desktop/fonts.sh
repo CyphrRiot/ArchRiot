@@ -8,7 +8,7 @@ install_fonts() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install system fonts via package manager
-    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-jetbrains-mono-nerd ttf-cascadia-mono-nerd"
+    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-hack-nerd ttf-jetbrains-mono-nerd ttf-cascadia-mono-nerd"
     yay -S --noconfirm --needed $system_fonts || echo "⚠ Some system fonts may have failed"
 
     echo "✓ System fonts installed"
@@ -63,7 +63,7 @@ show_summary() {
     echo ""
     echo "🎉 Font installation complete!"
     echo ""
-    echo "📝 Installed: Noto fonts, Font Awesome icons, JetBrainsMono Nerd Font, Cascadia Mono Nerd Font, iA Writer Mono"
+    echo "📝 Installed: Noto fonts, Font Awesome icons, Hack Nerd Font, JetBrainsMono Nerd Font, Cascadia Mono Nerd Font, iA Writer Mono"
     echo "💡 Usage: Terminal fonts available, restart apps to use new fonts"
 }
 

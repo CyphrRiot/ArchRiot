@@ -11,4 +11,4 @@ ln -nsf ~/.local/share/omarchy/config/fuzzel/fuzzel.ini ~/.config/fuzzel/
 mkdir -p ~/.config/omarchy/themes ~/.config/omarchy/current
 ln -nsf ~/.local/share/omarchy/themes/cypherriot ~/.config/omarchy/themes/
 ln -nsf ~/.config/omarchy/themes/cypherriot ~/.config/omarchy/current/theme
-cp ~/.local/share/omarchy/themes/cypherriot/waybar.css ~/.config/waybar/style.css
+cp ~/.local/share/omarchy/config/waybar/style.css ~/.config/waybar/style.css

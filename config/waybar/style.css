@@ -1,5 +1,5 @@
-/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
-/* Translucent */
+/* OhmArchy Waybar Styling */
+/* Core waybar CSS for OhmArchy desktop environment */
 
 @define-color critical #ff0000; /* critical color */
 @define-color warning #f3f809; /* warning color */
@@ -28,7 +28,7 @@
 @define-color window_color #4a2b7a; /* 35% darker purple for window title */
 
 * {
-    font-family: "JetBrainsMono Nerd Font";
+    font-family: "Hack Nerd Font";
     font-weight: bold;
     min-height: 0;
     /* set font-size to 100% if font scaling is set to 1.00 using nwg-look */
@@ -66,8 +66,8 @@ tooltip {
     border: none;
     outline: none;
     padding: 2px 3px;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -81,8 +81,8 @@ tooltip {
     outline: none;
     box-shadow: none;
     padding: 2px 3px;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -96,8 +96,8 @@ tooltip {
     outline: none;
     box-shadow: none;
     padding: 2px 3px;
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
