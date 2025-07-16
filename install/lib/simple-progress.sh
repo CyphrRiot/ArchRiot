@@ -92,7 +92,7 @@ start_module() {
 
     # Show module progress
     echo -e "${COLORS[WHITE]}[${PHASE_COUNT}/${TOTAL_PHASES}] ${COLORS[$color]}${module_name}${COLORS[RESET]}"
-    echo -e "${COLORS[GREEN]}▐${bar}▌ ${COLORS[WHITE]}${percent}%${COLORS[RESET]} ${COLORS[GRAY]}(~${remaining_minutes}m remaining)${COLORS[RESET]}"
+    echo -e "${COLORS[PURPLE]}▐${bar}▌ ${COLORS[WHITE]}${percent}%${COLORS[RESET]} ${COLORS[GRAY]}(~${remaining_minutes}m remaining)${COLORS[RESET]}"
     echo
 }
 
@@ -118,7 +118,7 @@ install_packages_clean() {
 
     # Install with output captured
     if yay -S --noconfirm --needed $packages > "$log_file" 2>&1; then
-        echo -e "${COLORS[GREEN]}✓ Successfully installed${COLORS[RESET]}"
+        echo -e "${COLORS[PURPLE]}✓ Successfully installed${COLORS[RESET]}"
 
         # Show any warnings from the log
         if grep -q "warning:" "$log_file"; then
@@ -156,7 +156,7 @@ run_command_clean() {
 
     # Run command with output captured
     if eval "$command" > "$log_file" 2>&1; then
-        echo -e "${COLORS[GREEN]}✓ Successfully completed${COLORS[RESET]}"
+        echo -e "${COLORS[PURPLE]}✓ Successfully completed${COLORS[RESET]}"
         echo
         return 0
     else
@@ -188,8 +188,8 @@ complete_clean_installation() {
     for ((i=0; i<PROGRESS_WIDTH; i++)); do bar+="█"; done
 
     echo -e "${COLORS[GRAY]}$(printf '━%.0s' {1..60})${COLORS[RESET]}"
-    echo -e "${COLORS[GREEN]}${COLORS[BOLD]}🎉 Installation Complete!${COLORS[RESET]}"
-    echo -e "${COLORS[GREEN]}▐${bar}▌ ${COLORS[WHITE]}100%${COLORS[RESET]}"
+    echo -e "${COLORS[PURPLE]}${COLORS[BOLD]}🎉 Installation Complete!${COLORS[RESET]}"
+    echo -e "${COLORS[PURPLE]}▐${bar}▌ ${COLORS[WHITE]}100%${COLORS[RESET]}"
 
     if [[ $total_minutes -gt 0 ]]; then
         echo -e "${COLORS[GRAY]}Total time: ${total_minutes}m ${remaining_seconds}s${COLORS[RESET]}"
