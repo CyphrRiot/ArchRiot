@@ -230,7 +230,7 @@
 		"class<remmina>": "<span font='11'>🖥️ </span>",
 
 		"class<VSCode|code-url-handler|code-oss|codium|codium-url-handler|VSCodium>": "<span font='11'>󰨞 </span>",
-    "class<dev.zed.Zed|dev.zed.Zed-Preview>": "<span font='11'>󰘦 </span>",
+    "class<dev.zed.Zed|dev.zed.Zed-Preview>": "<span font='11'>☡ </span>",
 		"class<codeblocks>": "<span font='11'>󰅩 </span>",
 		"class<geany>": "<span font='11'>󰈙 </span>",
 		"title<.*github.*>": "<span font='11'> </span>",
