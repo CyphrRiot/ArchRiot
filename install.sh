@@ -175,8 +175,21 @@ process_installer_with_progress() {
         *plymouth*|*final*) color="PURPLE" ;;
     esac
 
-    # Use clean progress system if available
-    if command -v run_command_clean &>/dev/null; then
+    # Check if this is an interactive installer that needs direct execution
+    if [[ "$installer_name" == *"identity"* ]] || [[ "$installer_name" == *"config"* ]]; then
+        # Interactive installers - run directly without output capture
+        if command -v show_phase_progress &>/dev/null; then
+            show_phase_progress "$installer_name" "$color"
+        fi
+        echo "⚙ Running: $installer_name (interactive)"
+        if source "$installer_file"; then
+            echo "✓ Successfully completed"
+        else
+            echo "❌ Failed: $installer_name"
+            exit 1
+        fi
+    elif command -v run_command_clean &>/dev/null; then
+        # Non-interactive installers - use clean progress with output capture
         run_command_clean "source '$installer_file'" "$installer_name" "$color"
     else
         # Fallback to original method
