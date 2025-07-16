@@ -189,9 +189,10 @@ process_installer_with_progress() {
 
     # Run installer and track progress
     if [[ "$PROGRESS_ENABLED" == "true" && "$installer_name" != *"identity"* ]]; then
-        # Simulate progress during installation
+        # Run installer with output captured to prevent overwriting progress bars
+        local temp_output=$(mktemp)
         {
-            source "$installer_file"
+            source "$installer_file" > "$temp_output" 2>&1
             exit_code=$?
         } &
         local installer_pid=$!
@@ -207,6 +208,16 @@ process_installer_with_progress() {
         # Wait for installer to complete
         wait $installer_pid
         exit_code=$?
+
+        # Show captured output only if there was an error
+        if [[ $exit_code -ne 0 ]]; then
+            echo ""
+            echo "Error output from $installer_name:"
+            cat "$temp_output"
+        fi
+
+        # Clean up temp file
+        rm -f "$temp_output"
     else
         # Run normally without progress animation
         source "$installer_file"
