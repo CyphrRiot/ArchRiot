@@ -118,7 +118,7 @@ else
   echo ""
 fi
 
-# AGGRESSIVE CLEANUP - Remove ALL old Plymouth themes
+# AGGRESSIVE CLEANUP - Remove ALL old Plymouth themes and cached files
 echo "🧹 Cleaning up old Plymouth themes..."
 sudo rm -rf /usr/share/plymouth/themes/omarchy
 sudo rm -rf /usr/share/plymouth/themes/ohmarchy
@@ -127,10 +127,41 @@ sudo rm -rf /usr/share/plymouth/themes/ohmarchy
 sudo rm -f /var/lib/plymouth/themes/default.plymouth
 sudo rm -f /etc/plymouth/plymouthd.conf
 
-# Always copy and update the Plymouth theme (even on re-installs for logo updates)
-echo "📦 Installing OhmArchy Plymouth theme..."
-sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
-sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
+# FORCE UPDATE: Fetch latest Plymouth files from GitHub for re-installs
+echo "🔄 Fetching latest Plymouth theme files..."
+TEMP_PLYMOUTH_DIR="/tmp/ohmarchy-plymouth-$$"
+mkdir -p "$TEMP_PLYMOUTH_DIR"
+
+# Download latest Plymouth files directly from GitHub
+if curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/ohmarchy.plymouth" -o "$TEMP_PLYMOUTH_DIR/ohmarchy.plymouth" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/ohmarchy.script" -o "$TEMP_PLYMOUTH_DIR/ohmarchy.script" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/logo.png" -o "$TEMP_PLYMOUTH_DIR/logo.png" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/entry.png" -o "$TEMP_PLYMOUTH_DIR/entry.png" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/lock.png" -o "$TEMP_PLYMOUTH_DIR/lock.png" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/bullet.png" -o "$TEMP_PLYMOUTH_DIR/bullet.png" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/progress_bar.png" -o "$TEMP_PLYMOUTH_DIR/progress_bar.png" &&
+   curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/progress_box.png" -o "$TEMP_PLYMOUTH_DIR/progress_box.png"; then
+
+    echo "✓ Latest Plymouth files downloaded from GitHub"
+
+    # Install from downloaded files
+    echo "📦 Installing OhmArchy Plymouth theme..."
+    sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
+    sudo cp -r "$TEMP_PLYMOUTH_DIR"/* /usr/share/plymouth/themes/ohmarchy/
+
+    # Update local installation too
+    mkdir -p "$HOME/.local/share/omarchy/default/plymouth"
+    cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/omarchy/default/plymouth/"
+    echo "✓ Updated local Plymouth files"
+
+else
+    echo "⚠ Failed to download latest files, using local files as fallback..."
+    sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
+    sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
+fi
+
+# Cleanup temp directory
+rm -rf "$TEMP_PLYMOUTH_DIR"
 
 # Verify theme files exist
 if [[ ! -f /usr/share/plymouth/themes/ohmarchy/ohmarchy.plymouth ]]; then
@@ -150,4 +181,4 @@ if [[ "$CURRENT_THEME" != "ohmarchy" ]]; then
     exit 1
 fi
 
-echo "✅ Plymouth theme verified: $CURRENT_THEME"
+echo "✅ Plymouth theme verified: $CURRENT_THEME (latest version from GitHub)"
