@@ -440,7 +440,7 @@ generate_report() {
         echo -e "${GREEN}✓ CypherRiot theme should work properly${NC}"
         echo ""
         echo -e "${BLUE}Ready to install? Run:${NC}"
-        echo -e "${BLUE}curl -fsSL https://cyphrriot.github.io/OhmArchy/setup.sh | bash${NC}"
+        echo -e "${BLUE}curl -fsSL https://ohmarchy.org/setup.sh | bash${NC}"
         echo ""
 
         if [[ $WARNINGS -gt 0 ]]; then

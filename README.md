@@ -16,7 +16,7 @@
 
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
-[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-FF6B6B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
 **A customized Arch Linux setup based on Omarchy, optimized for the Cypher Riot workflow.**
 
@@ -57,7 +57,7 @@ Once Arch has been installed, pick reboot, login with the user you just setup, a
 ### Method 1: One-Line Install (Recommended)
 
 ```bash
-curl -fsSL https://cyphrriot.github.io/OhmArchy/setup.sh | bash
+curl -fsSL https://ohmarchy.org/setup.sh | bash
 ```
 
 ### Method 2: Manual Clone (For Customization)

@@ -116,7 +116,7 @@ main() {
     if [[ "$install_date" == "not installed" ]]; then
         echo ""
         echo -e "${YELLOW}⚠ OhmArchy does not appear to be installed${NC}"
-        echo -e "${BLUE}Install with:${NC} curl -fsSL https://cyphrriot.github.io/OhmArchy/setup.sh | bash"
+        echo -e "${BLUE}Install with:${NC} curl -fsSL https://ohmarchy.org/setup.sh | bash"
         return 1
     fi
 
