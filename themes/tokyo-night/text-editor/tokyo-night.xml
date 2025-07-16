@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Tokyo Night Dark Theme for Gnome Text Editor
+ Based on the Tokyo Night color palette with dark background
+ and classic syntax highlighting structure
+-->
+<style-scheme id="tokyo-night" _name="Tokyo Night Dark" version="1.0">
+  <author>OhmArchy</author>
+  <_description>Tokyo Night with deep black background and transparency</_description>
+
+  <!-- Tokyo Night Color Palette -->
+  <color name="bg"         value="#0a0a0a"/>  <!-- Dark background -->
+  <color name="bg-dark"    value="#0a0a0a"/>  <!-- Darker background -->
+  <color name="bg-float"   value="#0a0a0a"/>  <!-- Floating background -->
+  <color name="fg"         value="#c0caf5"/>  <!-- Foreground text -->
+  <color name="fg-dark"    value="#a9b1d6"/>  <!-- Darker foreground -->
+  <color name="comment"    value="#565f89"/>  <!-- Comments -->
+  <color name="cyan"       value="#7dcfff"/>  <!-- Cyan -->
+  <color name="blue"       value="#7aa2f7"/>  <!-- Blue -->
+  <color name="blue1"      value="#2ac3de"/>  <!-- Light blue -->
+  <color name="purple"     value="#bb9af7"/>  <!-- Purple -->
+  <color name="magenta"    value="#c792ea"/>  <!-- Magenta -->
+  <color name="orange"     value="#ff9e64"/>  <!-- Orange -->
+  <color name="yellow"     value="#e0af68"/>  <!-- Yellow -->
+  <color name="green"      value="#9ece6a"/>  <!-- Green -->
+  <color name="green1"     value="#73daca"/>  <!-- Light green -->
+  <color name="red"        value="#f7768e"/>  <!-- Red -->
+  <color name="red1"       value="#db4b4b"/>  <!-- Dark red -->
+  <color name="git-add"    value="#449dab"/>  <!-- Git addition -->
+  <color name="git-change" value="#6183bb"/>  <!-- Git change -->
+  <color name="git-delete" value="#914c54"/>  <!-- Git deletion -->
+
+  <!-- Global Settings with transparency -->
+  <style name="text"                        foreground="fg" background="bg"/>
+  <style name="selection"                   foreground="fg" background="#283457"/>
+  <style name="cursor"                      foreground="fg"/>
+  <style name="secondary-cursor"            foreground="fg-dark"/>
+  <style name="current-line"                background="#1e202e"/>
+  <style name="current-line-number"         foreground="yellow" background="#1e202e" bold="true"/>
+  <style name="line-numbers"                foreground="comment" background="bg-dark"/>
+  <style name="draw-spaces"                 foreground="comment"/>
+  <style name="background-pattern"          background="bg"/>
+
+  <!-- Bracket Matching -->
+  <style name="bracket-match"               foreground="orange" background="#283457" bold="true"/>
+  <style name="bracket-mismatch"            foreground="red" background="#362931" bold="true"/>
+
+  <!-- Right Margin -->
+  <style name="right-margin"                foreground="comment" background="comment"/>
+
+  <!-- Search Matching -->
+  <style name="search-match"                foreground="bg" background="yellow" bold="true"/>
+
+  <!-- Comments -->
+  <style name="def:comment"                 foreground="comment" italic="true"/>
+  <style name="def:shebang"                 foreground="comment" bold="true"/>
+  <style name="def:doc-comment-element"     foreground="comment" italic="true"/>
+
+  <!-- Constants -->
+  <style name="def:constant"                foreground="orange"/>
+  <style name="def:decimal"                 foreground="orange"/>
+  <style name="def:base-n-integer"          foreground="orange"/>
+  <style name="def:floating-point"          foreground="orange"/>
+  <style name="def:complex"                 foreground="orange"/>
+  <style name="def:character"               foreground="green"/>
+  <style name="def:string"                  foreground="green"/>
+  <style name="def:special-char"            foreground="purple"/>
+  <style name="def:builtin"                 foreground="red"/>
+
+  <!-- Identifiers -->
+  <style name="def:identifier"              foreground="cyan"/>
+  <style name="def:function"                foreground="blue"/>
+
+  <!-- Statements -->
+  <style name="def:statement"               foreground="purple" bold="true"/>
+  <style name="def:keyword"                 foreground="purple" bold="true"/>
+  <style name="def:operator"                foreground="blue1"/>
+  <style name="def:boolean"                 foreground="orange"/>
+  <style name="def:number"                  foreground="orange"/>
+
+  <!-- Types -->
+  <style name="def:type"                    foreground="blue1" bold="true"/>
+  <style name="def:class"                   foreground="yellow"/>
+  <style name="def:interface"               foreground="yellow"/>
+
+  <!-- Markup -->
+  <style name="def:emphasis"                italic="true"/>
+  <style name="def:strong-emphasis"         foreground="purple" bold="true"/>
+  <style name="def:inline-code"             foreground="cyan"/>
+  <style name="def:insertion"               foreground="green" underline="single"/>
+  <style name="def:deletion"                foreground="red" strikethrough="true"/>
+  <style name="def:link-text"               foreground="blue" underline="single"/>
+  <style name="def:link-symbol"             foreground="blue1" bold="true"/>
+  <style name="def:link-destination"        foreground="cyan" italic="true" underline="single"/>
+  <style name="def:heading"                 foreground="blue" bold="true"/>
+  <style name="def:thematic-break"          foreground="comment" bold="true"/>
+  <style name="def:preformatted-section"    foreground="cyan" background="#1e202e"/>
+  <style name="def:list-marker"             foreground="orange" bold="true"/>
+
+  <!-- Others -->
+  <style name="def:preprocessor"            foreground="magenta"/>
+  <style name="def:error"                   foreground="red" background="#362931" bold="true"/>
+  <style name="def:warning"                 foreground="yellow" background="#32302f"/>
+  <style name="def:note"                    foreground="blue" background="#1e202e" bold="true"/>
+  <style name="def:net-address"             foreground="cyan" italic="true" underline="single"/>
+
+  <!-- Language specific styles -->
+  <style name="diff:added-line"             foreground="git-add"/>
+  <style name="diff:removed-line"           foreground="git-delete"/>
+  <style name="diff:changed-line"           foreground="git-change"/>
+  <style name="diff:special-case"           foreground="orange"/>
+  <style name="diff:location"               foreground="purple" bold="true"/>
+  <style name="diff:diff-file"              foreground="blue" bold="true"/>
+
+  <!-- XML/HTML -->
+  <style name="xml:tags"                    foreground="red"/>
+  <style name="xml:attribute-name"          foreground="orange"/>
+  <style name="xml:attribute-value"         foreground="green"/>
+  <style name="xml:namespace"               foreground="purple" bold="true"/>
+  <style name="xml:element-name"            foreground="red"/>
+
+  <!-- JavaScript -->
+  <style name="js:built-in-constructor"     foreground="blue1"/>
+  <style name="js:keyword"                  foreground="purple" bold="true"/>
+  <style name="js:function"                 foreground="blue"/>
+
+  <!-- LaTeX -->
+  <style name="latex:display-math"          foreground="blue1"/>
+  <style name="latex:command"               foreground="purple" bold="true"/>
+  <style name="latex:include"               foreground="magenta"/>
+
+  <!-- Shell -->
+  <style name="sh:variable"                 foreground="cyan"/>
+  <style name="sh:function"                 foreground="blue"/>
+
+  <!-- Python -->
+  <style name="python:decorator"            foreground="blue1"/>
+  <style name="python:string-conversion"    foreground="green1"/>
+  <style name="python:module-handler"       foreground="purple"/>
+  <style name="python:special-variable"     foreground="cyan"/>
+  <style name="python:boolean"              foreground="orange"/>
+
+  <!-- C/C++ -->
+  <style name="c:preprocessor"              foreground="magenta"/>
+  <style name="c:included-file"             foreground="green"/>
+  <style name="c:storage-class"             foreground="purple"/>
+  <style name="c:type-keyword"              foreground="blue1" bold="true"/>
+
+  <!-- CSS -->
+  <style name="css:selector-symbol"         foreground="fg"/>
+  <style name="css:property-name"           foreground="blue1"/>
+  <style name="css:property-value"          foreground="green"/>
+  <style name="css:color"                   foreground="orange"/>
+  <style name="css:unit"                    foreground="orange"/>
+
+  <!-- JSON -->
+  <style name="json:keyname"                foreground="blue1"/>
+  <style name="json:boolean"                foreground="orange"/>
+  <style name="json:null"                   foreground="red"/>
+
+  <!-- Legacy styles for old lang files -->
+  <style name="Others"                      foreground="blue" bold="true"/>
+  <style name="Others 2"                    foreground="cyan"/>
+  <style name="Others 3"                    foreground="purple"/>
+
+</style-scheme>
