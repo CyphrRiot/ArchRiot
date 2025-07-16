@@ -19,11 +19,6 @@ if [ -f "$HOME/.local/share/omarchy/install/lib/install-helpers.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/install-helpers.sh"
 fi
 
-# Load progress bar library
-if [ -f "$HOME/.local/share/omarchy/install/lib/progress-bars.sh" ]; then
-    source "$HOME/.local/share/omarchy/install/lib/progress-bars.sh"
-fi
-
 # Load and setup sudo helper for passwordless installation
 if [ -f "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh"
@@ -113,64 +108,42 @@ process_installation_modules() {
             local installer_name=$(basename "$module" .sh)
             local module_name=$(basename "$(dirname "$module")")
 
-            if [[ "$PROGRESS_ENABLED" != "true" ]]; then
-                echo -e "\n[$current/$total] 📦 $module_name/$installer_name"
-                echo "================================================"
-            fi
+            echo -e "\n[$current/$total] 📦 $module_name/$installer_name"
+            echo "================================================"
 
             if [[ -f "$installer_file" ]]; then
-                process_installer_with_progress "$installer_file" "$installer_name"
+                process_installer "$installer_file" "$installer_name"
             else
-                fail_task "Installer not found: $module"
+                echo "⚠ Installer not found: $module"
             fi
         else
             # Module directory (like desktop, system, etc.)
             local module_dir="$HOME/.local/share/omarchy/install/$module"
 
             if [[ -d "$module_dir" ]]; then
-                if [[ "$PROGRESS_ENABLED" != "true" ]]; then
-                    echo -e "\n[$current/$total] 📦 Processing $module module"
-                    echo "================================================"
-                fi
+                echo -e "\n[$current/$total] 📦 Processing $module module"
+                echo "================================================"
 
                 # Process all .sh files in the module directory
                 for installer_file in "$module_dir"/*.sh; do
                     if [[ -f "$installer_file" ]]; then
-                        current=$((current + 1))
                         local installer_name=$(basename "$installer_file" .sh)
-                        process_installer_with_progress "$installer_file" "$installer_name"
+                        process_installer "$installer_file" "$installer_name"
                     fi
                 done
             else
-                fail_task "Module directory not found: $module"
+                echo "⚠ Module directory not found: $module"
             fi
         fi
     done
 }
 
-# Process individual installer with progress bars
-process_installer_with_progress() {
+# Process individual installer
+process_installer() {
     local installer_file="$1"
     local installer_name="$2"
 
-    # Determine color based on installer type
-    local color="BLUE"
-    case "$installer_name" in
-        *base*|*core*) color="BLUE" ;;
-        *desktop*|*hypr*|*waybar*) color="PURPLE" ;;
-        *theme*|*font*) color="CYAN" ;;
-        *app*|*editor*|*media*) color="GREEN" ;;
-        *system*|*audio*|*network*) color="ORANGE" ;;
-        *optional*|*final*|*plymouth*) color="YELLOW" ;;
-    esac
-
-    # Start task with progress
-    start_task "Installing $installer_name" "$color"
-
-    if [[ "$PROGRESS_ENABLED" != "true" ]]; then
-        echo "🔧 Installing: $installer_name"
-    fi
-
+    echo "🔧 Installing: $installer_name"
     start_time=$(date +%s)
 
     # Initialize installer context if helpers are available
@@ -178,55 +151,18 @@ process_installer_with_progress() {
         init_installer "$installer_name"
     fi
 
-    # Execute installer with progress tracking
-    local exit_code=0
-
-    # Run installer and track progress
-    if [[ "$PROGRESS_ENABLED" == "true" ]]; then
-        # Simulate progress during installation
-        {
-            source "$installer_file"
-            exit_code=$?
-        } &
-        local installer_pid=$!
-
-        # Animate progress while installer runs
-        local progress=10
-        while kill -0 $installer_pid 2>/dev/null; do
-            update_progress $progress "$color"
-            progress=$(( (progress + 8) % 95 ))  # Never reach 100% until done
-            sleep 0.3
-        done
-
-        # Wait for installer to complete
-        wait $installer_pid
-        exit_code=$?
-    else
-        # Run normally without progress animation
-        source "$installer_file"
-        exit_code=$?
-    fi
-
-    # Handle completion or failure
-    if [[ $exit_code -eq 0 ]]; then
+    # Execute installer
+    if source "$installer_file"; then
         end_time=$(date +%s)
         duration=$((end_time - start_time))
 
-        if [[ "$PROGRESS_ENABLED" == "true" ]]; then
-            complete_task "GREEN"
-        fi
-
         if command -v show_install_summary &>/dev/null; then
             show_install_summary
-        elif [[ "$PROGRESS_ENABLED" != "true" ]]; then
+        else
             echo "✓ Completed: $installer_name (${duration}s)"
         fi
     else
-        if [[ "$PROGRESS_ENABLED" == "true" ]]; then
-            fail_task "Installation failed: $installer_name"
-        else
-            echo "❌ Failed: $installer_name"
-        fi
+        echo "❌ Failed: $installer_name"
         exit 1
     fi
 }
@@ -249,10 +185,6 @@ echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless �
 echo "🔧 Fix: Desktop environment installs before config validation"
 echo
 
-# Initialize progress system
-total_steps=$((${#install_modules[@]} + ${#standalone_installers[@]}))
-init_progress $total_steps
-
 # Process installation modules in correct order
 process_installation_modules
 
@@ -265,25 +197,18 @@ for standalone in "${standalone_installers[@]}"; do
     standalone_name=$(basename "$standalone" .sh)
 
     if [[ -f "$standalone_path" ]]; then
-        start_task "Installing $standalone_name" "YELLOW"
+        echo "🔧 Installing: $standalone_name"
         start_time=$(date +%s)
-
-        if [[ "$PROGRESS_ENABLED" != "true" ]]; then
-            echo "🔧 Installing: $standalone_name"
-        fi
 
         if bash "$standalone_path"; then
             end_time=$(date +%s)
             duration=$((end_time - start_time))
-            complete_task "GREEN"
-            if [[ "$PROGRESS_ENABLED" != "true" ]]; then
-                echo "✓ Completed: $standalone_name (${duration}s)"
-            fi
+            echo "✓ Completed: $standalone_name (${duration}s)"
         else
-            fail_task "$standalone_name failed (continuing anyway)"
+            echo "❌ Failed: $standalone_name (continuing anyway)"
         fi
     else
-        fail_task "Standalone installer not found: $standalone"
+        echo "⚠ Standalone installer not found: $standalone"
     fi
 done
 

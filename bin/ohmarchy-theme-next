@@ -34,15 +34,79 @@ background=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n
     setsid swaybg -i "$HOME/.config/omarchy/current/background" -m fill &
 }
 
+# Apply theme components
+echo "  📋 Applying theme components..."
+
+# 1. Fuzzel config
+if [[ -f "$new_theme/fuzzel.ini" ]]; then
+    cp "$new_theme/fuzzel.ini" "$HOME/.config/fuzzel/fuzzel.ini"
+    echo "  ✓ Applied fuzzel config"
+fi
+
+# 2. Waybar config (if theme has one)
+if [[ -f "$new_theme/config" ]]; then
+    cp "$new_theme/config" "$HOME/.config/waybar/config"
+    echo "  ✓ Applied waybar config"
+fi
+
+# 3. Waybar CSS (if theme has one)
+if [[ -f "$new_theme/waybar.css" ]]; then
+    cp "$new_theme/waybar.css" "$HOME/.config/waybar/style.css"
+    echo "  ✓ Applied waybar CSS"
+fi
+
+# 4. Editor themes
+# Neovim theme
+if [[ -f "$new_theme/neovim.lua" ]]; then
+    mkdir -p "$HOME/.config/nvim/lua/themes"
+    cp "$new_theme/neovim.lua" "$HOME/.config/nvim/lua/themes/current.lua"
+    echo "  ✓ Applied Neovim theme"
+fi
+
+# Gnome Text Editor theme
+if [[ -f "$new_theme/text-editor/"*.xml ]]; then
+    mkdir -p "$HOME/.local/share/gtksourceview-5/styles"
+    cp "$new_theme/text-editor/"*.xml "$HOME/.local/share/gtksourceview-5/styles/"
+    echo "  ✓ Applied Text Editor theme"
+fi
+
+# 5. Application-specific configs
+for config_file in ghostty.conf btop.theme hyprland.conf hyprlock.conf mako.ini; do
+    if [[ -f "$new_theme/$config_file" ]]; then
+        case "$config_file" in
+            ghostty.conf)
+                cp "$new_theme/$config_file" "$HOME/.config/ghostty/config"
+                echo "  ✓ Applied ghostty config"
+                ;;
+            btop.theme)
+                mkdir -p "$HOME/.config/btop/themes"
+                cp "$new_theme/$config_file" "$HOME/.config/btop/themes/"
+                echo "  ✓ Applied btop theme"
+                ;;
+            hyprland.conf)
+                # Note: Don't overwrite main hyprland config, just note it's available
+                echo "  ℹ Hyprland theme config available (manual integration needed)"
+                ;;
+            hyprlock.conf)
+                # Note: Don't overwrite main hyprlock config, just note it's available
+                echo "  ℹ Hyprlock theme config available (manual integration needed)"
+                ;;
+            mako.ini)
+                cp "$new_theme/$config_file" "$HOME/.config/mako/config"
+                echo "  ✓ Applied mako config"
+                ;;
+        esac
+    fi
+done
+
 # Reload components
-touch "$HOME/.config/ghostty/config"  # Use ghostty instead of kitty
-# Copy theme-specific fuzzel config if it exists
-[[ -f "$new_theme/fuzzel.ini" ]] && cp "$new_theme/fuzzel.ini" "$HOME/.config/fuzzel/fuzzel.ini"
+touch "$HOME/.config/ghostty/config"  # Trigger ghostty reload
 pkill -SIGUSR2 waybar 2>/dev/null
 makoctl reload 2>/dev/null
 hyprctl reload 2>/dev/null
 
 # Notify user
-command -v notify-send >/dev/null && notify-send "Theme: $theme_name" -t 2000
+command -v notify-send >/dev/null && notify-send "Theme: $theme_name" "All components applied" -t 3000
 
 echo "✓ Theme switched to $theme_name"
+echo "  📦 Components applied: $(find "$new_theme" -maxdepth 2 -type f -name "*.ini" -o -name "*.conf" -o -name "*.css" -o -name "*.lua" -o -name "*.xml" | wc -l) files"

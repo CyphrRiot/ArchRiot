@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Perfect Aligned Progress Bars for OhmArchy
+# Matches the exact style requested with proper alignment
+
+# OhmArchy Theme Colors
+PURPLE='\033[38;2;157;123;216m'   # #9d7bd8
+BLUE='\033[38;2;125;166;255m'     # #7da6ff
+GREEN='\033[38;2;158;206;106m'    # #9ece6a
+CYAN='\033[38;2;13;185;215m'      # #0db9d7
+ORANGE='\033[38;2;255;158;100m'   # #ff9e64
+YELLOW='\033[38;2;224;175;104m'   # #e0af68
+WHITE='\033[38;2;255;255;255m'    # #ffffff
+GRAY='\033[38;2;104;104;104m'     # #686868
+RESET='\033[0m'
+BOLD='\033[1m'
+
+show_progress() {
+    local percent=$1
+    local label="$2"
+    local color="$3"
+    local width=35
+
+    # Calculate filled portion
+    local filled=$((percent * width / 100))
+    local empty=$((width - filled))
+
+    # Build bar with block characters
+    local bar=""
+    for ((i=0; i<filled; i++)); do bar+="█"; done
+    for ((i=0; i<empty; i++)); do bar+="░"; done
+
+    # Print with perfect alignment - 25 chars for label
+    printf "\r${WHITE}%-25s ${GRAY}▐${!color}%s${GRAY}▌ ${GREEN}%3d%%${RESET}" "$label" "$bar" "$percent"
+}
+
+# Demo with exact example tasks
+echo -e "${PURPLE}${BOLD}Installation Progress:${RESET}"
+echo ""
+
+tasks=(
+    "Installing base packages:BLUE"
+    "Configuring desktop:PURPLE"
+    "Setting up themes:CYAN"
+    "Installing applications:GREEN"
+    "Optimizing system:ORANGE"
+    "Finalizing setup:YELLOW"
+)
+
+for task_info in "${tasks[@]}"; do
+    IFS=':' read -r task color <<< "$task_info"
+    for percent in {0..100..3}; do
+        show_progress $percent "$task" "$color"
+        sleep 0.03
+    done
+    # Ensure it shows 100%
+    show_progress 100 "$task" "$color"
+    echo ""  # New line when task completes
+    sleep 0.4
+done
+
+echo ""
+echo -e "${GREEN}✅ Installation complete!${RESET}"
