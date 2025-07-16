@@ -9,9 +9,9 @@ echo -e "\n$ascii_art\n"
 
 # Read and display version
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OMARCHY_VERSION="1.0.2"
+OMARCHY_VERSION="1.0.11"
 if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
-    OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "1.0.2")
+    OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "1.0.11")
 fi
 
 echo -e "🚀 OhmArchy Setup - Version: $OMARCHY_VERSION"

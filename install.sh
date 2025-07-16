@@ -93,9 +93,9 @@ total=${#installers[@]}
 current=0
 
 # Read version
-OMARCHY_VERSION="1.0.2"
+OMARCHY_VERSION="1.0.11"
 if [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
-    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "1.0.2")
+    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "1.0.11")
 fi
 
 echo "🚀 Starting OhmArchy Installation (Modular Structure)"
