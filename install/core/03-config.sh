@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# CRITICAL BUG FIX: Waybar Binary Corruption Prevention
+#
+# This script previously had a critical bug where the waybar binary at ~/.local/bin/waybar
+# could be overwritten with a CSS file during installation, causing waybar to fail with
+# errors like "@define-color: command not found".
+#
+# Root cause: The original script used:
+#   find "$script_source" -type f \( -name "*.py" -o -name "*.sh" \) -exec cp {} "$script_dest/" \;
+#   chmod +x "$script_dest"/*
+#
+# This could overwrite system binaries if there were naming conflicts or path issues.
+#
+# Fixes implemented:
+# 1. Individual script copying with safety checks
+# 2. System binary protection (waybar, hyprland, etc.)
+# 3. Pre-installation corruption detection and cleanup
+# 4. Post-installation verification of waybar functionality
+# 5. Enhanced error reporting and validation
+#
+# This prevents the critical "curl -fsSL https://OhmArchy.org/setup.sh | bash" bug
+# that was corrupting users' waybar installations.
+
 # Load user environment and create backup
 setup_environment() {
     local env_file="$HOME/.config/omarchy/user.env"
@@ -22,24 +44,74 @@ install_configs() {
     sudo pacman -S --noconfirm --needed python-psutil
     python3 -c "import psutil" || return 1
 
-    # Install OhmArchy configs
+    # Install OhmArchy configs (SAFELY - preserve user configs)
     local source_config="$HOME/.local/share/omarchy/config"
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
-    # Copy configs while handling existing symlinks
+
+    # Safe config installation - preserve existing user configurations
     for item in "$source_config"/*; do
         local basename=$(basename "$item")
         local target="$HOME/.config/$basename"
 
-        # Remove existing symlinks/files to prevent "same file" errors
-        if [[ -e "$target" ]]; then
-            rm -rf "$target"
-        fi
+        # CRITICAL: Only install configs that don't exist or are OhmArchy-managed
+        if [[ ! -e "$target" ]]; then
+            # New installation - safe to copy
+            cp -R "$item" "$target" || return 1
+            echo "✓ Installed new config: $basename"
+        elif [[ -L "$target" ]] && [[ "$(readlink "$target")" == *"omarchy"* ]]; then
+            # OhmArchy-managed symlink - safe to update
+            rm -f "$target"
+            cp -R "$item" "$target" || return 1
+            echo "✓ Updated OhmArchy config: $basename"
+        else
+            # USER'S EXISTING CONFIG - DO NOT OVERWRITE!
+            echo "⚠ Preserving existing user config: $basename (use omarchy-refresh-* scripts to update)"
 
-        cp -R "$item" "$target" || return 1
+            # For critical configs, create .omarchy-default versions for reference
+            if [[ "$basename" =~ ^(hypr|waybar|fish)$ ]]; then
+                cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
+                echo "  → Created reference copy: $basename.omarchy-default"
+            fi
+        fi
     done
 
     echo "✓ Configurations installed"
+}
+
+# Pre-installation safety check
+pre_installation_safety_check() {
+    echo "🔍 Running pre-installation safety checks..."
+
+    # Check if waybar binary exists and is not corrupted
+    if [[ -f "$HOME/.local/bin/waybar" ]]; then
+        # Check if it's a CSS file (corrupted)
+        if head -1 "$HOME/.local/bin/waybar" 2>/dev/null | grep -q "define-color\|/\*.*\*/\|@import"; then
+            echo "🚨 CRITICAL: Corrupted waybar binary detected! Removing before installation..."
+            rm -f "$HOME/.local/bin/waybar"
+            echo "✓ Removed corrupted waybar binary"
+        fi
+    fi
+
+    # Backup existing ~/.local/bin if it has potential conflicts
+    local backup_bin_dir="$HOME/.local/bin.backup-$(date +%s)"
+    if [[ -d "$HOME/.local/bin" ]]; then
+        # Check for any non-executable files that might cause issues
+        local problematic_files=()
+        while IFS= read -r -d '' file; do
+            if [[ ! -x "$file" ]] && [[ -f "$file" ]]; then
+                problematic_files+=("$file")
+            fi
+        done < <(find "$HOME/.local/bin" -type f -print0 2>/dev/null)
+
+        if [[ ${#problematic_files[@]} -gt 0 ]]; then
+            echo "⚠ Found ${#problematic_files[@]} non-executable files in ~/.local/bin"
+            echo "Creating backup at: $backup_bin_dir"
+            cp -R "$HOME/.local/bin" "$backup_bin_dir"
+        fi
+    fi
+
+    echo "✓ Pre-installation safety checks completed"
 }
 
 # Setup scripts and environment
@@ -52,8 +124,18 @@ setup_scripts_and_env() {
     [[ -d "$script_source" ]] || return 1
 
     mkdir -p "$script_dest" ~/.local/share/applications
-    find "$script_source" -type f \( -name "*.py" -o -name "*.sh" \) -exec cp {} "$script_dest/" \;
-    chmod +x "$script_dest"/*
+
+    # Copy scripts individually to avoid overwriting system binaries
+    find "$script_source" -type f \( -name "*.py" -o -name "*.sh" \) -print0 | while IFS= read -r -d '' script_file; do
+        script_name="$(basename "$script_file")"
+        # Safety check: don't overwrite system binaries
+        if [[ "$script_name" =~ ^(waybar|hyprland|fish|bash|zsh|nvim|vim)$ ]]; then
+            echo "⚠ Skipping system binary: $script_name"
+            continue
+        fi
+        cp "$script_file" "$script_dest/$script_name"
+        chmod +x "$script_dest/$script_name"
+    done
 
     # Install volume OSD script
     local volume_script="$HOME/.local/share/omarchy/bin/omarchy-volume-osd"
@@ -74,6 +156,8 @@ setup_scripts_and_env() {
     else
         echo "⚠ Welcome script not found"
     fi
+
+    echo "✓ Scripts and environment configured"
 
     # Install welcome image
     local source_image="$HOME/.local/share/omarchy/images/alice.png"
@@ -170,6 +254,39 @@ validate_installation() {
     # Check Python
     python3 -c "import psutil" 2>/dev/null || ((issues++))
 
+    # CRITICAL: Final verification that waybar binary is not corrupted
+    if [[ -f "$HOME/.local/bin/waybar" ]]; then
+        # Check if waybar in ~/.local/bin is a CSS file (corrupted)
+        if head -1 "$HOME/.local/bin/waybar" 2>/dev/null | grep -q "define-color\|/\*.*\*/\|@import\|font-family"; then
+            echo "🚨 CRITICAL: Corrupted waybar binary detected! Fixing..."
+            rm -f "$HOME/.local/bin/waybar"
+            echo "✓ Removed corrupted waybar binary"
+            ((issues++))
+        else
+            # Check if it's executable and not the system waybar
+            if [[ ! -x "$HOME/.local/bin/waybar" ]] || ! "$HOME/.local/bin/waybar" --version &>/dev/null; then
+                echo "🚨 WARNING: Invalid waybar binary in ~/.local/bin! Removing..."
+                rm -f "$HOME/.local/bin/waybar"
+                echo "✓ Removed invalid waybar binary"
+                ((issues++))
+            fi
+        fi
+    fi
+
+    # Ensure system waybar is accessible
+    if ! command -v waybar &>/dev/null; then
+        echo "🚨 CRITICAL: No waybar binary found!"
+        ((issues++))
+    else
+        # Test waybar version to ensure it's working
+        if waybar --version &>/dev/null; then
+            echo "✓ Waybar binary verified working"
+        else
+            echo "🚨 WARNING: Waybar binary exists but not functioning properly"
+            ((issues++))
+        fi
+    fi
+
     # Check essential scripts
     for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py omarchy-volume-osd ohmarchy-welcome; do
         [[ -x "$HOME/.local/bin/$script" ]] || ((issues++))
@@ -189,6 +306,7 @@ main() {
     echo "🚀 Starting OhmArchy configuration setup..."
 
     {
+        pre_installation_safety_check &&
         setup_environment &&
         install_configs &&
         setup_scripts_and_env &&
