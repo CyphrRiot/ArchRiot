@@ -302,12 +302,31 @@ setup_fuzzel_cache() {
 
     local cache_dir="$HOME/.cache/fuzzel"
 
+    # Debug information
+    echo "🔍 HOME directory: $HOME"
+    echo "🔍 Target cache directory: $cache_dir"
+    echo "🔍 Current user: $(whoami)"
+    echo "🔍 .cache directory exists: $(test -d "$HOME/.cache" && echo "yes" || echo "no")"
+    echo "🔍 .cache directory permissions: $(ls -ld "$HOME/.cache" 2>/dev/null || echo "not found")"
+
+    # Ensure .cache directory exists first
+    if ! [[ -d "$HOME/.cache" ]]; then
+        echo "📁 Creating .cache directory first..."
+        if ! mkdir -p "$HOME/.cache"; then
+            echo "❌ Failed to create .cache directory: $HOME/.cache"
+            echo "   Check filesystem permissions and disk space"
+            return 1
+        fi
+    fi
+
     # Create fuzzel cache directory
-    if mkdir -p "$cache_dir"; then
+    if mkdir -p "$cache_dir" 2>/dev/null; then
         echo "✓ Fuzzel cache directory created: $cache_dir"
     else
         echo "❌ Failed to create fuzzel cache directory: $cache_dir"
-        return 1
+        echo "   Error details: $(mkdir -p "$cache_dir" 2>&1 || true)"
+        echo "   Continuing installation (fuzzel will still work)"
+        return 0  # Don't fail the entire installation
     fi
 
     # Verify directory is writable
@@ -315,7 +334,8 @@ setup_fuzzel_cache() {
         echo "✓ Fuzzel cache directory is writable"
     else
         echo "❌ Fuzzel cache directory is not writable: $cache_dir"
-        return 1
+        echo "   This may cause fuzzel cache issues but won't break functionality"
+        return 0  # Don't fail the entire installation
     fi
 
     echo "✓ Fuzzel cache setup completed"
