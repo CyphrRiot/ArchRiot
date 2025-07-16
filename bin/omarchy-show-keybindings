@@ -3,18 +3,12 @@
 # Display Hyprland keybindings in searchable fuzzel menu
 
 user_conf="$HOME/.config/hypr/hyprland.conf"
-omarchy_conf="$HOME/.local/share/omarchy/default/hypr/bindings.conf"
 
-# Check if config files exist
-for conf in "$user_conf" "$omarchy_conf"; do
-    [[ -f "$conf" ]] || { echo "Warning: $conf not found"; }
-done
+# Check if config file exists
+[[ -f "$user_conf" ]] || { echo "Warning: $user_conf not found"; exit 1; }
 
 # Extract and format keybindings
-{
-    [[ -f "$user_conf" ]] && grep '^[[:space:]]*bind' "$user_conf"
-    [[ -f "$omarchy_conf" ]] && grep '^[[:space:]]*bind' "$omarchy_conf"
-} | awk -F, '
+grep '^[[:space:]]*bind' "$user_conf" | awk -F, '
 {
     # Remove comments and bind prefix
     sub(/#.*/, "")

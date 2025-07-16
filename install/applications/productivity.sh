@@ -19,17 +19,32 @@ yay -S --noconfirm --needed \
 yay -S --noconfirm --needed \
     gnome-clocks
 
-# Install and configure Gnome Text Editor with Tokyo Night theme
+# Install and configure Gnome Text Editor with theme support
 if command -v gnome-text-editor >/dev/null 2>&1; then
-    echo "🎨 Installing Tokyo Night theme for Gnome Text Editor..."
+    echo "🎨 Installing themes for Gnome Text Editor..."
 
     # Create gtksourceview styles directory
     mkdir -p "$HOME/.local/share/gtksourceview-5/styles"
 
-    # Install Tokyo Night theme
-    if [[ -f "$HOME/.local/share/omarchy/themes/tokyo-night/text-editor/tokyo-night.xml" ]]; then
-        cp "$HOME/.local/share/omarchy/themes/tokyo-night/text-editor/tokyo-night.xml" "$HOME/.local/share/gtksourceview-5/styles/"
-        echo "✓ Tokyo Night theme installed"
+    # Install all available text editor themes
+    local themes_installed=0
+    for theme_dir in "$HOME/.local/share/omarchy/themes"/*; do
+        if [[ -d "$theme_dir/text-editor" ]]; then
+            theme_name=$(basename "$theme_dir")
+            for theme_file in "$theme_dir/text-editor"/*.xml; do
+                if [[ -f "$theme_file" ]]; then
+                    cp "$theme_file" "$HOME/.local/share/gtksourceview-5/styles/"
+                    echo "✓ Installed $(basename "$theme_file") theme"
+                    ((themes_installed++))
+                fi
+            done
+        fi
+    done
+
+    if [[ $themes_installed -gt 0 ]]; then
+        echo "✓ $themes_installed text editor theme(s) installed"
+    else
+        echo "⚠ No text editor themes found"
     fi
 
     echo "🎨 Configuring Gnome Text Editor..."
@@ -39,8 +54,17 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font 12'
     gsettings set org.gnome.TextEditor line-height 1.2
     gsettings set org.gnome.TextEditor use-system-font false
-    gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'
-    echo "✓ Gnome Text Editor configured with Tokyo Night theme"
+
+    # Set default theme (prefer Tokyo Night, fallback to first available)
+    if [[ -f "$HOME/.local/share/gtksourceview-5/styles/tokyo-night.xml" ]]; then
+        gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'
+        echo "✓ Gnome Text Editor configured with Tokyo Night theme"
+    elif [[ -f "$HOME/.local/share/gtksourceview-5/styles/cypherriot.xml" ]]; then
+        gsettings set org.gnome.TextEditor style-scheme 'cypherriot'
+        echo "✓ Gnome Text Editor configured with CypherRiot theme"
+    else
+        echo "ℹ Using default text editor theme"
+    fi
 fi
 
 echo "✅ Productivity applications setup complete!"

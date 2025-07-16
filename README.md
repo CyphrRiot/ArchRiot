@@ -1,6 +1,6 @@
 # OhmArchy Ω
 
-![Version](https://img.shields.io/badge/version-1.0.21-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
@@ -200,6 +200,7 @@ ohmarchy-fix-waybar-theme            # Fix waybar styling
 Quick fixes for common issues:
 
 - **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
+- **Enhanced installer**: New in v1.1.0 - beautiful progress bars during installation
 - **Theme not applying**: Run `ohmarchy-fix-waybar-theme`
 - **Background issues**: Run `ohmarchy-fix-background`
 - **Thumbnail problems**: Run `ohmarchy-fix-thunar-thumbnails`

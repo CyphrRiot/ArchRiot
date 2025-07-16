@@ -170,6 +170,25 @@ setup_scripts_and_env() {
         echo "⚠ Welcome script not found"
     fi
 
+    # Install performance analysis tools
+    local performance_tools=(
+        "ohmarchy-performance-analysis"
+        "ohmarchy-startup-profiler"
+        "ohmarchy-memory-profiler"
+        "ohmarchy-optimize-system"
+    )
+
+    for tool in "${performance_tools[@]}"; do
+        local tool_script="$HOME/.local/share/omarchy/bin/$tool"
+        if [[ -f "$tool_script" ]]; then
+            cp "$tool_script" "$script_dest/"
+            chmod +x "$script_dest/$tool"
+            echo "✓ Performance tool installed: $tool"
+        else
+            echo "⚠ Performance tool not found: $tool"
+        fi
+    done
+
     echo "✓ Scripts and environment configured"
 
     # Install welcome image
