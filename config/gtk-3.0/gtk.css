@@ -228,6 +228,42 @@ listview {
     color: #c0caf5;
 }
 
+/* Fix for Thunar drag selection rubber band (black box issue) */
+.thunar .rubberband,
+.thunar rubberband,
+rubberband {
+    background-color: rgba(122, 162, 247, 0.2);
+    border: 1px solid #7aa2f7;
+    color: transparent;
+}
+
+/* Fix for icon view drag selection */
+.thunar iconview .rubberband,
+iconview .rubberband {
+    background-color: rgba(122, 162, 247, 0.15);
+    border: 1px solid rgba(122, 162, 247, 0.8);
+}
+
+/* Comprehensive rubber band selection fix for all GTK applications */
+rubberband,
+.rubberband,
+XfdesktopIconView.view .rubberband,
+iconview .rubberband,
+treeview .rubberband,
+flowbox .rubberband {
+    background-color: rgba(122, 162, 247, 0.2);
+    border: 1px solid #7aa2f7;
+    border-radius: 2px;
+    opacity: 0.8;
+}
+
+/* Alternative rubber band selectors */
+selection,
+.selection {
+    background-color: rgba(122, 162, 247, 0.25);
+    border: 1px solid rgba(122, 162, 247, 0.6);
+}
+
 /* Generic selection fix */
 *:selected {
     background-color: rgba(122, 162, 247, 0.3) !important;
