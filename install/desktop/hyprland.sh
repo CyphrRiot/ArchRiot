@@ -81,7 +81,7 @@ show_summary() {
     echo ""
     echo "🎉 Hyprland desktop environment setup complete!"
     echo ""
-    echo "📦 Installed: Hyprland WM, Waybar, Fuzzel launcher, Mako notifications, SwayOSD volume overlay, screen tools, Kooha recorder"
+    echo "📦 Installed: Hyprland WM, Waybar, Fuzzel launcher, Mako notifications, SwayOSD volume overlay, Hyprlock screen locker, screen tools, Kooha recorder"
     echo "🚀 Getting started: Log out/in to start Hyprland, or type 'Hyprland'"
     echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher)"
 }

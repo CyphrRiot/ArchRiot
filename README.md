@@ -14,6 +14,10 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy)
 ![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy)
 
+[![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
+[![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-FF6B6B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
+
 **A customized Arch Linux setup based on Omarchy, optimized for the Cypher Riot workflow.**
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.

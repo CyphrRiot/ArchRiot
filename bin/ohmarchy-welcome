@@ -16,6 +16,12 @@ class WelcomeWindow:
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.set_resizable(False)
 
+        # Make window explicitly non-modal
+        self.window.set_modal(False)
+        self.window.set_keep_above(False)
+        self.window.set_focus_on_map(False)
+        self.window.set_type_hint(Gdk.WindowTypeHint.NORMAL)
+
         # Set window to be 80% of screen height
         try:
             display = Gdk.Display.get_default()
@@ -38,15 +44,9 @@ class WelcomeWindow:
 
         # Add title
         title_label = Gtk.Label()
-        title_label.set_markup('<span size="28000" weight="bold">Welcome to OhmArchy!</span>')
+        title_label.set_markup('<span size="28000" weight="bold">Welcome!</span>')
         title_label.set_halign(Gtk.Align.CENTER)
         main_box.pack_start(title_label, False, False, 0)
-
-        # Add subtitle
-        subtitle_label = Gtk.Label()
-        subtitle_label.set_markup('<span size="18000" style="italic">You are through the looking glass now...</span>')
-        subtitle_label.set_halign(Gtk.Align.CENTER)
-        main_box.pack_start(subtitle_label, False, False, 0)
 
         # Add Alice image
         self.add_alice_image(main_box)
@@ -58,7 +58,7 @@ class WelcomeWindow:
         self.add_buttons(main_box)
 
         self.window.add(main_box)
-        self.window.connect("destroy", Gtk.main_quit)
+        self.window.connect("destroy", self.on_window_destroy)
         self.window.show_all()
 
     def add_alice_image(self, container):
@@ -68,12 +68,12 @@ class WelcomeWindow:
             try:
                 # Load and scale the image
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(image_path)
-                # Scale to max width of 400px while maintaining aspect ratio
+                # Scale to max width of 650px while maintaining aspect ratio
                 width = pixbuf.get_width()
                 height = pixbuf.get_height()
-                if width > 400:
-                    scale_factor = 400.0 / width
-                    new_width = 400
+                if width > 650:
+                    scale_factor = 650.0 / width
+                    new_width = 650
                     new_height = int(height * scale_factor)
                     pixbuf = pixbuf.scale_simple(new_width, new_height, GdkPixbuf.InterpType.BILINEAR)
 
@@ -117,7 +117,7 @@ class WelcomeWindow:
             "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
             "Many other commands!\n\n",
 
-            "I hope you enjoy using OhmArchy as much as I enjoyed putting it together. If you need to contact me, I'm at "
+            "I hope you enjoy using OhmArchy as much as I enjoyed putting it together.\n"
         ]
 
         # Insert text parts
@@ -218,6 +218,10 @@ class WelcomeWindow:
 
         return False
 
+    def on_window_destroy(self, widget):
+        """Handle window destruction - quit this app's main loop only"""
+        Gtk.main_quit()
+
 def should_show_welcome():
     """Check if welcome should be shown"""
     config_file = os.path.expanduser("~/.config/ohmarchy/welcome.json")
@@ -291,6 +295,8 @@ def main():
     Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
     app = WelcomeWindow()
+
+    # Run the main loop - this keeps the window alive
     Gtk.main()
 
 if __name__ == "__main__":

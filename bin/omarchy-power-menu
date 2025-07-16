@@ -13,10 +13,10 @@ show_power_menu() {
 \u200D Relaunch
 \u2060󰜉 Restart
 \u2063󰐥 Shutdown"
-  local selection=$(echo -e "$menu_options" | XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt "Power Options" --width 20 --lines 5)
+  local selection=$(echo -e "$menu_options" | env XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt "Power Options" --width 20 --lines 5)
 
   case "$selection" in
-  *Lock*) hyprlock ;;
+  *Lock*) swaylock ;;
   *Suspend*) systemctl suspend ;;
   *Relaunch*) hyprctl dispatch exit ;;
   *Restart*) systemctl reboot ;;
