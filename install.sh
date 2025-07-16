@@ -251,13 +251,12 @@ process_installer_with_progress() {
     PROGRESS_ENABLED="$original_progress"
 }
 
-# Read version
-OMARCHY_VERSION="1.1.1"
+# Read version from VERSION file (single source of truth)
 if [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
-    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "1.0.12")
+    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
 else
     # Fetch version from GitHub when running via curl
-    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "1.1.1")
+    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "unknown")
 fi
 
 echo "🚀 Starting OhmArchy Installation (Fixed Module Order)"
