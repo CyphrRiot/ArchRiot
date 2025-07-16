@@ -27,7 +27,7 @@ LOGO_WIDTH=800
 LOGO_HEIGHT=168
 BACKGROUND_COLOR='#1a1b26'  # Tokyo Night background
 TEXT_COLOR='#c0caf5'        # Tokyo Night foreground
-PLYMOUTH_THEME_DIR="/usr/share/plymouth/themes/omarchy"
+PLYMOUTH_THEME_DIR="/usr/share/plymouth/themes/ohmarchy"
 TEMP_LOGO="/tmp/ohmarchy_logo_temp.png"
 
 echo -e "${BLUE}🎨 OhmArchy Boot Logo Generator${NC}"
@@ -80,7 +80,7 @@ fi
 
 # Generate the logo
 echo -e "${YELLOW}Generating boot logo...${NC}"
-convert -size ${LOGO_WIDTH}x${LOGO_HEIGHT} \
+magick -size ${LOGO_WIDTH}x${LOGO_HEIGHT} \
     -background "$BACKGROUND_COLOR" \
     -fill "$TEXT_COLOR" \
     -font "$FONT_FOUND" \
@@ -102,8 +102,8 @@ if [ ! -d "$PLYMOUTH_THEME_DIR" ]; then
     sudo mkdir -p "$PLYMOUTH_THEME_DIR"
 
     # Copy the entire Plymouth theme if it doesn't exist
-    if [ -d "$HOME/.local/share/omarchy/default/plymouth" ]; then
-        sudo cp -r "$HOME/.local/share/omarchy/default/plymouth/"* "$PLYMOUTH_THEME_DIR/"
+    if [ -d "$HOME/.local/share/OhmArchy/default/plymouth" ]; then
+        sudo cp -r "$HOME/.local/share/OhmArchy/default/plymouth/"* "$PLYMOUTH_THEME_DIR/"
         echo -e "${GREEN}✓ Plymouth theme installed${NC}"
     else
         echo -e "${RED}❌ Plymouth theme source not found${NC}"
@@ -131,8 +131,8 @@ echo -e "${GREEN}✓ Boot logo installed${NC}"
 # Update Plymouth theme
 echo -e "${YELLOW}Updating Plymouth configuration...${NC}"
 if command -v plymouth-set-default-theme &> /dev/null; then
-    sudo plymouth-set-default-theme omarchy
-    echo -e "${GREEN}✓ Plymouth theme set to omarchy${NC}"
+    sudo plymouth-set-default-theme ohmarchy
+    echo -e "${GREEN}✓ Plymouth theme set to ohmarchy${NC}"
 
     # Regenerate initramfs to apply changes
     echo -e "${YELLOW}Regenerating initramfs (this may take a moment)...${NC}"
@@ -156,7 +156,7 @@ echo "custom_ascii_logo_installed=$(date)" | sudo tee "$PLYMOUTH_THEME_DIR/.cust
 sudo chmod 644 "$PLYMOUTH_THEME_DIR/.custom_logo_marker"
 
 # Create persistent backup for re-installations
-PERSISTENT_BACKUP_DIR="$HOME/.config/omarchy/plymouth-backup"
+PERSISTENT_BACKUP_DIR="$HOME/.config/OhmArchy/plymouth-backup"
 mkdir -p "$PERSISTENT_BACKUP_DIR"
 cp "$PLYMOUTH_THEME_DIR/logo.png" "$PERSISTENT_BACKUP_DIR/custom_logo.png"
 echo "custom_logo_backup_created=$(date)" > "$PERSISTENT_BACKUP_DIR/backup_info.txt"
