@@ -45,7 +45,8 @@ exclude:
   - themes/
   - docs/
   - .ropeproject/
-  - "*.sh"
+  - install.sh
+  - validate.sh
   - plan.md
   - CHANGELOG.md
   - LICENSE
