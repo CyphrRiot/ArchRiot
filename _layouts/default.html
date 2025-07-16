@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+  <link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
+
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:title" content="{{ site.title | default: site.github.repository_name }}">
+  <meta property="og:description" content="{{ site.description | default: site.github.project_tagline }}">
+  <meta property="og:image" content="{{ '/images/alice.png' | relative_url }}">
+  <meta property="og:url" content="{{ site.url }}{{ site.baseurl }}">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ site.title | default: site.github.repository_name }}">
+  <meta name="twitter:description" content="{{ site.description | default: site.github.project_tagline }}">
+  <meta name="twitter:image" content="{{ '/images/alice.png' | relative_url }}">
+  <meta name="twitter:creator" content="@CyphrRiot">
+
+  <!-- SEO and Performance -->
+  <meta name="description" content="{{ site.description | default: site.github.project_tagline }}">
+  <meta name="keywords" content="Arch Linux, Hyprland, Wayland, Desktop Environment, Purple Theme, CypherRiot">
+  <meta name="author" content="CyphrRiot">
+  <meta name="theme-color" content="#8b5cf6">
+
+  <!-- Preload critical fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"></noscript>
+
+{% seo %}
+</head>
+
+<body>
+  <div id="container">
+    <div class="inner">
+
+      <header>
+        <div class="header-content">
+          <h1>{{ site.title | default: site.github.repository_name }}</h1>
+          {% if site.description %}
+            <h2>{{ site.description | default: site.github.project_tagline }}</h2>
+          {% endif %}
+
+          <div class="header-actions">
+            <a href="{{ site.github.repository_url }}" class="btn btn-github">
+              <svg height="16" width="16" viewBox="0 0 16 16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+              </svg>
+              View on GitHub
+            </a>
+            {% if site.show_downloads %}
+              <a href="{{ site.github.tar_url }}" class="btn btn-download">Download .tar.gz</a>
+              <a href="{{ site.github.zip_url }}" class="btn btn-download">Download .zip</a>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+
+      <div id="main_content_wrap" class="outer">
+        <section id="main_content" class="inner">
+          {{ content }}
+        </section>
+      </div>
+
+      <footer class="inner">
+        <div class="footer-content">
+          <p>
+            <strong>OhmArchy Ω</strong> - A beautiful Arch Linux + Hyprland desktop environment
+          </p>
+          <p>
+            Created by <a href="https://github.com/CyphrRiot" target="_blank">CyphrRiot</a> •
+            Licensed under <a href="{{ '/LICENSE' | relative_url }}">MIT</a> •
+            <a href="https://github.com/CyphrRiot/OhmArchy/issues" target="_blank">Report Issues</a>
+          </p>
+          <div class="social-links">
+            <a href="https://x.com/CyphrRiot" target="_blank" title="Follow @CyphrRiot on X">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            <a href="https://github.com/CyphrRiot" target="_blank" title="GitHub Profile">
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Analytics and performance monitoring -->
+  <script>
+    // Simple page load performance logging
+    window.addEventListener('load', function() {
+      if ('performance' in window) {
+        const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+        console.log('OhmArchy docs loaded in', loadTime, 'ms');
+      }
+    });
+
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Add copy functionality to code blocks
+    document.querySelectorAll('pre code').forEach(block => {
+      const button = document.createElement('button');
+      button.className = 'copy-btn';
+      button.textContent = 'Copy';
+      button.style.cssText = `
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: var(--omarchy-purple);
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      `;
+
+      const pre = block.parentNode;
+      pre.style.position = 'relative';
+      pre.appendChild(button);
+
+      pre.addEventListener('mouseenter', () => button.style.opacity = '1');
+      pre.addEventListener('mouseleave', () => button.style.opacity = '0');
+
+      button.addEventListener('click', () => {
+        navigator.clipboard.writeText(block.textContent).then(() => {
+          button.textContent = 'Copied!';
+          setTimeout(() => button.textContent = 'Copy', 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
