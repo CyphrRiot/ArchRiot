@@ -1,6 +1,6 @@
 # OhmArchy Ω
 
-![Version](https://img.shields.io/badge/version-1.1.1-blue)
+![Version](https://img.shields.io/badge/version-1.1.2-blue)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
@@ -25,6 +25,20 @@ Turn a fresh Arch installation into a fully-configured, beautiful, and modern de
 OhmArchy is an even more opiniated setup and was originally a fork of [DHH's amazing Omarchy](https://github.com/basecamp/omarchy) with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
 ![OhmArchy Screenshot](images/screenshot.png)
+
+## ✨ Enhanced Installation Experience (v1.1.2+)
+
+OhmArchy now features beautiful, themed progress bars during installation:
+
+https://github.com/CyphrRiot/OhmArchy/raw/master/images/progress.mp4
+
+The enhanced installer provides:
+
+- **Perfect alignment** - Clean, professional progress display
+- **Themed colors** - Matches OhmArchy's aesthetic with purple, blue, and cyan accents
+- **Real-time feedback** - Shows exactly what's being installed
+- **Error handling** - Clear failure indication while preserving all safety features
+- **Fallback support** - Automatically switches to plain text in incompatible terminals
 
 ## 🚀 Installation
 
@@ -72,20 +86,6 @@ curl -fsSL https://ohmarchy.org/setup.sh | bash
 git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy
 ~/.local/share/omarchy/install.sh
 ```
-
-## ✨ Enhanced Installation Experience (v1.1.0+)
-
-OhmArchy now features beautiful, themed progress bars during installation:
-
-https://github.com/CyphrRiot/OhmArchy/raw/master/images/progress.mp4
-
-The enhanced installer provides:
-
-- **Perfect alignment** - Clean, professional progress display
-- **Themed colors** - Matches OhmArchy's aesthetic with purple, blue, and cyan accents
-- **Real-time feedback** - Shows exactly what's being installed
-- **Error handling** - Clear failure indication while preserving all safety features
-- **Fallback support** - Automatically switches to plain text in incompatible terminals
 
 ### Optional: Pre-Installation Validation
 
