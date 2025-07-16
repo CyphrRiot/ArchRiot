@@ -35,21 +35,10 @@ plugins:
   - jekyll-sitemap
   - jekyll-feed
 
-# Exclude files from processing
+# Exclude files from processing - MINIMAL to avoid breaking functionality
 exclude:
-  - install/
-  - bin/
-  - applications/
-  - config/
-  - default/
-  - themes/
-  - docs/
   - .ropeproject/
-  - install.sh
-  - validate.sh
   - plan.md
-  - CHANGELOG.md
-  - LICENSE
 
 # Custom variables for the theme
 show_downloads: false
