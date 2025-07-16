@@ -1,5 +1,42 @@
 #!/bin/bash
 
+# Install Hyprland configurations first
+install_hyprland_configs() {
+    echo "📁 Installing Hyprland configurations..."
+
+    # Install OhmArchy configs (SAFELY - preserve user configs)
+    local source_config="$HOME/.local/share/omarchy/config"
+    [[ -d "$source_config" ]] || return 1
+    mkdir -p ~/.config
+
+    # Safe config installation - focus on hypr configs needed for desktop setup
+    for item in "$source_config"/*; do
+        local basename=$(basename "$item")
+        local target="$HOME/.config/$basename"
+
+        # Install hypr configs if they don't exist or are OhmArchy-managed
+        if [[ "$basename" == "hypr" ]]; then
+            if [[ ! -e "$target" ]]; then
+                # New installation - safe to copy
+                cp -R "$item" "$target" || return 1
+                echo "✓ Installed new config: $basename"
+            elif [[ -L "$target" ]] && [[ "$(readlink "$target")" == *"omarchy"* ]]; then
+                # OhmArchy-managed symlink - safe to update
+                rm -f "$target"
+                cp -R "$item" "$target" || return 1
+                echo "✓ Updated OhmArchy config: $basename"
+            else
+                # USER'S EXISTING CONFIG - create reference copy
+                echo "⚠ Preserving existing user config: $basename"
+                cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
+                echo "  → Created reference copy: $basename.omarchy-default"
+            fi
+        fi
+    done
+
+    echo "✓ Hyprland configurations installed"
+}
+
 # Load environment and install Hyprland packages
 setup_hyprland_packages() {
     echo "🪟 Installing Hyprland desktop environment..."
@@ -90,6 +127,7 @@ show_summary() {
 main() {
     echo "🚀 Starting Hyprland desktop environment setup..."
 
+    install_hyprland_configs || return 1
     setup_hyprland_packages || return 1
     validate_installation || return 1
     configure_hyprland

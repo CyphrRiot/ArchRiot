@@ -61,6 +61,12 @@ install_configs() {
         local basename=$(basename "$item")
         local target="$HOME/.config/$basename"
 
+        # Skip hypr configs - they're installed by desktop module
+        if [[ "$basename" == "hypr" ]]; then
+            echo "ℹ️ Skipping hypr config (installed by desktop module)"
+            continue
+        fi
+
         # CRITICAL: Only install configs that don't exist or are OhmArchy-managed
         if [[ ! -e "$target" ]]; then
             # New installation - safe to copy
@@ -76,7 +82,7 @@ install_configs() {
             echo "⚠ Preserving existing user config: $basename (use omarchy-refresh-* scripts to update)"
 
             # For critical configs, create .omarchy-default versions for reference
-            if [[ "$basename" =~ ^(hypr|waybar|fish)$ ]]; then
+            if [[ "$basename" =~ ^(waybar|fish)$ ]]; then
                 cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
                 echo "  → Created reference copy: $basename.omarchy-default"
             fi

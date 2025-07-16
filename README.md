@@ -1,6 +1,6 @@
 # OhmArchy Ω
 
-![Version](https://img.shields.io/badge/version-1.0.20-blue)
+![Version](https://img.shields.io/badge/version-1.0.21-blue)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
