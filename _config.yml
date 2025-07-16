@@ -1,0 +1,57 @@
+# Jekyll Configuration for OhmArchy GitHub Pages
+title: OhmArchy Ω
+description: >-
+  A beautiful, modern Arch Linux + Hyprland desktop environment with
+  CypherRiot theming, purple aesthetics, and comprehensive Wayland support.
+
+# GitHub Pages settings
+remote_theme: pages-themes/midnight@v0.2.0
+plugins:
+  - jekyll-remote-theme
+
+# Site settings
+url: "https://ohmarchy.org"
+baseurl: ""
+author: CyphrRiot
+github_username: CyphrRiot
+
+# Markdown settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Collections and defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+# GitHub Pages safe plugins only
+plugins:
+  - jekyll-remote-theme
+  - jekyll-sitemap
+  - jekyll-feed
+
+# Exclude files from processing
+exclude:
+  - install/
+  - bin/
+  - applications/
+  - config/
+  - default/
+  - themes/
+  - docs/
+  - .ropeproject/
+  - "*.sh"
+  - plan.md
+  - CHANGELOG.md
+  - LICENSE
+
+# Custom variables for the theme
+show_downloads: true
+github:
+  repository_url: https://github.com/CyphrRiot/OhmArchy
+  repository_name: OhmArchy

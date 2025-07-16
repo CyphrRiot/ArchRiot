@@ -1,0 +1,276 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* OhmArchy Dark Theme Override */
+/* Inspired by CypherRiot purple/blue aesthetic */
+
+:root {
+  --omarchy-dark-bg: #0a0a0f;
+  --omarchy-darker-bg: #05050a;
+  --omarchy-purple: #8b5cf6;
+  --omarchy-purple-light: #a78bfa;
+  --omarchy-purple-dark: #7c3aed;
+  --omarchy-blue: #3b82f6;
+  --omarchy-cyan: #06b6d4;
+  --omarchy-text: #e5e7eb;
+  --omarchy-text-dim: #9ca3af;
+  --omarchy-border: #374151;
+  --omarchy-code-bg: #1f2937;
+  --omarchy-accent: #f59e0b;
+}
+
+/* Global dark background */
+body {
+  background: linear-gradient(135deg, var(--omarchy-dark-bg) 0%, var(--omarchy-darker-bg) 100%) !important;
+  color: var(--omarchy-text) !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+/* Container and wrapper styling */
+.container, .wrapper {
+  background: rgba(10, 10, 15, 0.95) !important;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--omarchy-border);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+}
+
+/* Header styling */
+header {
+  background: linear-gradient(90deg, var(--omarchy-purple-dark), var(--omarchy-blue)) !important;
+  border-bottom: 2px solid var(--omarchy-purple);
+  padding: 2rem 0;
+}
+
+header h1, header h2 {
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Main content area */
+.main-content, #main_content_wrap {
+  background: var(--omarchy-dark-bg) !important;
+  color: var(--omarchy-text) !important;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+/* Headings with purple gradient */
+h1, h2, h3, h4, h5, h6 {
+  background: linear-gradient(45deg, var(--omarchy-purple), var(--omarchy-cyan));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Override for the main title */
+h1:first-child {
+  color: var(--omarchy-purple-light) !important;
+  -webkit-text-fill-color: var(--omarchy-purple-light) !important;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Paragraph and text styling */
+p, li, td {
+  color: var(--omarchy-text) !important;
+  line-height: 1.7;
+}
+
+/* Links with purple theme */
+a {
+  color: var(--omarchy-purple-light) !important;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--omarchy-cyan) !important;
+  text-shadow: 0 0 8px var(--omarchy-cyan);
+}
+
+/* Code blocks and inline code */
+code {
+  background: var(--omarchy-code-bg) !important;
+  color: var(--omarchy-purple-light) !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--omarchy-border);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+pre {
+  background: var(--omarchy-darker-bg) !important;
+  border: 1px solid var(--omarchy-border) !important;
+  border-radius: 8px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+pre code {
+  background: none !important;
+  color: var(--omarchy-text) !important;
+  border: none;
+  padding: 0;
+}
+
+/* Tables with dark theme */
+table {
+  background: var(--omarchy-darker-bg) !important;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+th {
+  background: var(--omarchy-purple-dark) !important;
+  color: white !important;
+  padding: 1rem;
+  font-weight: 600;
+}
+
+td {
+  background: var(--omarchy-dark-bg) !important;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--omarchy-border);
+}
+
+tr:hover td {
+  background: rgba(139, 92, 246, 0.1) !important;
+}
+
+/* Badges and shields.io images */
+img[src*="shields.io"], img[src*="badge"] {
+  filter: brightness(1.1) contrast(1.1);
+  margin: 0.2rem;
+}
+
+/* Blockquotes */
+blockquote {
+  background: var(--omarchy-code-bg) !important;
+  border-left: 4px solid var(--omarchy-purple) !important;
+  color: var(--omarchy-text) !important;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+/* Lists */
+ul, ol {
+  color: var(--omarchy-text) !important;
+}
+
+li::marker {
+  color: var(--omarchy-purple-light);
+}
+
+/* Horizontal rules */
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--omarchy-purple), transparent);
+  margin: 2rem 0;
+}
+
+/* Download buttons and CTAs */
+.btn, .button, a[href*="download"], a[href*="install"] {
+  background: linear-gradient(45deg, var(--omarchy-purple), var(--omarchy-blue)) !important;
+  color: white !important;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-block;
+  margin: 0.5rem 0.5rem 0.5rem 0;
+}
+
+.btn:hover, .button:hover, a[href*="download"]:hover, a[href*="install"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
+  color: white !important;
+}
+
+/* Footer */
+footer {
+  background: var(--omarchy-darker-bg) !important;
+  color: var(--omarchy-text-dim) !important;
+  border-top: 2px solid var(--omarchy-purple);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container, .wrapper {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  h1:first-child {
+    font-size: 2rem;
+  }
+
+  pre {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--omarchy-darker-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, var(--omarchy-purple), var(--omarchy-blue));
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, var(--omarchy-purple-light), var(--omarchy-cyan));
+}
+
+/* Selection styling */
+::selection {
+  background: var(--omarchy-purple);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--omarchy-purple);
+  color: white;
+}
+
+/* Animation for smooth transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Special styling for important warnings */
+strong:contains("⚠️"), strong:contains("Important") {
+  color: var(--omarchy-accent) !important;
+  font-weight: 700;
+}
+
+/* GitHub corner ribbon (if present) */
+.github-corner svg {
+  fill: var(--omarchy-purple);
+  color: var(--omarchy-dark-bg);
+}
