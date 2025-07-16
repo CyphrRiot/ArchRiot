@@ -21,7 +21,16 @@ fi
 
 # Load clean progress system
 if [ -f "$HOME/.local/share/omarchy/install/lib/simple-progress.sh" ]; then
+    echo "🔍 Loading progress system..."
     source "$HOME/.local/share/omarchy/install/lib/simple-progress.sh"
+    echo "🔍 Progress system loaded, checking functions..."
+    if command -v init_clean_progress &>/dev/null; then
+        echo "✓ init_clean_progress function available"
+    else
+        echo "❌ init_clean_progress function NOT available"
+    fi
+else
+    echo "❌ Progress system file not found: $HOME/.local/share/omarchy/install/lib/simple-progress.sh"
 fi
 
 # Load and setup sudo helper for passwordless installation
@@ -101,8 +110,12 @@ get_installer_files() {
 # Process installation modules in the correct order
 process_installation_modules() {
     # Initialize clean progress system
+    echo "🔍 Attempting to initialize progress system with ${#install_modules[@]} modules..."
     if command -v init_clean_progress &>/dev/null; then
+        echo "✓ Initializing clean progress system..."
         init_clean_progress ${#install_modules[@]}
+    else
+        echo "❌ init_clean_progress function not found!"
     fi
 
     for module in "${install_modules[@]}"; do
