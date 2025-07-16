@@ -118,11 +118,36 @@ else
   echo ""
 fi
 
-# Remove old omarchy theme if it exists
+# AGGRESSIVE CLEANUP - Remove ALL old Plymouth themes
+echo "🧹 Cleaning up old Plymouth themes..."
 sudo rm -rf /usr/share/plymouth/themes/omarchy
+sudo rm -rf /usr/share/plymouth/themes/ohmarchy
+
+# Remove any cached theme references
+sudo rm -f /var/lib/plymouth/themes/default.plymouth
+sudo rm -f /etc/plymouth/plymouthd.conf
 
 # Always copy and update the Plymouth theme (even on re-installs for logo updates)
+echo "📦 Installing OhmArchy Plymouth theme..."
 sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
 sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
 
+# Verify theme files exist
+if [[ ! -f /usr/share/plymouth/themes/ohmarchy/ohmarchy.plymouth ]]; then
+    echo "❌ Failed to install Plymouth theme files!"
+    exit 1
+fi
+
+echo "🎨 Setting OhmArchy as default Plymouth theme..."
 sudo plymouth-set-default-theme -R ohmarchy
+
+# Verify theme is set correctly
+CURRENT_THEME=$(sudo plymouth-set-default-theme)
+if [[ "$CURRENT_THEME" != "ohmarchy" ]]; then
+    echo "❌ Failed to set OhmArchy theme! Current: $CURRENT_THEME"
+    echo "🔧 Available themes:"
+    sudo plymouth-set-default-theme --list
+    exit 1
+fi
+
+echo "✅ Plymouth theme verified: $CURRENT_THEME"
