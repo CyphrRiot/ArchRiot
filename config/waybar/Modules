@@ -20,7 +20,8 @@
 		"󰈸"
 	],
 	"tooltip-format": "CPU Temperature: {temperatureC}°C",
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --btop"
+	"on-click": "gnome-system-monitor",
+	"on-click-right": "gnome-system-monitor"
 },
 
 "backlight": {
@@ -163,6 +164,7 @@
 	"format-icons": [
 		"▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"
 	],
+	"on-click": "gnome-system-monitor",
 	"on-click-right": "gnome-system-monitor",
 	"tooltip": true,
 	"tooltip-format": "CPU Usage: {usage}% | Load: {load} | Icon: {icon}"
@@ -222,7 +224,8 @@
 	"format": "{percentage}% 󰾆",  // Show percentage instead since it's more reliable
 	"tooltip": true,
 	"tooltip-format": "Used: {used:0.1f}GB | Available: {avail:0.1f}GB | Total: {total:0.1f}GB ({percentage}%)",
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --btop"
+	"on-click": "gnome-system-monitor",
+	"on-click-right": "gnome-system-monitor"
 },
 
 "mpris": {
