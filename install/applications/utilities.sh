@@ -91,6 +91,16 @@ else
   echo "⚠ Brave Private desktop file not found in OhmArchy applications"
 fi
 
+# Install hidden applications to suppress unwanted launchers
+echo "🙈 Installing hidden applications..."
+if [[ -d "$HOME/.local/share/omarchy/applications/hidden" ]]; then
+  cp "$HOME/.local/share/omarchy/applications/hidden"/*.desktop ~/.local/share/applications/ 2>/dev/null || true
+  hidden_count=$(find "$HOME/.local/share/omarchy/applications/hidden" -name "*.desktop" 2>/dev/null | wc -l)
+  echo "✓ $hidden_count hidden applications installed"
+else
+  echo "⚠ Hidden applications directory not found"
+fi
+
 # Update desktop database
 update-desktop-database ~/.local/share/applications/
 
