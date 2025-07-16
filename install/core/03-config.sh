@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CRITICAL BUG FIX: Waybar Binary Corruption Prevention
+# CRITICAL BUG FIX: Waybar Binary Corruption Prevention + Installation Order Fix
 #
 # This script previously had a critical bug where the waybar binary at ~/.local/bin/waybar
 # could be overwritten with a CSS file during installation, causing waybar to fail with
@@ -12,15 +12,22 @@
 #
 # This could overwrite system binaries if there were naming conflicts or path issues.
 #
+# INSTALLATION ORDER FIX:
+# This script now runs AFTER the desktop module installation, ensuring waybar and related
+# components are properly installed before configuration and validation occurs.
+# Previous order: core -> system -> desktop (waybar validation failed)
+# Fixed order: core/01-02 -> desktop -> core/03-04 -> system (waybar exists for validation)
+#
 # Fixes implemented:
 # 1. Individual script copying with safety checks
 # 2. System binary protection (waybar, hyprland, etc.)
 # 3. Pre-installation corruption detection and cleanup
 # 4. Post-installation verification of waybar functionality
 # 5. Enhanced error reporting and validation
+# 6. Fixed installation module ordering
 #
 # This prevents the critical "curl -fsSL https://OhmArchy.org/setup.sh | bash" bug
-# that was corrupting users' waybar installations.
+# that was corrupting users' waybar installations and the "No waybar binary found" error.
 
 # Load user environment and create backup
 setup_environment() {

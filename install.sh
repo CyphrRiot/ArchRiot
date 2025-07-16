@@ -29,13 +29,17 @@ if [ -f "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh" ]; then
 fi
 
 # Define installation order for modular structure
+# FIXED: Desktop module moved before system to ensure waybar is installed before config validation
 declare -a install_modules=(
-    "core"           # Essential system components (base, identity, config, shell)
-    "system"         # System-level functionality (audio, networking, bluetooth, etc.)
-    "desktop"        # Desktop environment (hyprland, apps, theming, fonts)
-    "development"    # Development tools (editors, tools, containers)
-    "applications"   # User applications (media, productivity, communication, utilities)
-    "optional"       # Optional components (specialty apps)
+    "core/01-base.sh"       # Base tools and yay AUR helper
+    "core/02-identity.sh"   # User identity setup
+    "desktop"               # Desktop environment (hyprland, waybar, apps, theming, fonts)
+    "core/03-config.sh"     # Config installation and validation (after desktop components exist)
+    "core/04-shell.sh"      # Shell configuration
+    "system"                # System-level functionality (audio, networking, bluetooth, etc.)
+    "development"           # Development tools (editors, tools, containers)
+    "applications"          # User applications (media, productivity, communication, utilities)
+    "optional"              # Optional components (specialty apps)
 )
 
 # Additional standalone installers to run after modules
@@ -89,46 +93,57 @@ get_installer_files() {
     printf '%s\n' "${files[@]}"
 }
 
-# Get all installer files
-readarray -t installers < <(get_installer_files)
-total=${#installers[@]}
-current=0
+# Process installation modules in the correct order
+process_installation_modules() {
+    local total=${#install_modules[@]}
+    local current=0
 
-# Read version
-OMARCHY_VERSION="1.0.18"
-if [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
-    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "1.0.12")
-else
-    # Fetch version from GitHub when running via curl
-    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "1.0.18")
-fi
+    for module in "${install_modules[@]}"; do
+        current=$((current + 1))
 
-echo "🚀 Starting OhmArchy Installation (Modular Structure)"
-echo "===================================================="
-echo "Version: $OMARCHY_VERSION"
-echo "Total installers: $total"
-echo "Start time: $(date)"
-echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless ✓"; else echo "Will prompt for password"; fi)"
-echo
+        # Handle individual files vs module directories
+        if [[ "$module" == *".sh" ]]; then
+            # Individual file (like core/01-base.sh)
+            local installer_file="$HOME/.local/share/omarchy/install/$module"
+            local installer_name=$(basename "$module" .sh)
+            local module_name=$(basename "$(dirname "$module")")
 
-# Process each installer
-for installer_file in "${installers[@]}"; do
-    # Skip lib directory files
-    if [[ "$installer_file" == *"/lib/"* ]]; then
-        continue
-    fi
+            echo -e "\n[$current/$total] 📦 $module_name/$installer_name"
+            echo "================================================"
 
-    current=$((current + 1))
-    installer_name=$(basename "$installer_file" .sh)
-    module_name=$(basename "$(dirname "$installer_file")")
+            if [[ -f "$installer_file" ]]; then
+                process_installer "$installer_file" "$installer_name"
+            else
+                echo "⚠ Installer not found: $module"
+            fi
+        else
+            # Module directory (like desktop, system, etc.)
+            local module_dir="$HOME/.local/share/omarchy/install/$module"
 
-    # Show module context for organized files
-    if [[ "$module_name" != "install" ]]; then
-        echo -e "\n[$current/$total] 📦 $module_name/$installer_name"
-    else
-        echo -e "\n[$current/$total] 📦 $installer_name"
-    fi
-    echo "================================================"
+            if [[ -d "$module_dir" ]]; then
+                echo -e "\n[$current/$total] 📦 Processing $module module"
+                echo "================================================"
+
+                # Process all .sh files in the module directory
+                for installer_file in "$module_dir"/*.sh; do
+                    if [[ -f "$installer_file" ]]; then
+                        local installer_name=$(basename "$installer_file" .sh)
+                        process_installer "$installer_file" "$installer_name"
+                    fi
+                done
+            else
+                echo "⚠ Module directory not found: $module"
+            fi
+        fi
+    done
+}
+
+# Process individual installer
+process_installer() {
+    local installer_file="$1"
+    local installer_name="$2"
+
+    echo "🔧 Installing: $installer_name"
     start_time=$(date +%s)
 
     # Initialize installer context if helpers are available
@@ -150,7 +165,28 @@ for installer_file in "${installers[@]}"; do
         echo "❌ Failed: $installer_name"
         exit 1
     fi
-done
+}
+
+# Read version
+OMARCHY_VERSION="1.0.20"
+if [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
+    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "1.0.12")
+else
+    # Fetch version from GitHub when running via curl
+    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "1.0.20")
+fi
+
+echo "🚀 Starting OhmArchy Installation (Fixed Module Order)"
+echo "====================================================="
+echo "Version: $OMARCHY_VERSION"
+echo "Total modules: ${#install_modules[@]}"
+echo "Start time: $(date)"
+echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless ✓"; else echo "Will prompt for password"; fi)"
+echo "🔧 Fix: Desktop environment installs before config validation"
+echo
+
+# Process installation modules in correct order
+process_installation_modules
 
 # Run standalone installers
 echo -e "\n🎨 Running Standalone Installers"
@@ -194,10 +230,18 @@ command -v hyprland &>/dev/null && echo "✓ Hyprland installed" || echo "⚠ Hy
 command -v mullvad &>/dev/null && echo "✓ Mullvad installed" || echo "⚠ Mullvad installation issue"
 
 # Check Zed Wayland integration
-if command -v zed-wayland &>/dev/null && [ -f ~/.local/share/applications/zed.desktop ]; then
-    echo "✓ Zed with Wayland support installed"
+if command -v zed-wayland &>/dev/null; then
+    if [ -f ~/.local/share/applications/zed.desktop ]; then
+        echo "✓ Zed with Wayland support installed"
+    else
+        echo "⚠ Zed Wayland launcher found but desktop file missing"
+        echo "  Expected: ~/.local/share/applications/zed.desktop"
+    fi
+elif command -v zed &>/dev/null; then
+    echo "⚠ Zed installed but Wayland integration missing"
+    echo "  Missing: ~/.local/bin/zed-wayland"
 else
-    echo "⚠ Zed Wayland integration issue"
+    echo "⚠ Zed not installed"
 fi
 
 # Check theme system
