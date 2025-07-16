@@ -81,26 +81,7 @@ validate_installation() {
 
 # Setup autostart and verify config
 configure_hyprland() {
-    echo "🚀 Configuring Hyprland autostart and validation..."
-
-    local autostart_line="[[ -z \$DISPLAY && \$(tty) == /dev/tty1 ]] && exec Hyprland"
-
-    # Setup bash autostart
-    grep -q "exec Hyprland" ~/.bash_profile 2>/dev/null || echo "$autostart_line" >> ~/.bash_profile
-
-    # Setup fish autostart if applicable
-    if command -v fish &>/dev/null && [[ "$SHELL" == *"fish"* ]]; then
-        local fish_config="$HOME/.config/fish/config.fish"
-        if [[ -f "$fish_config" ]] && ! grep -q "exec Hyprland" "$fish_config"; then
-            cat >> "$fish_config" <<EOF
-
-# Auto-start Hyprland on TTY1
-if status is-login && test (tty) = /dev/tty1
-    exec Hyprland
-end
-EOF
-        fi
-    fi
+    echo "🚀 Configuring Hyprland validation..."
 
     # Verify essential configs exist
     local hyprland_conf="$HOME/.config/hypr/hyprland.conf"
@@ -110,7 +91,8 @@ EOF
         echo "⚠ Hyprland configuration may need attention"
     fi
 
-    echo "✓ Hyprland autostart and config setup complete"
+    echo "✓ Hyprland autostart is handled by shell configs (bash/fish)"
+    echo "✓ Hyprland config setup complete"
 }
 
 # Display setup summary
