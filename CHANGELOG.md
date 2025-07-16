@@ -156,7 +156,7 @@ Users upgrading from a Kitty-based installation should:
 For a complete fresh installation, run:
 
 ```bash
-curl -fsSL https://cyphrriot.github.io/OhmArchy/setup.sh | bash
+curl -fsSL https://ohmarchy.org/setup.sh | bash
 ```
 
 ---
