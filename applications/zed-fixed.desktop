@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Zed
+GenericName=Code Editor
+Comment=A high-performance, multiplayer code editor
+TryExec=zed-wayland
+Exec=zed-wayland %U
+Icon=zed
+Terminal=false
+Categories=Development;IDE;TextEditor;Utility;
+StartupWMClass=zed
+StartupNotify=true
+MimeType=text/plain;
+Actions=NewWindow;
+
+[Desktop Action NewWindow]
+Name=New Window
+Exec=zed-wayland --new %U

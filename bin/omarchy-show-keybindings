@@ -31,4 +31,4 @@ done
     gsub(/^[ \t]+|[ \t]+$/, "", action)
 
     if (action != "") printf "%-35s → %s\n", key, action
-}' | flock --nonblock /tmp/.fuzzel.lock -c "XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt 'Hyprland Keybindings' --width 50 --lines 20"
+}' | flock --nonblock /tmp/.fuzzel.lock -c "env XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt 'Hyprland Keybindings' --width 50 --lines 20"

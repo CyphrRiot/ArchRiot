@@ -293,6 +293,31 @@ link_theme_configs() {
     link_waybar_config
 }
 
+# Setup fuzzel cache directory to prevent ~/yes file creation
+setup_fuzzel_cache() {
+    echo "📁 Setting up fuzzel cache directory..."
+
+    local cache_dir="$HOME/.cache/fuzzel"
+
+    # Create fuzzel cache directory
+    if mkdir -p "$cache_dir"; then
+        echo "✓ Fuzzel cache directory created: $cache_dir"
+    else
+        echo "❌ Failed to create fuzzel cache directory: $cache_dir"
+        return 1
+    fi
+
+    # Verify directory is writable
+    if [[ -w "$cache_dir" ]]; then
+        echo "✓ Fuzzel cache directory is writable"
+    else
+        echo "❌ Fuzzel cache directory is not writable: $cache_dir"
+        return 1
+    fi
+
+    echo "✓ Fuzzel cache setup completed"
+}
+
 # Backup existing configurations
 backup_existing_configs() {
     echo "💾 Creating configuration backups..."
@@ -582,6 +607,11 @@ main() {
     # Link configurations
     link_theme_configs || {
         echo "⚠ Some theme configurations failed to link"
+    }
+
+    # Setup fuzzel cache directory
+    setup_fuzzel_cache || {
+        echo "⚠ Fuzzel cache setup had issues"
     }
 
     # Start services

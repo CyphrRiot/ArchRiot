@@ -76,10 +76,11 @@ setup_scripts_and_env() {
     fi
 
     # Install welcome image
-    local welcome_image="$HOME/.local/share/omarchy/images/alice.png"
-    if [[ -f "$welcome_image" ]]; then
-        mkdir -p "$HOME/.local/share/omarchy/images"
-        cp "$welcome_image" "$HOME/.local/share/omarchy/images/"
+    local source_image="$HOME/.local/share/omarchy/images/alice.png"
+    local dest_dir="$HOME/.local/share/omarchy/images"
+    if [[ -f "$source_image" ]]; then
+        mkdir -p "$dest_dir"
+        cp "$source_image" "$dest_dir/"
         echo "✓ Welcome image installed"
     else
         echo "⚠ Welcome image not found"
