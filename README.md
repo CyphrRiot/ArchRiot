@@ -73,6 +73,20 @@ git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy
 ~/.local/share/omarchy/install.sh
 ```
 
+## ✨ Enhanced Installation Experience (v1.1.0+)
+
+OhmArchy now features beautiful, themed progress bars during installation:
+
+https://github.com/CyphrRiot/OhmArchy/raw/master/images/progress.mp4
+
+The enhanced installer provides:
+
+- **Perfect alignment** - Clean, professional progress display
+- **Themed colors** - Matches OhmArchy's aesthetic with purple, blue, and cyan accents
+- **Real-time feedback** - Shows exactly what's being installed
+- **Error handling** - Clear failure indication while preserving all safety features
+- **Fallback support** - Automatically switches to plain text in incompatible terminals
+
 ### Optional: Pre-Installation Validation
 
 Want confidence before installing? Run the validation script to test compatibility:
