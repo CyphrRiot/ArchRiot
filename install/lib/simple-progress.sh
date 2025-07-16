@@ -47,7 +47,7 @@ init_clean_progress() {
     START_TIME=$(date +%s)
 
     if [[ "$PROGRESS_ENABLED" == "true" ]]; then
-        clear
+        echo
         echo -e "${COLORS[PURPLE]}${COLORS[BOLD]}🚀 OhmArchy Installation${COLORS[RESET]}"
         echo -e "${COLORS[GRAY]}$(printf '━%.0s' {1..60})${COLORS[RESET]}"
         echo -e "${COLORS[CYAN]}Estimated time: ~$ESTIMATED_TOTAL_MINUTES minutes${COLORS[RESET]}"
