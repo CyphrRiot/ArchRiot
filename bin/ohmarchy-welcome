@@ -3,7 +3,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib  # type: ignore
 import os
 import json
 import sys
@@ -294,7 +294,7 @@ def main():
     screen = Gdk.Screen.get_default()
     Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
-    app = WelcomeWindow()
+    WelcomeWindow()
 
     # Run the main loop - this keeps the window alive
     Gtk.main()
