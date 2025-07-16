@@ -307,6 +307,7 @@ test_package_availability() {
         "git"
         "curl"
         "gum"
+        "obsidian-icon-theme"
     )
 
     for package in "${critical_packages[@]}"; do
@@ -320,7 +321,7 @@ test_package_availability() {
 
     # Test AUR packages (if yay is available)
     if command -v yay &>/dev/null; then
-        local aur_packages=("bibata-cursor-theme" "kora-icon-theme" "ghostty-shell-integration")
+        local aur_packages=("bibata-cursor-theme" "ghostty-shell-integration")
         for package in "${aur_packages[@]}"; do
             if yay -Ss "^$package$" &>/dev/null; then
                 print_status "PASS" "AUR package available: $package"

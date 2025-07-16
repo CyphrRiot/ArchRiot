@@ -52,10 +52,10 @@ install_cursor_theme() {
 install_icon_theme() {
     echo "🎨 Installing icon theme..."
 
-    if yay -S --noconfirm --needed kora-icon-theme; then
-        echo "✓ Kora icon theme installed"
+    if yay -S --noconfirm --needed obsidian-icon-theme; then
+        echo "✓ Obsidian icon theme installed"
     else
-        echo "⚠ Failed to install kora-icon-theme (using fallback)"
+        echo "⚠ Failed to install obsidian-icon-theme (using fallback)"
         return 1
     fi
 }
@@ -94,7 +94,7 @@ configure_gtk_settings() {
         gsettings set org.gnome.desktop.wm.preferences theme "Adwaita-dark" 2>/dev/null || true
 
         # Set icon theme
-        gsettings set org.gnome.desktop.interface icon-theme "kora" 2>/dev/null || true
+        gsettings set org.gnome.desktop.interface icon-theme "Obsidian-Purple" 2>/dev/null || true
 
         # Set cursor theme
         gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice" 2>/dev/null || true
@@ -576,7 +576,7 @@ display_theming_summary() {
     echo ""
     echo "🎨 Installed themes:"
     echo "  • Cursor: Bibata Modern Ice"
-    echo "  • Icons: Kora"
+    echo "  • Icons: Obsidian-Purple"
     echo "  • GTK: Adwaita Dark"
     echo "  • OhmArchy: $(basename "$(readlink ~/.config/omarchy/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
     echo ""
