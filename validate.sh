@@ -163,6 +163,8 @@ test_installation_files() {
         "config/fish/config.fish"
         "themes/cypherriot/config"
         "themes/cypherriot/backgrounds.sh"
+        "config/waybar/style.css"
+        "validate.sh"
     )
 
     for file in "${critical_files[@]}"; do
@@ -193,13 +195,14 @@ test_cypherriot_theme() {
 
     # Check essential theme files
     local theme_files=(
-        "waybar.css"
+        "config"
         "hyprland.conf"
         "hyprlock.conf"
         "fuzzel.ini"
         "neovim.lua"
         "ghostty.conf"
         "backgrounds/escape_velocity.jpg"
+        "backgrounds.sh"
     )
 
     for file in "${theme_files[@]}"; do
@@ -211,8 +214,8 @@ test_cypherriot_theme() {
         fi
     done
 
-    # Check if waybar config has CypherRiot specifics
-    if grep -q "cypherriot\|CypherRiot" "$theme_dir/config" 2>/dev/null; then
+    # Check if waybar config has theme specifics
+    if grep -q "cypherriot\|CypherRiot\|Hack Nerd Font" "$theme_dir/config" 2>/dev/null; then
         print_status "PASS" "CypherRiot waybar config contains theme-specific settings"
     else
         print_status "WARN" "CypherRiot waybar config may be generic"
@@ -300,10 +303,10 @@ test_package_availability() {
         "hyprland"
         "waybar"
         "ghostty"
-        "ghostty-shell-integration"
         "fish"
         "git"
         "curl"
+        "gum"
     )
 
     for package in "${critical_packages[@]}"; do
@@ -317,7 +320,7 @@ test_package_availability() {
 
     # Test AUR packages (if yay is available)
     if command -v yay &>/dev/null; then
-        local aur_packages=("bibata-cursor-theme" "kora-icon-theme")
+        local aur_packages=("bibata-cursor-theme" "kora-icon-theme" "ghostty-shell-integration")
         for package in "${aur_packages[@]}"; do
             if yay -Ss "^$package$" &>/dev/null; then
                 print_status "PASS" "AUR package available: $package"
@@ -341,7 +344,7 @@ test_installation_simulation() {
         print_status "PASS" "Using local OhmArchy repository for validation"
         test_dir="."
         using_local=true
-    elif git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
+    elif git clone --depth 1 https://github.com/CypherRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
         print_status "PASS" "Repository clone simulation successful"
     else
         print_status "FAIL" "Repository clone simulation failed"
@@ -371,11 +374,11 @@ test_installation_simulation() {
             print_status "FAIL" "Ghostty config missing in clone"
         fi
 
-        # Test Fish config with fastfetch fix
-        if [[ -f "$test_dir/config/fish/config.fish" ]] && grep -q "sleep 0.1" "$test_dir/config/fish/config.fish"; then
-            print_status "PASS" "Fish config with fastfetch timing fix present"
+        # Test Fish config with fastfetch
+        if [[ -f "$test_dir/config/fish/config.fish" ]] && grep -q "fastfetch" "$test_dir/config/fish/config.fish"; then
+            print_status "PASS" "Fish config with fastfetch greeting present"
         else
-            print_status "FAIL" "Fish config with fastfetch timing fix missing"
+            print_status "FAIL" "Fish config with fastfetch greeting missing"
         fi
 
         if [[ "$using_local" == "false" ]]; then
@@ -401,12 +404,12 @@ test_expected_outcome() {
     print_status "INFO" "After successful installation, you should have:"
     print_status "INFO" "  • Hyprland Wayland compositor"
     print_status "INFO" "  • CypherRiot theme with purple/blue aesthetics"
-    print_status "INFO" "  • Waybar with custom modules (tomato timer, VPN status, etc.)"
+    print_status "INFO" "  • Waybar with custom modules and Hack Nerd Font consistency"
     print_status "INFO" "  • Ghostty terminal with Fish shell and fastfetch greeting"
     print_status "INFO" "  • Floating terminal support (SUPER+SHIFT+RETURN)"
     print_status "INFO" "  • Multiple wallpapers including escape_velocity.jpg default"
     print_status "INFO" "  • Auto-login to Hyprland from TTY1"
-    print_status "INFO" "  • Blue light filter (hyprsunset) at 3500K (if enabled during install)"
+    print_status "INFO" "  • Standardized font usage (Hack Nerd Font) across all components"
 
     # Check if system is already configured
     if [[ -f "$HOME/.config/hypr/hyprland.conf" ]]; then
@@ -440,7 +443,7 @@ generate_report() {
         echo -e "${GREEN}✓ CypherRiot theme should work properly${NC}"
         echo ""
         echo -e "${BLUE}Ready to install? Run:${NC}"
-        echo -e "${BLUE}curl -fsSL https://ohmarchy.org/setup.sh | bash${NC}"
+        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CypherRiot/OhmArchy/master/setup.sh | bash${NC}"
         echo ""
 
         if [[ $WARNINGS -gt 0 ]]; then
