@@ -83,8 +83,11 @@ configure_gtk_settings() {
     echo "⚙️  Configuring GTK settings..."
 
     if command -v gsettings >/dev/null 2>&1; then
-        # Set dark theme preference
+        # Set dark theme preference for GTK3/4 applications
         gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark" 2>/dev/null || true
+
+        # Set color scheme for libadwaita applications (prevents GTK4 warnings)
+        # This replaces the deprecated gtk-application-prefer-dark-theme setting
         gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" 2>/dev/null || true
 
         # Set window manager theme to match GTK theme (prevents grey-brown borders)
