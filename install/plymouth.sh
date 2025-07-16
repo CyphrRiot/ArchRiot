@@ -118,6 +118,9 @@ else
   echo ""
 fi
 
+# Remove old omarchy theme if it exists
+sudo rm -rf /usr/share/plymouth/themes/omarchy
+
 # Always copy and update the Plymouth theme (even on re-installs for logo updates)
 sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
 sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
