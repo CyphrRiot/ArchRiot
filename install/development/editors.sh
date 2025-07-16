@@ -64,8 +64,8 @@ fi
 
 # Replace system desktop file with OhmArchy version
 if [[ -f "$HOME/.local/share/omarchy/applications/zed.desktop" ]]; then
-    sudo cp "$HOME/.local/share/omarchy/applications/zed.desktop" /usr/share/applications/dev.zed.Zed.desktop
-    echo "✓ System Zed desktop file replaced with Wayland support"
+    cp "$HOME/.local/share/omarchy/applications/zed.desktop" ~/.local/share/applications/
+    echo "✓ Zed desktop file installed with Wayland support"
 else
     echo "⚠ Zed desktop file not found in OhmArchy applications"
 fi
