@@ -146,6 +146,7 @@
 	"return-type": "json",
 	"interval": 2,
 	"exec": "$HOME/.local/bin/waybar-cpu-aggregate.py",
+	"on-click": "gnome-system-monitor",
 	"on-click-right": "gnome-system-monitor",
 	"tooltip": true
 },
@@ -209,7 +210,8 @@
 	"return-type": "json",
 	"interval": 5,
 	"exec": "$HOME/.local/bin/waybar-memory-accurate.py",
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarScripts.sh --btop",
+	"on-click": "gnome-system-monitor",
+	"on-click-right": "gnome-system-monitor",
 	"tooltip": true
 },
 "custom/tray-open": {
