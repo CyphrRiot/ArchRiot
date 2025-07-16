@@ -1,4 +1,6 @@
 
+# Auto-start Hyprland on TTY1
+[[ -z $DISPLAY && $(tty) == /dev/tty1 ]] && exec Hyprland
 
 if command -v zoxide &> /dev/null; then
   eval "$(zoxide init bash)"

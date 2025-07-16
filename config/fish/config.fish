@@ -63,3 +63,12 @@ alias vim='nvim'
 
 # Fastfetch with correct logo width
 alias fastfetch='command fastfetch --logo-width 20'
+
+# =============================================================================
+# Hyprland Auto-start
+# =============================================================================
+
+# Auto-start Hyprland on TTY1
+if status is-login && test (tty) = /dev/tty1
+    exec Hyprland
+end
