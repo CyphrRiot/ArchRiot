@@ -59,20 +59,20 @@ get_user_identity() {
     echo "  git config --global user.email \"your@email.com\""
     echo ""
 
-    OMARCHY_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
-    OMARCHY_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
+    ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
+    ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
 
     # Export and persist
-    export OMARCHY_USER_NAME OMARCHY_USER_EMAIL
+    export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
     local env_file="$HOME/.config/archriot/user.env"
     mkdir -p "$(dirname "$env_file")"
     {
-        echo "OMARCHY_USER_NAME='$OMARCHY_USER_NAME'"
-        echo "OMARCHY_USER_EMAIL='$OMARCHY_USER_EMAIL'"
+        echo "ARCHRIOT_USER_NAME='$ARCHRIOT_USER_NAME'"
+        echo "ARCHRIOT_USER_EMAIL='$ARCHRIOT_USER_EMAIL'"
     } > "$env_file"
 
-    if [[ -n "$OMARCHY_USER_NAME" || -n "$OMARCHY_USER_EMAIL" ]]; then
-        echo "✓ Git identity configured: ${OMARCHY_USER_NAME:-"(no name)"} <${OMARCHY_USER_EMAIL:-"(no email)"}>"
+    if [[ -n "$ARCHRIOT_USER_NAME" || -n "$ARCHRIOT_USER_EMAIL" ]]; then
+        echo "✓ Git identity configured: ${ARCHRIOT_USER_NAME:-"(no name)"} <${ARCHRIOT_USER_EMAIL:-"(no email)"}>"
     else
         echo "⚠ Git identity skipped - you can configure later if needed"
     fi
