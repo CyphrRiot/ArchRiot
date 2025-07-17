@@ -72,7 +72,7 @@ execute_command() {
 
 create_backup() {
     local file="$1"
-    local backup_dir="$HOME/.config/omarchy/backups/$(date +%Y%m%d)"
+    local backup_dir="$HOME/.config/archriot/backups/$(date +%Y%m%d)"
 
     if [[ "$BACKUP_ENABLED" == "true" && -f "$file" ]]; then
         mkdir -p "$backup_dir"
@@ -309,7 +309,7 @@ show_optimization_results() {
     echo ""
 
     if [[ "$BACKUP_ENABLED" == "true" ]]; then
-        echo -e "${YELLOW}📋 Backups created in: ~/.config/omarchy/backups/$(date +%Y%m%d)${NC}"
+        echo -e "${YELLOW}📋 Backups created in: ~/.config/archriot/backups/$(date +%Y%m%d)${NC}"
         echo ""
     fi
 }

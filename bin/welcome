@@ -63,7 +63,7 @@ class WelcomeWindow:
 
     def add_welcome_image(self, container):
         # Add Welcome image
-        image_path = os.path.expanduser("~/.local/share/omarchy/images/welcome.png")
+        image_path = os.path.expanduser("~/.local/share/archriot/images/welcome.png")
         if os.path.exists(image_path):
             try:
                 # Load and scale the image
@@ -175,7 +175,7 @@ class WelcomeWindow:
 
     def on_dismiss_forever(self, button):
         # Create config directory if it doesn't exist
-        config_dir = os.path.expanduser("~/.config/ohmarchy")
+        config_dir = os.path.expanduser("~/.config/archriot")
         os.makedirs(config_dir, exist_ok=True)
 
         # Write welcome.json to indicate welcome has been dismissed
@@ -225,7 +225,7 @@ class WelcomeWindow:
 
 def should_show_welcome():
     """Check if welcome should be shown"""
-    config_file = os.path.expanduser("~/.config/ohmarchy/welcome.json")
+    config_file = os.path.expanduser("~/.config/archriot/welcome.json")
 
     if not os.path.exists(config_file):
         return True

@@ -23,10 +23,14 @@ echo -e "================================================\n"
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
+# Clean up old installations
+echo -e "\nCleaning up old installations..."
+rm -rf ~/.local/share/omarchy/
+rm -rf ~/.config/omarchy/
+
 # Clone ArchRiot repository
 echo -e "\nCloning ArchRiot..."
-rm -rf ~/.local/share/omarchy/
-git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/omarchy || {
+git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
     echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
     exit 1
 }
@@ -46,4 +50,4 @@ fi
 
 # Start installation
 echo -e "\nArchRiot installation starting..."
-source ~/.local/share/omarchy/install.sh
+source ~/.local/share/archriot/install.sh

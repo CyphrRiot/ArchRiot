@@ -104,8 +104,8 @@ if [ ! -d "$PLYMOUTH_THEME_DIR" ]; then
     sudo mkdir -p "$PLYMOUTH_THEME_DIR"
 
     # Copy the entire Plymouth theme if it doesn't exist
-    if [ -d "$HOME/.local/share/omarchy/default/plymouth" ]; then
-        sudo cp -r "$HOME/.local/share/omarchy/default/plymouth/"* "$PLYMOUTH_THEME_DIR/"
+    if [ -d "$HOME/.local/share/archriot/default/plymouth" ]; then
+        sudo cp -r "$HOME/.local/share/archriot/default/plymouth/"* "$PLYMOUTH_THEME_DIR/"
         echo -e "${GREEN}✓ Plymouth theme installed${NC}"
     else
         echo -e "${RED}❌ Plymouth theme source not found${NC}"
@@ -158,7 +158,7 @@ echo "custom_ascii_logo_installed=$(date)" | sudo tee "$PLYMOUTH_THEME_DIR/.cust
 sudo chmod 644 "$PLYMOUTH_THEME_DIR/.custom_logo_marker"
 
 # Create persistent backup for re-installations
-PERSISTENT_BACKUP_DIR="$HOME/.config/omarchy/plymouth-backup"
+PERSISTENT_BACKUP_DIR="$HOME/.config/archriot/plymouth-backup"
 mkdir -p "$PERSISTENT_BACKUP_DIR"
 cp "$PLYMOUTH_THEME_DIR/logo.png" "$PERSISTENT_BACKUP_DIR/custom_logo.png"
 echo "custom_logo_backup_created=$(date)" > "$PERSISTENT_BACKUP_DIR/backup_info.txt"

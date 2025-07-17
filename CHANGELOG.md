@@ -149,7 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ├── config                    # Main Ghostty configuration
 └── current-theme.conf        # Symlinked theme file
 
-~/.config/omarchy/current/
+~/.config/archriot/current/
 └── theme/
     └── ghostty.conf          # Theme-specific colors
 ```

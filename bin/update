@@ -40,8 +40,8 @@ echo
 
 # Navigate to ArchRiot directory
 print_status "INFO" "Navigating to ArchRiot directory..."
-cd ~/.local/share/omarchy || {
-    print_status "ERROR" "ArchRiot directory not found at ~/.local/share/omarchy"
+cd ~/.local/share/archriot || {
+    print_status "ERROR" "ArchRiot directory not found at ~/.local/share/archriot"
     print_status "ERROR" "Please reinstall ArchRiot from: https://github.com/CyphrRiot/ArchRiot"
     exit 1
 }
