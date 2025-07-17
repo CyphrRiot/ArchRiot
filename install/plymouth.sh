@@ -153,14 +153,14 @@ else
     TEMP_PLYMOUTH_DIR="/tmp/archriot-plymouth-$$"
     mkdir -p "$TEMP_PLYMOUTH_DIR"
 
-    if curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/archriot.plymouth" -o "$TEMP_PLYMOUTH_DIR/archriot.plymouth" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/archriot.script" -o "$TEMP_PLYMOUTH_DIR/archriot.script" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/logo.png" -o "$TEMP_PLYMOUTH_DIR/logo.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/entry.png" -o "$TEMP_PLYMOUTH_DIR/entry.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/lock.png" -o "$TEMP_PLYMOUTH_DIR/lock.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/bullet.png" -o "$TEMP_PLYMOUTH_DIR/bullet.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/progress_bar.png" -o "$TEMP_PLYMOUTH_DIR/progress_bar.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/progress_box.png" -o "$TEMP_PLYMOUTH_DIR/progress_box.png"; then
+    if curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/archriot.plymouth" -o "$TEMP_PLYMOUTH_DIR/archriot.plymouth" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/archriot.script" -o "$TEMP_PLYMOUTH_DIR/archriot.script" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/logo.png" -o "$TEMP_PLYMOUTH_DIR/logo.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/entry.png" -o "$TEMP_PLYMOUTH_DIR/entry.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/lock.png" -o "$TEMP_PLYMOUTH_DIR/lock.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/bullet.png" -o "$TEMP_PLYMOUTH_DIR/bullet.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/progress_bar.png" -o "$TEMP_PLYMOUTH_DIR/progress_bar.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/progress_box.png" -o "$TEMP_PLYMOUTH_DIR/progress_box.png"; then
 
         echo "✓ Plymouth files downloaded from GitHub"
         sudo cp -r "$TEMP_PLYMOUTH_DIR"/* /usr/share/plymouth/themes/archriot/
@@ -203,12 +203,12 @@ fi
 echo "✅ Plymouth theme verified: $CURRENT_THEME"
 
 # Generate fresh ASCII logo for LUKS screen
-echo "🎨 Generating OhmArchy ASCII logo for LUKS screen..."
+echo "🎨 Generating ArchRiot ASCII logo for LUKS screen..."
 if [ -f "$HOME/.local/share/omarchy/bin/generate-boot-logo.sh" ]; then
     echo "✓ Running ASCII logo generator..."
     cd "$HOME/.local/share/omarchy"
     ./bin/generate-boot-logo.sh
-    echo "✓ OhmArchy ASCII logo generated and installed"
+    echo "✓ ArchRiot ASCII logo generated and installed"
 else
     echo "⚠ Logo generator not found, using default logo"
 fi

@@ -1,9 +1,9 @@
-ascii_art=' ██████╗ ██╗  ██╗███╗   ███╗ █████╗ ██████╗  ██████╗██╗  ██╗██╗   ██╗
-██╔═══██╗██║  ██║████╗ ████║██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝
-██║   ██║███████║██╔████╔██║███████║██████╔╝██║     ███████║ ╚████╔╝
-██║   ██║██╔══██║██║╚██╔╝██║██╔══██║██╔══██╗██║     ██╔══██║  ╚██╔╝
-╚██████╔╝██║  ██║██║ ╚═╝ ██║██║  ██║██║  ██║╚██████╗██║  ██║   ██║
- ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝'
+ascii_art=' █████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗ ██████╗ ████████╗
+██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██║██╔═══██╗╚══██╔══╝
+███████║██████╔╝██║     ███████║██████╔╝██║██║   ██║   ██║
+██╔══██║██╔══██╗██║     ██╔══██║██╔══██╗██║██║   ██║   ██║
+██║  ██║██║  ██║╚██████╗██║  ██║██║  ██║██║╚██████╔╝   ██║
+╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═╝   '
 
 echo -e "\n$ascii_art\n"
 
@@ -11,23 +11,23 @@ echo -e "\n$ascii_art\n"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Read version from VERSION file (single source of truth)
 if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
-    OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
+    ARCHRIOT_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 else
     # Fetch version from GitHub when running via curl
-    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "unknown")
+    ARCHRIOT_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION 2>/dev/null || echo "unknown")
 fi
 
-echo -e "🚀 OhmArchy Setup - Version: $OMARCHY_VERSION"
+echo -e "🎭 ArchRiot Setup - Version: $ARCHRIOT_VERSION"
 echo -e "================================================\n"
 
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
-# Clone OhmArchy repository
-echo -e "\nCloning OhmArchy..."
+# Clone ArchRiot repository
+echo -e "\nCloning ArchRiot..."
 rm -rf ~/.local/share/omarchy/
-git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy || {
-    echo "Error: Failed to clone OhmArchy repository. Check your internet connection."
+git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/omarchy || {
+    echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
     exit 1
 }
 
@@ -45,5 +45,5 @@ if [[ -n "$OMARCHY_REF" ]]; then
 fi
 
 # Start installation
-echo -e "\nOhmArchy installation starting..."
+echo -e "\nArchRiot installation starting..."
 source ~/.local/share/omarchy/install.sh
