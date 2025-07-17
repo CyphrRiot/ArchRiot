@@ -6,9 +6,10 @@
 # Simple communication application installation
 # ==============================================================================
 
-# Install browsers (no corporate messaging apps)
+# Install browsers and communication apps
 yay -S --noconfirm --needed \
-    brave-bin
+    brave-bin \
+    signal-desktop
 
 
 
