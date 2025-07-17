@@ -1,10 +1,10 @@
 # OhmArchy Ω
 
-![Version](https://img.shields.io/badge/version-1.1.12-7c3aed)
+![Version](https://img.shields.io/badge/version-1.1.12-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy?color=1e293b)
-![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=7c3aed)
-![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=89b4fa)
-![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=89dceb)
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
+![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
+![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
 
 ![Language](https://img.shields.io/badge/language-Shell-1e1e2e)
 ![Language](https://img.shields.io/badge/language-Python-313244)
@@ -12,10 +12,10 @@
 ![Language](https://img.shields.io/badge/language-Lua-585b70)
 ![Language](https://img.shields.io/badge/language-HTML-6c7086)
 
-![Maintained](https://img.shields.io/maintenance/yes/2025?color=7c3aed)
-![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy?color=89b4fa)
-![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy?color=89dceb)
-![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy?color=a6adc8)
+![Maintained](https://img.shields.io/maintenance/yes/2025?color=4c1d95)
+![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy?color=3730a3)
+![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy?color=1e40af)
+![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy?color=64748b)
 
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
