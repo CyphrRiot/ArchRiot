@@ -5,9 +5,12 @@
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
 ![Hyprland](https://img.shields.io/badge/Hyprland-00D9FF?logo=wayland&logoColor=white)
 ![Wayland](https://img.shields.io/badge/Wayland-FFCB3B?logo=wayland&logoColor=black)
+
 ![Language](https://img.shields.io/badge/language-Shell-89e051)
-![Language](https://img.shields.io/badge/language-CSS-1572B6)
 ![Language](https://img.shields.io/badge/language-Python-3776AB)
+![Language](https://img.shields.io/badge/language-CSS-1572B6)
+![Language](https://img.shields.io/badge/language-Lua-2C2D72)
+![Language](https://img.shields.io/badge/language-HTML-E34F26)
 
 ![Maintained](https://img.shields.io/maintenance/yes/2025)
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy)
