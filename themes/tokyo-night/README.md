@@ -54,7 +54,7 @@ After installation, the theme will be available in the ArchRiot theme rotation. 
 You can also preview the theme colors and components by running:
 
 ```bash
-~/.local/share/omarchy/themes/tokyo-night/preview.sh
+~/.local/share/archriot/themes/tokyo-night/preview.sh
 ```
 
 ## ✨ Philosophy

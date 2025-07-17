@@ -38,7 +38,7 @@ is_passwordless() {
 }
 
 # Check if our rule is already active
-has_omarchy_rule() {
+has_archriot_rule() {
     sudo grep -q "$OMARCHY_SUDO_MARKER" /etc/sudoers 2>/dev/null
 }
 
@@ -75,7 +75,7 @@ add_passwordless_rule() {
 remove_passwordless_rule() {
     print_status "INFO" "Removing temporary passwordless sudo rule..."
 
-    if has_omarchy_rule; then
+    if has_archriot_rule; then
         # Use sed to remove only our marked line
         if sudo sed -i "/$OMARCHY_SUDO_MARKER/d" /etc/sudoers; then
             print_status "INFO" "✓ Temporary sudo rule removed"
@@ -106,7 +106,7 @@ setup_passwordless_sudo() {
     fi
 
     # Add passwordless rule if not already present
-    if ! has_omarchy_rule; then
+    if ! has_archriot_rule; then
         add_passwordless_rule || return 1
     fi
 
@@ -156,7 +156,7 @@ show_sudo_status() {
     print_status "INFO" "  • User: $CURRENT_USER"
     print_status "INFO" "  • In wheel group: $(is_in_wheel && echo "YES" || echo "NO")"
     print_status "INFO" "  • Passwordless for packages: $(is_passwordless && echo "YES" || echo "NO")"
-    print_status "INFO" "  • OhmArchy rule active: $(has_omarchy_rule && echo "YES" || echo "NO")"
+    print_status "INFO" "  • OhmArchy rule active: $(has_archriot_rule && echo "YES" || echo "NO")"
 }
 
 # Emergency cleanup (removes any OhmArchy rules)

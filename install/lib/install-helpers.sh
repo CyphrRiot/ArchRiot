@@ -79,7 +79,7 @@ handle_critical_failure() {
     show_troubleshooting "$CURRENT_INSTALLER" "$failed_packages"
 
     echo -e "${YELLOW}💡 You can retry the installation after fixing the issue:${NC}"
-    echo "   source ~/.local/share/omarchy/install.sh"
+    echo "   source ~/.local/share/archriot/install.sh"
     echo
 
     exit $exit_code

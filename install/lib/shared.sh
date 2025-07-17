@@ -24,7 +24,7 @@ source "$SCRIPT_DIR/sudo-helper.sh" || {
 
 # Load user environment configuration
 load_user_environment() {
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     if [[ -f "$env_file" ]]; then
         source "$env_file"
         echo "✓ Loaded user environment from $env_file"

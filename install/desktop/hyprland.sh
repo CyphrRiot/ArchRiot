@@ -5,7 +5,7 @@ install_hyprland_configs() {
     echo "📁 Installing Hyprland configurations..."
 
     # Install OhmArchy configs (SAFELY - preserve user configs)
-    local source_config="$HOME/.local/share/omarchy/config"
+    local source_config="$HOME/.local/share/archriot/config"
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
 
@@ -20,7 +20,7 @@ install_hyprland_configs() {
                 # New installation - safe to copy
                 cp -R "$item" "$target" || return 1
                 echo "✓ Installed new config: $basename"
-            elif [[ -L "$target" ]] && [[ "$(readlink "$target")" == *"omarchy"* ]]; then
+            elif [[ -L "$target" ]] && [[ "$(readlink "$target")" == *"archriot"* ]]; then
                 # OhmArchy-managed symlink - safe to update
                 rm -f "$target"
                 cp -R "$item" "$target" || return 1
@@ -28,8 +28,8 @@ install_hyprland_configs() {
             else
                 # USER'S EXISTING CONFIG - create reference copy
                 echo "⚠ Preserving existing user config: $basename"
-                cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
-                echo "  → Created reference copy: $basename.omarchy-default"
+                cp -R "$item" "$target.archriot-default" 2>/dev/null || true
+                echo "  → Created reference copy: $basename.archriot-default"
             fi
         fi
     done
@@ -41,7 +41,7 @@ install_hyprland_configs() {
 setup_hyprland_packages() {
     echo "🪟 Installing Hyprland desktop environment..."
 
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Core packages (critical)
@@ -109,7 +109,7 @@ show_summary() {
 fix_touchpad_config() {
     echo "🔧 Configuring touchpad settings..."
 
-    local touchpad_script="$HOME/.local/share/omarchy/bin/omarchy-fix-touchpad-config"
+    local touchpad_script="$HOME/.local/share/archriot/bin/fix-touchpad-config"
     if [[ -f "$touchpad_script" ]]; then
         chmod +x "$touchpad_script"
         "$touchpad_script"

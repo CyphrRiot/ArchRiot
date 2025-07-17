@@ -28,7 +28,7 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
 
     # Install all available text editor themes
     local themes_installed=0
-    for theme_dir in "$HOME/.local/share/omarchy/themes"/*; do
+    for theme_dir in "$HOME/.local/share/archriot/themes"/*; do
         if [[ -d "$theme_dir/text-editor" ]]; then
             theme_name=$(basename "$theme_dir")
             for theme_file in "$theme_dir/text-editor"/*.xml; do

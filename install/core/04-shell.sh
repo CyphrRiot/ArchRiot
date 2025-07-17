@@ -3,7 +3,7 @@
 # Load user environment and install packages
 setup_packages() {
     echo "📦 Installing terminal tools and shell..."
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install essentials (critical)
@@ -29,7 +29,7 @@ setup_fish() {
 
     # Setup fish config
     mkdir -p ~/.config/fish
-    local fish_config="$HOME/.local/share/omarchy/config/fish/config.fish"
+    local fish_config="$HOME/.local/share/archriot/config/fish/config.fish"
     [[ -f "$fish_config" ]] || return 1
     cp "$fish_config" ~/.config/fish/config.fish || return 1
 

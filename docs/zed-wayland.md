@@ -39,11 +39,11 @@ If you need to install the Wayland integration manually:
 
 ```bash
 # Copy the launcher script
-cp ~/.local/share/omarchy/bin/zed-wayland ~/.local/bin/
+cp ~/.local/share/archriot/bin/zed-wayland ~/.local/bin/
 chmod +x ~/.local/bin/zed-wayland
 
 # Install desktop file
-cp ~/.local/share/omarchy/applications/zed.desktop ~/.local/share/applications/
+cp ~/.local/share/archriot/applications/zed.desktop ~/.local/share/applications/
 update-desktop-database ~/.local/share/applications/
 ```
 
