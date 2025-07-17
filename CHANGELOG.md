@@ -78,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ New Features
 
 - **Versioning System**: Added VERSION file and version display in installation
-- **Version Command**: New `ohmarchy-version` command to check installed version and system status
+- **Version Command**: New `version` command to check installed version and system status
 - **Enhanced Validation**: Updated pre-install validation to check Ghostty components
 - **Floating Terminal**: Centered floating terminal window (1200x800) with proper opacity
 - **Theme Conversion**: CypherRiot and Tokyo Night themes converted to Ghostty format
@@ -90,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Desktop Applications**: Fixed `.desktop` files to use `ghostty` instead of `kitty`
     - `About.desktop`, `Activity.desktop`, `nvim.desktop`
 - **Management Scripts**: Updated bin scripts to reference Ghostty configs
-    - `ohmarchy-theme-next`, `ohmarchy-validate-system`
+    - `theme-next`, `validate-system`
 - **Waybar Integration**: Fixed right-click terminal commands in Waybar configs
 - **Theme System**: Fixed main Ghostty config to import themes instead of hardcoded colors
 
@@ -156,7 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Commands
 
-- `ohmarchy-version` - Display version and system information
+- `version` - Display version and system information
 - `SUPER+SHIFT+RETURN` - Launch floating centered terminal
 
 ### Breaking Changes
@@ -189,7 +189,7 @@ curl -fsSL https://ohmarchy.org/setup.sh | bash
 After installation, verify everything is working:
 
 ```bash
-ohmarchy-version                   # Check installation status
+version                           # Check installation status
 fastfetch                         # Verify display works correctly
 ghostty --version                 # Confirm Ghostty is installed
 ```

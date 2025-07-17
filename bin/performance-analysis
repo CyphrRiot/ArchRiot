@@ -15,7 +15,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Output file
-REPORT_FILE="/tmp/ohmarchy-performance-$(date +%Y%m%d-%H%M%S).txt"
+REPORT_FILE="/tmp/performance-analysis-$(date +%Y%m%d-%H%M%S).txt"
 
 print_header() {
     echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
@@ -261,7 +261,7 @@ main() {
     echo -e "${GREEN}📄 Full report saved to: $REPORT_FILE${NC}" | tee -a "$REPORT_FILE"
     echo -e "${CYAN}📊 Review the recommendations section for optimization opportunities${NC}" | tee -a "$REPORT_FILE"
     echo "" | tee -a "$REPORT_FILE"
-    echo -e "${YELLOW}💡 To apply optimizations, run: ohmarchy-optimize-system${NC}" | tee -a "$REPORT_FILE"
+    echo -e "${YELLOW}💡 To apply optimizations, run: optimize-system${NC}" | tee -a "$REPORT_FILE"
 }
 
 # Check for required dependencies

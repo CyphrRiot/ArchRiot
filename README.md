@@ -111,7 +111,7 @@ This comprehensive test validates:
 ### Theme & Appearance
 
 ```bash
-ohmarchy-theme-next                   # Switch to next theme
+theme-next                            # Switch to next theme
 SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
 SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ```
@@ -119,7 +119,7 @@ SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ### System Management
 
 ```bash
-ohmarchy-update                      # Update system packages
+update                               # Update system packages
 migrate                              # Backup/restore system (interactive TUI)
 sudo systemctl reboot               # Restart system
 sudo systemctl poweroff             # Shutdown system
@@ -197,9 +197,9 @@ Click network icon                  # Open network manager
 ### Fix Scripts (If Needed)
 
 ```bash
-ohmarchy-fix-thunar-thumbnails       # Fix thumbnail generation
-ohmarchy-fix-background              # Fix theme backgrounds
-ohmarchy-fix-waybar-theme            # Fix waybar styling
+fix-thunar-thumbnails                # Fix thumbnail generation
+fix-background                       # Fix theme backgrounds
+fix-waybar-theme                     # Fix waybar styling
 ```
 
 ### 🔧 Troubleshooting
@@ -208,9 +208,9 @@ Quick fixes for common issues:
 
 - **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
 - **Reliable installer**: Rock-solid installation process with comprehensive error handling
-- **Theme not applying**: Run `ohmarchy-fix-waybar-theme`
-- **Background issues**: Run `ohmarchy-fix-background`
-- **Thumbnail problems**: Run `ohmarchy-fix-thunar-thumbnails`
+- **Theme not applying**: Run `fix-waybar-theme`
+- **Background issues**: Run `fix-background`
+- **Thumbnail problems**: Run `fix-thunar-thumbnails`
 
 ## 🎯 Key Customizations
 
@@ -316,7 +316,7 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 ### Updates
 
 ```bash
-ohmarchy-update
+update
 ```
 
 Updates OhmArchy by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.
@@ -347,7 +347,7 @@ OhmArchy includes two carefully curated themes with CypherRiot as the default:
 
 ### Theme Management
 
-- **Switch themes:** `ohmarchy-theme-next` or manually symlink
+- **Switch themes:** `theme-next` or manually symlink
 - **Theme location:** `~/.config/omarchy/current/theme`
 - **Backgrounds:** Automatically matched to theme with time-based variants
 
@@ -437,7 +437,7 @@ After installation completes, verify everything is working correctly:
 The installer automatically runs a post-installation check. If you need to run it manually:
 
 ```bash
-~/.local/share/omarchy/bin/ohmarchy-post-install-check
+~/.local/share/omarchy/bin/post-install-check
 ```
 
 ### Manual Verification
@@ -453,7 +453,7 @@ ls ~/.config/omarchy/current/background # Should show escape_velocity.jpg
 SUPER + CTRL + SPACE                   # Should cycle through 6 backgrounds
 
 # Test theme switching
-ohmarchy-theme-next                    # Should switch to next theme
+theme-next                             # Should switch to next theme
 
 # Verify waybar
 pgrep waybar                          # Should show running process
@@ -492,11 +492,11 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-
 ## 🛠️ Management Tools
 
 ```bash
-ohmarchy-update                      # Update system packages
-ohmarchy-theme-next                  # Switch to next theme
-ohmarchy-fix-background              # Reset background system
-ohmarchy-fix-waybar-theme            # Reset waybar styling
-ohmarchy-validate-system             # Check system health
+update                               # Update system packages
+theme-next                           # Switch to next theme
+fix-background                       # Reset background system
+fix-waybar-theme                     # Reset waybar styling
+validate-system                      # Check system health
 ```
 
 ## 📂 Repository Information
