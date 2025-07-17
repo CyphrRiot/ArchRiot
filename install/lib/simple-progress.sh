@@ -116,8 +116,15 @@ install_packages_clean() {
     echo -e "${COLORS[BLUE]}📦 Installing: $packages${COLORS[RESET]}"
     echo -e "${COLORS[GRAY]}   (Output logged to: $(basename "$log_file"))${COLORS[RESET]}"
 
-    # Install with output captured
-    if yay -S --noconfirm --needed $packages > "$log_file" 2>&1; then
+    # Install with output captured - use yay if available, otherwise fallback to pacman
+    local install_cmd
+    if command -v yay &>/dev/null; then
+        install_cmd="yay -S --noconfirm --needed $packages"
+    else
+        install_cmd="sudo pacman -S --noconfirm --needed $packages"
+    fi
+
+    if $install_cmd > "$log_file" 2>&1; then
         echo -e "${COLORS[PURPLE]}✓ Successfully installed${COLORS[RESET]}"
 
         # Show any warnings from the log

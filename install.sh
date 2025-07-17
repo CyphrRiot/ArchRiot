@@ -19,6 +19,39 @@ if [ -f "$HOME/.local/share/omarchy/install/lib/install-helpers.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/install-helpers.sh"
 fi
 
+# CRITICAL: Install yay FIRST before anything else that might need it
+echo "🚀 CRITICAL: Installing yay AUR helper before anything else..."
+
+# Install base development tools and yay immediately
+sudo pacman -Sy --noconfirm --needed base-devel git rsync bc || {
+    echo "❌ CRITICAL: Failed to install base development tools"
+    exit 1
+}
+
+# Install yay immediately
+if ! command -v yay &>/dev/null; then
+    echo "📦 Installing yay AUR helper..."
+    cd /tmp
+    git clone https://aur.archlinux.org/yay-bin.git
+    cd yay-bin
+    makepkg -si --noconfirm
+    cd /
+    rm -rf /tmp/yay-bin
+
+    # Refresh PATH
+    export PATH="/usr/bin:$PATH"
+    hash -r 2>/dev/null || true
+
+    # Verify yay is now available
+    if ! command -v yay &>/dev/null; then
+        echo "❌ CRITICAL: yay installation failed"
+        exit 1
+    fi
+    echo "✅ yay AUR helper installed successfully"
+else
+    echo "✅ yay AUR helper already available"
+fi
+
 # Load clean progress system
 if [ -f "$HOME/.local/share/omarchy/install/lib/simple-progress.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/simple-progress.sh"
@@ -28,15 +61,12 @@ fi
 if [ -f "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh" ]; then
     source "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh"
     echo "🔒 Setting up temporary passwordless sudo for installation..."
-    setup_passwordless_sudo || {
-        echo "⚠️ Failed to setup passwordless sudo - installation will prompt for passwords"
-    }
+    setup_passwordless_sudo || exit 1
 fi
 
 # Define installation order for modular structure
 # FIXED: Desktop module moved before system to ensure waybar is installed before config validation
 declare -a install_modules=(
-    "core/01-base.sh"       # Base tools and yay AUR helper
     "core/02-identity.sh"   # User identity setup
     "desktop"               # Desktop environment (hyprland, waybar, apps, theming, fonts)
     "core/03-config.sh"     # Config installation and validation (after desktop components exist)
