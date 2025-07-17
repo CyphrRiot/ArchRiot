@@ -14,16 +14,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# ASCII art for terminal display (keep original)
-ASCII_ART=' █████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗ ██████╗ ████████╗
-██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██║██╔═══██╗╚══██╔══╝
-███████║██████╔╝██║     ███████║██████╔╝██║██║   ██║   ██║
-██╔══██║██╔══██╗██║     ██╔══██║██╔══██╗██║██║   ██║   ██║
-██║  ██║██║  ██║╚██████╗██║  ██║██║  ██║██║╚██████╔╝   ██║
-╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═╝'
-
-# Use existing logo.png for LUKS boot screen
-SOURCE_LOGO=""
+# Always use logo.png for LUKS boot screen - simple and reliable
 
 # Configuration
 LOGO_WIDTH=650
@@ -51,41 +42,25 @@ if ! command -v convert &> /dev/null; then
 fi
 echo -e "${GREEN}✓ ImageMagick available${NC}"
 
-# Find the source logo.png
-echo -e "${YELLOW}Locating source logo...${NC}"
+# Use repo logo.png for LUKS boot screen
+echo -e "${YELLOW}Using repo logo for LUKS boot screen...${NC}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_LOGO="$SCRIPT_DIR/../images/logo.png"
 
 if [[ ! -f "$SOURCE_LOGO" ]]; then
-    echo -e "${YELLOW}⚠ Source logo not found, using ASCII art fallback${NC}"
-
-    # Fallback to ASCII art generation
-    echo -e "${YELLOW}Creating ASCII art image...${NC}"
-    echo "$ASCII_ART" > /tmp/ascii_art.txt
-
-    # Use simple monospace font
-    magick -size ${LOGO_WIDTH}x${LOGO_HEIGHT} \
-        xc:"$BACKGROUND_COLOR" \
-        -fill "$TEXT_COLOR" \
-        -font "Liberation-Mono" \
-        -pointsize 9 \
-        -gravity center \
-        -annotate +0+0 "@/tmp/ascii_art.txt" \
-        "$TEMP_LOGO"
-
-    rm -f /tmp/ascii_art.txt
-else
-    echo -e "${GREEN}✓ Found source logo: $SOURCE_LOGO${NC}"
-
-    # Use existing logo.png for LUKS boot screen
-    echo -e "${YELLOW}Preparing boot logo from existing image...${NC}"
-    magick "$SOURCE_LOGO" \
-        -resize ${LOGO_WIDTH}x${LOGO_HEIGHT} \
-        -background "$BACKGROUND_COLOR" \
-        -gravity center \
-        -extent ${LOGO_WIDTH}x${LOGO_HEIGHT} \
-        "$TEMP_LOGO"
+    echo -e "${RED}❌ Logo not found at: $SOURCE_LOGO${NC}"
+    exit 1
 fi
+
+echo -e "${GREEN}✓ Using logo: $SOURCE_LOGO${NC}"
+
+# Copy and resize the logo for LUKS boot screen
+magick "$SOURCE_LOGO" \
+    -resize ${LOGO_WIDTH}x${LOGO_HEIGHT} \
+    -background "$BACKGROUND_COLOR" \
+    -gravity center \
+    -extent ${LOGO_WIDTH}x${LOGO_HEIGHT} \
+    "$TEMP_LOGO"
 
 if [ ! -f "$TEMP_LOGO" ]; then
     echo -e "${RED}❌ Failed to generate logo image${NC}"
@@ -160,7 +135,7 @@ cp "$PLYMOUTH_THEME_DIR/logo.png" "$PERSISTENT_BACKUP_DIR/custom_logo.png"
 echo "custom_logo_backup_created=$(date)" > "$PERSISTENT_BACKUP_DIR/backup_info.txt"
 
 # Cleanup
-rm -f /tmp/ascii_art.txt "$TEMP_LOGO"
+rm -f "$TEMP_LOGO"
 
 echo -e "${GREEN}🎉 ArchRiot boot logo generation complete!${NC}"
 echo ""
