@@ -52,6 +52,11 @@ else
     echo "✅ yay AUR helper already available"
 fi
 
+# Load clean progress system
+if [ -f "$HOME/.local/share/omarchy/install/lib/simple-progress.sh" ]; then
+    source "$HOME/.local/share/omarchy/install/lib/simple-progress.sh"
+fi
+
 
 
 # Load and setup sudo helper for passwordless installation
