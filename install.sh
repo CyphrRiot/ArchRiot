@@ -368,12 +368,10 @@ if ! command -v gum &>/dev/null; then
     yay -S --noconfirm --needed gum
 fi
 
-# Clean up temporary passwordless sudo
+# Keep passwordless sudo for package management (yay, pacman, systemctl)
 if command -v cleanup_passwordless_sudo &>/dev/null; then
-    echo "🔒 Restoring original sudo configuration..."
-    cleanup_passwordless_sudo || {
-        echo "⚠️ Warning: Could not restore sudo config - may need manual cleanup"
-    }
+    echo "🔒 Keeping passwordless sudo for package management (yay, pacman, systemctl)"
+    echo "   To remove later, run: sudo sed -i '/# OhmArchy temporary rule/d' /etc/sudoers"
 fi
 
 echo ""
