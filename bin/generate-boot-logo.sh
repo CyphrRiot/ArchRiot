@@ -54,13 +54,10 @@ echo "$ASCII_ART" > /tmp/ascii_art.txt
 
 # Try different fonts in order of preference
 FONTS=(
-    "Hack-Nerd-Font"
-    "Hack-Nerd-Font-Mono"
-    "Cascadia-Mono"
-    "CaskaydiaCove-Nerd-Font-Mono"
-    "CaskaydiaMono-Nerd-Font"
-    "JetBrainsMono-Nerd-Font"
-    "FiraCode-Nerd-Font-Mono"
+    "Hack-Nerd-Font-Mono-Regular"
+    "Hack-Nerd-Font-Regular"
+    "Hack-Nerd-Font-Mono-Bold"
+    "Hack-Nerd-Font-Bold"
     "DejaVu-Sans-Mono"
     "Liberation-Mono"
     "monospace"
