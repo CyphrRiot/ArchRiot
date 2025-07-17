@@ -1,4 +1,4 @@
-# 🎭 𝙰𝚛𝚌𝚑𝚁𝚒𝚘𝚝 🎭
+# 🎭 󰣇𝚛𝚌𝚑𝚁𝚒𝚘𝚝 🎭
 
 ![Version](https://img.shields.io/badge/version-1.1.16-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
