@@ -60,11 +60,13 @@ Run `archinstall` and pick these options (and leave anything not mentioned as-is
 
 Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install OhmArchy.
 
-### Method 1: One-Line Install (Recommended)
+### Method 1: One-Line Install or Upgrade (Recommended)
 
 ```bash
 curl -fsSL https://ohmarchy.org/setup.sh | bash
 ```
+
+**Note: Upgrading is exactly the same command! Simple!**
 
 ### Method 2: Manual Clone (For Customization)
 
