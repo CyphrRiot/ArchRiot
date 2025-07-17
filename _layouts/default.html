@@ -55,10 +55,18 @@
       padding-top: 20px;
     }
 
-    /* Make shield badges 10% larger */
+    /* Make shield badges 10% larger with reduced vertical spacing */
     img[src*="shields.io"] {
       transform: scale(1.05);
       display: inline-block;
+      margin: -2px 0;
+      line-height: 0.8;
+    }
+
+    /* Reduce spacing between badge rows */
+    p:has(img[src*="shields.io"]) {
+      margin: 5px 0;
+      line-height: 1.2;
     }
   </style>
 
