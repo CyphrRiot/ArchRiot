@@ -170,7 +170,9 @@ process_installation_modules() {
             local installer_name=$(basename "$module" .sh)
 
             if [[ -f "$installer_file" ]]; then
+                echo "🔍 DEBUG: Starting installer: $installer_name"
                 process_installer_with_progress "$installer_file" "$installer_name"
+                echo "✅ DEBUG: Completed installer: $installer_name"
             else
                 if command -v fail_step &>/dev/null; then
                     fail_step "Installer not found: $module"
@@ -186,7 +188,9 @@ process_installation_modules() {
                 for installer_file in "$module_dir"/*.sh; do
                     if [[ -f "$installer_file" ]]; then
                         local installer_name=$(basename "$installer_file" .sh)
+                        echo "🔍 DEBUG: Starting module installer: $module/$installer_name"
                         process_installer_with_progress "$installer_file" "$installer_name"
+                        echo "✅ DEBUG: Completed module installer: $module/$installer_name"
                     fi
                 done
             else
