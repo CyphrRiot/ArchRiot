@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# OhmArchy Boot Logo Generator
+# ArchRiot Boot Logo Generator
 # ==============================================================================
-# Converts OhmArchy ASCII art to Plymouth boot screen logo
+# Converts ArchRiot ASCII art to Plymouth boot screen logo
 # ==============================================================================
 
 set -e

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Performance Analysis Script
+# ArchRiot Performance Analysis Script
 # Comprehensive system performance profiling and optimization analysis
 
 set -euo pipefail

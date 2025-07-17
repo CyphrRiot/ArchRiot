@@ -11,7 +11,7 @@ import sys
 class WelcomeWindow:
     def __init__(self):
         self.window = Gtk.Window()
-        self.window.set_title("Welcome to OhmArchy")
+        self.window.set_title("Welcome to ArchRiot")
         self.window.set_default_size(800, 600)
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.set_resizable(False)
