@@ -32,13 +32,21 @@ if [[ "$has_touchpad" == false ]] && grep -qi "touchpad" /proc/bus/input/devices
     echo -e "${GREEN}✓ Touchpad detected via /proc/bus/input/devices${NC}"
 fi
 
-# Method 3: Check for common touchpad drivers in lsmod
-if [[ "$has_touchpad" == false ]] && lsmod | grep -qE "(i2c_hid|hid_multitouch|psmouse|synaptics|elan)" 2>/dev/null; then
+# Method 3: Check for touchpad-specific entries in /proc/bus/input/devices
+if [[ "$has_touchpad" == false ]] && grep -qiE "(synaptics|touchpad|trackpad)" /proc/bus/input/devices 2>/dev/null; then
     has_touchpad=true
-    echo -e "${GREEN}✓ Touchpad drivers detected${NC}"
+    echo -e "${GREEN}✓ Touchpad hardware detected in input devices${NC}"
 fi
 
-# Method 4: Check xinput (if available)
+# Method 4: Check for libinput touchpad events
+if [[ "$has_touchpad" == false ]] && command -v libinput &>/dev/null; then
+    if timeout 2 libinput list-devices 2>/dev/null | grep -qi "touchpad"; then
+        has_touchpad=true
+        echo -e "${GREEN}✓ Touchpad detected via libinput${NC}"
+    fi
+fi
+
+# Method 5: Check xinput as final fallback
 if [[ "$has_touchpad" == false ]] && command -v xinput &>/dev/null; then
     if xinput list 2>/dev/null | grep -qi "touchpad"; then
         has_touchpad=true
