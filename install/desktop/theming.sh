@@ -54,6 +54,16 @@ install_icon_theme() {
 
     if yay -S --noconfirm --needed obsidian-icon-theme; then
         echo "✓ Obsidian icon theme installed"
+
+        # Reset XDG user directories and icons
+        xdg-user-dirs-update
+        xdg-user-dirs-gtk-update
+
+        # Force refresh folder icons
+        gtk-update-icon-cache -f -t ~/.local/share/icons/ 2>/dev/null || true
+        gtk-update-icon-cache -f -t /usr/share/icons/ 2>/dev/null || true
+
+        echo "✓ XDG folder icons refreshed"
     else
         echo "⚠ Failed to install obsidian-icon-theme (using fallback)"
         return 1
@@ -93,8 +103,19 @@ configure_gtk_settings() {
         # Set window manager theme to match GTK theme (prevents grey-brown borders)
         gsettings set org.gnome.desktop.wm.preferences theme "Adwaita-dark" 2>/dev/null || true
 
-        # Set icon theme
-        gsettings set org.gnome.desktop.interface icon-theme "Obsidian-Purple" 2>/dev/null || true
+        # Set icon theme (check multiple possible names)
+        if gsettings set org.gnome.desktop.interface icon-theme "Obsidian-Purple" 2>/dev/null; then
+            echo "✓ Icon theme set to Obsidian-Purple"
+        elif gsettings set org.gnome.desktop.interface icon-theme "obsidian-icon-theme" 2>/dev/null; then
+            echo "✓ Icon theme set to obsidian-icon-theme"
+        elif gsettings set org.gnome.desktop.interface icon-theme "Obsidian" 2>/dev/null; then
+            echo "✓ Icon theme set to Obsidian"
+        else
+            echo "⚠ Could not set icon theme"
+        fi
+
+        # Enable symbolic folder icons
+        gsettings set org.gnome.desktop.interface icon-theme-use-symbolic true 2>/dev/null || true
 
         # Set cursor theme
         gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice" 2>/dev/null || true
