@@ -82,7 +82,7 @@ install_configs() {
             echo "⚠ Preserving existing user config: $basename (use omarchy-refresh-* scripts to update)"
 
             # For critical configs, create .omarchy-default versions for reference
-            if [[ "$basename" =~ ^(waybar|fish)$ ]]; then
+            if [[ "$basename" =~ ^(waybar|fish|ghostty)$ ]]; then
                 cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
                 echo "  → Created reference copy: $basename.omarchy-default"
             fi
