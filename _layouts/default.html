@@ -33,21 +33,26 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"></noscript>
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
+    /* Remove only the top padding/margin that creates blank space */
     #container {
-      margin: 0;
-      padding: 20px 0 0 0;
+      padding-top: 0 !important;
     }
+
+    /* Preserve theme's centering and layout but remove excess top space */
     #main_content_wrap {
-      margin: 0;
-      padding: 0;
+      padding-top: 0 !important;
     }
+
+    /* Keep the theme's text alignment and centering intact */
+    .inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
     #main_content {
-      margin: 0;
-      padding-top: 0;
+      text-align: justify;
+      padding-top: 20px;
     }
   </style>
 
@@ -57,6 +62,7 @@
 <body>
   <div id="container">
     <div class="inner">
+
       <div id="main_content_wrap" class="outer">
         <section id="main_content" class="inner">
           {{ content }}
