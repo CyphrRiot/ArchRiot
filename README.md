@@ -26,20 +26,6 @@ OhmArchy is an even more opiniated setup and was originally a fork of [DHH's ama
 
 ![OhmArchy Screenshot](images/screenshot.png)
 
-## ✨ Enhanced Installation Experience (v1.1.2+)
-
-OhmArchy now features beautiful, themed progress bars during installation:
-
-https://github.com/CyphrRiot/OhmArchy/raw/master/images/progress.mp4
-
-The enhanced installer provides:
-
-- **Perfect alignment** - Clean, professional progress display
-- **Themed colors** - Matches OhmArchy's aesthetic with purple, blue, and cyan accents
-- **Real-time feedback** - Shows exactly what's being installed
-- **Error handling** - Clear failure indication while preserving all safety features
-- **Fallback support** - Automatically switches to plain text in incompatible terminals
-
 ## 🚀 Installation
 
 ### Prerequisites: Fresh Arch Linux Setup
@@ -214,7 +200,7 @@ ohmarchy-fix-waybar-theme            # Fix waybar styling
 Quick fixes for common issues:
 
 - **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
-- **Enhanced installer**: New in v1.1.0 - beautiful progress bars during installation
+- **Reliable installer**: Rock-solid installation process with comprehensive error handling
 - **Theme not applying**: Run `ohmarchy-fix-waybar-theme`
 - **Background issues**: Run `ohmarchy-fix-background`
 - **Thumbnail problems**: Run `ohmarchy-fix-thunar-thumbnails`
