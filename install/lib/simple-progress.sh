@@ -114,7 +114,7 @@ install_packages_clean() {
     local log_file="$LOG_DIR/$(date +%s)-$(echo "$phase_name" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').log"
 
     echo -e "${COLORS[BLUE]}📦 Installing: $packages${COLORS[RESET]}"
-    echo -e "${COLORS[GRAY]}   (Output logged to: $(basename "$log_file"))${COLORS[RESET]}"
+    echo -e "${COLORS[GRAY]}   (Output logged to: $log_file)${COLORS[RESET]}"
 
     # Install with output captured - use yay if available, otherwise fallback to pacman
     local install_cmd

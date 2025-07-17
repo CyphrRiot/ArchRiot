@@ -105,6 +105,19 @@ show_summary() {
     echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher)"
 }
 
+# Fix touchpad configuration based on hardware detection
+fix_touchpad_config() {
+    echo "🔧 Configuring touchpad settings..."
+
+    local touchpad_script="$HOME/.local/share/omarchy/bin/omarchy-fix-touchpad-config"
+    if [[ -f "$touchpad_script" ]]; then
+        chmod +x "$touchpad_script"
+        "$touchpad_script"
+    else
+        echo "⚠ Touchpad config script not found - skipping"
+    fi
+}
+
 # Main execution
 main() {
     echo "🚀 Starting Hyprland desktop environment setup..."
@@ -113,6 +126,7 @@ main() {
     setup_hyprland_packages || return 1
     validate_installation || return 1
     configure_hyprland
+    fix_touchpad_config
     show_summary
 
     echo "✅ Hyprland desktop environment setup completed!"
