@@ -233,7 +233,7 @@ Quick fixes for common issues:
 
 Linux's default memory management is **aggressively stupid** about caching. The kernel will happily consume 90%+ of your RAM for file caches, then struggle to free it when applications actually need memory.
 
-OhmArchy fixes this with intelligent memory management tuning:
+ArchRiot fixes this with intelligent memory management tuning:
 
 - **No more lag spikes** when opening applications
 - **Better responsiveness** under memory pressure
@@ -274,7 +274,7 @@ OhmArchy fixes this with intelligent memory management tuning:
 
 ### 🎮 **GPU Support**
 
-OhmArchy automatically detects and installs optimal drivers for all major GPUs:
+ArchRiot automatically detects and installs optimal drivers for all major GPUs:
 
 - **NVIDIA**: Proprietary drivers with Wayland and hardware acceleration
 - **AMD/Radeon**: Open-source Mesa drivers with Vulkan support
