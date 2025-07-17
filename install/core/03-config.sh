@@ -226,10 +226,19 @@ setup_scripts_and_env() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     local source_image="$script_dir/../../images/welcome.png"
     local dest_dir="$HOME/.local/share/archriot/images"
+    local dest_image="$dest_dir/welcome.png"
+
+    # Create destination directory
+    mkdir -p "$dest_dir"
+
     if [[ -f "$source_image" ]]; then
-        mkdir -p "$dest_dir"
-        cp "$source_image" "$dest_dir/"
-        echo "✓ Welcome image installed"
+        # Check if source and destination are the same file (avoid copying to self)
+        if [[ "$(realpath "$source_image")" == "$(realpath "$dest_image" 2>/dev/null || echo "$dest_image")" ]]; then
+            echo "✓ Welcome image already in correct location"
+        else
+            cp "$source_image" "$dest_dir/"
+            echo "✓ Welcome image installed"
+        fi
     else
         echo "⚠ Welcome image not found at: $source_image"
     fi
