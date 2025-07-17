@@ -21,7 +21,7 @@
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
-## **A customized Arch Linux cypherpunk/hacker setup**
+## **A customized Arch Linux Cypherpunk & Hacker setup**
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
 
