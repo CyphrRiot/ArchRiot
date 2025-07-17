@@ -86,16 +86,21 @@
     },
     "theme": "Ayu Dark",
     "experimental.theme_overrides": {
-        "editor.gutter.background": "#000005",
-        "panel.background": "#000005",
+        "editor.gutter.background": "#000000",
+        "panel.background": "#000000",
         "background.appearance": "opaque",
-        "toolbar.background": "#0000009",
+        "toolbar.background": "#000000",
         "editor.indent_guide": "#000002",
-        "title_bar.background": "#1a1a2e",
-        "status_bar.background": "#1a1a2e",
+        "title_bar.background": "#000000",
+        "status_bar.background": "#000000",
+        "background": "#000000",
+        "editor.background": "#000000",
+        "terminal.background": "#000000",
         "syntax": {
             "comment": { "color": "#4d6878" },
-            "string": { "color": "#9d7dd8" }
+            "string": { "color": "#9d7dd8" },
+            "emphasis.strong": { "color": "#4a90e2" },
+            "title": { "color": "#7dd3fc" }
         }
     },
     "file_scan_exclusions": [
