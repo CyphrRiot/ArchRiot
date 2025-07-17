@@ -23,10 +23,14 @@ echo -e "================================================\n"
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
-# Clean up old installations
-echo -e "\nCleaning up old installations..."
+# NUCLEAR cleanup of ALL ArchRiot/OhmArchy directories before fresh install
+echo -e "\n🧹 NUCLEAR cleanup of old installations..."
+echo "   Removing ALL ArchRiot and OhmArchy directories..."
 rm -rf ~/.local/share/archriot/
+rm -rf ~/.local/share/omarchy/
 rm -rf ~/.config/archriot/
+rm -rf ~/.config/omarchy/
+echo "✓ Cleanup complete - fresh install guaranteed"
 
 # Clone ArchRiot repository
 echo -e "\nCloning ArchRiot..."
