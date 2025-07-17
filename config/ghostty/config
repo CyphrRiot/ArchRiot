@@ -1,8 +1,52 @@
 # OhmArchy Ghostty Terminal Configuration
 # Integrates with OhmArchy theme system for consistent styling
 
-# Import theme colors from current theme
-config-file = ~/.config/ghostty/current-theme.conf
+# CypherRiot theme colors (dark background)
+background = 0a0b10
+foreground = c0caf5
+selection-background = 33467c
+selection-foreground = c0caf5
+
+# Cursor colors
+cursor-color = c0caf5
+cursor-text = 0a0b10
+
+# The 16 terminal colors
+# black
+palette = 0=#0a0b10
+palette = 8=#414868
+
+# red
+palette = 1=#f7768e
+palette = 9=#f7768e
+
+# green
+palette = 2=#9ece6a
+palette = 10=#9ece6a
+
+# yellow
+palette = 3=#e0af68
+palette = 11=#e0af68
+
+# blue
+palette = 4=#7aa2f7
+palette = 12=#7aa2f7
+
+# magenta
+palette = 5=#bb9af7
+palette = 13=#bb9af7
+
+# cyan
+palette = 6=#7dcfff
+palette = 14=#7dcfff
+
+# white
+palette = 7=#a9b1d6
+palette = 15=#c0caf5
+
+# Extended colors for better compatibility
+palette = 16=#ff9e64
+palette = 17=#db4b4b
 
 # Font configuration
 font-family = "Hack Nerd Font"
