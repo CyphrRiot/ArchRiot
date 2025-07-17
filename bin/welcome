@@ -62,8 +62,10 @@ class WelcomeWindow:
         self.window.show_all()
 
     def add_welcome_image(self, container):
-        # Add Welcome image
-        image_path = os.path.expanduser("~/.local/share/archriot/images/welcome.png")
+        # Add Welcome image - use image directly from repository
+        home_dir = os.environ.get('HOME') or os.path.expanduser('~')
+        image_path = os.path.join(home_dir, '.local', 'share', 'archriot', 'images', 'welcome.png')
+
         if os.path.exists(image_path):
             try:
                 # Load and scale the image
