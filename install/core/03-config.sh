@@ -67,25 +67,28 @@ install_configs() {
             continue
         fi
 
-        # CRITICAL: Only install configs that don't exist or are OhmArchy-managed
+        # Skip Zed configs - preserve user editor customizations
+        if [[ "$basename" == "zed" ]]; then
+            echo "ℹ️ Skipping zed config (preserving user editor settings)"
+            # Create reference copy for users who want to see OhmArchy's config
+            if [[ ! -e "$target.omarchy-default" ]]; then
+                cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
+                echo "  → Created reference copy: $basename.omarchy-default"
+            fi
+            continue
+        fi
+
+        # FORCE OVERWRITE ALL CONFIGS (removes user customizations!)
         if [[ ! -e "$target" ]]; then
             # New installation - safe to copy
             cp -R "$item" "$target" || return 1
             echo "✓ Installed new config: $basename"
-        elif [[ -L "$target" ]] && [[ "$(readlink "$target")" == *"omarchy"* ]]; then
-            # OhmArchy-managed symlink - safe to update
-            rm -f "$target"
-            cp -R "$item" "$target" || return 1
-            echo "✓ Updated OhmArchy config: $basename"
         else
-            # USER'S EXISTING CONFIG - DO NOT OVERWRITE!
-            echo "⚠ Preserving existing user config: $basename (use omarchy-refresh-* scripts to update)"
-
-            # For critical configs, create .omarchy-default versions for reference
-            if [[ "$basename" =~ ^(waybar|fish|ghostty)$ ]]; then
-                cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
-                echo "  → Created reference copy: $basename.omarchy-default"
-            fi
+            # Backup existing and install OhmArchy version
+            local backup_target="$target.user-backup-$(date +%s)"
+            mv "$target" "$backup_target" 2>/dev/null || true
+            cp -R "$item" "$target" || return 1
+            echo "✓ Force installed OhmArchy config: $basename (backup: $(basename "$backup_target"))"
         fi
     done
 
