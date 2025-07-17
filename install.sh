@@ -141,7 +141,12 @@ count_total_installers() {
             # Module directory - count .sh files
             local module_dir="$HOME/.local/share/archriot/install/$module"
             if [[ -d "$module_dir" ]]; then
-                local count=$(find "$module_dir" -name "*.sh" -type f | wc -l)
+                local count=0
+                for file in "$module_dir"/*.sh; do
+                    if [[ -f "$file" ]]; then
+                        count=$((count + 1))
+                    fi
+                done
                 total=$((total + count))
             fi
         fi
