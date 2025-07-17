@@ -1,6 +1,6 @@
 # Tokyo Night Theme
 
-A beautiful dark theme for OhmArchy inspired by the **Tokyo Night** color palette, bringing the serene atmosphere of Tokyo's neon-lit nights to your desktop environment.
+A beautiful dark theme for ArchRiot inspired by the **Tokyo Night** color palette, bringing the serene atmosphere of Tokyo's neon-lit nights to your desktop environment.
 
 ## 🎨 Color Palette
 
@@ -49,7 +49,7 @@ Dynamic background system using the `backgrounds.sh` script for wallpaper manage
 
 ## 🚀 Usage
 
-After installation, the theme will be available in the OhmArchy theme rotation. Use `theme-next` to cycle to the Tokyo Night theme.
+After installation, the theme will be available in the ArchRiot theme rotation. Use `theme-next` to cycle to the Tokyo Night theme.
 
 You can also preview the theme colors and components by running:
 
