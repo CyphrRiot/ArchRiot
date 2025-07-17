@@ -65,12 +65,21 @@ else
 fi
 
 if [[ -f "$script_dir/../../applications/zed.desktop" ]]; then
-    # Hide system zed.desktop to prevent duplicates
+    # Hide system zed desktop files to prevent duplicates
+    mkdir -p ~/.local/share/applications/
+
+    # Hide dev.zed.Zed.desktop (actual system file)
+    if [[ -f "/usr/share/applications/dev.zed.Zed.desktop" ]]; then
+        echo "[Desktop Entry]
+NoDisplay=true" > ~/.local/share/applications/dev.zed.Zed.desktop
+        echo "✓ System dev.zed.Zed.desktop hidden"
+    fi
+
+    # Hide zed.desktop (legacy system file)
     if [[ -f "/usr/share/applications/zed.desktop" ]]; then
-        mkdir -p ~/.local/share/applications/
-        echo "NoDisplay=true" > ~/.local/share/applications/zed-system.desktop
-        cp "/usr/share/applications/zed.desktop" ~/.local/share/applications/zed-system.desktop
-        echo "✓ System Zed desktop file hidden"
+        echo "[Desktop Entry]
+NoDisplay=true" > ~/.local/share/applications/zed.desktop.bak
+        echo "✓ System zed.desktop hidden"
     fi
 
     # Install our Wayland-fixed version
