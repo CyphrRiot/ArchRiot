@@ -68,9 +68,10 @@
     "wrap_guides": [120, 121],
     "show_wrap_guides": false,
     "soft_wrap": "editor_width",
-    "buffer_font_family": "Hack Nerd Font",
+    "buffer_font_family": "Hack Nerd Font Mono",
     "buffer_font_size": 16,
     "ui_font_size": 16,
+    "ui_font_family": "Hack Nerd Font Propo",
     "buffer_line_height": "comfortable",
     "terminal": {
         "font_family": "Hack Nerd Font",
