@@ -105,7 +105,7 @@ main() {
 
     echo -e "${PURPLE}"
     echo "========================================"
-    echo "           OhmArchy Version"
+    echo "           ArchRiot Version"
     echo "========================================"
     echo -e "${NC}"
 
@@ -115,8 +115,8 @@ main() {
 
     if [[ "$install_date" == "not installed" ]]; then
         echo ""
-        echo -e "${YELLOW}⚠ OhmArchy does not appear to be installed${NC}"
-        echo -e "${BLUE}Install with:${NC} curl -fsSL https://ohmarchy.org/setup.sh | bash"
+        echo -e "${YELLOW}⚠ ArchRiot does not appear to be installed${NC}"
+        echo -e "${BLUE}Install with:${NC} curl -fsSL https://archriot.org/setup.sh | bash"
         return 1
     fi
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Volume Control Script for OhmArchy
+# Volume Control Script for ArchRiot
 # ==============================================================================
 # Handles microphone and speaker volume controls for waybar integration
 # ==============================================================================

@@ -20,7 +20,7 @@ APP_TEST_COUNT=3
 
 print_header() {
     echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                OhmArchy Startup Profiler                    ║${NC}"
+    echo -e "${PURPLE}║                ArchRiot Startup Profiler                    ║${NC}"
     echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}🚀 Analyzing system startup performance and identifying bottlenecks${NC}"
@@ -456,7 +456,7 @@ main() {
     print_header
 
     # Initialize report file
-    echo "OhmArchy Startup Profiler Report" > "$REPORT_FILE"
+    echo "ArchRiot Startup Profiler Report" > "$REPORT_FILE"
     echo "Generated: $(date)" >> "$REPORT_FILE"
     echo "System: $(uname -a)" >> "$REPORT_FILE"
 

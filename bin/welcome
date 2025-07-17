@@ -107,7 +107,7 @@ class WelcomeWindow:
 
         # Create text with markup for clickable links
         text_content_parts = [
-            "OhmArchy is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make OhmArchy as intuitive as possible, while still respecting the user and their abilities.\n\n",
+            "ArchRiot is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
             "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
             "SUPER+B = Open Brave Browser\n",
             "SUPER+ENTER = Open Terminal\n",
@@ -117,8 +117,8 @@ class WelcomeWindow:
             "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
             "Many other commands!\n\n",
 
-            "OhmArchy started life as a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
-            "I hope you enjoy using OhmArchy as much as I enjoyed putting it together.\n"
+            "ArchRiot started life as a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
+            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together.\n"
         ]
 
         # Insert text parts
@@ -137,7 +137,7 @@ class WelcomeWindow:
 
         # Insert clickable link for GitHub
         github_tag = buffer.create_tag("github_link", foreground="#89b4fa", underline=True)
-        buffer.insert_with_tags(iter_end, "OhmArchy on GitHub", github_tag)
+        buffer.insert_with_tags(iter_end, "ArchRiot on GitHub", github_tag)
         iter_end = buffer.get_end_iter()
 
         # Insert signature with larger font
@@ -214,7 +214,7 @@ class WelcomeWindow:
                             os.system("xdg-open https://x.com/CyphrRiot &")
                             return True
                         elif tag_name == "github_link":
-                            os.system("xdg-open https://github.com/CyphrRiot/OhmArchy &")
+                            os.system("xdg-open https://github.com/CyphrRiot/ArchRiot &")
                             return True
 
         return False
