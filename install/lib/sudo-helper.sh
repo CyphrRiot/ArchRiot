@@ -8,7 +8,7 @@
 # ==============================================================================
 
 CURRENT_USER="$(whoami)"
-OMARCHY_SUDO_RULE="%wheel ALL=(ALL) NOPASSWD: /usr/bin/pacman, /usr/bin/yay, /usr/bin/systemctl"
+OMARCHY_SUDO_RULE="$CURRENT_USER ALL=(ALL) NOPASSWD: /usr/bin/pacman, /usr/bin/yay, /usr/bin/systemctl"
 OMARCHY_SUDO_MARKER="# OhmArchy temporary rule"
 
 # Colors for output
@@ -42,15 +42,15 @@ has_omarchy_rule() {
     sudo grep -q "$OMARCHY_SUDO_MARKER" /etc/sudoers 2>/dev/null
 }
 
-# Add user to wheel group
+# Add user to wheel group (for system consistency)
 add_to_wheel() {
     print_status "INFO" "Adding $CURRENT_USER to wheel group..."
     if sudo usermod -aG wheel "$CURRENT_USER"; then
         print_status "INFO" "✓ User added to wheel group"
         return 0
     else
-        print_status "ERROR" "Failed to add user to wheel group"
-        return 1
+        print_status "WARN" "Failed to add user to wheel group (continuing with user-specific rule)"
+        return 0
     fi
 }
 
@@ -100,11 +100,9 @@ setup_passwordless_sudo() {
         return 0
     fi
 
-    # Ensure user is in wheel group
+    # Ensure user is in wheel group (for system consistency, but not required)
     if ! is_in_wheel; then
-        add_to_wheel || return 1
-        # Need to reload groups - user will need to re-login or use newgrp
-        print_status "WARN" "Group membership updated - you may need to log out and back in"
+        add_to_wheel
     fi
 
     # Add passwordless rule if not already present

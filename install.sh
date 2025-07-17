@@ -360,20 +360,18 @@ echo "🎉 OhmArchy installation complete!"
 echo "Version: $OMARCHY_VERSION"
 echo "Completed at: $(date)"
 
+# Ensure gum is available for final prompt (BEFORE sudo cleanup)
+if ! command -v gum &>/dev/null; then
+    echo "Installing gum for final prompt..."
+    yay -S --noconfirm --needed gum
+fi
+
 # Clean up temporary passwordless sudo
 if command -v cleanup_passwordless_sudo &>/dev/null; then
     echo "🔒 Restoring original sudo configuration..."
     cleanup_passwordless_sudo || {
         echo "⚠️ Warning: Could not restore sudo config - may need manual cleanup"
     }
-fi
-
-
-
-# Ensure gum is available for final prompt
-if ! command -v gum &>/dev/null; then
-    echo "Installing gum for final prompt..."
-    yay -S --noconfirm --needed gum
 fi
 
 echo ""

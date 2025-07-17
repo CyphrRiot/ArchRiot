@@ -5,6 +5,18 @@ All notable changes to OhmArchy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.9] - 2025-07-16
+
+### 🔧 Critical Bug Fixes
+
+- **Sudo Passwordless Setup**: Fixed password prompts during post-install operations
+    - **ROOT CAUSE**: User-specific sudo rule needed instead of wheel group dependency
+    - **ROOT CAUSE**: Gum installation happened after sudo cleanup, causing password prompt
+    - **SOLUTION**: Changed to user-specific sudo rule and moved gum install before cleanup
+    - **IMPACT**: Installation now truly passwordless from start to finish
+
+---
+
 ## [1.1.8] - 2025-07-16
 
 ### 🔧 Critical Bug Fixes
