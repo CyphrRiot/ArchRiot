@@ -59,20 +59,12 @@ get_user_identity() {
     echo "  git config --global user.email \"your@email.com\""
     echo ""
 
-    # Check if we're in an interactive terminal
-    if [[ -t 0 && -t 1 ]]; then
-        # Interactive mode - no timeout
-        echo -n "Git Name (optional - press Enter to skip): "
-        read -r ARCHRIOT_USER_NAME
+    # Always show interactive prompts
+    echo -n "Git Name (optional - press Enter to skip): "
+    read -r ARCHRIOT_USER_NAME
 
-        echo -n "Git Email (optional - press Enter to skip): "
-        read -r ARCHRIOT_USER_EMAIL
-    else
-        # Non-interactive mode - skip prompts
-        echo "⚠ Non-interactive mode detected - skipping git configuration"
-        ARCHRIOT_USER_NAME=""
-        ARCHRIOT_USER_EMAIL=""
-    fi
+    echo -n "Git Email (optional - press Enter to skip): "
+    read -r ARCHRIOT_USER_EMAIL
 
     # Export and persist
     export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
