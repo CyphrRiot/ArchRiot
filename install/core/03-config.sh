@@ -37,7 +37,7 @@ setup_environment() {
     # Create backup if config exists
     if [[ -d ~/.config ]]; then
         local backup_dir="$HOME/.config.backup-$(date +%s)"
-        cp -R ~/.config "$backup_dir" && echo "$backup_dir" > /tmp/omarchy-config-backup
+        cp -R ~/.config "$backup_dir" && echo "$backup_dir" > /tmp/archriot-config-backup
         echo "✓ Backup created at: $backup_dir"
     fi
 }
@@ -350,7 +350,7 @@ main() {
         validate_installation
     } || {
         echo "❌ Setup failed, attempting rollback..."
-        local backup_file="/tmp/omarchy-config-backup"
+        local backup_file="/tmp/archriot-config-backup"
         if [[ -f "$backup_file" ]]; then
             local backup_dir=$(cat "$backup_file")
             [[ -d "$backup_dir" ]] && { rm -rf ~/.config; mv "$backup_dir" ~/.config; }
@@ -358,7 +358,7 @@ main() {
         return 1
     }
 
-    rm -f /tmp/omarchy-config-backup
+    rm -f /tmp/archriot-config-backup
     echo "✅ Configuration installation complete!"
 }
 

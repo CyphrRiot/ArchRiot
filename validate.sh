@@ -139,9 +139,9 @@ test_installation_files() {
         print_status "INFO" "ArchRiot already cloned"
     else
         print_status "INFO" "Testing repository clone..."
-        if git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git /tmp/omarchy-test 2>/dev/null; then
+        if git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git /tmp/archriot-test 2>/dev/null; then
             print_status "PASS" "Repository accessible and cloneable"
-            rm -rf /tmp/omarchy-test
+            rm -rf /tmp/archriot-test
         else
             print_status "FAIL" "Cannot clone ArchRiot repository"
             return 1
@@ -337,7 +337,7 @@ test_installation_simulation() {
     print_status "TEST" "Simulating critical installation steps..."
 
     # Test using local repo if available, otherwise clone from GitHub
-    local test_dir="/tmp/omarchy-validation-$$"
+    local test_dir="/tmp/archriot-validation-$$"
     local using_local=false
 
     # Check if we're running from within the ArchRiot repo
@@ -388,7 +388,7 @@ test_installation_simulation() {
     fi
 
     # Test directory creation
-    local test_config="/tmp/omarchy-config-test-$$"
+    local test_config="/tmp/archriot-config-test-$$"
     if mkdir -p "$test_config"/{themes,current,backgrounds} 2>/dev/null; then
         print_status "PASS" "Config directory structure creation works"
         rm -rf "$test_config"
