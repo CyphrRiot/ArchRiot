@@ -10,17 +10,27 @@ fi
 backup_timestamp=$(date +"%Y%m%d%H%M%S")
 sudo cp /etc/mkinitcpio.conf "/etc/mkinitcpio.conf.bak.${backup_timestamp}"
 
-# Add plymouth to HOOKS array after 'base udev' or 'base systemd' if not already present
+# Add plymouth to HOOKS array in correct position for LUKS support
 if ! grep "^HOOKS=" /etc/mkinitcpio.conf | grep -q "plymouth"; then
-  if grep "^HOOKS=" /etc/mkinitcpio.conf | grep -q "base systemd"; then
+  echo "Adding Plymouth hook in correct position for LUKS encryption..."
+
+  # For LUKS systems, plymouth must come AFTER consolefont but BEFORE encrypt
+  if grep "^HOOKS=" /etc/mkinitcpio.conf | grep -q "encrypt"; then
+    echo "✓ LUKS encryption detected - placing Plymouth before encrypt hook"
+    sudo sed -i '/^HOOKS=/s/\(consolefont.*\)\(block\)/\1 plymouth \2/' /etc/mkinitcpio.conf
+  elif grep "^HOOKS=" /etc/mkinitcpio.conf | grep -q "base systemd"; then
+    echo "✓ Systemd initramfs detected"
     sudo sed -i '/^HOOKS=/s/base systemd/base systemd plymouth/' /etc/mkinitcpio.conf
   elif grep "^HOOKS=" /etc/mkinitcpio.conf | grep -q "base udev"; then
-    sudo sed -i '/^HOOKS=/s/base udev/base udev plymouth/' /etc/mkinitcpio.conf
+    echo "✓ Standard udev initramfs detected"
+    sudo sed -i '/^HOOKS=/s/\(consolefont.*\)\(block\)/\1 plymouth \2/' /etc/mkinitcpio.conf
   else
-    echo "Couldn't add the Plymouth hook"
+    echo "⚠ Couldn't determine initramfs type - adding Plymouth after base"
+    sudo sed -i '/^HOOKS=/s/base udev/base udev plymouth/' /etc/mkinitcpio.conf
   fi
 
   # Regenerate initramfs only if we modified hooks
+  echo "🔄 Regenerating initramfs with Plymouth support..."
   sudo mkinitcpio -P
 fi
 
