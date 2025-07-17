@@ -202,13 +202,65 @@ install_vpn_client() {
 
     if yay -S --noconfirm --needed "mullvad-vpn-bin"; then
         echo "✓ Mullvad VPN client installed"
-        echo ""
-        echo "📋 Mullvad VPN installed but not activated automatically"
-        echo "   To activate later:"
-        echo "   1. Create account at https://mullvad.net"
-        echo "   2. Run: mullvad account login YOUR_ACCOUNT_NUMBER"
-        echo "   3. Run: mullvad auto-connect set on"
-        echo ""
+
+        # Only prompt if we're in an interactive terminal
+        if [[ -t 0 && -t 1 ]]; then
+            # Pause progress bars for clean user input
+            pause_progress 2>/dev/null || true
+
+            echo ""
+            echo "🔐 Do you want to activate Mullvad VPN now? (y/n) [10s timeout]"
+
+            # Use timeout to prevent hanging
+            if read -t 10 -r activate_vpn; then
+                if [[ "$activate_vpn" =~ ^[Yy]$ ]]; then
+                    echo ""
+                    echo "📋 Please enter your Mullvad account number:"
+                    echo "   (Create account at https://mullvad.net if you don't have one)"
+                    echo -n "Account number: "
+
+                    if read -t 30 -r account_number; then
+                        if [[ -n "$account_number" ]]; then
+                            echo "🔄 Logging in to Mullvad..."
+                            if mullvad account login "$account_number" 2>/dev/null; then
+                                echo "✓ Successfully logged in to Mullvad"
+
+                                # Enable auto-connect
+                                if mullvad auto-connect set on 2>/dev/null; then
+                                    echo "✓ Auto-connect enabled - VPN will start automatically"
+                                else
+                                    echo "⚠ Could not enable auto-connect"
+                                fi
+                            else
+                                echo "⚠ Login failed - check your account number"
+                            fi
+                        else
+                            echo "⚠ No account number provided - configure manually later"
+                        fi
+                    else
+                        echo "⚠ Input timeout - configure manually later"
+                    fi
+                else
+                    echo "⚠ Mullvad installed but not activated"
+                    echo "  To activate later: mullvad account login YOUR_ACCOUNT_NUMBER"
+                fi
+            else
+                echo "⚠ Input timeout - Mullvad installed but not activated"
+                echo "  To activate later: mullvad account login YOUR_ACCOUNT_NUMBER"
+            fi
+        else
+            # Non-interactive mode - just show instructions
+            echo ""
+            echo "📋 Mullvad VPN installed but not activated automatically"
+            echo "   To activate later:"
+            echo "   1. Create account at https://mullvad.net"
+            echo "   2. Run: mullvad account login YOUR_ACCOUNT_NUMBER"
+            echo "   3. Run: mullvad auto-connect set on"
+            echo ""
+        fi
+
+        # Resume progress bars
+        resume_progress 2>/dev/null || true
     else
         echo "⚠ Failed to install Mullvad VPN (privacy features limited)"
     fi
