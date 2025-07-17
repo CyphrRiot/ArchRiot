@@ -29,7 +29,7 @@ START_TIME=""
 CURRENT_PHASE=""
 PHASE_COUNT=0
 TOTAL_PHASES=0
-LOG_DIR="/tmp/omarchy-install"
+LOG_DIR="/tmp/archriot-install"
 
 # Disable progress in non-interactive terminals
 if [[ ! -t 1 ]] || [[ -z "$TERM" ]] || [[ "$TERM" == "dumb" ]]; then

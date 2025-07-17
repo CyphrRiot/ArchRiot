@@ -101,7 +101,7 @@ handle_optional_failure() {
 log_failure_details() {
     local failed_packages="$1"
     local exit_code="$2"
-    local log_file="/tmp/omarchy-install-failure.log"
+    local log_file="/tmp/archriot-install-failure.log"
 
     {
         echo "===== FAILURE DETAILS ====="
@@ -171,7 +171,7 @@ show_troubleshooting() {
     echo -e "${CYAN}📝 Additional debugging:${NC}"
     echo "• Full logs: journalctl -xe"
     echo "• Package manager logs: tail -f /var/log/pacman.log"
-    echo "• Failure details: cat /tmp/omarchy-install-failure.log"
+    echo "• Failure details: cat /tmp/archriot-install-failure.log"
 }
 
 # Validate that packages were actually installed correctly
@@ -213,7 +213,7 @@ install_optional() {
 
 # Clean up temporary files on successful completion
 cleanup_install_files() {
-    rm -f /tmp/omarchy-install-failure.log /tmp/omarchy-warnings.log 2>/dev/null || true
+    rm -f /tmp/archriot-install-failure.log /tmp/archriot-warnings.log 2>/dev/null || true
 }
 
 # Show installation summary
