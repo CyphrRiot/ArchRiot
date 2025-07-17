@@ -159,7 +159,7 @@ run_command_clean() {
     show_phase_progress "$phase_name" "$color"
 
     echo -e "${COLORS[BLUE]}⚙ Running: $phase_name${COLORS[RESET]}"
-    echo -e "${COLORS[GRAY]}   (Output logged to: $(basename "$log_file"))${COLORS[RESET]}"
+    echo -e "${COLORS[GRAY]}   (Output logged to: $log_file)${COLORS[RESET]}"
 
     # Run command with output captured
     if eval "$command" > "$log_file" 2>&1; then
