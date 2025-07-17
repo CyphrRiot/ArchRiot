@@ -305,7 +305,7 @@ show_optimization_results() {
     echo -e "${CYAN}💡 Recommendations:${NC}"
     echo "  • Restart your session for full effect"
     echo "  • Run this optimization monthly for best performance"
-    echo "  • Monitor system performance with: ohmarchy-performance-analysis"
+    echo "  • Monitor system performance with: performance-analysis"
     echo ""
 
     if [[ "$BACKUP_ENABLED" == "true" ]]; then

@@ -1,9 +1,9 @@
 [Plymouth Theme]
-Name=OhmArchy
-Description=OhmArchy splash screen.
+Name=ArchRiot
+Description=ArchRiot splash screen.
 ModuleName=script
 
 [script]
-ImageDir=/usr/share/plymouth/themes/ohmarchy
-ScriptFile=/usr/share/plymouth/themes/ohmarchy/ohmarchy.script
+ImageDir=/usr/share/plymouth/themes/archriot
+ScriptFile=/usr/share/plymouth/themes/archriot/archriot.script
 ConsoleLogBackgroundColor=0x1a1b26

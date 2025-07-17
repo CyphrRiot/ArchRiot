@@ -87,7 +87,7 @@ if source install.sh; then
 else
     echo
     print_status "ERROR" "Update failed during installer execution"
-    print_status "INFO" "You can retry by running: ohmarchy-update"
+    print_status "INFO" "You can retry by running: update"
     exit 1
 fi
 

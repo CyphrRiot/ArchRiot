@@ -164,10 +164,10 @@ setup_scripts_and_env() {
     fi
 
     # Install welcome script
-    local welcome_script="$HOME/.local/share/omarchy/bin/ohmarchy-welcome"
+    local welcome_script="$HOME/.local/share/omarchy/bin/welcome"
     if [[ -f "$welcome_script" ]]; then
         cp "$welcome_script" "$script_dest/"
-        chmod +x "$script_dest/ohmarchy-welcome"
+        chmod +x "$script_dest/welcome"
         echo "✓ Welcome script installed"
     else
         echo "⚠ Welcome script not found"
@@ -175,10 +175,10 @@ setup_scripts_and_env() {
 
     # Install performance analysis tools
     local performance_tools=(
-        "ohmarchy-performance-analysis"
-        "ohmarchy-startup-profiler"
-        "ohmarchy-memory-profiler"
-        "ohmarchy-optimize-system"
+        "performance-analysis"
+        "startup-profiler"
+        "memory-profiler"
+        "optimize-system"
     )
 
     for tool in "${performance_tools[@]}"; do
@@ -323,7 +323,7 @@ validate_installation() {
     fi
 
     # Check essential scripts
-    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py omarchy-volume-osd ohmarchy-welcome; do
+    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py volume-osd welcome; do
         [[ -x "$HOME/.local/bin/$script" ]] || ((issues++))
     done
 

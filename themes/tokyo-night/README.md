@@ -49,9 +49,10 @@ Dynamic background system using the `backgrounds.sh` script for wallpaper manage
 
 ## 🚀 Usage
 
-After installation, the theme will be available in the OhmArchy theme rotation. Use `ohmarchy-theme-next` to cycle to the Tokyo Night theme.
+After installation, the theme will be available in the OhmArchy theme rotation. Use `theme-next` to cycle to the Tokyo Night theme.
 
 You can also preview the theme colors and components by running:
+
 ```bash
 ~/.local/share/omarchy/themes/tokyo-night/preview.sh
 ```

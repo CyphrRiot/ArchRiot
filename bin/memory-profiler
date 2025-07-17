@@ -15,7 +15,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPORT_FILE="/tmp/ohmarchy-memory-$(date +%Y%m%d-%H%M%S).txt"
+REPORT_FILE="/tmp/memory-profiler-$(date +%Y%m%d-%H%M%S).txt"
 TOP_PROCESSES=15
 MEMORY_WARNING_THRESHOLD=80
 MEMORY_CRITICAL_THRESHOLD=90
@@ -216,11 +216,11 @@ analyze_memory_leaks() {
     echo "Current memory snapshot saved for future comparison" | tee -a "$REPORT_FILE"
 
     # Save current state for future comparison
-    local snapshot_file="$HOME/.cache/ohmarchy-memory-snapshot"
+    local snapshot_file="$HOME/.cache/memory-snapshot"
     ps -eo pid,pmem,comm --sort=-pmem > "$snapshot_file.$(date +%s)"
 
     # Clean old snapshots (keep last 5)
-    find "$HOME/.cache" -name "ohmarchy-memory-snapshot.*" -type f | sort | head -n -5 | xargs rm -f 2>/dev/null || true
+    find "$HOME/.cache" -name "memory-snapshot.*" -type f | sort | head -n -5 | xargs rm -f 2>/dev/null || true
 }
 
 generate_optimization_recommendations() {
@@ -265,7 +265,7 @@ generate_optimization_recommendations() {
 
     subsection_header "Automated Commands"
     echo "# Clear caches and optimize memory:" | tee -a "$REPORT_FILE"
-    echo "ohmarchy-optimize-system" | tee -a "$REPORT_FILE"
+    echo "optimize-system" | tee -a "$REPORT_FILE"
     echo "" | tee -a "$REPORT_FILE"
     echo "# Emergency memory cleanup:" | tee -a "$REPORT_FILE"
     echo "sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'" | tee -a "$REPORT_FILE"
