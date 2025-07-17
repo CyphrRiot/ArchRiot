@@ -9,28 +9,22 @@ install_hyprland_configs() {
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
 
-    # Safe config installation - focus on hypr configs needed for desktop setup
+    # Install hypr configs - REPLACE existing configs (this is what users want!)
     for item in "$source_config"/*; do
         local basename=$(basename "$item")
         local target="$HOME/.config/$basename"
 
-        # Install hypr configs if they don't exist or are OhmArchy-managed
+        # Focus on hypr configs needed for desktop setup
         if [[ "$basename" == "hypr" ]]; then
-            if [[ ! -e "$target" ]]; then
-                # New installation - safe to copy
-                cp -R "$item" "$target" || return 1
-                echo "✓ Installed new config: $basename"
-            elif [[ -L "$target" ]] && [[ "$(readlink "$target")" == *"archriot"* ]]; then
-                # OhmArchy-managed symlink - safe to update
-                rm -f "$target"
-                cp -R "$item" "$target" || return 1
-                echo "✓ Updated OhmArchy config: $basename"
-            else
-                # USER'S EXISTING CONFIG - create reference copy
-                echo "⚠ Preserving existing user config: $basename"
-                cp -R "$item" "$target.archriot-default" 2>/dev/null || true
-                echo "  → Created reference copy: $basename.archriot-default"
+            if [[ -e "$target" ]]; then
+                # Back up existing config before replacing
+                echo "📦 Backing up existing config: $basename"
+                cp -R "$target" "$target.backup-$(date +%Y%m%d-%H%M%S)" 2>/dev/null || true
+                rm -rf "$target"
             fi
+            # Install fresh ArchRiot config
+            cp -R "$item" "$target" || return 1
+            echo "✓ Installed ArchRiot config: $basename"
         fi
     done
 
