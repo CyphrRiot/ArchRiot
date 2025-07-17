@@ -2,7 +2,7 @@
 
 ## Overview
 
-OhmArchy includes native Wayland support for the Zed editor to ensure optimal rendering and performance on Wayland-based desktop environments like Hyprland.
+ArchRiot includes native Wayland support for the Zed editor to ensure optimal rendering and performance on Wayland-based desktop environments like Hyprland.
 
 ## What's Included
 
@@ -92,25 +92,28 @@ The launcher script sets these Wayland-specific variables:
 ### If Zed appears "grey" or broken:
 
 1. Verify you're using the correct package:
-   ```bash
-   pacman -Q zed
-   which zeditor
-   ```
+
+    ```bash
+    pacman -Q zed
+    which zeditor
+    ```
 
 2. Test the Wayland launcher:
-   ```bash
-   zed-wayland --help
-   ```
+
+    ```bash
+    zed-wayland --help
+    ```
 
 3. Check environment variables:
-   ```bash
-   echo $WAYLAND_DISPLAY
-   echo $GDK_BACKEND
-   ```
+    ```bash
+    echo $WAYLAND_DISPLAY
+    echo $GDK_BACKEND
+    ```
 
 ### Fallback to X11:
 
 If needed, you can still run Zed through XWayland:
+
 ```bash
 GDK_BACKEND=x11 zeditor
 ```
