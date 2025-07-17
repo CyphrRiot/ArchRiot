@@ -56,11 +56,13 @@ echo "🎯 Installing custom desktop integrations..."
 mkdir -p ~/.local/share/applications ~/.local/bin ~/.local/share/icons/hicolor/256x256/apps
 
 # Install Feather Wallet desktop file and icon
-if [[ -f "$HOME/.local/share/archriot/applications/feather-wallet.desktop" ]]; then
-  cp "$HOME/.local/share/archriot/applications/feather-wallet.desktop" ~/.local/share/applications/
+# Feather Wallet
+local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$script_dir/../../applications/feather-wallet.desktop" ]]; then
+  cp "$script_dir/../../applications/feather-wallet.desktop" ~/.local/share/applications/
   echo "✓ Feather Wallet desktop file installed"
 else
-  echo "⚠ Feather Wallet desktop file not found in OhmArchy applications"
+  echo "⚠ Feather Wallet desktop file not found in repository applications"
 fi
 
 # Download Feather Wallet icon
@@ -72,34 +74,34 @@ fi
 
 # Install Signal Wayland launcher and desktop file
 # Note: signal-desktop package is installed by communication.sh module
-if [[ -f "$HOME/.local/share/archriot/bin/signal-wayland" ]]; then
-  cp "$HOME/.local/share/archriot/bin/signal-wayland" ~/.local/bin/
+if [[ -f "$script_dir/../../bin/signal-wayland" ]]; then
+  cp "$script_dir/../../bin/signal-wayland" ~/.local/bin/
   chmod +x ~/.local/bin/signal-wayland
   echo "✓ Signal Wayland launcher installed"
 else
-  echo "⚠ Signal Wayland launcher not found in OhmArchy bin"
+  echo "⚠ Signal Wayland launcher not found in repository bin"
 fi
 
-if [[ -f "$HOME/.local/share/archriot/applications/signal-desktop.desktop" ]]; then
-  cp "$HOME/.local/share/archriot/applications/signal-desktop.desktop" ~/.local/share/applications/
+if [[ -f "$script_dir/../../applications/signal-desktop.desktop" ]]; then
+  cp "$script_dir/../../applications/signal-desktop.desktop" ~/.local/share/applications/
   echo "✓ Signal desktop file installed with Wayland support"
 else
-  echo "⚠ Signal desktop file not found in OhmArchy applications"
+  echo "⚠ Signal desktop file not found in repository applications"
 fi
 
 # Install Brave Private desktop file
-if [[ -f "$HOME/.local/share/archriot/applications/brave-private.desktop" ]]; then
-  cp "$HOME/.local/share/archriot/applications/brave-private.desktop" ~/.local/share/applications/
+if [[ -f "$script_dir/../../applications/brave-private.desktop" ]]; then
+  cp "$script_dir/../../applications/brave-private.desktop" ~/.local/share/applications/
   echo "✓ Brave Private desktop file installed"
 else
-  echo "⚠ Brave Private desktop file not found in OhmArchy applications"
+  echo "⚠ Brave Private desktop file not found in repository applications"
 fi
 
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
-if [[ -d "$HOME/.local/share/archriot/applications/hidden" ]]; then
-  cp "$HOME/.local/share/archriot/applications/hidden"/*.desktop ~/.local/share/applications/ 2>/dev/null || true
-  hidden_count=$(find "$HOME/.local/share/archriot/applications/hidden" -name "*.desktop" 2>/dev/null | wc -l)
+if [[ -d "$script_dir/../../applications/hidden" ]]; then
+  cp "$script_dir/../../applications/hidden"/*.desktop ~/.local/share/applications/ 2>/dev/null || true
+  hidden_count=$(find "$script_dir/../../applications/hidden" -name "*.desktop" 2>/dev/null | wc -l)
   echo "✓ $hidden_count hidden applications installed"
 else
   echo "⚠ Hidden applications directory not found"
