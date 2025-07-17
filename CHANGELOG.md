@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to OhmArchy will be documented in this file.
+All notable changes to ArchRiot will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -179,7 +179,7 @@ Users upgrading from a Kitty-based installation should:
 For a complete fresh installation, run:
 
 ```bash
-curl -fsSL https://ohmarchy.org/setup.sh | bash
+curl -fsSL https://archriot.org/setup.sh | bash
 ```
 
 ---

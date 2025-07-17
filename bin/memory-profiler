@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Memory Profiler
+# ArchRiot Memory Profiler
 # Detailed memory usage analysis and optimization recommendations
 
 set -euo pipefail
@@ -22,7 +22,7 @@ MEMORY_CRITICAL_THRESHOLD=90
 
 print_header() {
     echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                OhmArchy Memory Profiler                     ║${NC}"
+    echo -e "${PURPLE}║                ArchRiot Memory Profiler                     ║${NC}"
     echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}🧠 Analyzing memory usage patterns and identifying optimization opportunities${NC}"
@@ -111,7 +111,7 @@ analyze_process_memory() {
         ((rank++))
     done
 
-    subsection_header "OhmArchy-Specific Processes"
+    subsection_header "ArchRiot-Specific Processes"
     echo "Process | Memory | CPU | PID | Status" | tee -a "$REPORT_FILE"
     echo "--------|--------|-----|-----|-------" | tee -a "$REPORT_FILE"
 
@@ -302,7 +302,7 @@ main() {
     print_header
 
     # Initialize report file
-    echo "OhmArchy Memory Profiler Report" > "$REPORT_FILE"
+    echo "ArchRiot Memory Profiler Report" > "$REPORT_FILE"
     echo "Generated: $(date)" >> "$REPORT_FILE"
     echo "System: $(uname -a)" >> "$REPORT_FILE"
     echo "Memory: $(free -h | awk 'NR==2{print $2}')" >> "$REPORT_FILE"
