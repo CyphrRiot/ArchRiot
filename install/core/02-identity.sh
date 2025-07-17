@@ -50,32 +50,29 @@ get_input() {
 
 # Get user identity with validation
 get_user_identity() {
-    echo -e "\n🔍 Git Configuration (Optional)"
+    echo -e "\n🔍 Git Configuration (Automated - Skipped)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Configure Git with your name and email for commits and development."
-    echo "This is optional - you can skip by pressing Enter or configure later with:"
+    echo "Git configuration skipped for automated installation."
+    echo "Configure manually later with:"
     echo "  git config --global user.name \"Your Name\""
     echo "  git config --global user.email \"your@email.com\""
     echo ""
 
-    ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
-    ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
+    # No interactive prompts - just set empty values
+    ARCHRIOT_USER_NAME=""
+    ARCHRIOT_USER_EMAIL=""
 
-    # Export and persist
+    # Export and persist empty values
     export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
     local env_file="$HOME/.config/archriot/user.env"
     mkdir -p "$(dirname "$env_file")"
     {
-        echo "ARCHRIOT_USER_NAME='$ARCHRIOT_USER_NAME'"
-        echo "ARCHRIOT_USER_EMAIL='$ARCHRIOT_USER_EMAIL'"
+        echo "ARCHRIOT_USER_NAME=''"
+        echo "ARCHRIOT_USER_EMAIL=''"
     } > "$env_file"
 
-    if [[ -n "$ARCHRIOT_USER_NAME" || -n "$ARCHRIOT_USER_EMAIL" ]]; then
-        echo "✓ Git identity configured: ${ARCHRIOT_USER_NAME:-"(no name)"} <${ARCHRIOT_USER_EMAIL:-"(no email)"}>"
-    else
-        echo "⚠ Git identity skipped - you can configure later if needed"
-    fi
+    echo "⚠ Git identity skipped - configure manually when needed"
 }
 
 # Main execution
