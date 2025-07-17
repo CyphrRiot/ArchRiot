@@ -4,7 +4,7 @@
 install_fonts() {
     echo "📝 Installing fonts..."
 
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install system fonts via package manager

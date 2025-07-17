@@ -31,7 +31,7 @@
 
 # Load user environment and create backup
 setup_environment() {
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Create backup if config exists
@@ -52,7 +52,7 @@ install_configs() {
     python3 -c "import psutil" || return 1
 
     # Install OhmArchy configs (SAFELY - preserve user configs)
-    local source_config="$HOME/.local/share/omarchy/config"
+    local source_config="$HOME/.local/share/archriot/config"
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
 
@@ -71,9 +71,9 @@ install_configs() {
         if [[ "$basename" == "zed" ]]; then
             echo "ℹ️ Skipping zed config (preserving user editor settings)"
             # Create reference copy for users who want to see OhmArchy's config
-            if [[ ! -e "$target.omarchy-default" ]]; then
-                cp -R "$item" "$target.omarchy-default" 2>/dev/null || true
-                echo "  → Created reference copy: $basename.omarchy-default"
+            if [[ ! -e "$target.archriot-default" ]]; then
+                cp -R "$item" "$target.archriot-default" 2>/dev/null || true
+                echo "  → Created reference copy: $basename.archriot-default"
             fi
             continue
         fi
@@ -135,7 +135,7 @@ setup_scripts_and_env() {
     echo "📊 Setting up scripts and environment..."
 
     # Install waybar scripts
-    local script_source="$HOME/.local/share/omarchy/bin/scripts"
+    local script_source="$HOME/.local/share/archriot/bin/scripts"
     local script_dest="$HOME/.local/bin"
     [[ -d "$script_source" ]] || return 1
 
@@ -154,17 +154,17 @@ setup_scripts_and_env() {
     done
 
     # Install volume OSD script
-    local volume_script="$HOME/.local/share/omarchy/bin/omarchy-volume-osd"
+    local volume_script="$HOME/.local/share/archriot/bin/archriot-volume-osd"
     if [[ -f "$volume_script" ]]; then
         cp "$volume_script" "$script_dest/"
-        chmod +x "$script_dest/omarchy-volume-osd"
+        chmod +x "$script_dest/archriot-volume-osd"
         echo "✓ Volume OSD script installed"
     else
         echo "⚠ Volume OSD script not found"
     fi
 
     # Install welcome script
-    local welcome_script="$HOME/.local/share/omarchy/bin/welcome"
+    local welcome_script="$HOME/.local/share/archriot/bin/welcome"
     if [[ -f "$welcome_script" ]]; then
         cp "$welcome_script" "$script_dest/"
         chmod +x "$script_dest/welcome"
@@ -182,7 +182,7 @@ setup_scripts_and_env() {
     )
 
     for tool in "${performance_tools[@]}"; do
-        local tool_script="$HOME/.local/share/omarchy/bin/$tool"
+        local tool_script="$HOME/.local/share/archriot/bin/$tool"
         if [[ -f "$tool_script" ]]; then
             cp "$tool_script" "$script_dest/"
             chmod +x "$script_dest/$tool"
@@ -195,8 +195,8 @@ setup_scripts_and_env() {
     echo "✓ Scripts and environment configured"
 
     # Install welcome image
-    local source_image="$HOME/.local/share/omarchy/images/welcome.png"
-    local dest_dir="$HOME/.local/share/omarchy/images"
+    local source_image="$HOME/.local/share/archriot/images/welcome.png"
+    local dest_dir="$HOME/.local/share/archriot/images"
     if [[ -f "$source_image" ]]; then
         mkdir -p "$dest_dir"
         cp "$source_image" "$dest_dir/"
@@ -206,8 +206,8 @@ setup_scripts_and_env() {
     fi
 
     # Setup bash environment
-    local omarchy_bashrc="$HOME/.local/share/omarchy/default/bash/rc"
-    [[ -f "$omarchy_bashrc" ]] && echo "source $omarchy_bashrc" > ~/.bashrc
+    local archriot_bashrc="$HOME/.local/share/archriot/default/bash/rc"
+    [[ -f "$archriot_bashrc" ]] && echo "source $archriot_bashrc" > ~/.bashrc
 
     echo "✓ Scripts and environment configured"
 }
@@ -270,10 +270,10 @@ configure_user_tools() {
     [[ -n "${OMARCHY_USER_EMAIL// /}" ]] && git config --global user.email "$OMARCHY_USER_EMAIL"
 
     # XCompose setup
-    local omarchy_xcompose="$HOME/.local/share/omarchy/default/xcompose"
-    if [[ -f "$omarchy_xcompose" ]]; then
+    local archriot_xcompose="$HOME/.local/share/archriot/default/xcompose"
+    if [[ -f "$archriot_xcompose" ]]; then
         tee ~/.XCompose >/dev/null <<EOF
-include "$omarchy_xcompose"
+include "$archriot_xcompose"
 <Multi_key> <space> <n> : "${OMARCHY_USER_NAME:-}"
 <Multi_key> <space> <e> : "${OMARCHY_USER_EMAIL:-}"
 EOF

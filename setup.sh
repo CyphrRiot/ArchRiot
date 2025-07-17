@@ -25,8 +25,8 @@ pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
 # Clean up old installations
 echo -e "\nCleaning up old installations..."
-rm -rf ~/.local/share/omarchy/
-rm -rf ~/.config/omarchy/
+rm -rf ~/.local/share/archriot/
+rm -rf ~/.config/archriot/
 
 # Clone ArchRiot repository
 echo -e "\nCloning ArchRiot..."
@@ -38,7 +38,7 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
 # Switch to custom branch if specified
 if [[ -n "$OMARCHY_REF" ]]; then
     echo -e "\nUsing branch: $OMARCHY_REF"
-    if cd ~/.local/share/omarchy &&
+    if cd ~/.local/share/archriot &&
        git fetch origin "${OMARCHY_REF}" &&
        git checkout "${OMARCHY_REF}"; then
         echo "✓ Switched to branch $OMARCHY_REF"

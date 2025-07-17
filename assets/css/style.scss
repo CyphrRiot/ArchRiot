@@ -247,16 +247,16 @@ footer {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--omarchy-darker-bg);
+  background: var(--archriot-darker-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, var(--omarchy-purple), var(--omarchy-blue));
+  background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-blue));
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, var(--omarchy-purple-light), var(--omarchy-cyan));
+  background: linear-gradient(45deg, var(--archriot-purple-light), var(--archriot-cyan));
 }
 
 /* Selection styling */
@@ -266,7 +266,7 @@ footer {
 }
 
 ::-moz-selection {
-  background: var(--omarchy-purple);
+  background: var(--archriot-purple);
   color: white;
 }
 
@@ -277,12 +277,12 @@ footer {
 
 /* Special styling for important warnings */
 strong:contains("⚠️"), strong:contains("Important") {
-  color: var(--omarchy-accent) !important;
+  color: var(--archriot-accent) !important;
   font-weight: 700;
 }
 
 /* GitHub corner ribbon (if present) */
 .github-corner svg {
-  fill: var(--omarchy-purple);
-  color: var(--omarchy-dark-bg);
+  fill: var(--archriot-purple);
+  color: var(--archriot-dark-bg);
 }

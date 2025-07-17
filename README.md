@@ -25,7 +25,7 @@
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
 
-ArchRiot is an even more opiniated setup and was originally a unique rice and then a fork of [DHH's Omarchy](https://github.com/basecamp/omarchy) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
+ArchRiot is an even more opiniated setup and was originally a unique rice and then a fork of [DHH's Omarchy](https://github.com/basecamp/archriot) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
 _Created by a hacker, cypherpunk, and crypto/blockchain expert with decades of experience running Linux and Unix - this is the system I've always wanted._
 
@@ -502,7 +502,7 @@ validate-system                      # Check system health
 ## 📂 Repository Information
 
 - **Main Repository:** https://github.com/CyphrRiot/ArchRiot
-- **Original Upstream:** https://github.com/basecamp/omarchy
+- **Original Upstream:** https://github.com/basecamp/archriot
 - **Maintenance:** Active, with regular updates and improvements
 - **Community:** Open to issues, suggestions, and contributions
 

@@ -64,7 +64,7 @@ get_user_identity() {
 
     # Export and persist
     export OMARCHY_USER_NAME OMARCHY_USER_EMAIL
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     mkdir -p "$(dirname "$env_file")"
     {
         echo "OMARCHY_USER_NAME='$OMARCHY_USER_NAME'"

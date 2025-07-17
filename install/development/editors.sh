@@ -54,8 +54,8 @@ echo "🎯 Installing Zed desktop integration..."
 mkdir -p ~/.local/share/applications ~/.local/bin
 
 # Install Wayland launcher script
-if [[ -f "$HOME/.local/share/omarchy/bin/zed-wayland" ]]; then
-    cp "$HOME/.local/share/omarchy/bin/zed-wayland" ~/.local/bin/
+if [[ -f "$HOME/.local/share/archriot/bin/zed-wayland" ]]; then
+    cp "$HOME/.local/share/archriot/bin/zed-wayland" ~/.local/bin/
     chmod +x ~/.local/bin/zed-wayland
     echo "✓ Zed Wayland launcher installed"
 else
@@ -63,8 +63,8 @@ else
 fi
 
 # Replace system desktop file with OhmArchy version
-if [[ -f "$HOME/.local/share/omarchy/applications/zed.desktop" ]]; then
-    cp "$HOME/.local/share/omarchy/applications/zed.desktop" ~/.local/share/applications/
+if [[ -f "$HOME/.local/share/archriot/applications/zed.desktop" ]]; then
+    cp "$HOME/.local/share/archriot/applications/zed.desktop" ~/.local/share/applications/
     echo "✓ Zed desktop file installed with Wayland support"
 else
     echo "⚠ Zed desktop file not found in OhmArchy applications"

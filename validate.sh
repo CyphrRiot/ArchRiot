@@ -42,8 +42,8 @@ print_header() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     if [[ -f "$script_dir/VERSION" ]]; then
         version=$(cat "$script_dir/VERSION" 2>/dev/null || echo "unknown")
-    elif [[ -f "$HOME/.local/share/omarchy/VERSION" ]]; then
-        version=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
+    elif [[ -f "$HOME/.local/share/archriot/VERSION" ]]; then
+        version=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
     fi
 
     echo -e "${PURPLE}"
@@ -132,7 +132,7 @@ test_package_manager() {
 test_installation_files() {
     print_status "TEST" "Testing installation files..."
 
-    local install_dir="$HOME/.local/share/omarchy"
+    local install_dir="$HOME/.local/share/archriot"
 
     # Test if we can clone/access the repo
     if [[ -d "$install_dir" ]]; then
@@ -183,7 +183,7 @@ test_cypherriot_theme() {
 
     local check_dir="."
     if [[ ! -d "./themes/cypherriot" ]]; then
-        check_dir="$HOME/.local/share/omarchy"
+        check_dir="$HOME/.local/share/archriot"
     fi
 
     local theme_dir="$check_dir/themes/cypherriot"
@@ -285,9 +285,9 @@ test_user_environment() {
         return 1
     fi
 
-    # Test if we can create the omarchy directories
-    if mkdir -p "$HOME/.config/omarchy/test" 2>/dev/null; then
-        rmdir "$HOME/.config/omarchy/test" 2>/dev/null
+    # Test if we can create the archriot directories
+    if mkdir -p "$HOME/.config/archriot/test" 2>/dev/null; then
+        rmdir "$HOME/.config/archriot/test" 2>/dev/null
         print_status "PASS" "Can create ArchRiot config directories"
     else
         print_status "FAIL" "Cannot create ArchRiot config directories"
@@ -417,8 +417,8 @@ test_expected_outcome() {
         print_status "INFO" " Hyprland config already exists - this may be a re-install"
     fi
 
-    if [[ -L "$HOME/.config/omarchy/current/theme" ]]; then
-        local current_theme=$(basename "$(readlink "$HOME/.config/omarchy/current/theme")")
+    if [[ -L "$HOME/.config/archriot/current/theme" ]]; then
+        local current_theme=$(basename "$(readlink "$HOME/.config/archriot/current/theme")")
         print_status "INFO" " Current theme already set: $current_theme"
     fi
 }

@@ -9,7 +9,7 @@
 
 # Load user environment
 load_user_environment() {
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 }
 
