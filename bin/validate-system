@@ -321,7 +321,7 @@ test_fix_scripts() {
 main() {
     echo -e "${BLUE}"
     echo "╔══════════════════════════════════════════════════════════════╗"
-    echo "║                    OhmArchy System Validation                ║"
+    echo "║                    ArchRiot System Validation                ║"
     echo "║              Comprehensive System Health Check               ║"
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
