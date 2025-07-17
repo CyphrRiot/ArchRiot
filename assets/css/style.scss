@@ -3,28 +3,28 @@
 
 @import "{{ site.theme }}";
 
-/* OhmArchy Dark Theme Override */
+/* ArchRiot Dark Theme Override */
 /* Inspired by CypherRiot purple/blue aesthetic */
 
 :root {
-  --omarchy-dark-bg: #0a0a0f;
-  --omarchy-darker-bg: #05050a;
-  --omarchy-purple: #8b5cf6;
-  --omarchy-purple-light: #a78bfa;
-  --omarchy-purple-dark: #7c3aed;
-  --omarchy-blue: #3b82f6;
-  --omarchy-cyan: #06b6d4;
-  --omarchy-text: #e5e7eb;
-  --omarchy-text-dim: #9ca3af;
-  --omarchy-border: #374151;
-  --omarchy-code-bg: #1f2937;
-  --omarchy-accent: #f59e0b;
+  --archriot-dark-bg: #0a0a0f;
+  --archriot-darker-bg: #05050a;
+  --archriot-purple: #8b5cf6;
+  --archriot-purple-light: #a78bfa;
+  --archriot-purple-dark: #7c3aed;
+  --archriot-blue: #3b82f6;
+  --archriot-cyan: #06b6d4;
+  --archriot-text: #e5e7eb;
+  --archriot-text-dim: #9ca3af;
+  --archriot-border: #374151;
+  --archriot-code-bg: #1f2937;
+  --archriot-accent: #f59e0b;
 }
 
 /* Global dark background */
 body {
-  background: linear-gradient(135deg, var(--omarchy-dark-bg) 0%, var(--omarchy-darker-bg) 100%) !important;
-  color: var(--omarchy-text) !important;
+  background: linear-gradient(135deg, var(--archriot-dark-bg) 0%, var(--archriot-darker-bg) 100%) !important;
+  color: var(--archriot-text) !important;
   font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   font-size: 18px;
   line-height: 1.6;
@@ -35,7 +35,7 @@ body {
   background: rgba(10, 10, 15, 0.95) !important;
   border-radius: 12px;
   backdrop-filter: blur(10px);
-  border: 1px solid var(--omarchy-border);
+  border: 1px solid var(--archriot-border);
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
   max-width: 1200px;
   margin: 2rem auto;
@@ -46,8 +46,8 @@ body {
 
 /* Main content area - centered and properly aligned */
 .main-content, #main_content_wrap {
-  background: var(--omarchy-dark-bg) !important;
-  color: var(--omarchy-text) !important;
+  background: var(--archriot-dark-bg) !important;
+  color: var(--archriot-text) !important;
   padding: 2rem;
   border-radius: 8px;
   max-width: 1200px;
@@ -63,7 +63,7 @@ body {
 
 /* Headings with purple gradient */
 h1, h2, h3, h4, h5, h6 {
-  background: linear-gradient(45deg, var(--omarchy-purple), var(--omarchy-cyan));
+  background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-cyan));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -76,8 +76,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Override for the main title */
 h1:first-child {
-  color: var(--omarchy-purple-light) !important;
-  -webkit-text-fill-color: var(--omarchy-purple-light) !important;
+  color: var(--archriot-purple-light) !important;
+  -webkit-text-fill-color: var(--archriot-purple-light) !important;
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 2rem;
@@ -86,37 +86,37 @@ h1:first-child {
 
 /* Paragraph and text styling */
 p, li, td {
-  color: var(--omarchy-text) !important;
+  color: var(--archriot-text) !important;
   font-size: 18px;
   line-height: 1.7;
 }
 
 /* Links with purple theme */
 a {
-  color: var(--omarchy-purple-light) !important;
+  color: var(--archriot-purple-light) !important;
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 a:hover {
-  color: var(--omarchy-cyan) !important;
-  text-shadow: 0 0 8px var(--omarchy-cyan);
+  color: var(--archriot-cyan) !important;
+  text-shadow: 0 0 8px var(--archriot-cyan);
 }
 
 /* Code blocks and inline code */
 code {
-  background: var(--omarchy-code-bg) !important;
-  color: var(--omarchy-purple-light) !important;
+  background: var(--archriot-code-bg) !important;
+  color: var(--archriot-purple-light) !important;
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
-  border: 1px solid var(--omarchy-border);
+  border: 1px solid var(--archriot-border);
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 16px;
 }
 
 pre {
-  background: var(--omarchy-darker-bg) !important;
-  border: 1px solid var(--omarchy-border) !important;
+  background: var(--archriot-darker-bg) !important;
+  border: 1px solid var(--archriot-border) !important;
   border-radius: 8px;
   padding: 1.5rem;
   overflow-x: auto;
@@ -125,14 +125,14 @@ pre {
 
 pre code {
   background: none !important;
-  color: var(--omarchy-text) !important;
+  color: var(--archriot-text) !important;
   border: none;
   padding: 0;
 }
 
 /* Tables with dark theme */
 table {
-  background: var(--omarchy-darker-bg) !important;
+  background: var(--archriot-darker-bg) !important;
   border-collapse: collapse;
   border-radius: 8px;
   overflow: hidden;
@@ -140,16 +140,16 @@ table {
 }
 
 th {
-  background: var(--omarchy-purple-dark) !important;
+  background: var(--archriot-purple-dark) !important;
   color: white !important;
   padding: 1rem;
   font-weight: 600;
 }
 
 td {
-  background: var(--omarchy-dark-bg) !important;
+  background: var(--archriot-dark-bg) !important;
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--omarchy-border);
+  border-bottom: 1px solid var(--archriot-border);
 }
 
 tr:hover td {
@@ -164,9 +164,9 @@ img[src*="shields.io"], img[src*="badge"] {
 
 /* Blockquotes */
 blockquote {
-  background: var(--omarchy-code-bg) !important;
-  border-left: 4px solid var(--omarchy-purple) !important;
-  color: var(--omarchy-text) !important;
+  background: var(--archriot-code-bg) !important;
+  border-left: 4px solid var(--archriot-purple) !important;
+  color: var(--archriot-text) !important;
   padding: 1rem 1.5rem;
   margin: 1rem 0;
   border-radius: 0 8px 8px 0;
@@ -174,24 +174,24 @@ blockquote {
 
 /* Lists */
 ul, ol {
-  color: var(--omarchy-text) !important;
+  color: var(--archriot-text) !important;
 }
 
 li::marker {
-  color: var(--omarchy-purple-light);
+  color: var(--archriot-purple-light);
 }
 
 /* Horizontal rules */
 hr {
   border: none;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--omarchy-purple), transparent);
+  background: linear-gradient(90deg, transparent, var(--archriot-purple), transparent);
   margin: 2rem 0;
 }
 
 /* Download buttons and CTAs */
 .btn, .button, a[href*="download"], a[href*="install"] {
-  background: linear-gradient(45deg, var(--omarchy-purple), var(--omarchy-blue)) !important;
+  background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-blue)) !important;
   color: white !important;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
@@ -213,9 +213,9 @@ hr {
 
 /* Footer */
 footer {
-  background: var(--omarchy-darker-bg) !important;
-  color: var(--omarchy-text-dim) !important;
-  border-top: 2px solid var(--omarchy-purple);
+  background: var(--archriot-darker-bg) !important;
+  color: var(--archriot-text-dim) !important;
+  border-top: 2px solid var(--archriot-purple);
   padding: 2rem 0;
   text-align: center;
 }
@@ -261,7 +261,7 @@ footer {
 
 /* Selection styling */
 ::selection {
-  background: var(--omarchy-purple);
+  background: var(--archriot-purple);
   color: white;
 }
 
