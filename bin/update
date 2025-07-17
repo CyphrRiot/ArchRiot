@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Update Script - Simple and Safe
+# ArchRiot Update Script - Simple and Safe
 # ==============================================================================
-# Updates OhmArchy by pulling latest changes and re-running the installer
+# Updates ArchRiot by pulling latest changes and re-running the installer
 # No dangerous migrations - just uses the battle-tested installer
 # ==============================================================================
 

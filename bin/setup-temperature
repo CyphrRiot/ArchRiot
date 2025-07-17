@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Simple Temperature Setup
+# ArchRiot Simple Temperature Setup
 # Auto-detects CPU temperature sensor for waybar
 
 WAYBAR_MODULES="$HOME/.config/waybar/Modules"

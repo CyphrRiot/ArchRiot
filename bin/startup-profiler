@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Startup Profiler
+# ArchRiot Startup Profiler
 # Analyzes boot times, login performance, and application startup speeds
 
 set -euo pipefail
