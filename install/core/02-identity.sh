@@ -50,29 +50,48 @@ get_input() {
 
 # Get user identity with validation
 get_user_identity() {
-    echo -e "\n🔍 Git Configuration (Automated - Skipped)"
+    echo -e "\n🔍 Git Configuration (Optional)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Git configuration skipped for automated installation."
-    echo "Configure manually later with:"
+    echo "Configure Git with your name and email for commits and development."
+    echo "This is optional - you can skip by pressing Enter or configure later with:"
     echo "  git config --global user.name \"Your Name\""
     echo "  git config --global user.email \"your@email.com\""
     echo ""
 
-    # No interactive prompts - just set empty values
-    ARCHRIOT_USER_NAME=""
-    ARCHRIOT_USER_EMAIL=""
+    # Use timeout to prevent hanging in automated contexts
+    echo -n "Git Name (optional - 15s timeout): "
+    if read -t 15 -r ARCHRIOT_USER_NAME; then
+        echo ""
+    else
+        echo ""
+        echo "⏰ Timeout - skipping git name"
+        ARCHRIOT_USER_NAME=""
+    fi
 
-    # Export and persist empty values
+    echo -n "Git Email (optional - 15s timeout): "
+    if read -t 15 -r ARCHRIOT_USER_EMAIL; then
+        echo ""
+    else
+        echo ""
+        echo "⏰ Timeout - skipping git email"
+        ARCHRIOT_USER_EMAIL=""
+    fi
+
+    # Export and persist
     export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
     local env_file="$HOME/.config/archriot/user.env"
     mkdir -p "$(dirname "$env_file")"
     {
-        echo "ARCHRIOT_USER_NAME=''"
-        echo "ARCHRIOT_USER_EMAIL=''"
+        echo "ARCHRIOT_USER_NAME='$ARCHRIOT_USER_NAME'"
+        echo "ARCHRIOT_USER_EMAIL='$ARCHRIOT_USER_EMAIL'"
     } > "$env_file"
 
-    echo "⚠ Git identity skipped - configure manually when needed"
+    if [[ -n "$ARCHRIOT_USER_NAME" || -n "$ARCHRIOT_USER_EMAIL" ]]; then
+        echo "✓ Git identity configured: ${ARCHRIOT_USER_NAME:-"(no name)"} <${ARCHRIOT_USER_EMAIL:-"(no email)"}>"
+    else
+        echo "⚠ Git identity skipped - you can configure later if needed"
+    fi
 }
 
 # Main execution

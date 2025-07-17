@@ -154,10 +154,10 @@ setup_scripts_and_env() {
     done
 
     # Install volume OSD script
-    local volume_script="$HOME/.local/share/archriot/bin/archriot-volume-osd"
+    local volume_script="$HOME/.local/share/archriot/bin/volume-osd"
     if [[ -f "$volume_script" ]]; then
         cp "$volume_script" "$script_dest/"
-        chmod +x "$script_dest/archriot-volume-osd"
+        chmod +x "$script_dest/volume-osd"
         echo "✓ Volume OSD script installed"
     else
         echo "⚠ Volume OSD script not found"
