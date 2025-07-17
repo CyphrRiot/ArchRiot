@@ -32,13 +32,31 @@
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"></noscript>
 
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #container {
+      margin: 0;
+      padding: 20px 0 0 0;
+    }
+    #main_content_wrap {
+      margin: 0;
+      padding: 0;
+    }
+    #main_content {
+      margin: 0;
+      padding-top: 0;
+    }
+  </style>
+
 {% seo %}
 </head>
 
 <body>
   <div id="container">
     <div class="inner">
-
       <div id="main_content_wrap" class="outer">
         <section id="main_content" class="inner">
           {{ content }}
