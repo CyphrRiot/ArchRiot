@@ -222,15 +222,16 @@ setup_scripts_and_env() {
 
     echo "✓ Scripts and environment configured"
 
-    # Install welcome image
-    local source_image="$HOME/.local/share/archriot/images/welcome.png"
+    # Install welcome image from repository
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local source_image="$script_dir/../../images/welcome.png"
     local dest_dir="$HOME/.local/share/archriot/images"
     if [[ -f "$source_image" ]]; then
         mkdir -p "$dest_dir"
         cp "$source_image" "$dest_dir/"
         echo "✓ Welcome image installed"
     else
-        echo "⚠ Welcome image not found"
+        echo "⚠ Welcome image not found at: $source_image"
     fi
 
     # Setup bash environment
