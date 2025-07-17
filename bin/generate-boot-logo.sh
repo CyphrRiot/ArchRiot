@@ -14,7 +14,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# ASCII art from setup.sh
+# ASCII art for terminal display (keep original)
 ASCII_ART=' █████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗ ██████╗ ████████╗
 ██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██║██╔═══██╗╚══██╔══╝
 ███████║██████╔╝██║     ███████║██████╔╝██║██║   ██║   ██║
@@ -22,9 +22,12 @@ ASCII_ART=' █████╗ ██████╗  ██████╗█�
 ██║  ██║██║  ██║╚██████╗██║  ██║██║  ██║██║╚██████╔╝   ██║
 ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═╝'
 
+# Use existing logo.png for LUKS boot screen
+SOURCE_LOGO=""
+
 # Configuration
-LOGO_WIDTH=800
-LOGO_HEIGHT=168
+LOGO_WIDTH=650
+LOGO_HEIGHT=150
 BACKGROUND_COLOR='#1a1b26'  # Tokyo Night background
 TEXT_COLOR='#c0caf5'        # Tokyo Night foreground
 PLYMOUTH_THEME_DIR="/usr/share/plymouth/themes/archriot"
@@ -48,45 +51,41 @@ if ! command -v convert &> /dev/null; then
 fi
 echo -e "${GREEN}✓ ImageMagick available${NC}"
 
-# Create temporary ASCII art file
-echo -e "${YELLOW}Creating ASCII art image...${NC}"
-echo "$ASCII_ART" > /tmp/ascii_art.txt
+# Find the source logo.png
+echo -e "${YELLOW}Locating source logo...${NC}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE_LOGO="$SCRIPT_DIR/../images/logo.png"
 
-# Try different fonts in order of preference
-FONTS=(
-    "Hack-Nerd-Font-Mono-Regular"
-    "Hack-Nerd-Font-Regular"
-    "Hack-Nerd-Font-Mono-Bold"
-    "Hack-Nerd-Font-Bold"
-    "DejaVu-Sans-Mono"
-    "Liberation-Mono"
-    "monospace"
-)
+if [[ ! -f "$SOURCE_LOGO" ]]; then
+    echo -e "${YELLOW}⚠ Source logo not found, using ASCII art fallback${NC}"
 
-FONT_FOUND=""
-for font in "${FONTS[@]}"; do
-    if convert -list font | grep -qi "$font"; then
-        FONT_FOUND="$font"
-        echo -e "${GREEN}✓ Using font: $font${NC}"
-        break
-    fi
-done
+    # Fallback to ASCII art generation
+    echo -e "${YELLOW}Creating ASCII art image...${NC}"
+    echo "$ASCII_ART" > /tmp/ascii_art.txt
 
-if [ -z "$FONT_FOUND" ]; then
-    FONT_FOUND="monospace"
-    echo -e "${YELLOW}⚠ Using fallback font: monospace${NC}"
+    # Use simple monospace font
+    magick -size ${LOGO_WIDTH}x${LOGO_HEIGHT} \
+        xc:"$BACKGROUND_COLOR" \
+        -fill "$TEXT_COLOR" \
+        -font "Liberation-Mono" \
+        -pointsize 9 \
+        -gravity center \
+        -annotate +0+0 "@/tmp/ascii_art.txt" \
+        "$TEMP_LOGO"
+
+    rm -f /tmp/ascii_art.txt
+else
+    echo -e "${GREEN}✓ Found source logo: $SOURCE_LOGO${NC}"
+
+    # Use existing logo.png for LUKS boot screen
+    echo -e "${YELLOW}Preparing boot logo from existing image...${NC}"
+    magick "$SOURCE_LOGO" \
+        -resize ${LOGO_WIDTH}x${LOGO_HEIGHT} \
+        -background "$BACKGROUND_COLOR" \
+        -gravity center \
+        -extent ${LOGO_WIDTH}x${LOGO_HEIGHT} \
+        "$TEMP_LOGO"
 fi
-
-# Generate the logo
-echo -e "${YELLOW}Generating boot logo...${NC}"
-magick -size ${LOGO_WIDTH}x${LOGO_HEIGHT} \
-    -background "$BACKGROUND_COLOR" \
-    -fill "$TEXT_COLOR" \
-    -font "$FONT_FOUND" \
-    -pointsize 10 \
-    -gravity center \
-    label:@/tmp/ascii_art.txt \
-    "$TEMP_LOGO"
 
 if [ ! -f "$TEMP_LOGO" ]; then
     echo -e "${RED}❌ Failed to generate logo image${NC}"
@@ -165,7 +164,7 @@ rm -f /tmp/ascii_art.txt "$TEMP_LOGO"
 
 echo -e "${GREEN}🎉 ArchRiot boot logo generation complete!${NC}"
 echo ""
-echo -e "${BLUE}The ASCII art logo has been installed for your LUKS/boot screen.${NC}"
+echo -e "${BLUE}The ArchRiot logo has been installed for your LUKS/boot screen.${NC}"
 echo -e "${BLUE}You'll see it on next reboot during disk decryption.${NC}"
 echo ""
 echo -e "${GREEN}✓ Custom logo backup created at: $PERSISTENT_BACKUP_DIR/custom_logo.png${NC}"
