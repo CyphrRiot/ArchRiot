@@ -223,7 +223,7 @@ show_clean_failure() {
         echo -e "${COLORS[GRAY]}Installation logs: $LOG_DIR${COLORS[RESET]}"
         echo
         echo -e "${COLORS[YELLOW]}To retry installation:${COLORS[RESET]}"
-        echo -e "${COLORS[WHITE]}  source ~/.local/share/omarchy/install.sh${COLORS[RESET]}"
+        echo -e "${COLORS[WHITE]}  source ~/.local/share/archriot/install.sh${COLORS[RESET]}"
     fi
 }
 
@@ -247,6 +247,27 @@ install_essential() {
 install_optional() {
     local packages="$1"
     install_packages_clean "$packages" "Installing optional packages" "YELLOW"
+}
+
+# Progress pause/resume functions for interactive input
+PROGRESS_PAUSED=false
+SAVED_PROGRESS_STATE=""
+
+pause_progress() {
+    if [[ "$PROGRESS_ENABLED" == "true" ]]; then
+        PROGRESS_PAUSED=true
+        SAVED_PROGRESS_STATE="$PROGRESS_ENABLED"
+        PROGRESS_ENABLED=false
+        echo # Add blank line for clean input
+    fi
+}
+
+resume_progress() {
+    if [[ "$PROGRESS_PAUSED" == "true" ]]; then
+        PROGRESS_ENABLED="$SAVED_PROGRESS_STATE"
+        PROGRESS_PAUSED=false
+        echo # Add blank line before resuming
+    fi
 }
 
 # Export functions for use in installers
