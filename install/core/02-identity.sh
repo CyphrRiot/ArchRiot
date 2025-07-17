@@ -59,12 +59,8 @@ get_user_identity() {
     echo "  git config --global user.email \"your@email.com\""
     echo ""
 
-    # Always show interactive prompts
-    echo -n "Git Name (optional - press Enter to skip): "
-    read -r ARCHRIOT_USER_NAME
-
-    echo -n "Git Email (optional - press Enter to skip): "
-    read -r ARCHRIOT_USER_EMAIL
+    ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
+    ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
 
     # Export and persist
     export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
