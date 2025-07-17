@@ -21,11 +21,13 @@
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
-**A customized Arch Linux setup, optimized for the Cypher Riot workflow.**
+**A customized Arch Linux setup, optimized for a cyberpunk hacker workflow.**
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
 
 OhmArchy is an even more opiniated setup and was originally a fork of [DHH's amazing Omarchy](https://github.com/basecamp/omarchy) with extensive customizations focused on privacy, development productivity, and clean aesthetics.
+
+_Created by a hacker, cypherpunk, and crypto/blockchain expert with decades of experience running Linux and Unix - this is the system I've always wanted._
 
 ![OhmArchy Screenshot](images/screenshot.png)
 
