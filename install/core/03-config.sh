@@ -195,7 +195,7 @@ setup_scripts_and_env() {
     echo "✓ Scripts and environment configured"
 
     # Install welcome image
-    local source_image="$HOME/.local/share/omarchy/images/alice.png"
+    local source_image="$HOME/.local/share/omarchy/images/welcome.png"
     local dest_dir="$HOME/.local/share/omarchy/images"
     if [[ -f "$source_image" ]]; then
         mkdir -p "$dest_dir"
