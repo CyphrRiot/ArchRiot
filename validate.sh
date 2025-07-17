@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Installation Validation Script
+# ArchRiot Installation Validation Script
 # ==============================================================================
-# Comprehensive validation to ensure OhmArchy will install successfully
+# Comprehensive validation to ensure ArchRiot will install successfully
 # and deliver the expected CypherRiot Wayland + Hyprland experience
 # ==============================================================================
 
@@ -48,11 +48,11 @@ print_header() {
 
     echo -e "${PURPLE}"
     echo "============================================================"
-    echo "           OhmArchy Installation Validation"
+    echo "           ArchRiot Installation Validation"
     echo "                     Version: $version"
     echo "============================================================"
     echo -e "${NC}"
-    echo "This script validates that OhmArchy will install successfully"
+    echo "This script validates that ArchRiot will install successfully"
     echo "and deliver the expected CypherRiot Wayland + Hyprland experience."
     echo ""
 }
@@ -65,7 +65,7 @@ test_system_requirements() {
     if [[ -f /etc/arch-release ]]; then
         print_status "PASS" "Running on Arch Linux"
     else
-        print_status "FAIL" "Not running on Arch Linux - OhmArchy requires Arch"
+        print_status "FAIL" "Not running on Arch Linux - ArchRiot requires Arch"
         return 1
     fi
 
@@ -136,14 +136,14 @@ test_installation_files() {
 
     # Test if we can clone/access the repo
     if [[ -d "$install_dir" ]]; then
-        print_status "INFO" "OhmArchy already cloned"
+        print_status "INFO" "ArchRiot already cloned"
     else
         print_status "INFO" "Testing repository clone..."
-        if git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git /tmp/omarchy-test 2>/dev/null; then
+        if git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git /tmp/omarchy-test 2>/dev/null; then
             print_status "PASS" "Repository accessible and cloneable"
             rm -rf /tmp/omarchy-test
         else
-            print_status "FAIL" "Cannot clone OhmArchy repository"
+            print_status "FAIL" "Cannot clone ArchRiot repository"
             return 1
         fi
     fi
@@ -262,9 +262,9 @@ test_user_environment() {
 
     # Check shell compatibility
     if [[ "$SHELL" == */fish ]]; then
-        print_status "PASS" "Fish shell detected - optimal for OhmArchy"
+        print_status "PASS" "Fish shell detected - optimal for ArchRiot"
     elif [[ "$SHELL" == */bash ]]; then
-        print_status "PASS" "Bash shell detected - compatible with OhmArchy"
+        print_status "PASS" "Bash shell detected - compatible with ArchRiot"
     else
         print_status "WARN" "Unusual shell detected: $SHELL - may need manual configuration"
     fi
@@ -288,9 +288,9 @@ test_user_environment() {
     # Test if we can create the omarchy directories
     if mkdir -p "$HOME/.config/omarchy/test" 2>/dev/null; then
         rmdir "$HOME/.config/omarchy/test" 2>/dev/null
-        print_status "PASS" "Can create OhmArchy config directories"
+        print_status "PASS" "Can create ArchRiot config directories"
     else
-        print_status "FAIL" "Cannot create OhmArchy config directories"
+        print_status "FAIL" "Cannot create ArchRiot config directories"
         return 1
     fi
 }
@@ -340,12 +340,12 @@ test_installation_simulation() {
     local test_dir="/tmp/omarchy-validation-$$"
     local using_local=false
 
-    # Check if we're running from within the OhmArchy repo
+    # Check if we're running from within the ArchRiot repo
     if [[ -f "./config/ghostty/config" && -f "./config/fish/config.fish" && -f "./install.sh" ]]; then
-        print_status "PASS" "Using local OhmArchy repository for validation"
+        print_status "PASS" "Using local ArchRiot repository for validation"
         test_dir="."
         using_local=true
-    elif git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
+    elif git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git "$test_dir" 2>/dev/null; then
         print_status "PASS" "Repository clone simulation successful"
     else
         print_status "FAIL" "Repository clone simulation failed"
@@ -439,12 +439,12 @@ generate_report() {
     if [[ $TESTS_FAILED -eq 0 ]]; then
         echo -e "${GREEN}🎉 VALIDATION SUCCESSFUL!${NC}"
         echo ""
-        echo -e "${GREEN}✓ OhmArchy should install successfully${NC}"
+        echo -e "${GREEN}✓ ArchRiot should install successfully${NC}"
         echo -e "${GREEN}✓ You should get a beautiful Wayland + Hyprland experience${NC}"
         echo -e "${GREEN}✓ CypherRiot theme should work properly${NC}"
         echo ""
         echo -e "${BLUE}Ready to install? Run:${NC}"
-        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/setup.sh | bash${NC}"
+        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/setup.sh | bash${NC}"
         echo ""
 
         if [[ $WARNINGS -gt 0 ]]; then
