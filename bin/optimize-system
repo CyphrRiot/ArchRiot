@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy System Optimization Script
+# ArchRiot System Optimization Script
 # Applies performance improvements and cleanup operations
 
 set -euo pipefail
@@ -21,7 +21,7 @@ BACKUP_ENABLED=true
 
 print_header() {
     echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                 OhmArchy System Optimization                 ║${NC}"
+    echo -e "${PURPLE}║                 ArchRiot System Optimization                 ║${NC}"
     echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}⚡ Applying performance optimizations and system cleanup${NC}"
@@ -72,7 +72,7 @@ execute_command() {
 
 create_backup() {
     local file="$1"
-    local backup_dir="$HOME/.config/omarchy/backups/$(date +%Y%m%d)"
+    local backup_dir="$HOME/.config/archriot/backups/$(date +%Y%m%d)"
 
     if [[ "$BACKUP_ENABLED" == "true" && -f "$file" ]]; then
         mkdir -p "$backup_dir"
@@ -305,17 +305,17 @@ show_optimization_results() {
     echo -e "${CYAN}💡 Recommendations:${NC}"
     echo "  • Restart your session for full effect"
     echo "  • Run this optimization monthly for best performance"
-    echo "  • Monitor system performance with: ohmarchy-performance-analysis"
+    echo "  • Monitor system performance with: performance-analysis"
     echo ""
 
     if [[ "$BACKUP_ENABLED" == "true" ]]; then
-        echo -e "${YELLOW}📋 Backups created in: ~/.config/omarchy/backups/$(date +%Y%m%d)${NC}"
+        echo -e "${YELLOW}📋 Backups created in: ~/.config/archriot/backups/$(date +%Y%m%d)${NC}"
         echo ""
     fi
 }
 
 show_help() {
-    echo "OhmArchy System Optimization Script"
+    echo "ArchRiot System Optimization Script"
     echo ""
     echo "Usage: $0 [OPTIONS]"
     echo ""

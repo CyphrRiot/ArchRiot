@@ -72,7 +72,7 @@ echo "  • Dynamic wallpaper selection"
 echo ""
 
 echo "🚀 To activate this theme:"
-echo "  ohmarchy-theme-next"
+echo "  theme-next"
 echo ""
 echo "✨ Tokyo Night brings a calm, dark aesthetic inspired by"
 echo "   the neon lights of Tokyo at night. Perfect for coding"

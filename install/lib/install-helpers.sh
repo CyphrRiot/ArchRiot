@@ -79,7 +79,7 @@ handle_critical_failure() {
     show_troubleshooting "$CURRENT_INSTALLER" "$failed_packages"
 
     echo -e "${YELLOW}💡 You can retry the installation after fixing the issue:${NC}"
-    echo "   source ~/.local/share/omarchy/install.sh"
+    echo "   source ~/.local/share/archriot/install.sh"
     echo
 
     exit $exit_code
@@ -94,14 +94,14 @@ handle_optional_failure() {
     echo -e "${YELLOW}  This may reduce functionality but installation will continue${NC}"
 
     # Still log for debugging
-    echo "OPTIONAL FAILURE: $CURRENT_INSTALLER - $failed_packages (exit: $exit_code)" >> /tmp/omarchy-warnings.log
+    echo "OPTIONAL FAILURE: $CURRENT_INSTALLER - $failed_packages (exit: $exit_code)" >> /tmp/archriot-warnings.log
 }
 
 # Log detailed failure information
 log_failure_details() {
     local failed_packages="$1"
     local exit_code="$2"
-    local log_file="/tmp/omarchy-install-failure.log"
+    local log_file="/tmp/archriot-install-failure.log"
 
     {
         echo "===== FAILURE DETAILS ====="
@@ -171,7 +171,7 @@ show_troubleshooting() {
     echo -e "${CYAN}📝 Additional debugging:${NC}"
     echo "• Full logs: journalctl -xe"
     echo "• Package manager logs: tail -f /var/log/pacman.log"
-    echo "• Failure details: cat /tmp/omarchy-install-failure.log"
+    echo "• Failure details: cat /tmp/archriot-install-failure.log"
 }
 
 # Validate that packages were actually installed correctly
@@ -213,7 +213,7 @@ install_optional() {
 
 # Clean up temporary files on successful completion
 cleanup_install_files() {
-    rm -f /tmp/omarchy-install-failure.log /tmp/omarchy-warnings.log 2>/dev/null || true
+    rm -f /tmp/archriot-install-failure.log /tmp/archriot-warnings.log 2>/dev/null || true
 }
 
 # Show installation summary
@@ -223,10 +223,10 @@ show_install_summary() {
     echo -e "${GREEN}✓ $CURRENT_INSTALLER completed successfully${NC}"
     echo -e "${BLUE}Duration: ${duration}s${NC}"
 
-    if [ -f /tmp/omarchy-warnings.log ]; then
-        local warning_count=$(wc -l < /tmp/omarchy-warnings.log)
+    if [ -f /tmp/archriot-warnings.log ]; then
+        local warning_count=$(wc -l < /tmp/archriot-warnings.log)
         if [ $warning_count -gt 0 ]; then
-            echo -e "${YELLOW}⚠ $warning_count warnings (check /tmp/omarchy-warnings.log)${NC}"
+            echo -e "${YELLOW}⚠ $warning_count warnings (check /tmp/archriot-warnings.log)${NC}"
         fi
     fi
 }

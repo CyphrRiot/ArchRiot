@@ -11,7 +11,7 @@ import sys
 class WelcomeWindow:
     def __init__(self):
         self.window = Gtk.Window()
-        self.window.set_title("Welcome to OhmArchy")
+        self.window.set_title("Welcome to ArchRiot")
         self.window.set_default_size(800, 600)
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.set_resizable(False)
@@ -43,13 +43,13 @@ class WelcomeWindow:
         main_box.set_margin_bottom(30)
 
         # Add title
-        title_label = Gtk.Label()
-        title_label.set_markup('<span size="28000" weight="bold">Welcome!</span>')
-        title_label.set_halign(Gtk.Align.CENTER)
-        main_box.pack_start(title_label, False, False, 0)
+        #title_label = Gtk.Label()
+        #title_label.set_markup('<span size="28000" weight="bold">Welcome!</span>')
+        #title_label.set_halign(Gtk.Align.CENTER)
+        #main_box.pack_start(title_label, False, False, 0)
 
-        # Add Alice image
-        self.add_alice_image(main_box)
+        # Add Welcome image
+        self.add_welcome_image(main_box)
 
         # Add main text
         self.add_main_text(main_box)
@@ -61,9 +61,9 @@ class WelcomeWindow:
         self.window.connect("destroy", self.on_window_destroy)
         self.window.show_all()
 
-    def add_alice_image(self, container):
-        # Add Alice image
-        image_path = os.path.expanduser("~/.local/share/omarchy/images/alice.png")
+    def add_welcome_image(self, container):
+        # Add Welcome image
+        image_path = os.path.expanduser("~/.local/share/archriot/images/welcome.png")
         if os.path.exists(image_path):
             try:
                 # Load and scale the image
@@ -81,7 +81,7 @@ class WelcomeWindow:
                 image.set_halign(Gtk.Align.CENTER)
                 container.pack_start(image, False, False, 10)
             except Exception as e:
-                print(f"Could not load alice.png: {e}")
+                print(f"Could not load welcome.png: {e}")
 
     def add_main_text(self, container):
         # Create scrollable text view
@@ -107,7 +107,7 @@ class WelcomeWindow:
 
         # Create text with markup for clickable links
         text_content_parts = [
-            "OhmArchy is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make OhmArchy as intuitive as possible, while still respecting the user and their abilities.\n\n",
+            "ArchRiot is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
             "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
             "SUPER+B = Open Brave Browser\n",
             "SUPER+ENTER = Open Terminal\n",
@@ -117,8 +117,8 @@ class WelcomeWindow:
             "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
             "Many other commands!\n\n",
 
-            "OhmArchy started life as a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
-            "I hope you enjoy using OhmArchy as much as I enjoyed putting it together.\n"
+            "ArchRiot started life as a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
+            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together.\n"
         ]
 
         # Insert text parts
@@ -137,7 +137,7 @@ class WelcomeWindow:
 
         # Insert clickable link for GitHub
         github_tag = buffer.create_tag("github_link", foreground="#89b4fa", underline=True)
-        buffer.insert_with_tags(iter_end, "OhmArchy on GitHub", github_tag)
+        buffer.insert_with_tags(iter_end, "ArchRiot on GitHub", github_tag)
         iter_end = buffer.get_end_iter()
 
         # Insert signature with larger font
@@ -175,7 +175,7 @@ class WelcomeWindow:
 
     def on_dismiss_forever(self, button):
         # Create config directory if it doesn't exist
-        config_dir = os.path.expanduser("~/.config/ohmarchy")
+        config_dir = os.path.expanduser("~/.config/archriot")
         os.makedirs(config_dir, exist_ok=True)
 
         # Write welcome.json to indicate welcome has been dismissed
@@ -214,7 +214,7 @@ class WelcomeWindow:
                             os.system("xdg-open https://x.com/CyphrRiot &")
                             return True
                         elif tag_name == "github_link":
-                            os.system("xdg-open https://github.com/CyphrRiot/OhmArchy &")
+                            os.system("xdg-open https://github.com/CyphrRiot/ArchRiot &")
                             return True
 
         return False
@@ -225,7 +225,7 @@ class WelcomeWindow:
 
 def should_show_welcome():
     """Check if welcome should be shown"""
-    config_file = os.path.expanduser("~/.config/ohmarchy/welcome.json")
+    config_file = os.path.expanduser("~/.config/archriot/welcome.json")
 
     if not os.path.exists(config_file):
         return True

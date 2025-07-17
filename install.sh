@@ -5,7 +5,7 @@ set -e
 
 # Simple error handler that gives retry instructions and cleans up sudo
 cleanup_on_exit() {
-    echo "❌ OhmArchy installation failed! You can retry by running: source $HOME/.local/share/omarchy/install.sh"
+    echo "❌ OhmArchy installation failed! You can retry by running: source $HOME/.local/share/archriot/install.sh"
     # Clean up sudo if helper is available
     if command -v cleanup_passwordless_sudo &>/dev/null; then
         echo "🔒 Cleaning up sudo configuration..."
@@ -15,8 +15,8 @@ cleanup_on_exit() {
 trap cleanup_on_exit ERR
 
 # Load shared installation helpers
-if [ -f "$HOME/.local/share/omarchy/install/lib/install-helpers.sh" ]; then
-    source "$HOME/.local/share/omarchy/install/lib/install-helpers.sh"
+if [ -f "$HOME/.local/share/archriot/install/lib/install-helpers.sh" ]; then
+    source "$HOME/.local/share/archriot/install/lib/install-helpers.sh"
 fi
 
 # CRITICAL: Install yay FIRST before anything else that might need it
@@ -53,15 +53,15 @@ else
 fi
 
 # Load clean progress system
-if [ -f "$HOME/.local/share/omarchy/install/lib/simple-progress.sh" ]; then
-    source "$HOME/.local/share/omarchy/install/lib/simple-progress.sh"
+if [ -f "$HOME/.local/share/archriot/install/lib/simple-progress.sh" ]; then
+    source "$HOME/.local/share/archriot/install/lib/simple-progress.sh"
 fi
 
 
 
 # Load and setup sudo helper for passwordless installation
-if [ -f "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh" ]; then
-    source "$HOME/.local/share/omarchy/install/lib/sudo-helper.sh"
+if [ -f "$HOME/.local/share/archriot/install/lib/sudo-helper.sh" ]; then
+    source "$HOME/.local/share/archriot/install/lib/sudo-helper.sh"
     echo "🔒 Setting up temporary passwordless sudo for installation..."
     setup_passwordless_sudo || exit 1
 fi
@@ -139,9 +139,14 @@ count_total_installers() {
             total=$((total + 1))
         else
             # Module directory - count .sh files
-            local module_dir="$HOME/.local/share/omarchy/install/$module"
+            local module_dir="$HOME/.local/share/archriot/install/$module"
             if [[ -d "$module_dir" ]]; then
-                local count=$(find "$module_dir" -name "*.sh" -type f | wc -l)
+                local count=0
+                for file in "$module_dir"/*.sh; do
+                    if [[ -f "$file" ]]; then
+                        count=$((count + 1))
+                    fi
+                done
                 total=$((total + count))
             fi
         fi
@@ -166,11 +171,13 @@ process_installation_modules() {
         # Handle individual files vs module directories
         if [[ "$module" == *".sh" ]]; then
             # Individual file (like core/01-base.sh)
-            local installer_file="$HOME/.local/share/omarchy/install/$module"
+            local installer_file="$HOME/.local/share/archriot/install/$module"
             local installer_name=$(basename "$module" .sh)
 
             if [[ -f "$installer_file" ]]; then
+                echo "🔍 DEBUG: Starting installer: $installer_name"
                 process_installer_with_progress "$installer_file" "$installer_name"
+                echo "✅ DEBUG: Completed installer: $installer_name"
             else
                 if command -v fail_step &>/dev/null; then
                     fail_step "Installer not found: $module"
@@ -179,14 +186,16 @@ process_installation_modules() {
             fi
         else
             # Module directory (like desktop, system, etc.)
-            local module_dir="$HOME/.local/share/omarchy/install/$module"
+            local module_dir="$HOME/.local/share/archriot/install/$module"
 
             if [[ -d "$module_dir" ]]; then
                 # Process all .sh files in the module directory
                 for installer_file in "$module_dir"/*.sh; do
                     if [[ -f "$installer_file" ]]; then
                         local installer_name=$(basename "$installer_file" .sh)
+                        echo "🔍 DEBUG: Starting module installer: $module/$installer_name"
                         process_installer_with_progress "$installer_file" "$installer_name"
+                        echo "✅ DEBUG: Completed module installer: $module/$installer_name"
                     fi
                 done
             else
@@ -270,8 +279,8 @@ process_installer_with_progress() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
     OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
-elif [ -f "$HOME/.local/share/omarchy/VERSION" ]; then
-    OMARCHY_VERSION=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
+elif [ -f "$HOME/.local/share/archriot/VERSION" ]; then
+    OMARCHY_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
 else
     # Fetch version from GitHub when running via curl
     OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "unknown")
@@ -291,7 +300,7 @@ process_installation_modules
 
 # Run standalone installers (included in progress tracking)
 for standalone in "${standalone_installers[@]}"; do
-    standalone_path="$HOME/.local/share/omarchy/install/$standalone"
+    standalone_path="$HOME/.local/share/archriot/install/$standalone"
     standalone_name=$(basename "$standalone" .sh)
 
     if [[ -f "$standalone_path" ]]; then
@@ -338,7 +347,7 @@ else
 fi
 
 # Check theme system
-if [ -L ~/.config/omarchy/current/theme ]; then
+if [ -L ~/.config/archriot/current/theme ]; then
     echo "✓ Theme system configured"
 else
     echo "⚠ Theme system issue"

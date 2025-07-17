@@ -89,12 +89,12 @@ elif [ -d "/etc/cmdline.d" ]; then
   # Relying on mkinitcpio to assemble a UKI
   # https://wiki.archlinux.org/title/Unified_kernel_image
   if ! grep -q splash /etc/cmdline.d/*.conf; then
-      # Need splash, create the ohmarchy file
-      echo "splash" | sudo tee -a /etc/cmdline.d/ohmarchy.conf
+      # Need splash, create the archriot file
+      echo "splash" | sudo tee -a /etc/cmdline.d/archriot.conf
   fi
   if ! grep -q quiet /etc/cmdline.d/*.conf; then
-      # Need quiet, create or append the ohmarchy file
-      echo "quiet" | sudo tee -a /etc/cmdline.d/ohmarchy.conf
+      # Need quiet, create or append the archriot file
+      echo "quiet" | sudo tee -a /etc/cmdline.d/archriot.conf
   fi
 elif [ -f "/etc/kernel/cmdline" ]; then
   # Alternate UKI kernel cmdline location
@@ -130,43 +130,44 @@ fi
 
 # AGGRESSIVE CLEANUP - Remove ALL old Plymouth themes and cached files
 echo "🧹 Cleaning up old Plymouth themes..."
-sudo rm -rf /usr/share/plymouth/themes/omarchy
+sudo rm -rf /usr/share/plymouth/themes/archriot
 sudo rm -rf /usr/share/plymouth/themes/ohmarchy
+sudo rm -rf /usr/share/plymouth/themes/archriot
 
 # Remove any cached theme references
 sudo rm -f /var/lib/plymouth/themes/default.plymouth
 sudo rm -f /etc/plymouth/plymouthd.conf
 
 # PREFER LOCAL FILES: Use local Plymouth files to avoid old logo issues
-echo "📦 Installing OhmArchy Plymouth theme from local files..."
-sudo mkdir -p /usr/share/plymouth/themes/ohmarchy/
+echo "📦 Installing ArchRiot Plymouth theme from local files..."
+sudo mkdir -p /usr/share/plymouth/themes/archriot/
 
 # First try to use local files (preferred - ensures correct logo)
-if [ -d "$HOME/.local/share/omarchy/default/plymouth" ] && [ -f "$HOME/.local/share/omarchy/default/plymouth/logo.png" ]; then
-    echo "✓ Using local Plymouth files (ensures correct OhmArchy logo)"
-    sudo cp -r "$HOME/.local/share/omarchy/default/plymouth"/* /usr/share/plymouth/themes/ohmarchy/
+if [ -d "$HOME/.local/share/archriot/default/plymouth" ] && [ -f "$HOME/.local/share/archriot/default/plymouth/logo.png" ]; then
+    echo "✓ Using local Plymouth files (ensures correct ArchRiot logo)"
+    sudo cp -r "$HOME/.local/share/archriot/default/plymouth"/* /usr/share/plymouth/themes/archriot/
 
 else
     # Fallback: Download from GitHub only if local files missing
     echo "⚠ Local files not found, downloading from GitHub as fallback..."
-    TEMP_PLYMOUTH_DIR="/tmp/ohmarchy-plymouth-$$"
+    TEMP_PLYMOUTH_DIR="/tmp/archriot-plymouth-$$"
     mkdir -p "$TEMP_PLYMOUTH_DIR"
 
-    if curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/ohmarchy.plymouth" -o "$TEMP_PLYMOUTH_DIR/ohmarchy.plymouth" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/ohmarchy.script" -o "$TEMP_PLYMOUTH_DIR/ohmarchy.script" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/logo.png" -o "$TEMP_PLYMOUTH_DIR/logo.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/entry.png" -o "$TEMP_PLYMOUTH_DIR/entry.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/lock.png" -o "$TEMP_PLYMOUTH_DIR/lock.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/bullet.png" -o "$TEMP_PLYMOUTH_DIR/bullet.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/progress_bar.png" -o "$TEMP_PLYMOUTH_DIR/progress_bar.png" &&
-       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/default/plymouth/progress_box.png" -o "$TEMP_PLYMOUTH_DIR/progress_box.png"; then
+    if curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/archriot.plymouth" -o "$TEMP_PLYMOUTH_DIR/archriot.plymouth" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/archriot.script" -o "$TEMP_PLYMOUTH_DIR/archriot.script" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/logo.png" -o "$TEMP_PLYMOUTH_DIR/logo.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/entry.png" -o "$TEMP_PLYMOUTH_DIR/entry.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/lock.png" -o "$TEMP_PLYMOUTH_DIR/lock.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/bullet.png" -o "$TEMP_PLYMOUTH_DIR/bullet.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/progress_bar.png" -o "$TEMP_PLYMOUTH_DIR/progress_bar.png" &&
+       curl -fsSL "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/default/plymouth/progress_box.png" -o "$TEMP_PLYMOUTH_DIR/progress_box.png"; then
 
         echo "✓ Plymouth files downloaded from GitHub"
-        sudo cp -r "$TEMP_PLYMOUTH_DIR"/* /usr/share/plymouth/themes/ohmarchy/
+        sudo cp -r "$TEMP_PLYMOUTH_DIR"/* /usr/share/plymouth/themes/archriot/
 
         # Update local installation for future use
-        mkdir -p "$HOME/.local/share/omarchy/default/plymouth"
-        cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/omarchy/default/plymouth/"
+        mkdir -p "$HOME/.local/share/archriot/default/plymouth"
+        cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/archriot/default/plymouth/"
         echo "✓ Updated local Plymouth files"
 
 
@@ -182,18 +183,18 @@ if [ -n "$TEMP_PLYMOUTH_DIR" ] && [ -d "$TEMP_PLYMOUTH_DIR" ]; then
 fi
 
 # Verify theme files exist
-if [[ ! -f /usr/share/plymouth/themes/ohmarchy/ohmarchy.plymouth ]]; then
+if [[ ! -f /usr/share/plymouth/themes/archriot/archriot.plymouth ]]; then
     echo "❌ Failed to install Plymouth theme files!"
     exit 1
 fi
 
-echo "🎨 Setting OhmArchy as default Plymouth theme..."
-sudo plymouth-set-default-theme -R ohmarchy
+echo "🎨 Setting ArchRiot as default Plymouth theme..."
+sudo plymouth-set-default-theme -R archriot
 
 # Verify theme is set correctly
 CURRENT_THEME=$(sudo plymouth-set-default-theme)
-if [[ "$CURRENT_THEME" != "ohmarchy" ]]; then
-    echo "❌ Failed to set OhmArchy theme! Current: $CURRENT_THEME"
+if [[ "$CURRENT_THEME" != "archriot" ]]; then
+    echo "❌ Failed to set ArchRiot theme! Current: $CURRENT_THEME"
     echo "🔧 Available themes:"
     sudo plymouth-set-default-theme --list
     exit 1
@@ -202,12 +203,12 @@ fi
 echo "✅ Plymouth theme verified: $CURRENT_THEME"
 
 # Generate fresh ASCII logo for LUKS screen
-echo "🎨 Generating OhmArchy ASCII logo for LUKS screen..."
-if [ -f "$HOME/.local/share/omarchy/bin/generate-boot-logo.sh" ]; then
+echo "🎨 Generating ArchRiot ASCII logo for LUKS screen..."
+if [ -f "$HOME/.local/share/archriot/bin/generate-boot-logo.sh" ]; then
     echo "✓ Running ASCII logo generator..."
-    cd "$HOME/.local/share/omarchy"
+    cd "$HOME/.local/share/archriot"
     ./bin/generate-boot-logo.sh
-    echo "✓ OhmArchy ASCII logo generated and installed"
+    echo "✓ ArchRiot ASCII logo generated and installed"
 else
     echo "⚠ Logo generator not found, using default logo"
 fi

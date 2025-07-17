@@ -9,7 +9,7 @@
 
 # Load user environment
 load_user_environment() {
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 }
 
@@ -203,36 +203,19 @@ install_vpn_client() {
     if yay -S --noconfirm --needed "mullvad-vpn-bin"; then
         echo "✓ Mullvad VPN client installed"
 
-        echo ""
-        echo "🔐 Do you want to activate Mullvad VPN now? (y/n)"
-        read -r activate_vpn
-
-        if [[ "$activate_vpn" =~ ^[Yy]$ ]]; then
+        # Check if Mullvad is already configured
+        if mullvad status 2>/dev/null | grep -q "Logged in"; then
+            echo "✓ Mullvad VPN is already configured and logged in"
             echo ""
-            echo "📋 Please enter your Mullvad account number:"
-            echo "   (Create account at https://mullvad.net if you don't have one)"
-            read -r account_number
-
-            if [[ -n "$account_number" ]]; then
-                echo "🔄 Logging in to Mullvad..."
-                if mullvad account login "$account_number" 2>/dev/null; then
-                    echo "✓ Successfully logged in to Mullvad"
-
-                    # Enable auto-connect
-                    if mullvad auto-connect set on 2>/dev/null; then
-                        echo "✓ Auto-connect enabled - VPN will start automatically"
-                    else
-                        echo "⚠ Could not enable auto-connect"
-                    fi
-                else
-                    echo "⚠ Login failed - check your account number"
-                fi
-            else
-                echo "⚠ No account number provided - configure manually later"
-            fi
         else
-            echo "⚠ Mullvad installed but not activated"
-            echo "  To activate later: mullvad account login YOUR_ACCOUNT_NUMBER"
+            # Always non-interactive for automated installs - no prompting
+            echo ""
+            echo "📋 Mullvad VPN installed but not activated automatically"
+            echo "   To activate later:"
+            echo "   1. Create account at https://mullvad.net"
+            echo "   2. Run: mullvad account login YOUR_ACCOUNT_NUMBER"
+            echo "   3. Run: mullvad auto-connect set on"
+            echo ""
         fi
     else
         echo "⚠ Failed to install Mullvad VPN (privacy features limited)"

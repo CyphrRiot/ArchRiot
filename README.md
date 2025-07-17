@@ -1,7 +1,7 @@
-# OhmArchy Ω
+# 𝙰𝚛𝚌𝚑𝚁𝚒𝚘𝚝 🎭
 
 ![Version](https://img.shields.io/badge/version-1.1.12-4c1d95)
-![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy?color=1e293b)
+![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
@@ -13,9 +13,9 @@
 ![Language](https://img.shields.io/badge/language-HTML-6c7086)
 
 ![Maintained](https://img.shields.io/maintenance/yes/2025?color=4c1d95)
-![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/OhmArchy?color=3730a3)
-![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/OhmArchy?color=1e40af)
-![Issues](https://img.shields.io/github/issues/CyphrRiot/OhmArchy?color=64748b)
+![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=3730a3)
+![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=1e40af)
+![Issues](https://img.shields.io/github/issues/CyphrRiot/ArchRiot?color=64748b)
 
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
@@ -25,11 +25,11 @@
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
 
-OhmArchy is an even more opiniated setup and was originally a fork of [DHH's amazing Omarchy](https://github.com/basecamp/omarchy) with extensive customizations focused on privacy, development productivity, and clean aesthetics.
+ArchRiot is an even more opiniated setup and was originally a unique rice and then a fork of [DHH's Omarchy](https://github.com/basecamp/archriot) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
 _Created by a hacker, cypherpunk, and crypto/blockchain expert with decades of experience running Linux and Unix - this is the system I've always wanted._
 
-![OhmArchy Screenshot](images/screenshot.png)
+![ArchRiot Screenshot](images/screenshot.png)
 
 ## 🚀 Installation
 
@@ -61,14 +61,14 @@ Run `archinstall` and pick these options (and leave anything not mentioned as-is
 | Additional packages      | Add wget (type "/wget" to filter list)                                         |
 | Timezone                 | Set yours                                                                      |
 
-**⚠️ Important:** You must setup disk encryption to use OhmArchy as designed! The setup relies exclusively on disk encryption to secure your device, as it'll auto-login the user after the disk has been decrypted at boot.
+**⚠️ Important:** You must setup disk encryption to use ArchRiot as designed! The setup relies exclusively on disk encryption to secure your device, as it'll auto-login the user after the disk has been decrypted at boot.
 
-Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install OhmArchy.
+Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install ArchRiot.
 
 ### Method 1: One-Line Install or Upgrade (Recommended)
 
 ```bash
-curl -fsSL https://ohmarchy.org/setup.sh | bash
+curl -fsSL https://archriot.org/setup.sh | bash
 ```
 
 **Note: Upgrading is exactly the same command! Simple!**
@@ -76,8 +76,8 @@ curl -fsSL https://ohmarchy.org/setup.sh | bash
 ### Method 2: Manual Clone (For Customization)
 
 ```bash
-git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy
-~/.local/share/omarchy/install.sh
+git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
+~/.local/share/archriot/install.sh
 ```
 
 ### Optional: Pre-Installation Validation
@@ -85,7 +85,7 @@ git clone https://github.com/CyphrRiot/OhmArchy.git ~/.local/share/omarchy
 Want confidence before installing? Run the validation script to test compatibility:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-installation.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
 ```
 
 This comprehensive test validates:
@@ -111,7 +111,7 @@ This comprehensive test validates:
 ### Theme & Appearance
 
 ```bash
-ohmarchy-theme-next                   # Switch to next theme
+theme-next                            # Switch to next theme
 SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
 SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ```
@@ -119,7 +119,7 @@ SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ### System Management
 
 ```bash
-ohmarchy-update                      # Update system packages
+update                               # Update system packages
 migrate                              # Backup/restore system (interactive TUI)
 sudo systemctl reboot               # Restart system
 sudo systemctl poweroff             # Shutdown system
@@ -197,9 +197,9 @@ Click network icon                  # Open network manager
 ### Fix Scripts (If Needed)
 
 ```bash
-ohmarchy-fix-thunar-thumbnails       # Fix thumbnail generation
-ohmarchy-fix-background              # Fix theme backgrounds
-ohmarchy-fix-waybar-theme            # Fix waybar styling
+fix-thunar-thumbnails                # Fix thumbnail generation
+fix-background                       # Fix theme backgrounds
+fix-waybar-theme                     # Fix waybar styling
 ```
 
 ### 🔧 Troubleshooting
@@ -208,9 +208,9 @@ Quick fixes for common issues:
 
 - **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
 - **Reliable installer**: Rock-solid installation process with comprehensive error handling
-- **Theme not applying**: Run `ohmarchy-fix-waybar-theme`
-- **Background issues**: Run `ohmarchy-fix-background`
-- **Thumbnail problems**: Run `ohmarchy-fix-thunar-thumbnails`
+- **Theme not applying**: Run `fix-waybar-theme`
+- **Background issues**: Run `fix-background`
+- **Thumbnail problems**: Run `fix-thunar-thumbnails`
 
 ## 🎯 Key Customizations
 
@@ -233,7 +233,7 @@ Quick fixes for common issues:
 
 Linux's default memory management is **aggressively stupid** about caching. The kernel will happily consume 90%+ of your RAM for file caches, then struggle to free it when applications actually need memory.
 
-OhmArchy fixes this with intelligent memory management tuning:
+ArchRiot fixes this with intelligent memory management tuning:
 
 - **No more lag spikes** when opening applications
 - **Better responsiveness** under memory pressure
@@ -274,7 +274,7 @@ OhmArchy fixes this with intelligent memory management tuning:
 
 ### 🎮 **GPU Support**
 
-OhmArchy automatically detects and installs optimal drivers for all major GPUs:
+ArchRiot automatically detects and installs optimal drivers for all major GPUs:
 
 - **NVIDIA**: Proprietary drivers with Wayland and hardware acceleration
 - **AMD/Radeon**: Open-source Mesa drivers with Vulkan support
@@ -316,10 +316,10 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 ### Updates
 
 ```bash
-ohmarchy-update
+update
 ```
 
-Updates OhmArchy by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.
+Updates ArchRiot by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.
 
 ### Backup & Restore
 
@@ -340,15 +340,15 @@ The migrate tool automatically downloads the latest version during installation 
 
 ### Available Themes
 
-OhmArchy includes two carefully curated themes with CypherRiot as the default:
+ArchRiot includes two carefully curated themes with CypherRiot as the default:
 
 - **cypherriot** (default) - Custom purple/blue aesthetic with full waybar integration
 - **tokyo-night** - Vibrant city lights with modern cyberpunk vibes
 
 ### Theme Management
 
-- **Switch themes:** `ohmarchy-theme-next` or manually symlink
-- **Theme location:** `~/.config/omarchy/current/theme`
+- **Switch themes:** `theme-next` or manually symlink
+- **Theme location:** `~/.config/archriot/current/theme`
 - **Backgrounds:** Automatically matched to theme with time-based variants
 
 ## ⚡ Key Features & Performance
@@ -437,7 +437,7 @@ After installation completes, verify everything is working correctly:
 The installer automatically runs a post-installation check. If you need to run it manually:
 
 ```bash
-~/.local/share/omarchy/bin/ohmarchy-post-install-check
+~/.local/share/archriot/bin/post-install-check
 ```
 
 ### Manual Verification
@@ -446,14 +446,14 @@ Check these key components:
 
 ```bash
 # Verify theme system
-ls ~/.config/omarchy/current/theme     # Should show active theme
-ls ~/.config/omarchy/current/background # Should show escape_velocity.jpg
+ls ~/.config/archriot/current/theme     # Should show active theme
+ls ~/.config/archriot/current/background # Should show escape_velocity.jpg
 
 # Test background cycling
 SUPER + CTRL + SPACE                   # Should cycle through 6 backgrounds
 
 # Test theme switching
-ohmarchy-theme-next                    # Should switch to next theme
+theme-next                             # Should switch to next theme
 
 # Verify waybar
 pgrep waybar                          # Should show running process
@@ -476,7 +476,7 @@ After fresh installation, you should see:
 Before installing, you can run a comprehensive validation script:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-installation.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
 ```
 
 **What it tests:**
@@ -492,17 +492,17 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/validate-
 ## 🛠️ Management Tools
 
 ```bash
-ohmarchy-update                      # Update system packages
-ohmarchy-theme-next                  # Switch to next theme
-ohmarchy-fix-background              # Reset background system
-ohmarchy-fix-waybar-theme            # Reset waybar styling
-ohmarchy-validate-system             # Check system health
+update                               # Update system packages
+theme-next                           # Switch to next theme
+fix-background                       # Reset background system
+fix-waybar-theme                     # Reset waybar styling
+validate-system                      # Check system health
 ```
 
 ## 📂 Repository Information
 
-- **Main Repository:** https://github.com/CyphrRiot/OhmArchy
-- **Original Upstream:** https://github.com/basecamp/omarchy
+- **Main Repository:** https://github.com/CyphrRiot/ArchRiot
+- **Original Upstream:** https://github.com/basecamp/archriot
 - **Maintenance:** Active, with regular updates and improvements
 - **Community:** Open to issues, suggestions, and contributions
 
@@ -517,4 +517,4 @@ ohmarchy-validate-system             # Check system health
 
 ## 📄 License
 
-OhmArchy is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
+ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.

@@ -9,7 +9,7 @@
 
 # Load user environment
 load_user_environment() {
-    local env_file="$HOME/.config/omarchy/user.env"
+    local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 }
 
@@ -115,9 +115,9 @@ setup_cursor_links() {
 
     mkdir -p ~/.icons/default
 
-    local omarchy_cursor_index="$HOME/.local/share/omarchy/default/icons/default/index.theme"
-    if [[ -f "$omarchy_cursor_index" ]]; then
-        cp "$omarchy_cursor_index" ~/.icons/default/index.theme
+    local archriot_cursor_index="$HOME/.local/share/archriot/default/icons/default/index.theme"
+    if [[ -f "$archriot_cursor_index" ]]; then
+        cp "$archriot_cursor_index" ~/.icons/default/index.theme
         echo "✓ Default cursor theme links created"
     else
         # Create basic index.theme if OhmArchy version not found
@@ -132,19 +132,19 @@ EOF
 }
 
 # Setup OhmArchy theme system
-setup_omarchy_theme_system() {
+setup_archriot_theme_system() {
     echo "🎨 Setting up OhmArchy theme system..."
 
     # Create theme directories
-    mkdir -p ~/.config/omarchy/{themes,current,backgrounds}
+    mkdir -p ~/.config/archriot/{themes,current,backgrounds}
 
     # Link available themes
-    local themes_source="$HOME/.local/share/omarchy/themes"
+    local themes_source="$HOME/.local/share/archriot/themes"
     if [[ -d "$themes_source" ]]; then
         for theme_dir in "$themes_source"/*; do
             if [[ -d "$theme_dir" ]]; then
                 local theme_name=$(basename "$theme_dir")
-                ln -sf "$theme_dir" ~/.config/omarchy/themes/
+                ln -sf "$theme_dir" ~/.config/archriot/themes/
                 echo "✓ Linked theme: $theme_name"
             fi
         done
@@ -161,14 +161,14 @@ set_default_theme() {
     echo "🎯 Setting default theme..."
 
     local preferred_theme="cypherriot"
-    local theme_path="$HOME/.config/omarchy/themes/$preferred_theme"
+    local theme_path="$HOME/.config/archriot/themes/$preferred_theme"
 
     # Check if preferred theme exists
     if [[ -d "$theme_path" ]]; then
         echo "✓ Using preferred theme: $preferred_theme"
     else
         # Find first available theme
-        local first_theme=$(find ~/.config/omarchy/themes -maxdepth 1 -type d -not -name themes | head -1)
+        local first_theme=$(find ~/.config/archriot/themes -maxdepth 1 -type d -not -name themes | head -1)
         if [[ -n "$first_theme" ]]; then
             preferred_theme=$(basename "$first_theme")
             theme_path="$first_theme"
@@ -180,7 +180,7 @@ set_default_theme() {
     fi
 
     # Set current theme link
-    ln -snf "$theme_path" ~/.config/omarchy/current/theme
+    ln -snf "$theme_path" ~/.config/archriot/current/theme
     echo "✓ Active theme set to: $preferred_theme"
 
     # Setup background system if available
@@ -193,13 +193,13 @@ setup_theme_backgrounds() {
     echo "🖼️  Setting up backgrounds for theme: $theme_name"
 
     # Set BACKGROUNDS_DIR for background scripts
-    export BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
+    export BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
     mkdir -p "$BACKGROUNDS_DIR"
 
     # Skip global background functions - use theme-specific only
 
     # Source background script if available
-    local bg_script="$HOME/.local/share/omarchy/themes/$theme_name/backgrounds.sh"
+    local bg_script="$HOME/.local/share/archriot/themes/$theme_name/backgrounds.sh"
     if [[ -f "$bg_script" ]]; then
         source "$bg_script" 2>/dev/null || echo "⚠ Background script failed to execute"
     fi
@@ -207,24 +207,24 @@ setup_theme_backgrounds() {
     # Link background directory
     local bg_dir="$BACKGROUNDS_DIR/$theme_name"
     if [[ -d "$bg_dir" ]]; then
-        ln -snf "$bg_dir" ~/.config/omarchy/current/backgrounds
+        ln -snf "$bg_dir" ~/.config/archriot/current/backgrounds
 
         # Set default background (City-Rainy-Night.png or first available)
         local default_bg="$bg_dir/1-City-Rainy-Night.png"
         if [[ -f "$default_bg" ]]; then
-            ln -snf "$default_bg" ~/.config/omarchy/current/background
+            ln -snf "$default_bg" ~/.config/archriot/current/background
             echo "✓ Default background set: City-Rainy-Night.png"
         else
             # Fallback to any City-Rainy-Night variant
             local city_bg=$(find "$bg_dir" -name "*City-Rainy-Night*" | head -1)
             if [[ -n "$city_bg" ]]; then
-                ln -snf "$city_bg" ~/.config/omarchy/current/background
+                ln -snf "$city_bg" ~/.config/archriot/current/background
                 echo "✓ Default background set: $(basename "$city_bg")"
             else
                 # Final fallback to first available
                 local first_bg=$(find "$bg_dir" -name "*.jpg" -o -name "*.png" | head -1)
                 if [[ -n "$first_bg" ]]; then
-                    ln -snf "$first_bg" ~/.config/omarchy/current/background
+                    ln -snf "$first_bg" ~/.config/archriot/current/background
                     echo "✓ Default background set: $(basename "$first_bg")"
                 fi
             fi
@@ -238,7 +238,7 @@ setup_theme_backgrounds() {
 link_theme_configs() {
     echo "🔗 Linking theme configurations..."
 
-    local theme_dir="$HOME/.config/omarchy/current/theme"
+    local theme_dir="$HOME/.config/archriot/current/theme"
     if [[ ! -d "$theme_dir" ]]; then
         echo "❌ No active theme found"
         return 1
@@ -248,14 +248,14 @@ link_theme_configs() {
     backup_existing_configs
 
     # Copy GTK CSS for Thunar dark theme
-    if [[ -f "$HOME/.local/share/omarchy/config/gtk-3.0/gtk.css" ]]; then
+    if [[ -f "$HOME/.local/share/archriot/config/gtk-3.0/gtk.css" ]]; then
         mkdir -p "$HOME/.config/gtk-3.0"
-        cp "$HOME/.local/share/omarchy/config/gtk-3.0/gtk.css" "$HOME/.config/gtk-3.0/gtk.css"
+        cp "$HOME/.local/share/archriot/config/gtk-3.0/gtk.css" "$HOME/.config/gtk-3.0/gtk.css"
         echo "✓ GTK dark theme CSS applied"
     fi
 
     # Handle hyprlock config specially (link main config that sources theme)
-    local main_hyprlock="$HOME/.local/share/omarchy/config/hypr/hyprlock.conf"
+    local main_hyprlock="$HOME/.local/share/archriot/config/hypr/hyprlock.conf"
     local target_hyprlock="$HOME/.config/hypr/hyprlock.conf"
 
     if [[ -f "$main_hyprlock" ]]; then
@@ -344,7 +344,7 @@ setup_fuzzel_cache() {
 backup_existing_configs() {
     echo "💾 Creating configuration backups..."
 
-    local backup_dir="$HOME/.config/omarchy-backups/$(date +%Y-%m-%d-%H%M%S)"
+    local backup_dir="$HOME/.config/archriot-backups/$(date +%Y-%m-%d-%H%M%S)"
     mkdir -p "$backup_dir"
 
     local configs_to_backup=(
@@ -378,7 +378,7 @@ backup_existing_configs() {
 link_waybar_config() {
     echo "📊 Configuring waybar theme..."
 
-    local theme_config="$HOME/.config/omarchy/current/theme/config"
+    local theme_config="$HOME/.config/archriot/current/theme/config"
     local waybar_config="$HOME/.config/waybar/config"
     local default_config="$HOME/.config/waybar/config.default"
 
@@ -408,7 +408,7 @@ start_theme_services() {
     stop_theme_services
 
     # Start background service
-    local bg_file="$HOME/.config/omarchy/current/background"
+    local bg_file="$HOME/.config/archriot/current/background"
     if [[ -f "$bg_file" ]] || [[ -L "$bg_file" ]]; then
         # Resolve symlink if needed
         local actual_bg=$(readlink -f "$bg_file" 2>/dev/null || echo "$bg_file")
@@ -479,10 +479,9 @@ ask_blue_light_filter() {
     echo "  • More comfortable viewing in low-light environments"
     echo "  • 3500K temperature - scientifically optimal warm setting"
     echo ""
-    echo -n "Would you like to preserve your eyes and your brain and filter blue light? [Y/n]: "
-    read -r response
-
-    case "$response" in
+    echo "✓ Enabling blue light filtering automatically (3500K temperature)"
+    # Auto-enable blue light filtering - no interactive prompt
+    case "y" in
         [nN]|[nN][oO])
             echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
             return 1
@@ -536,8 +535,8 @@ validate_theme_setup() {
     fi
 
     # Check active theme
-    if [[ -L ~/.config/omarchy/current/theme ]]; then
-        local active_theme=$(basename "$(readlink ~/.config/omarchy/current/theme)")
+    if [[ -L ~/.config/archriot/current/theme ]]; then
+        local active_theme=$(basename "$(readlink ~/.config/archriot/current/theme)")
         echo "✓ Active theme: $active_theme"
     else
         echo "❌ No active theme set"
@@ -545,7 +544,7 @@ validate_theme_setup() {
     fi
 
     # Check background
-    if [[ -f ~/.config/omarchy/current/background ]]; then
+    if [[ -f ~/.config/archriot/current/background ]]; then
         echo "✓ Background configured"
     else
         echo "⚠ Background not configured"
@@ -576,7 +575,7 @@ display_theming_summary() {
     echo "  • Cursor: Bibata Modern Ice"
     echo "  • Icons: Obsidian-Purple"
     echo "  • GTK: Adwaita Dark"
-    echo "  • OhmArchy: $(basename "$(readlink ~/.config/omarchy/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
+    echo "  • OhmArchy: $(basename "$(readlink ~/.config/archriot/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
     echo ""
     echo "🎯 Active features:"
     echo "  • Dark mode preference"
@@ -585,9 +584,9 @@ display_theming_summary() {
     echo "  • Consistent theming across applications"
     echo ""
     echo "🔧 Theme management:"
-    echo "  • Use ohmarchy-theme-next to cycle themes"
-    echo "  • Themes located in ~/.config/omarchy/themes/"
-    echo "  • Current theme: ~/.config/omarchy/current/theme"
+    echo "  • Use theme-next to cycle themes"
+    echo "  • Themes located in ~/.config/archriot/themes/"
+    echo "  • Current theme: ~/.config/archriot/current/theme"
 }
 
 # Main execution with comprehensive error handling
@@ -615,7 +614,7 @@ main() {
     setup_cursor_links
 
     # Setup OhmArchy theme system
-    setup_omarchy_theme_system || {
+    setup_archriot_theme_system || {
         echo "❌ Failed to setup OhmArchy theme system"
         return 1
     }

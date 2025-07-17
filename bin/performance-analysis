@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Performance Analysis Script
+# ArchRiot Performance Analysis Script
 # Comprehensive system performance profiling and optimization analysis
 
 set -euo pipefail
@@ -15,11 +15,11 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Output file
-REPORT_FILE="/tmp/ohmarchy-performance-$(date +%Y%m%d-%H%M%S).txt"
+REPORT_FILE="/tmp/performance-analysis-$(date +%Y%m%d-%H%M%S).txt"
 
 print_header() {
     echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                 OhmArchy Performance Analysis                ║${NC}"
+    echo -e "${PURPLE}║                 ArchRiot Performance Analysis                ║${NC}"
     echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}📊 Analyzing system performance and identifying optimization opportunities${NC}"
@@ -90,8 +90,8 @@ analyze_memory_usage() {
         systemctl status --no-pager | grep -E "(memory|Memory)" | head -5 | tee -a "$REPORT_FILE" || echo "No memory info available" | tee -a "$REPORT_FILE"
     fi
 
-    subsection_header "OhmArchy-Specific Processes"
-    ps aux | grep -E "(waybar|hypr|mako|ghostty|swaybg)" | grep -v grep | tee -a "$REPORT_FILE" || echo "No OhmArchy processes found" | tee -a "$REPORT_FILE"
+    subsection_header "ArchRiot-Specific Processes"
+    ps aux | grep -E "(waybar|hypr|mako|ghostty|swaybg)" | grep -v grep | tee -a "$REPORT_FILE" || echo "No ArchRiot processes found" | tee -a "$REPORT_FILE"
 }
 
 analyze_service_status() {
@@ -104,9 +104,9 @@ analyze_service_status() {
         echo "✅ No failed services found" | tee -a "$REPORT_FILE"
     fi
 
-    subsection_header "OhmArchy-Specific Services"
+    subsection_header "ArchRiot-Specific Services"
     echo "User Services:" | tee -a "$REPORT_FILE"
-    systemctl --user list-units | grep -E "(omarchy|waybar|hypr|mako)" | tee -a "$REPORT_FILE" || echo "No OhmArchy user services running" | tee -a "$REPORT_FILE"
+    systemctl --user list-units | grep -E "(omarchy|waybar|hypr|mako)" | tee -a "$REPORT_FILE" || echo "No ArchRiot user services running" | tee -a "$REPORT_FILE"
 
     subsection_header "Auto-starting Services"
     systemctl list-unit-files --state=enabled --no-pager | head -10 | tee -a "$REPORT_FILE"
@@ -241,7 +241,7 @@ main() {
     print_header
 
     # Initialize report file
-    echo "OhmArchy Performance Analysis Report" > "$REPORT_FILE"
+    echo "ArchRiot Performance Analysis Report" > "$REPORT_FILE"
     echo "Generated: $(date)" >> "$REPORT_FILE"
     echo "System: $(uname -a)" >> "$REPORT_FILE"
 
@@ -261,7 +261,7 @@ main() {
     echo -e "${GREEN}📄 Full report saved to: $REPORT_FILE${NC}" | tee -a "$REPORT_FILE"
     echo -e "${CYAN}📊 Review the recommendations section for optimization opportunities${NC}" | tee -a "$REPORT_FILE"
     echo "" | tee -a "$REPORT_FILE"
-    echo -e "${YELLOW}💡 To apply optimizations, run: ohmarchy-optimize-system${NC}" | tee -a "$REPORT_FILE"
+    echo -e "${YELLOW}💡 To apply optimizations, run: optimize-system${NC}" | tee -a "$REPORT_FILE"
 }
 
 # Check for required dependencies

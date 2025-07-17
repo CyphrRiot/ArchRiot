@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Volume OSD - Simple and clean Hyprland notification for volume changes
+# ArchRiot Volume OSD - Simple and clean Hyprland notification for volume changes
 # Shows clean volume bar in top middle of screen for 1.5 seconds
 
 # Get current volume and mute status

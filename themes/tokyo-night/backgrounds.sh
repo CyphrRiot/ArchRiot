@@ -1,5 +1,5 @@
 # Define backgrounds directory
-BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
+BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
 
 mkdir -p "$BACKGROUNDS_DIR/tokyo-night"
 download_background_image "https://images.unsplash.com/photo-1651870364199-fc5f9f46ac85" "tokyo-night/1-Pawel-Czerwinski-Abstract-Purple-Blue.jpg"

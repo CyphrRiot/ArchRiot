@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Touchpad Configuration Fix
+# ArchRiot Touchpad Configuration Fix
 # ==============================================================================
 # Detects touchpad hardware and conditionally enables touchpad config in
 # Hyprland configuration to prevent config errors on desktop systems

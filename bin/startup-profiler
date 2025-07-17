@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Startup Profiler
+# ArchRiot Startup Profiler
 # Analyzes boot times, login performance, and application startup speeds
 
 set -euo pipefail
@@ -15,12 +15,12 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPORT_FILE="/tmp/ohmarchy-startup-$(date +%Y%m%d-%H%M%S).txt"
+REPORT_FILE="/tmp/startup-profiler-$(date +%Y%m%d-%H%M%S).txt"
 APP_TEST_COUNT=3
 
 print_header() {
     echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║                OhmArchy Startup Profiler                    ║${NC}"
+    echo -e "${PURPLE}║                ArchRiot Startup Profiler                    ║${NC}"
     echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}🚀 Analyzing system startup performance and identifying bottlenecks${NC}"
@@ -407,7 +407,7 @@ generate_startup_recommendations() {
     echo "gtk-update-icon-cache -t ~/.local/share/icons/*" | tee -a "$REPORT_FILE"
     echo "" | tee -a "$REPORT_FILE"
     echo "# System optimization:" | tee -a "$REPORT_FILE"
-    echo "ohmarchy-optimize-system" | tee -a "$REPORT_FILE"
+    echo "optimize-system" | tee -a "$REPORT_FILE"
     echo "" | tee -a "$REPORT_FILE"
     echo "# Check for failed services:" | tee -a "$REPORT_FILE"
     echo "systemctl --failed" | tee -a "$REPORT_FILE"
@@ -449,14 +449,14 @@ show_summary() {
     echo -e "${GREEN}✅ Startup analysis completed successfully!${NC}" | tee -a "$REPORT_FILE"
     echo -e "${GREEN}📄 Full report saved to: $REPORT_FILE${NC}" | tee -a "$REPORT_FILE"
     echo "" | tee -a "$REPORT_FILE"
-    echo -e "${YELLOW}💡 To apply optimizations, run: ohmarchy-optimize-system${NC}" | tee -a "$REPORT_FILE"
+    echo -e "${YELLOW}💡 To apply optimizations, run: optimize-system${NC}" | tee -a "$REPORT_FILE"
 }
 
 main() {
     print_header
 
     # Initialize report file
-    echo "OhmArchy Startup Profiler Report" > "$REPORT_FILE"
+    echo "ArchRiot Startup Profiler Report" > "$REPORT_FILE"
     echo "Generated: $(date)" >> "$REPORT_FILE"
     echo "System: $(uname -a)" >> "$REPORT_FILE"
 

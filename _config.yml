@@ -1,5 +1,5 @@
-# Jekyll Configuration for OhmArchy GitHub Pages
-title: OhmArchy Ω
+# Jekyll Configuration for ArchRiot GitHub Pages
+title: ArchRiot 🎭
 description: >-
     A beautiful, modern Arch Linux + Hyprland desktop environment with
     CypherRiot theming, purple aesthetics, and comprehensive Wayland support.
@@ -13,7 +13,7 @@ plugins:
     - jekyll-feed
 
 # Site settings
-url: "https://ohmarchy.org"
+url: "https://archriot.org"
 baseurl: ""
 author: CyphrRiot
 github_username: CyphrRiot
@@ -40,5 +40,5 @@ exclude:
 # Custom variables for the theme
 show_downloads: false
 github:
-    repository_url: https://github.com/CyphrRiot/OhmArchy
-    repository_name: OhmArchy
+    repository_url: https://github.com/CyphrRiot/ArchRiot
+    repository_name: ArchRiot

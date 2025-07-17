@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# OhmArchy System Validation Script
+# ArchRiot System Validation Script
 # Validates all fixes and system components are working correctly
 # =============================================================================
 
@@ -57,7 +57,7 @@ test_warn() {
 test_specialty_installation() {
     print_test "Specialty packages installation"
 
-    if [[ -f ~/.local/share/omarchy/install/lib/shared.sh ]]; then
+    if [[ -f ~/.local/share/archriot/install/lib/shared.sh ]]; then
         test_pass "shared.sh library exists"
     else
         test_fail "shared.sh library missing"
@@ -68,8 +68,8 @@ test_background_system() {
     print_test "Background system configuration"
 
     # Check current theme
-    if [[ -L ~/.config/omarchy/current/theme ]]; then
-        local theme=$(basename "$(readlink ~/.config/omarchy/current/theme)")
+    if [[ -L ~/.config/archriot/current/theme ]]; then
+        local theme=$(basename "$(readlink ~/.config/archriot/current/theme)")
         test_pass "Active theme: $theme"
     else
         test_fail "No active theme set"
@@ -77,8 +77,8 @@ test_background_system() {
     fi
 
     # Check background link
-    if [[ -L ~/.config/omarchy/current/background ]]; then
-        local bg_file=$(readlink ~/.config/omarchy/current/background)
+    if [[ -L ~/.config/archriot/current/background ]]; then
+        local bg_file=$(readlink ~/.config/archriot/current/background)
         local bg_name=$(basename "$bg_file")
 
         # Check if it's City-Rainy-Night (preferred default)
@@ -245,8 +245,8 @@ test_theme_system() {
     print_test "Theme system integrity"
 
     # Check theme directories
-    if [[ -d ~/.config/omarchy/themes ]]; then
-        local theme_count=$(find ~/.config/omarchy/themes -maxdepth 1 -type d | wc -l)
+    if [[ -d ~/.config/archriot/themes ]]; then
+        local theme_count=$(find ~/.config/archriot/themes -maxdepth 1 -type d | wc -l)
         if [[ $theme_count -gt 1 ]]; then  # More than just the themes directory itself
             test_pass "Theme system configured ($((theme_count-1)) themes available)"
         else
@@ -257,7 +257,7 @@ test_theme_system() {
     fi
 
     # Check theme switching scripts
-    if [[ -x ~/.local/share/omarchy/bin/ohmarchy-theme-next ]]; then
+    if [[ -x ~/.local/share/archriot/bin/theme-next ]]; then
         test_pass "Theme switching script exists"
     else
         test_fail "Theme switching script missing"
@@ -309,7 +309,7 @@ test_fix_scripts() {
     )
 
     for script in "${fix_scripts[@]}"; do
-        if [[ -x ~/.local/share/omarchy/bin/$script ]]; then
+        if [[ -x ~/.local/share/archriot/bin/$script ]]; then
             test_pass "$script is available"
         else
             test_fail "$script is missing"
@@ -321,7 +321,7 @@ test_fix_scripts() {
 main() {
     echo -e "${BLUE}"
     echo "╔══════════════════════════════════════════════════════════════╗"
-    echo "║                    OhmArchy System Validation                ║"
+    echo "║                    ArchRiot System Validation                ║"
     echo "║              Comprehensive System Health Check               ║"
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"

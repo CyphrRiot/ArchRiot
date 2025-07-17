@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Update Script - Simple and Safe
+# ArchRiot Update Script - Simple and Safe
 # ==============================================================================
-# Updates OhmArchy by pulling latest changes and re-running the installer
+# Updates ArchRiot by pulling latest changes and re-running the installer
 # No dangerous migrations - just uses the battle-tested installer
 # ==============================================================================
 
@@ -30,7 +30,7 @@ print_status() {
 # Header
 echo -e "${BLUE}"
 echo "============================================================"
-echo "                 OhmArchy System Update"
+echo "                 ArchRiot System Update"
 echo "============================================================"
 echo -e "${NC}"
 
@@ -38,11 +38,11 @@ print_status "INFO" "Simple, safe update using the battle-tested installer"
 print_status "INFO" "No dangerous migrations - just pulls latest and re-installs"
 echo
 
-# Navigate to OhmArchy directory
-print_status "INFO" "Navigating to OhmArchy directory..."
-cd ~/.local/share/omarchy || {
-    print_status "ERROR" "OhmArchy directory not found at ~/.local/share/omarchy"
-    print_status "ERROR" "Please reinstall OhmArchy from: https://github.com/CyphrRiot/OhmArchy"
+# Navigate to ArchRiot directory
+print_status "INFO" "Navigating to ArchRiot directory..."
+cd ~/.local/share/archriot || {
+    print_status "ERROR" "ArchRiot directory not found at ~/.local/share/archriot"
+    print_status "ERROR" "Please reinstall ArchRiot from: https://github.com/CyphrRiot/ArchRiot"
     exit 1
 }
 
@@ -53,10 +53,10 @@ if [ -f "VERSION" ]; then
 fi
 
 # Update repository
-print_status "INFO" "Pulling latest OhmArchy changes from GitHub..."
+print_status "INFO" "Pulling latest ArchRiot changes from GitHub..."
 
 # Ensure we're tracking the correct repository
-git remote set-url origin https://github.com/CyphrRiot/OhmArchy.git 2>/dev/null || true
+git remote set-url origin https://github.com/CyphrRiot/ArchRiot.git 2>/dev/null || true
 
 # Pull latest changes
 if git pull origin master; then
@@ -81,13 +81,13 @@ echo
 # Re-run the installer (it's idempotent and handles updates safely)
 if source install.sh; then
     echo
-    print_status "SUCCESS" "OhmArchy update completed successfully!"
+    print_status "SUCCESS" "ArchRiot update completed successfully!"
     print_status "INFO" "All packages updated, configurations refreshed, and themes applied"
     print_status "INFO" "Consider rebooting to ensure all changes take effect"
 else
     echo
     print_status "ERROR" "Update failed during installer execution"
-    print_status "INFO" "You can retry by running: ohmarchy-update"
+    print_status "INFO" "You can retry by running: update"
     exit 1
 fi
 

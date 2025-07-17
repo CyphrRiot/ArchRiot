@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Installation Validation Script
+# ArchRiot Installation Validation Script
 # ==============================================================================
-# Comprehensive validation to ensure OhmArchy will install successfully
+# Comprehensive validation to ensure ArchRiot will install successfully
 # and deliver the expected CypherRiot Wayland + Hyprland experience
 # ==============================================================================
 
@@ -42,17 +42,17 @@ print_header() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     if [[ -f "$script_dir/VERSION" ]]; then
         version=$(cat "$script_dir/VERSION" 2>/dev/null || echo "unknown")
-    elif [[ -f "$HOME/.local/share/omarchy/VERSION" ]]; then
-        version=$(cat "$HOME/.local/share/omarchy/VERSION" 2>/dev/null || echo "unknown")
+    elif [[ -f "$HOME/.local/share/archriot/VERSION" ]]; then
+        version=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
     fi
 
     echo -e "${PURPLE}"
     echo "============================================================"
-    echo "           OhmArchy Installation Validation"
+    echo "           ArchRiot Installation Validation"
     echo "                     Version: $version"
     echo "============================================================"
     echo -e "${NC}"
-    echo "This script validates that OhmArchy will install successfully"
+    echo "This script validates that ArchRiot will install successfully"
     echo "and deliver the expected CypherRiot Wayland + Hyprland experience."
     echo ""
 }
@@ -65,7 +65,7 @@ test_system_requirements() {
     if [[ -f /etc/arch-release ]]; then
         print_status "PASS" "Running on Arch Linux"
     else
-        print_status "FAIL" "Not running on Arch Linux - OhmArchy requires Arch"
+        print_status "FAIL" "Not running on Arch Linux - ArchRiot requires Arch"
         return 1
     fi
 
@@ -132,18 +132,18 @@ test_package_manager() {
 test_installation_files() {
     print_status "TEST" "Testing installation files..."
 
-    local install_dir="$HOME/.local/share/omarchy"
+    local install_dir="$HOME/.local/share/archriot"
 
     # Test if we can clone/access the repo
     if [[ -d "$install_dir" ]]; then
-        print_status "INFO" "OhmArchy already cloned"
+        print_status "INFO" "ArchRiot already cloned"
     else
         print_status "INFO" "Testing repository clone..."
-        if git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git /tmp/omarchy-test 2>/dev/null; then
+        if git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git /tmp/archriot-test 2>/dev/null; then
             print_status "PASS" "Repository accessible and cloneable"
-            rm -rf /tmp/omarchy-test
+            rm -rf /tmp/archriot-test
         else
-            print_status "FAIL" "Cannot clone OhmArchy repository"
+            print_status "FAIL" "Cannot clone ArchRiot repository"
             return 1
         fi
     fi
@@ -183,7 +183,7 @@ test_cypherriot_theme() {
 
     local check_dir="."
     if [[ ! -d "./themes/cypherriot" ]]; then
-        check_dir="$HOME/.local/share/omarchy"
+        check_dir="$HOME/.local/share/archriot"
     fi
 
     local theme_dir="$check_dir/themes/cypherriot"
@@ -262,9 +262,9 @@ test_user_environment() {
 
     # Check shell compatibility
     if [[ "$SHELL" == */fish ]]; then
-        print_status "PASS" "Fish shell detected - optimal for OhmArchy"
+        print_status "PASS" "Fish shell detected - optimal for ArchRiot"
     elif [[ "$SHELL" == */bash ]]; then
-        print_status "PASS" "Bash shell detected - compatible with OhmArchy"
+        print_status "PASS" "Bash shell detected - compatible with ArchRiot"
     else
         print_status "WARN" "Unusual shell detected: $SHELL - may need manual configuration"
     fi
@@ -285,12 +285,12 @@ test_user_environment() {
         return 1
     fi
 
-    # Test if we can create the omarchy directories
-    if mkdir -p "$HOME/.config/omarchy/test" 2>/dev/null; then
-        rmdir "$HOME/.config/omarchy/test" 2>/dev/null
-        print_status "PASS" "Can create OhmArchy config directories"
+    # Test if we can create the archriot directories
+    if mkdir -p "$HOME/.config/archriot/test" 2>/dev/null; then
+        rmdir "$HOME/.config/archriot/test" 2>/dev/null
+        print_status "PASS" "Can create ArchRiot config directories"
     else
-        print_status "FAIL" "Cannot create OhmArchy config directories"
+        print_status "FAIL" "Cannot create ArchRiot config directories"
         return 1
     fi
 }
@@ -337,15 +337,15 @@ test_installation_simulation() {
     print_status "TEST" "Simulating critical installation steps..."
 
     # Test using local repo if available, otherwise clone from GitHub
-    local test_dir="/tmp/omarchy-validation-$$"
+    local test_dir="/tmp/archriot-validation-$$"
     local using_local=false
 
-    # Check if we're running from within the OhmArchy repo
+    # Check if we're running from within the ArchRiot repo
     if [[ -f "./config/ghostty/config" && -f "./config/fish/config.fish" && -f "./install.sh" ]]; then
-        print_status "PASS" "Using local OhmArchy repository for validation"
+        print_status "PASS" "Using local ArchRiot repository for validation"
         test_dir="."
         using_local=true
-    elif git clone --depth 1 https://github.com/CyphrRiot/OhmArchy.git "$test_dir" 2>/dev/null; then
+    elif git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git "$test_dir" 2>/dev/null; then
         print_status "PASS" "Repository clone simulation successful"
     else
         print_status "FAIL" "Repository clone simulation failed"
@@ -388,7 +388,7 @@ test_installation_simulation() {
     fi
 
     # Test directory creation
-    local test_config="/tmp/omarchy-config-test-$$"
+    local test_config="/tmp/archriot-config-test-$$"
     if mkdir -p "$test_config"/{themes,current,backgrounds} 2>/dev/null; then
         print_status "PASS" "Config directory structure creation works"
         rm -rf "$test_config"
@@ -417,8 +417,8 @@ test_expected_outcome() {
         print_status "INFO" " Hyprland config already exists - this may be a re-install"
     fi
 
-    if [[ -L "$HOME/.config/omarchy/current/theme" ]]; then
-        local current_theme=$(basename "$(readlink "$HOME/.config/omarchy/current/theme")")
+    if [[ -L "$HOME/.config/archriot/current/theme" ]]; then
+        local current_theme=$(basename "$(readlink "$HOME/.config/archriot/current/theme")")
         print_status "INFO" " Current theme already set: $current_theme"
     fi
 }
@@ -439,12 +439,12 @@ generate_report() {
     if [[ $TESTS_FAILED -eq 0 ]]; then
         echo -e "${GREEN}🎉 VALIDATION SUCCESSFUL!${NC}"
         echo ""
-        echo -e "${GREEN}✓ OhmArchy should install successfully${NC}"
+        echo -e "${GREEN}✓ ArchRiot should install successfully${NC}"
         echo -e "${GREEN}✓ You should get a beautiful Wayland + Hyprland experience${NC}"
         echo -e "${GREEN}✓ CypherRiot theme should work properly${NC}"
         echo ""
         echo -e "${BLUE}Ready to install? Run:${NC}"
-        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/setup.sh | bash${NC}"
+        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/setup.sh | bash${NC}"
         echo ""
 
         if [[ $WARNINGS -gt 0 ]]; then
