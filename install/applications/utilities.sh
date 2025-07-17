@@ -71,6 +71,7 @@ else
 fi
 
 # Install Signal Wayland launcher and desktop file
+# Note: signal-desktop package is installed by communication.sh module
 if [[ -f "$HOME/.local/share/omarchy/bin/signal-wayland" ]]; then
   cp "$HOME/.local/share/omarchy/bin/signal-wayland" ~/.local/bin/
   chmod +x ~/.local/bin/signal-wayland
