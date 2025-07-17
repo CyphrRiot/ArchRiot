@@ -65,6 +65,15 @@ else
 fi
 
 if [[ -f "$script_dir/../../applications/zed.desktop" ]]; then
+    # Hide system zed.desktop to prevent duplicates
+    if [[ -f "/usr/share/applications/zed.desktop" ]]; then
+        mkdir -p ~/.local/share/applications/
+        echo "NoDisplay=true" > ~/.local/share/applications/zed-system.desktop
+        cp "/usr/share/applications/zed.desktop" ~/.local/share/applications/zed-system.desktop
+        echo "✓ System Zed desktop file hidden"
+    fi
+
+    # Install our Wayland-fixed version
     cp "$script_dir/../../applications/zed.desktop" ~/.local/share/applications/
     echo "✓ Zed desktop file installed with Wayland support"
 else
