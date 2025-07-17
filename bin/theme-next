@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Theme directories
-themes_dir="$HOME/.config/omarchy/themes/"
-current_link="$HOME/.config/omarchy/current/theme"
+themes_dir="$HOME/.config/archriot/themes/"
+current_link="$HOME/.config/archriot/current/theme"
 
 # Get available themes
 readarray -t themes < <(find "$themes_dir" -mindepth 1 -maxdepth 1 -type d | sort)
@@ -23,15 +23,15 @@ theme_name=$(basename "$new_theme")
 echo "🎨 Switching to theme: $theme_name"
 
 # Update theme links
-ln -nsf "$HOME/.config/omarchy/backgrounds/$theme_name" "$HOME/.config/omarchy/current/backgrounds"
+ln -nsf "$HOME/.config/archriot/backgrounds/$theme_name" "$HOME/.config/archriot/current/backgrounds"
 ln -nsf "$new_theme" "$current_link"
 
 # Set background
-background=$(find "$HOME/.config/omarchy/current/backgrounds/" -type f | head -n 1)
+background=$(find "$HOME/.config/archriot/current/backgrounds/" -type f | head -n 1)
 [[ -n "$background" ]] && {
-    ln -nsf "$background" "$HOME/.config/omarchy/current/background"
+    ln -nsf "$background" "$HOME/.config/archriot/current/background"
     pkill -x swaybg 2>/dev/null
-    setsid swaybg -i "$HOME/.config/omarchy/current/background" -m fill &
+    setsid swaybg -i "$HOME/.config/archriot/current/background" -m fill &
 }
 
 # Apply theme components

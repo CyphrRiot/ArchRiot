@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Read version from VERSION file
 read_version() {
-    local version_file="$HOME/.local/share/omarchy/VERSION"
+    local version_file="$HOME/.local/share/archriot/VERSION"
 
     if [[ -f "$version_file" ]]; then
         cat "$version_file" 2>/dev/null || echo "unknown"
@@ -26,7 +26,7 @@ read_version() {
 
 # Get installation date from directory creation
 get_install_date() {
-    local install_dir="$HOME/.local/share/omarchy"
+    local install_dir="$HOME/.local/share/archriot"
 
     if [[ -d "$install_dir" ]]; then
         if command -v stat >/dev/null 2>&1; then
@@ -41,7 +41,7 @@ get_install_date() {
 
 # Get current theme
 get_current_theme() {
-    local theme_link="$HOME/.config/omarchy/current/theme"
+    local theme_link="$HOME/.config/archriot/current/theme"
 
     if [[ -L "$theme_link" ]]; then
         basename "$(readlink "$theme_link" 2>/dev/null)" || echo "unknown"

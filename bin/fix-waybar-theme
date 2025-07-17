@@ -8,10 +8,10 @@
 echo "🎨 Fixing Waybar theme and styling issues..."
 
 # Define directories
-THEMES_DIR="$HOME/.config/omarchy/themes"
-CURRENT_THEME_LINK="$HOME/.config/omarchy/current/theme"
+THEMES_DIR="$HOME/.config/archriot/themes"
+CURRENT_THEME_LINK="$HOME/.config/archriot/current/theme"
 WAYBAR_CONFIG_DIR="$HOME/.config/waybar"
-REPO_THEMES_DIR="$HOME/.local/share/omarchy/themes"
+REPO_THEMES_DIR="$HOME/.local/share/archriot/themes"
 
 # Check if current theme is linked
 if [[ ! -L "$CURRENT_THEME_LINK" ]]; then
@@ -33,7 +33,7 @@ if [[ ! -f "$THEME_WAYBAR_CSS" ]]; then
     echo "   Using repository default waybar styling"
 
     # Use the main config waybar style.css as fallback
-    REPO_WAYBAR_CSS="$HOME/.local/share/omarchy/config/waybar/style.css"
+    REPO_WAYBAR_CSS="$HOME/.local/share/archriot/config/waybar/style.css"
     if [[ -f "$REPO_WAYBAR_CSS" ]]; then
         cp "$REPO_WAYBAR_CSS" "$WAYBAR_CONFIG_DIR/style.css"
         echo "   ✓ Applied repository default waybar styling"
@@ -163,7 +163,7 @@ else
 fi
 
 # Create a theme update hook for future theme changes
-HOOK_SCRIPT="$HOME/.config/omarchy/hooks/waybar-theme-update.sh"
+HOOK_SCRIPT="$HOME/.config/archriot/hooks/waybar-theme-update.sh"
 mkdir -p "$(dirname "$HOOK_SCRIPT")"
 
 cat > "$HOOK_SCRIPT" << 'EOF'
@@ -171,7 +171,7 @@ cat > "$HOOK_SCRIPT" << 'EOF'
 # Auto-generated hook to maintain waybar theme consistency
 # This script is called when themes are changed
 
-CURRENT_THEME_LINK="$HOME/.config/omarchy/current/theme"
+CURRENT_THEME_LINK="$HOME/.config/archriot/current/theme"
 WAYBAR_CONFIG_DIR="$HOME/.config/waybar"
 
 if [[ -L "$CURRENT_THEME_LINK" ]]; then

@@ -8,9 +8,9 @@
 echo "🖼️  Fixing background and theme issues..."
 
 # Define directories
-THEMES_DIR="$HOME/.config/omarchy/themes"
-BACKGROUNDS_DIR="$HOME/.config/omarchy/backgrounds"
-CURRENT_DIR="$HOME/.config/omarchy/current"
+THEMES_DIR="$HOME/.config/archriot/themes"
+BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
+CURRENT_DIR="$HOME/.config/archriot/current"
 CURRENT_BACKGROUND_LINK="$CURRENT_DIR/background"
 CURRENT_THEME_LINK="$CURRENT_DIR/theme"
 
@@ -27,7 +27,7 @@ if [[ ! -d "$CYPHERRIOT_THEME" ]]; then
     echo "   Creating symlink to repository theme..."
 
     # Find the repository theme
-    REPO_THEME="$HOME/.local/share/omarchy/themes/cypherriot"
+    REPO_THEME="$HOME/.local/share/archriot/themes/cypherriot"
     if [[ -d "$REPO_THEME" ]]; then
         ln -nsf "$REPO_THEME" "$CYPHERRIOT_THEME"
         echo "   ✓ Linked CypherRiot theme from repository"

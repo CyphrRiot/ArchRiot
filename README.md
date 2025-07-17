@@ -25,7 +25,7 @@
 
 Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
 
-ArchRiot is an even more opiniated setup and was originally a fork of [DHH's amazing Omarchy](https://github.com/basecamp/omarchy) with extensive customizations focused on privacy, development productivity, and clean aesthetics.
+ArchRiot is an even more opiniated setup and was originally a unique rice and then a fork of [DHH's Omarchy](https://github.com/basecamp/omarchy) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
 _Created by a hacker, cypherpunk, and crypto/blockchain expert with decades of experience running Linux and Unix - this is the system I've always wanted._
 
@@ -76,8 +76,8 @@ curl -fsSL https://archriot.org/setup.sh | bash
 ### Method 2: Manual Clone (For Customization)
 
 ```bash
-git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/omarchy
-~/.local/share/omarchy/install.sh
+git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
+~/.local/share/archriot/install.sh
 ```
 
 ### Optional: Pre-Installation Validation
@@ -348,7 +348,7 @@ ArchRiot includes two carefully curated themes with CypherRiot as the default:
 ### Theme Management
 
 - **Switch themes:** `theme-next` or manually symlink
-- **Theme location:** `~/.config/omarchy/current/theme`
+- **Theme location:** `~/.config/archriot/current/theme`
 - **Backgrounds:** Automatically matched to theme with time-based variants
 
 ## ⚡ Key Features & Performance
@@ -437,7 +437,7 @@ After installation completes, verify everything is working correctly:
 The installer automatically runs a post-installation check. If you need to run it manually:
 
 ```bash
-~/.local/share/omarchy/bin/post-install-check
+~/.local/share/archriot/bin/post-install-check
 ```
 
 ### Manual Verification
@@ -446,8 +446,8 @@ Check these key components:
 
 ```bash
 # Verify theme system
-ls ~/.config/omarchy/current/theme     # Should show active theme
-ls ~/.config/omarchy/current/background # Should show escape_velocity.jpg
+ls ~/.config/archriot/current/theme     # Should show active theme
+ls ~/.config/archriot/current/background # Should show escape_velocity.jpg
 
 # Test background cycling
 SUPER + CTRL + SPACE                   # Should cycle through 6 backgrounds
