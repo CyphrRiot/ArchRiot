@@ -59,22 +59,18 @@ get_user_identity() {
     echo "  git config --global user.email \"your@email.com\""
     echo ""
 
-    # Use timeout to prevent hanging in automated contexts
-    echo -n "Git Name (optional - 15s timeout): "
-    if read -t 15 -r ARCHRIOT_USER_NAME; then
-        echo ""
-    else
-        echo ""
-        echo "⏰ Timeout - skipping git name"
-        ARCHRIOT_USER_NAME=""
-    fi
+    # Check if we're in an interactive terminal
+    if [[ -t 0 && -t 1 ]]; then
+        # Interactive mode - no timeout
+        echo -n "Git Name (optional - press Enter to skip): "
+        read -r ARCHRIOT_USER_NAME
 
-    echo -n "Git Email (optional - 15s timeout): "
-    if read -t 15 -r ARCHRIOT_USER_EMAIL; then
-        echo ""
+        echo -n "Git Email (optional - press Enter to skip): "
+        read -r ARCHRIOT_USER_EMAIL
     else
-        echo ""
-        echo "⏰ Timeout - skipping git email"
+        # Non-interactive mode - skip prompts
+        echo "⚠ Non-interactive mode detected - skipping git configuration"
+        ARCHRIOT_USER_NAME=""
         ARCHRIOT_USER_EMAIL=""
     fi
 
