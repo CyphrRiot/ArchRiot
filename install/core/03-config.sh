@@ -70,11 +70,39 @@ install_configs() {
         # Skip Zed configs - preserve user editor customizations
         if [[ "$basename" == "zed" ]]; then
             echo "ℹ️ Skipping zed config (preserving user editor settings)"
-            # Create reference copy for users who want to see OhmArchy's config
+            # Create reference copy for users who want to see ArchRiot's config
             if [[ ! -e "$target.archriot-default" ]]; then
                 cp -R "$item" "$target.archriot-default" 2>/dev/null || true
                 echo "  → Created reference copy: $basename.archriot-default"
             fi
+            continue
+        fi
+
+        # Smart GTK config handling - preserve user bookmarks
+        if [[ "$basename" == "gtk-3.0" ]]; then
+            echo "ℹ️ Smart GTK-3.0 config installation (preserving bookmarks)"
+
+            # Ensure target directory exists
+            mkdir -p "$target"
+
+            # Copy our theme files
+            cp -R "$item"/* "$target/" 2>/dev/null || true
+
+            # Preserve existing bookmarks or create default ones
+            local bookmarks_file="$target/bookmarks"
+            if [[ ! -f "$bookmarks_file" ]]; then
+                echo "📁 Creating default Thunar bookmarks"
+                cat > "$bookmarks_file" << 'EOF'
+file://$HOME/Downloads Downloads
+file://$HOME/Documents Documents
+file://$HOME/Pictures Pictures
+file://$HOME/Music Music
+file://$HOME/Videos Videos
+EOF
+            else
+                echo "✓ Preserved existing Thunar bookmarks"
+            fi
+            echo "✓ Smart installed GTK config with bookmark preservation"
             continue
         fi
 
@@ -84,11 +112,11 @@ install_configs() {
             cp -R "$item" "$target" || return 1
             echo "✓ Installed new config: $basename"
         else
-            # Backup existing and install OhmArchy version
+            # Backup existing and install ArchRiot version
             local backup_target="$target.user-backup-$(date +%s)"
             mv "$target" "$backup_target" 2>/dev/null || true
             cp -R "$item" "$target" || return 1
-            echo "✓ Force installed OhmArchy config: $basename (backup: $(basename "$backup_target"))"
+            echo "✓ Force installed ArchRiot config: $basename (backup: $(basename "$backup_target"))"
         fi
     done
 
