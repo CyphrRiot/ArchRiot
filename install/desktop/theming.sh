@@ -276,7 +276,6 @@ link_theme_configs() {
         "neovim.lua:$HOME/.config/nvim/lua/plugins/theme.lua"
         "btop.theme:$HOME/.config/btop/themes/current.theme"
         "mako.ini:$HOME/.config/mako/config"
-        "ghostty.conf:$HOME/.config/ghostty/current-theme.conf"
     )
 
     for link_info in "${config_links[@]}"; do
@@ -353,7 +352,6 @@ backup_existing_configs() {
         "$HOME/.config/fuzzel/fuzzel.ini"
         "$HOME/.config/hypr/hyprlock.conf"
         "$HOME/.config/mako/config"
-        "$HOME/.config/ghostty/current-theme.conf"
         "$HOME/.config/gtk-3.0/gtk.css"
     )
 
