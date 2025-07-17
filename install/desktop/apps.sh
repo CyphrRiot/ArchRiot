@@ -203,8 +203,12 @@ install_vpn_client() {
     if yay -S --noconfirm --needed "mullvad-vpn-bin"; then
         echo "✓ Mullvad VPN client installed"
 
-        # Only prompt if we're in an interactive terminal
-        if [[ -t 0 && -t 1 ]]; then
+        # Check if Mullvad is already configured
+        if mullvad status 2>/dev/null | grep -q "Logged in"; then
+            echo "✓ Mullvad VPN is already configured and logged in"
+            echo ""
+        elif [[ -t 0 && -t 1 ]]; then
+            # Only prompt if we're in an interactive terminal AND not already configured
             # Pause progress bars for clean user input
             pause_progress 2>/dev/null || true
 
