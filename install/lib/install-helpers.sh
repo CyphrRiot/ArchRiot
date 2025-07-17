@@ -94,7 +94,7 @@ handle_optional_failure() {
     echo -e "${YELLOW}  This may reduce functionality but installation will continue${NC}"
 
     # Still log for debugging
-    echo "OPTIONAL FAILURE: $CURRENT_INSTALLER - $failed_packages (exit: $exit_code)" >> /tmp/omarchy-warnings.log
+    echo "OPTIONAL FAILURE: $CURRENT_INSTALLER - $failed_packages (exit: $exit_code)" >> /tmp/archriot-warnings.log
 }
 
 # Log detailed failure information
@@ -223,10 +223,10 @@ show_install_summary() {
     echo -e "${GREEN}✓ $CURRENT_INSTALLER completed successfully${NC}"
     echo -e "${BLUE}Duration: ${duration}s${NC}"
 
-    if [ -f /tmp/omarchy-warnings.log ]; then
-        local warning_count=$(wc -l < /tmp/omarchy-warnings.log)
+    if [ -f /tmp/archriot-warnings.log ]; then
+        local warning_count=$(wc -l < /tmp/archriot-warnings.log)
         if [ $warning_count -gt 0 ]; then
-            echo -e "${YELLOW}⚠ $warning_count warnings (check /tmp/omarchy-warnings.log)${NC}"
+            echo -e "${YELLOW}⚠ $warning_count warnings (check /tmp/archriot-warnings.log)${NC}"
         fi
     fi
 }

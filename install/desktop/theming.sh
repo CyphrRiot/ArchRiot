@@ -479,10 +479,9 @@ ask_blue_light_filter() {
     echo "  • More comfortable viewing in low-light environments"
     echo "  • 3500K temperature - scientifically optimal warm setting"
     echo ""
-    echo -n "Would you like to preserve your eyes and your brain and filter blue light? [Y/n]: "
-    read -r response
-
-    case "$response" in
+    echo "✓ Enabling blue light filtering automatically (3500K temperature)"
+    # Auto-enable blue light filtering - no interactive prompt
+    case "y" in
         [nN]|[nN][oO])
             echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
             return 1
