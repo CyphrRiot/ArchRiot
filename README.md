@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-1.1.12-7c3aed)
 ![License](https://img.shields.io/github/license/CyphrRiot/OhmArchy?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=7c3aed)
-![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logo=wayland&logoColor=89b4fa)
+![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=89b4fa)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=89dceb)
 
 ![Language](https://img.shields.io/badge/language-Shell-1e1e2e)
