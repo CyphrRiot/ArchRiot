@@ -114,17 +114,15 @@ class WelcomeWindow:
         text_content_parts = [
             f"ArchRiot v{version} is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
             "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
-            "SUPER+B = Open Brave Browser\n",
-            "SUPER+ENTER = Open Terminal\n",
             "SUPER+F = Open File Browser\n",
+            "SUPER+ENTER = Open Terminal\n",
+            "SUPER+B = Open Brave Browser\n",
             "SUPER+X = Open Twitter/X (Special Window)\n",
             "SUPER+SPACE = Launch App Search Window\n",
             "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
-            "Many other commands!\n\n",
             "Don't like the background? SUPER+CTRL+SPACE to switch between over a dozen hand-crafted backgrounds made (mostly) for ArchRiot.\n\n",
-
-            "ArchRiot started life as a standalone installer, then a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
-            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together.\n"
+            "Many other commands!\n\n",
+            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together.\n\n"
         ]
 
         # Insert text parts
