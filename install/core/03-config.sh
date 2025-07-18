@@ -247,6 +247,15 @@ setup_scripts_and_env() {
     local archriot_bashrc="$HOME/.local/share/archriot/default/bash/rc"
     [[ -f "$archriot_bashrc" ]] && echo "source $archriot_bashrc" > ~/.bashrc
 
+    # Setup tmux configuration
+    local archriot_tmux="$HOME/.local/share/archriot/default/tmux.conf"
+    if [[ -f "$archriot_tmux" ]]; then
+        cp "$archriot_tmux" ~/.tmux.conf
+        echo "✓ tmux configuration installed"
+    else
+        echo "⚠ tmux configuration not found"
+    fi
+
     echo "✓ Scripts and environment configured"
 }
 
