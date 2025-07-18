@@ -42,45 +42,6 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 ![ArchRiot Screenshot](images/screenshot.png)
 
-## 🆕 **What's New in v1.1.42**
-
-**Smart Application Launcher & Enhanced System Management**
-
-- 🚀 **Optimized Upgrade System** - New `upgrade-system` utility with parallel downloads, intelligent error recovery, and ArchRiot integration
-- 📊 **Enhanced Update Management** - Progress tracking, detailed logging, backup integration, and .pacnew file detection
-- 🛡️ **Intelligent Error Recovery** - Automatic handling of corrupted downloads and package conflicts during upgrades
-- 🎯 **Smart Signal Launcher** - SUPER+G now intelligently launches Signal if not running or focuses existing window if already open
-- ⌨️ **Enhanced Keybinding Logic** - Application shortcuts now handle running instances gracefully instead of failing to launch
-- 🪟 **Better Window Management** - Signal launcher includes workspace switching and cross-monitor window focusing
-- 🎨 **Fixed Welcome Screen Font** - Welcome window now properly uses "Hack Nerd Font Mono" consistently across all text elements
-- 📖 **Improved README Formatting** - Restored proper footnote format for "unique rice" definition that works correctly on both GitHub and Jekyll site
-- 🔧 **Font Consistency** - Updated Python GTK welcome script with proper Pango font handling and CSS styling
-- 📝 **Better Cross-Platform Display** - README now renders properly on GitHub while maintaining Jekyll site functionality
-
-This release improves the user experience with smarter application management, enhanced system maintenance tools, and polished visual consistency across all ArchRiot interfaces.
-
-## 💾 **Built-in Backup & Recovery with Migrate**
-
-ArchRiot ships with **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by CyphrRiot. Never lose your configurations again!
-
-### 🛡️ **Why Migrate Matters**
-
-- **Complete System Backup** - Captures all your dotfiles, configurations, and customizations
-- **Interactive TUI** - Beautiful text interface makes backup/restore simple
-- **Live System Recovery** - Restore without reinstalling your entire system
-- **Cross-Installation Migration** - Move your setup between different machines
-- **Automatic Updates** - Always gets the latest version during ArchRiot installation
-
-### 🔥 **Quick Start**
-
-```bash
-migrate                              # Launch interactive backup/restore interface
-```
-
-**No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
-
-[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
-
 ## 🚀 Installation
 
 ### Prerequisites: Fresh Arch Linux Setup
@@ -155,6 +116,45 @@ This comprehensive test validates:
 - **Script validation** - Verifies all waybar modules are functional
 - **Error handling** - Clear feedback and rollback capability
 - **100% confidence** - Comprehensive testing and validation
+
+## 🆕 **What's New in v1.1.42**
+
+**Smart Application Launcher & Enhanced System Management**
+
+- 🚀 **Optimized Upgrade System** - New `upgrade-system` utility with parallel downloads, intelligent error recovery, and ArchRiot integration
+- 📊 **Enhanced Update Management** - Progress tracking, detailed logging, backup integration, and .pacnew file detection
+- 🛡️ **Intelligent Error Recovery** - Automatic handling of corrupted downloads and package conflicts during upgrades
+- 🎯 **Smart Signal Launcher** - SUPER+G now intelligently launches Signal if not running or focuses existing window if already open
+- ⌨️ **Enhanced Keybinding Logic** - Application shortcuts now handle running instances gracefully instead of failing to launch
+- 🪟 **Better Window Management** - Signal launcher includes workspace switching and cross-monitor window focusing
+- 🎨 **Fixed Welcome Screen Font** - Welcome window now properly uses "Hack Nerd Font Mono" consistently across all text elements
+- 📖 **Improved README Formatting** - Restored proper footnote format for "unique rice" definition that works correctly on both GitHub and Jekyll site
+- 🔧 **Font Consistency** - Updated Python GTK welcome script with proper Pango font handling and CSS styling
+- 📝 **Better Cross-Platform Display** - README now renders properly on GitHub while maintaining Jekyll site functionality
+
+This release improves the user experience with smarter application management, enhanced system maintenance tools, and polished visual consistency across all ArchRiot interfaces.
+
+## 💾 **Built-in Backup & Recovery with Migrate**
+
+ArchRiot ships with **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by CyphrRiot. Never lose your configurations again!
+
+### 🛡️ **Why Migrate Matters**
+
+- **Complete System Backup** - Captures all your dotfiles, configurations, and customizations
+- **Interactive TUI** - Beautiful text interface makes backup/restore simple
+- **Live System Recovery** - Restore without reinstalling your entire system
+- **Cross-Installation Migration** - Move your setup between different machines
+- **Automatic Updates** - Always gets the latest version during ArchRiot installation
+
+### 🔥 **Quick Start**
+
+```bash
+migrate                              # Launch interactive backup/restore interface
+```
+
+**No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
+
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
 ## ⌨️ Essential Commands
 
