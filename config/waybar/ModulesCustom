@@ -153,7 +153,7 @@
 
 "custom/power": {
 	"format": " ⏻ ",
-	"on-click": "$HOME/.local/share/omarchy/bin/omarchy-power-menu",
+	"on-click": "$HOME/.local/share/archriot/bin/power-menu",
 	"on-click-right": "$HOME/.config/hypr/scripts/ChangeBlur.sh",
 	"tooltip": false
 },

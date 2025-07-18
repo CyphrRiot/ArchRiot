@@ -16,6 +16,18 @@ if pgrep -x "hyprlock" > /dev/null; then
     sleep 0.5
 fi
 
+# Ensure background symlink exists for hyprlock
+BACKGROUND_LINK="$HOME/.config/archriot/current/background"
+if [[ ! -f "$BACKGROUND_LINK" ]]; then
+    log "Background symlink missing, running fix-background"
+    if command -v fix-background >/dev/null; then
+        fix-background >/dev/null 2>&1
+        log "Background fix completed"
+    else
+        log "fix-background command not found"
+    fi
+fi
+
 # Reset Hyprland lock permission if needed
 hyprctl keyword misc:allow_session_lock_restore 1
 log "Reset lock permission"

@@ -1,5 +1,5 @@
 [Unit]
-Description=Omarchy Battery Monitor Timer
+Description=ArchRiot Battery Monitor Timer
 Requires=battery-monitor.service
 
 [Timer]

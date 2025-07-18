@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Desktop Applications Setup
+# ArchRiot Desktop Applications Setup
 # ==============================================================================
 # Installs essential desktop applications organized by functionality
 # with graceful degradation for non-critical components

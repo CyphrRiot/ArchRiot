@@ -106,7 +106,7 @@ analyze_service_status() {
 
     subsection_header "ArchRiot-Specific Services"
     echo "User Services:" | tee -a "$REPORT_FILE"
-    systemctl --user list-units | grep -E "(omarchy|waybar|hypr|mako)" | tee -a "$REPORT_FILE" || echo "No ArchRiot user services running" | tee -a "$REPORT_FILE"
+    systemctl --user list-units | grep -E "(archriot|waybar|hypr|mako)" | tee -a "$REPORT_FILE" || echo "No ArchRiot user services running" | tee -a "$REPORT_FILE"
 
     subsection_header "Auto-starting Services"
     systemctl list-unit-files --state=enabled --no-pager | head -10 | tee -a "$REPORT_FILE"

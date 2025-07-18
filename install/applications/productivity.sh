@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Productivity Applications Setup
+# ArchRiot Productivity Applications Setup
 # ==============================================================================
 # Simple productivity application installation
 # ==============================================================================

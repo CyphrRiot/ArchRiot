@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Desktop Theming System
+# ArchRiot Desktop Theming System
 # ==============================================================================
 # Installs and configures desktop theming with flexible theme support
-# Handles cursors, icons, GTK themes, and OhmArchy-specific theming
+# Handles cursors, icons, GTK themes, and ArchRiot-specific theming
 # ==============================================================================
 
 # Load user environment
@@ -141,7 +141,7 @@ setup_cursor_links() {
         cp "$archriot_cursor_index" ~/.icons/default/index.theme
         echo "✓ Default cursor theme links created"
     else
-        # Create basic index.theme if OhmArchy version not found
+        # Create basic index.theme if ArchRiot version not found
         cat > ~/.icons/default/index.theme <<EOF
 [Icon Theme]
 Name=Default
@@ -152,9 +152,9 @@ EOF
     fi
 }
 
-# Setup OhmArchy theme system
+# Setup ArchRiot theme system
 setup_archriot_theme_system() {
-    echo "🎨 Setting up OhmArchy theme system..."
+    echo "🎨 Setting up ArchRiot theme system..."
 
     # Create theme directories
     mkdir -p ~/.config/archriot/{themes,current,backgrounds}
@@ -170,21 +170,24 @@ setup_archriot_theme_system() {
             fi
         done
     else
-        echo "⚠ OhmArchy themes directory not found at: $themes_source"
+        echo "⚠ ArchRiot themes directory not found at: $themes_source"
         return 1
     fi
 
-    echo "✓ OhmArchy theme system initialized"
+    echo "✓ ArchRiot theme system initialized"
 }
 
 # Set default theme (CypherRiot or first available)
+# The theme system works by creating symlinks in ~/.config/archriot/current/
+# that point to the active theme's configuration files
 set_default_theme() {
     echo "🎯 Setting default theme..."
 
+    # CypherRiot is the flagship theme for ArchRiot
     local preferred_theme="cypherriot"
     local theme_path="$HOME/.config/archriot/themes/$preferred_theme"
 
-    # Check if preferred theme exists
+    # Check if preferred theme exists and is properly structured
     if [[ -d "$theme_path" ]]; then
         echo "✓ Using preferred theme: $preferred_theme"
     else
@@ -200,24 +203,27 @@ set_default_theme() {
         fi
     fi
 
-    # Set current theme link
+    # Create symlink: ~/.config/archriot/current/theme -> selected theme directory
+    # This allows other components (hyprlock, waybar, etc.) to source theme configs
     ln -snf "$theme_path" ~/.config/archriot/current/theme
     echo "✓ Active theme set to: $preferred_theme"
 
-    # Setup background system if available
+    # Initialize the background cycling system for this theme
     setup_theme_backgrounds "$preferred_theme"
 }
 
 # Setup background system for selected theme
+# Each theme can have its own collection of background images
+# The system creates numbered copies for easy cycling (01-name.png, 02-name.png, etc.)
 setup_theme_backgrounds() {
     local theme_name="$1"
     echo "🖼️  Setting up backgrounds for theme: $theme_name"
 
-    # Set BACKGROUNDS_DIR for background scripts
+    # Central location for all background collections
     export BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
     mkdir -p "$BACKGROUNDS_DIR"
 
-    # Skip global background functions - use theme-specific only
+    # Skip global background functions - use theme-specific setup only
 
     # Source background script if available
     local bg_script="$HOME/.local/share/archriot/themes/$theme_name/backgrounds.sh"
@@ -550,7 +556,7 @@ display_theming_summary() {
     echo "  • Cursor: Bibata Modern Ice"
     echo "  • Icons: Obsidian-Purple"
     echo "  • GTK: Adwaita Dark"
-    echo "  • OhmArchy: $(basename "$(readlink ~/.config/archriot/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
+    echo "  • ArchRiot: $(basename "$(readlink ~/.config/archriot/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
     echo ""
     echo "🎯 Active features:"
     echo "  • Dark mode preference"
@@ -588,9 +594,9 @@ main() {
     configure_gtk_settings
     setup_cursor_links
 
-    # Setup OhmArchy theme system
+    # Setup ArchRiot theme system
     setup_archriot_theme_system || {
-        echo "❌ Failed to setup OhmArchy theme system"
+        echo "❌ Failed to setup ArchRiot theme system"
         return 1
     }
 

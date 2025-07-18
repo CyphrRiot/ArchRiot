@@ -82,7 +82,7 @@
 	"tooltip": true,
 	"tooltip-format": "{timeTo} {power}w",
 	"on-click-middle": "$HOME/.config/hypr/scripts/ChangeBlur.sh",
-	"on-click-right": "$HOME/.local/share/omarchy/bin/omarchy-power-menu",
+	"on-click-right": "$HOME/.local/share/archriot/bin/power-menu",
 },
 
 "bluetooth": {

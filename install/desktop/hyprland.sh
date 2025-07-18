@@ -4,7 +4,7 @@
 install_hyprland_configs() {
     echo "📁 Installing Hyprland configurations..."
 
-    # Install OhmArchy configs (SAFELY - preserve user configs)
+    # Install ArchRiot configs (SAFELY - preserve user configs)
     local source_config="$HOME/.local/share/archriot/config"
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config

@@ -1,4 +1,4 @@
-# OhmArchy Plymouth Theme Script
+# ArchRiot Plymouth Theme Script
 
 Window.SetBackgroundTopColor(0.101, 0.105, 0.149);
 Window.SetBackgroundBottomColor(0.101, 0.105,  0.149);

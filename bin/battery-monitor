@@ -3,7 +3,7 @@
 # Designed to be run by systemd timer every 30 seconds and alerts if battery is low
 
 BATTERY_THRESHOLD=10
-NOTIFICATION_FLAG="/run/user/$UID/omarchy_battery_notified"
+NOTIFICATION_FLAG="/run/user/$UID/archriot_battery_notified"
 
 get_battery_percentage() {
   upower -i $(upower -e | grep 'BAT') | grep -E "percentage" | grep -o '[0-9]\+%' | sed 's/%//'

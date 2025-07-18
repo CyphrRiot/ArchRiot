@@ -303,9 +303,9 @@ test_fix_scripts() {
     print_test "Fix scripts availability"
 
     local fix_scripts=(
-        "omarchy-fix-thunar-thumbnails"
-        "omarchy-fix-background"
-        "omarchy-fix-waybar-theme"
+        "fix-thunar-thumbnails"
+        "fix-background"
+        "fix-waybar-theme"
     )
 
     for script in "${fix_scripts[@]}"; do

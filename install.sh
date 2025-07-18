@@ -3,9 +3,17 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Optional installation logging for troubleshooting
+INSTALL_LOG_FILE="$HOME/.local/share/archriot/logs/install-$(date +%Y%m%d-%H%M%S).log"
+if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
+    mkdir -p "$(dirname "$INSTALL_LOG_FILE")"
+    echo "🗂️  Debug mode enabled - logging to: $INSTALL_LOG_FILE"
+    exec > >(tee -a "$INSTALL_LOG_FILE") 2>&1
+fi
+
 # Simple error handler that gives retry instructions and cleans up sudo
 cleanup_on_exit() {
-    echo "❌ OhmArchy installation failed! You can retry by running: source $HOME/.local/share/archriot/install.sh"
+    echo "❌ ArchRiot installation failed! You can retry by running: source $HOME/.local/share/archriot/install.sh"
     # Clean up sudo if helper is available
     if command -v cleanup_passwordless_sudo &>/dev/null; then
         echo "🔒 Cleaning up sudo configuration..."
@@ -20,6 +28,7 @@ if [ -f "$HOME/.local/share/archriot/install/lib/install-helpers.sh" ]; then
 fi
 
 # CRITICAL: Install yay FIRST before anything else that might need it
+# Many ArchRiot packages come from AUR and require yay to install
 echo "🚀 CRITICAL: Installing yay AUR helper before anything else..."
 
 # Install base development tools and yay immediately
@@ -52,7 +61,7 @@ else
     echo "✅ yay AUR helper already available"
 fi
 
-# Load clean progress system
+# Load clean progress system for better user feedback during installation
 if [ -f "$HOME/.local/share/archriot/install/lib/simple-progress.sh" ]; then
     source "$HOME/.local/share/archriot/install/lib/simple-progress.sh"
 fi
@@ -84,7 +93,8 @@ else
 fi
 
 # Define installation order for modular structure
-# FIXED: Desktop module moved before system to ensure waybar is installed before config validation
+# CRITICAL: Order matters! Desktop must come before config validation
+# This ensures waybar and other desktop components exist before validation
 declare -a install_modules=(
     "core/02-identity.sh"   # User identity setup
     "desktop"               # Desktop environment (hyprland, waybar, apps, theming, fonts)
@@ -98,8 +108,10 @@ declare -a install_modules=(
 
 # Additional standalone installers to run after modules
 declare -a standalone_installers=(
-    "plymouth.sh"    # Boot splash screen with OhmArchy branding
+    "plymouth.sh"    # Boot splash screen with ArchRiot branding
 )
+
+
 
 # Function to get all installer files in proper order
 get_installer_files() {
@@ -288,7 +300,7 @@ process_installer_with_progress() {
 }
 
 # Read version from VERSION file (single source of truth)
-# Check local repo first (for development), then installed location, then GitHub
+# Priority: local repo (development) → installed location → GitHub fallback
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
     OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
@@ -296,17 +308,23 @@ elif [ -f "$HOME/.local/share/archriot/VERSION" ]; then
     OMARCHY_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
 else
     # Fetch version from GitHub when running via curl
-    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/OhmArchy/master/VERSION 2>/dev/null || echo "unknown")
+    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION 2>/dev/null || echo "unknown")
 fi
 
-echo "🚀 Starting OhmArchy Installation (Fixed Module Order)"
+# Track installation performance
+INSTALL_START_TIME=$(date +%s)
+INSTALL_START_DATE=$(date)
+
+echo "🚀 Starting ArchRiot Installation (Fixed Module Order)"
 echo "====================================================="
 echo "Version: $OMARCHY_VERSION"
 echo "Total modules: ${#install_modules[@]}"
-echo "Start time: $(date)"
+echo "Start time: $INSTALL_START_DATE"
 echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless ✓"; else echo "Will prompt for password"; fi)"
 echo "🔧 Fix: Desktop environment installs before config validation"
 echo
+
+
 
 # Process installation modules in correct order
 process_installation_modules
@@ -374,15 +392,29 @@ else
     echo "⚠ Missing waybar scripts (found $script_count, expected 4+)"
 fi
 
+# Check background system
+if [ -f ~/.config/archriot/current/background ]; then
+    echo "✓ Background system configured"
+else
+    echo "⚠ Background system issue - no current background set"
+fi
+
 # Show completion summary with progress system
 if command -v complete_clean_installation &>/dev/null; then
     complete_clean_installation
 fi
 
+# Calculate installation performance
+INSTALL_END_TIME=$(date +%s)
+INSTALL_DURATION=$((INSTALL_END_TIME - INSTALL_START_TIME))
+INSTALL_DURATION_MIN=$((INSTALL_DURATION / 60))
+INSTALL_DURATION_SEC=$((INSTALL_DURATION % 60))
+
 echo "================================="
-echo "🎉 OhmArchy installation complete!"
+echo "🎉 ArchRiot installation complete!"
 echo "Version: $OMARCHY_VERSION"
 echo "Completed at: $(date)"
+echo "⏱️  Total installation time: ${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s"
 
 # Ensure gum is available for final prompt (BEFORE sudo cleanup)
 if ! command -v gum &>/dev/null; then
@@ -402,6 +434,17 @@ echo "🎯 Installation Summary:"
 echo "  • All components installed and configured"
 echo "  • Themes and backgrounds properly set up"
 echo "  • All keyboard shortcuts configured"
+echo "  • Installation completed in ${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s"
+if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
+    echo "  • Installation log saved to: $INSTALL_LOG_FILE"
+fi
+echo ""
+echo "🎨 Customization Options:"
+echo "  • Switch themes: Super + Ctrl + Shift + Space"
+echo "  • Change backgrounds: Super + Ctrl + Space"
+echo "  • View keybindings: show-keybindings"
+echo "  • System validation: validate-system"
+echo "  • Performance analysis: performance-analysis"
 echo ""
 
 gum confirm "Reboot to apply all settings?" && reboot

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Communication Applications Setup
+# ArchRiot Communication Applications Setup
 # ==============================================================================
 # Simple communication application installation
 # ==============================================================================

@@ -1,6 +1,6 @@
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.35-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.36-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -30,6 +30,20 @@ ArchRiot is an even more opiniated setup and was originally a unique rice and th
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
 ![ArchRiot Screenshot](images/screenshot.png)
+
+## 🆕 **What's New in v1.1.36**
+
+**Comprehensive Branding & Optimization Update**
+
+- ✅ **Complete Branding Consistency** - Eliminated all remaining OhmArchy references throughout the codebase
+- ✅ **Fixed Critical Waybar Issues** - Corrected power-menu paths and module configurations
+- ✅ **Hyprlock Background Fix** - Resolved missing background images on lock screen
+- ✅ **Code Quality Improvements** - Enhanced documentation, error handling, and system validation
+- ✅ **Performance Monitoring** - Added installation timing and optional debug logging
+- ✅ **Clean Codebase** - Removed unused files and fixed filename typos
+- ✅ **Enhanced User Experience** - Added customization hints and better completion feedback
+
+This release ensures ArchRiot is fully consistent, optimized, and production-ready with complete ArchRiot branding throughout all 287+ project files.
 
 ## 🚀 Installation
 

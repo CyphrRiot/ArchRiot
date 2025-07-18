@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Power menu for Omarchy
+# Power menu for ArchRiot
 # Provides power off, restart, and sleep options
 
 # Change to home directory so relative CSS imports work correctly
