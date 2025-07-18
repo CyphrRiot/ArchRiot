@@ -21,13 +21,21 @@
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
-## **A customized Arch Linux Cypherpunk & Hacker setup**
+## **ArchRiot: Arch Linux, Hacker-Style**
 
-Turn a fresh Arch installation into a fully-configured, beautiful, and modern development system based on Hyprland by running a single command.
+ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a usable, functional, and fast environment in one command. It's built around the Hyprland tiling window manager—fast, keyboard-driven, and no bullshit.
+
+**What You Get:**
+
+- **One-Liner Install:** Single command. Done.
+- **Hyprland:** Tiling that doesn't suck. Workflow stays tight.
+- **Dev Tools:** Code, debug, git—preconfigured, Zed by default, with a kick-ass theme.
+- **Privacy:** Doesn't leak your data or install telemetry-based software.
+- **Tweakable:** Strip it, mod it, own it.
 
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
-ArchRiot is an even more opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/){:target="\_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
+_Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/){:target="\_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
 
