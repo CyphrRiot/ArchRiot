@@ -27,7 +27,7 @@ Turn a fresh Arch installation into a fully-configured, beautiful, and modern de
 
 ArchRiot is an even more opiniated setup and was originally a unique rice and then a fork of [DHH's Omarchy](https://github.com/basecamp/archriot) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
-_Created by a hacker, cypherpunk, and crypto/blockchain expert with decades of experience running Linux and Unix - this is the system I've always wanted._
+_Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
 ![ArchRiot Screenshot](images/screenshot.png)
 
