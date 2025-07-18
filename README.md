@@ -1,10 +1,4 @@
-<div align="center">
-
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
-
-# 🛡️ 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 🛡️
-
-</div>
 
 ![Version](https://img.shields.io/badge/version-1.1.44-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
@@ -27,7 +21,9 @@
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
-## **ArchRiot: Arch Linux, Hacker-Style**
+# 🛡️ 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 🛡️
+
+## **ArchRiot: Arch Linux + Hacker-Style**
 
 ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a usable, functional, and fast environment in one command. It's built around the Hyprland tiling window manager -- fast, keyboard-driven, and no bullshit.
 
