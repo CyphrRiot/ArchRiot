@@ -306,6 +306,9 @@ strong:contains("⚠️"), strong:contains("Important") {
   visibility: hidden;
   opacity: 0;
   display: none;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
   width: 400px;
   background: var(--archriot-darker-bg);
   color: var(--archriot-text);
@@ -316,14 +319,10 @@ strong:contains("⚠️"), strong:contains("Important") {
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
 
   /* Position the tooltip */
-  position: absolute;
   z-index: 999;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -200px;
 
   /* Fade in animation */
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease, top 0s ease 0.3s, left 0s ease 0.3s;
 
   /* Typography */
   font-size: 14px;
@@ -347,6 +346,11 @@ strong:contains("⚠️"), strong:contains("Important") {
   visibility: visible;
   opacity: 1;
   display: block;
+  top: auto;
+  left: 50%;
+  bottom: 125%;
+  margin-left: -200px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* Responsive tooltip for mobile */
