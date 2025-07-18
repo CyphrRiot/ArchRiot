@@ -1,4 +1,4 @@
-# :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
+# :: 𝙰𝚛𝚌𝚑𝚁𝚒𝚘𝚝 ::
 
 ![Version](https://img.shields.io/badge/version-1.1.42-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
@@ -152,7 +152,7 @@ This comprehensive test validates:
 ### Theme & Appearance
 
 ```bash
-theme-next                            # Switch to next theme
+theme-next                           # Switch to next theme
 SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
 SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ```
