@@ -1,9 +1,9 @@
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.28-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.30-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
-![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logo=https://upload.wikimedia.org/wikipedia/commons/7/7e/Hyprland_logo.png&logoColor=3730a3)
+![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
 
 ![Language](https://img.shields.io/badge/language-Shell-1e1e2e)
