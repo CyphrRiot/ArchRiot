@@ -319,12 +319,7 @@ setup_fuzzel_cache() {
 
     local cache_dir="$HOME/.cache/fuzzel"
 
-    # Debug information
-    echo "🔍 HOME directory: $HOME"
-    echo "🔍 Target cache directory: $cache_dir"
-    echo "🔍 Current user: $(whoami)"
-    echo "🔍 .cache directory exists: $(test -d "$HOME/.cache" && echo "yes" || echo "no")"
-    echo "🔍 .cache directory permissions: $(ls -ld "$HOME/.cache" 2>/dev/null || echo "not found")"
+
 
     # Ensure .cache directory exists first
     if ! [[ -d "$HOME/.cache" ]]; then
