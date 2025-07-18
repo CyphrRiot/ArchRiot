@@ -37,9 +37,9 @@ class WelcomeWindow:
 
         # Create main container
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
-        main_box.set_margin_start(40)
-        main_box.set_margin_end(40)
-        main_box.set_margin_top(30)
+        main_box.set_margin_start(0)
+        main_box.set_margin_end(0)
+        main_box.set_margin_top(0)
         main_box.set_margin_bottom(30)
 
         # Add title
@@ -68,20 +68,19 @@ class WelcomeWindow:
 
         if os.path.exists(image_path):
             try:
-                # Load and scale the image
+                # Load and scale the image to window width
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(image_path)
-                # Scale to max width of 650px while maintaining aspect ratio
+                # Scale to full window width (800px) while maintaining aspect ratio
                 width = pixbuf.get_width()
                 height = pixbuf.get_height()
-                if width > 650:
-                    scale_factor = 650.0 / width
-                    new_width = 650
-                    new_height = int(height * scale_factor)
-                    pixbuf = pixbuf.scale_simple(new_width, new_height, GdkPixbuf.InterpType.BILINEAR)
+                scale_factor = 800.0 / width
+                new_width = 800
+                new_height = int(height * scale_factor)
+                pixbuf = pixbuf.scale_simple(new_width, new_height, GdkPixbuf.InterpType.BILINEAR)
 
                 image = Gtk.Image.new_from_pixbuf(pixbuf)
-                image.set_halign(Gtk.Align.CENTER)
-                container.pack_start(image, False, False, 10)
+                image.set_halign(Gtk.Align.FILL)
+                container.pack_start(image, False, False, 0)
             except Exception as e:
                 print(f"Could not load welcome.png: {e}")
 
@@ -98,10 +97,10 @@ class WelcomeWindow:
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)
         text_view.set_wrap_mode(Gtk.WrapMode.WORD)
-        text_view.set_left_margin(20)
-        text_view.set_right_margin(20)
-        text_view.set_top_margin(10)
-        text_view.set_bottom_margin(10)
+        text_view.set_left_margin(40)
+        text_view.set_right_margin(40)
+        text_view.set_top_margin(20)
+        text_view.set_bottom_margin(20)
 
         # Set font family and size for text view
         font_desc = Pango.FontDescription()
@@ -161,6 +160,8 @@ class WelcomeWindow:
         # Create button box
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         button_box.set_halign(Gtk.Align.FILL)
+        button_box.set_margin_start(40)
+        button_box.set_margin_end(40)
 
         # Dismiss Forever button (left)
         dismiss_button = Gtk.Button(label="Dismiss Forever")
@@ -273,7 +274,7 @@ def main():
     }
 
     window {
-        background: #1e1e2e;
+        background: rgba(0, 0, 0, 0.7);
         color: #cdd6f4;
         font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
@@ -284,20 +285,20 @@ def main():
     }
 
     textview {
-        background: #1e1e2e;
+        background: rgba(0, 0, 0, 0.7);
         color: #cdd6f4;
         border: none;
         font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     textview text {
-        background: #1e1e2e;
+        background: rgba(0, 0, 0, 0.7);
         color: #cdd6f4;
         font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     button {
-        background: #4B0082;
+        background: rgba(75, 0, 130, 1.0);
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -309,12 +310,12 @@ def main():
     }
 
     button:hover {
-        background: #663399;
+        background: rgba(102, 51, 153, 1.0);
     }
 
     scrolledwindow {
         border: none;
-        background: #1e1e2e;
+        background: rgba(0, 0, 0, 0.7);
     }
     """
 
