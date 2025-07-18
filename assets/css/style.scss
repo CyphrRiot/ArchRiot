@@ -394,12 +394,13 @@ strong:contains("⚠️"), strong:contains("Important") {
   100% { background: rgba(139, 92, 246, 0.1); }
 }
 
-/* Footnote reference links - all possible formats */
+/* Footnote reference links - extremely specific targeting */
 a[href^="#fn:"],
-a[href^="#fn"],
-sup a[href^="#fn"],
-.footnote-ref,
-.footnote {
+a[href^="#fn"][href*=":"],
+sup a[href^="#fn:"],
+sup a[href^="#fn"][href*=":"],
+.footnote-ref a,
+.footnote a {
   color: var(--archriot-purple-light) !important;
   text-decoration: none;
   font-weight: normal;
@@ -415,10 +416,11 @@ sup a[href^="#fn"],
 }
 
 a[href^="#fn:"]:hover,
-a[href^="#fn"]:hover,
-sup a[href^="#fn"]:hover,
-.footnote-ref:hover,
-.footnote:hover {
+a[href^="#fn"][href*=":"]:hover,
+sup a[href^="#fn:"]:hover,
+sup a[href^="#fn"][href*=":"]:hover,
+.footnote-ref a:hover,
+.footnote a:hover {
   color: var(--archriot-cyan) !important;
   background: rgba(139, 92, 246, 0.2);
   transform: translateY(-1px);
@@ -443,8 +445,9 @@ a[href^="#fnref"]:hover,
   opacity: 1;
 }
 
-/* Special handling for superscript footnotes */
-sup a[href^="#fn"] {
+/* Special handling for superscript footnotes - only actual footnote links */
+sup a[href^="#fn:"],
+sup a[href^="#fn"][href*=":"] {
   line-height: 0;
   font-size: 0.65em !important;
   top: 0;
