@@ -43,7 +43,7 @@ setup_hyprland_packages() {
     yay -S --noconfirm --needed $core || return 1
 
     # Utilities (best effort)
-    local utilities="waybar fuzzel mako swaybg hyprlock hypridle swayosd grim slurp hyprshot hyprpicker hyprland-qtutils kooha gst-libav"
+    local utilities="waybar fuzzel mako swaybg hyprlock hypridle swayosd grim slurp hyprshot hyprpicker hyprland-qtutils kooha gst-libav gst-plugins-ugly x264"
     yay -S --noconfirm --needed $utilities || echo "⚠ Some Hyprland utilities may have failed"
 
     # Python dependencies
