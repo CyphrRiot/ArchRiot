@@ -1,6 +1,6 @@
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.38-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.39-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -27,11 +27,11 @@ Turn a fresh Arch installation into a fully-configured, beautiful, and modern de
 
 ArchRiot is an even more opiniated setup and was originally a unique rice¹ and then a fork of [DHH's Omarchy](https://github.com/basecamp/archriot) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
-¹ _In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars)._
-
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
 ![ArchRiot Screenshot](images/screenshot.png)
+
+¹ _In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars)._
 
 ## 🆕 **What's New in v1.1.36**
 
@@ -46,6 +46,28 @@ _Created by a hacker, cypherpunk, and blockchain developer with decades of exper
 - ✅ **Enhanced User Experience** - Added customization hints and better completion feedback
 
 This release ensures ArchRiot is fully consistent, optimized, and production-ready with complete ArchRiot branding throughout all 287+ project files.
+
+## 💾 **Built-in Backup & Recovery with Migrate**
+
+ArchRiot ships with **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by CyphrRiot. Never lose your configurations again!
+
+### 🛡️ **Why Migrate Matters**
+
+- **Complete System Backup** - Captures all your dotfiles, configurations, and customizations
+- **Interactive TUI** - Beautiful text interface makes backup/restore simple
+- **Live System Recovery** - Restore without reinstalling your entire system
+- **Cross-Installation Migration** - Move your setup between different machines
+- **Automatic Updates** - Always gets the latest version during ArchRiot installation
+
+### 🔥 **Quick Start**
+
+```bash
+migrate                              # Launch interactive backup/restore interface
+```
+
+**No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
+
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
 ## 🚀 Installation
 
@@ -237,7 +259,7 @@ Quick fixes for common issues:
 - **Theme:** CypherRiot as default (replaces Tokyo Night)
 - **Code Editor:** Zed (Wayland) + Neovim with proper theme integration
 - **Applications:** All major apps now run native Wayland (no more XWayland issues)
-- **Backup Tool:** Latest migrate binary for comprehensive system backup/restore
+- **Migrate Backup Tool:** CyphrRiot's comprehensive system backup/restore solution (built-in)
 - **Memory Optimization:** Intelligent memory management that actually works
 - **Blue Light Filter:** Optional hyprsunset at 3500K for reduced eye strain (configurable during install)
 - **GTK Theming:** Dark theme everywhere - no more jarring white dialogs
@@ -341,14 +363,14 @@ Updates ArchRiot by pulling latest changes and re-running the installer. Simple,
 migrate
 ```
 
-**Note:** `migrate` is a TUI (Text User Interface) with **no command-line options**. Simply run the command and use the interactive menu to:
+**🎯 Migrate** (created by CyphrRiot) is a TUI (Text User Interface) with **no command-line options**. Simply run the command and use the interactive menu to:
 
 - Create comprehensive system backups
 - Restore from previous backups
 - Migrate configurations between installations
 - Preserve all your customizations
 
-The migrate tool automatically downloads the latest version during installation from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate).
+**Migrate automatically downloads the latest version during ArchRiot installation** from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate) - ensuring you always have the most current backup capabilities.
 
 ## 🎨 Themes & Customization
 
@@ -438,7 +460,7 @@ This is a **heavily customized fork** optimized for:
 - **Waybar improvements** - Better font sizing (100%) and improved date format (Sunday • July 13 • 01:49 PM)
 - **Zed editor integration** - Native Wayland support with SUPER+Z keybinding
 - **Application launcher fixes** - All applications properly integrated in Fuzzel
-- **Advanced backup** - Comprehensive migration capabilities
+- **Advanced backup** - Built-in Migrate tool for comprehensive system backup/restore
 - **DPI scaling fixes** - Consistent scaling across all applications
 - **File dialog theming** - Dark themes for all application file choosers
 
