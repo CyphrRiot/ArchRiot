@@ -101,11 +101,7 @@ class DynamicHelpWindow:
                     command = command.strip()
 
                     # Clean up command for display
-                    if command.startswith('$'):
-                        # Variable reference
-                        display_cmd = self.resolve_hyprland_variable(command)
-                    else:
-                        display_cmd = self.clean_command_for_display(command)
+                    display_cmd = self.clean_command_for_display(command)
 
                     # Format key combination
                     key_combo = self.format_key_combination(modifier, key)
@@ -121,43 +117,82 @@ class DynamicHelpWindow:
 
                         key_combo = self.format_key_combination(modifier, key)
                         action_desc = self.humanize_action(action)
-                        keybindings.append((key_combo, action_desc, 'action'))
+                        if action_desc is not None:  # Skip filtered out actions
+                            keybindings.append((key_combo, action_desc, 'action'))
 
         except Exception as e:
             print(f"Error parsing hyprland config: {e}")
 
         return sorted(keybindings, key=lambda x: (x[2], x[0]))  # Sort by type, then key
 
-    def resolve_hyprland_variable(self, var_ref):
-        """Resolve Hyprland variables like $terminal, $browser"""
-        var_map = {
-            '$terminal': 'Terminal (Ghostty)',
-            '$fileManager': 'File Manager (Thunar)',
-            '$browser': 'Browser (Brave)',
-            '$mod': 'SUPER'
-        }
 
-        for var, desc in var_map.items():
-            if var_ref.startswith(var):
-                return desc
-
-        return var_ref
 
     def clean_command_for_display(self, command):
         """Clean up command for human-readable display"""
         # Remove common prefixes
         command = command.strip('"\'')
 
-        # Handle common patterns
-        if 'archriot/bin/' in command:
+        # Handle $HOME variable expansion
+        if command.startswith('$HOME/'):
+            command = command.replace('$HOME/', '')
+
+        # Handle $browser variable (resolve first before other processing)
+        if command.startswith('$browser'):
+            # Check for web apps first
+            if '--app=' in command:
+                app_match = re.search(r'--app="([^"]+)"', command)
+                if app_match:
+                    url = app_match.group(1)
+                    if 'mail.proton.me' in url:
+                        return "Proton Mail"
+                    elif 'messages.google.com' in url:
+                        return "Google Messages"
+                    elif 'x.com/compose' in url:
+                        return "Twitter/X (Compose)"
+                    elif 'x.com' in url:
+                        return "Twitter/X"
+            return "Browser (Brave)"
+
+        # Handle $terminal variable
+        if command.startswith('$terminal'):
+            if '-e nvim' in command:
+                return "Terminal with Neovim"
+            elif '-e btop' in command:
+                return "System monitor (btop)"
+            return "Terminal (Ghostty)"
+
+        # Handle $fileManager variable
+        if command.startswith('$fileManager'):
+            return "File manager (Thunar)"
+
+        # Handle ArchRiot bin scripts with specific names
+        if 'archriot/bin/' in command or '.local/share/archriot/bin/' in command:
             script_name = command.split('/')[-1]
-            return f"{script_name} (ArchRiot utility)"
+            script_descriptions = {
+                'theme-next': 'Next theme',
+                'swaybg-next': 'Next background',
+                'power-menu': 'Power menu',
+                'fix-background': 'Fix background issues',
+                'fix-thunar-thumbnails': 'Fix thumbnails',
+                'validate-system': 'System health check',
+                'show-keybindings': 'Show keybindings',
+                'toggle-idle': 'Toggle screen lock',
+                'memory-profiler': 'Memory analysis',
+                'performance-analysis': 'Performance check',
+                'startup-profiler': 'Boot analysis',
+                'upgrade-system': 'System upgrade',
+                'welcome': 'Welcome screen',
+                'archriot-help': 'Help system'
+            }
+            return script_descriptions.get(script_name, f"{script_name} (utility)")
 
         if command.startswith('hypr'):
             return f"Hyprland: {command}"
 
         if '.config/hypr/scripts/' in command:
             script_name = command.split('/')[-1].replace('.sh', '')
+            if script_name == 'signal-launcher':
+                return "Signal messenger"
             return f"{script_name} (Hypr script)"
 
         if command.startswith('fuzzel'):
@@ -166,17 +201,11 @@ class DynamicHelpWindow:
         if command.startswith('pkill'):
             return "Reload Waybar"
 
-        # Handle web apps
-        if '--app=' in command:
-            app_match = re.search(r'--app="([^"]+)"', command)
-            if app_match:
-                url = app_match.group(1)
-                if 'mail.proton.me' in url:
-                    return "Proton Mail"
-                elif 'messages.google.com' in url:
-                    return "Google Messages"
-                elif 'x.com' in url:
-                    return "Twitter/X"
+        if command.startswith('gnome-text-editor'):
+            return "Text editor"
+
+        if command.startswith('zed'):
+            return "Zed editor"
 
         # Fallback
         return command.split()[0] if command else "Unknown command"
@@ -215,6 +244,28 @@ class DynamicHelpWindow:
 
     def humanize_action(self, action):
         """Convert Hyprland actions to human descriptions"""
+        # Filter out workspaces > 4
+        if 'workspace' in action:
+            if ', 1' in action:
+                return 'Switch to workspace 1'
+            elif ', 2' in action:
+                return 'Switch to workspace 2'
+            elif ', 3' in action:
+                return 'Switch to workspace 3'
+            elif ', 4' in action:
+                return 'Switch to workspace 4'
+            elif 'movetoworkspace, 1' in action:
+                return 'Move to workspace 1'
+            elif 'movetoworkspace, 2' in action:
+                return 'Move to workspace 2'
+            elif 'movetoworkspace, 3' in action:
+                return 'Move to workspace 3'
+            elif 'movetoworkspace, 4' in action:
+                return 'Move to workspace 4'
+            else:
+                # Skip workspaces 5-10
+                return None
+
         action_map = {
             'killactive': 'Close window',
             'togglefloating': 'Toggle floating mode',
@@ -224,8 +275,6 @@ class DynamicHelpWindow:
             'swapwindow': 'Swap windows',
             'movewindow': 'Move window',
             'resizeactive': 'Resize window',
-            'workspace': 'Switch workspace',
-            'movetoworkspace': 'Move to workspace',
             'togglespecialworkspace': 'Toggle special workspace',
             'movetoworkspacesilent': 'Move to workspace (silent)'
         }
@@ -314,13 +363,14 @@ class DynamicHelpWindow:
         # Create scrollable window
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_kinetic_scrolling(True)
         scrolled_window.set_size_request(-1, 500)
 
         # Create text view
         text_view = Gtk.TextView()
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)
-        text_view.set_wrap_mode(Gtk.WrapMode.WORD)
+        text_view.set_wrap_mode(Gtk.WrapMode.NONE)
         text_view.set_left_margin(25)
         text_view.set_right_margin(25)
         text_view.set_top_margin(20)
@@ -368,7 +418,7 @@ class DynamicHelpWindow:
             iter_end = buffer.get_end_iter()
 
             for key, desc in app_bindings:
-                buffer.insert_with_tags(iter_end, f"  {key:<35}", key_tag)
+                buffer.insert_with_tags(iter_end, f"  {key:<40}", key_tag)
                 iter_end = buffer.get_end_iter()
                 buffer.insert(iter_end, f" {desc}\n")
                 iter_end = buffer.get_end_iter()
@@ -379,7 +429,7 @@ class DynamicHelpWindow:
             iter_end = buffer.get_end_iter()
 
             for key, desc in action_bindings:
-                buffer.insert_with_tags(iter_end, f"  {key:<35}", key_tag)
+                buffer.insert_with_tags(iter_end, f"  {key:<40}", key_tag)
                 iter_end = buffer.get_end_iter()
                 buffer.insert(iter_end, f" {desc}\n")
                 iter_end = buffer.get_end_iter()
@@ -392,7 +442,7 @@ class DynamicHelpWindow:
 
         if utilities:
             for name, desc in utilities:
-                buffer.insert_with_tags(iter_end, f"  {name:<35}", command_tag)
+                buffer.insert_with_tags(iter_end, f"  {name:<40}", command_tag)
                 iter_end = buffer.get_end_iter()
                 buffer.insert(iter_end, f" {desc}\n")
                 iter_end = buffer.get_end_iter()
