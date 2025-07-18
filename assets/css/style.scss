@@ -444,14 +444,10 @@ a[href^="#fnref"]:hover,
 }
 
 /* Special handling for superscript footnotes */
-sup {
+sup a[href^="#fn"] {
   line-height: 0;
   font-size: 0.65em !important;
-}
-
-sup a {
   top: 0;
-  font-size: 1em !important;
   vertical-align: super;
 }
 
