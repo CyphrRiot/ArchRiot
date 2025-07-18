@@ -286,3 +286,72 @@ strong:contains("⚠️"), strong:contains("Important") {
   fill: var(--archriot-purple);
   color: var(--archriot-dark-bg);
 }
+
+/* Tooltip functionality for hover definitions */
+.tooltip {
+  position: relative;
+  display: inline;
+  cursor: help;
+  color: var(--archriot-purple-light) !important;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.tooltip:hover {
+  color: var(--archriot-cyan) !important;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  opacity: 0;
+  width: 400px;
+  background: var(--archriot-darker-bg);
+  color: var(--archriot-text);
+  text-align: left;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--archriot-purple);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 999;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -200px;
+
+  /* Fade in animation */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  /* Typography */
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -8px;
+  border-width: 8px;
+  border-style: solid;
+  border-color: var(--archriot-purple) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Responsive tooltip for mobile */
+@media (max-width: 768px) {
+  .tooltip .tooltiptext {
+    width: 280px;
+    margin-left: -140px;
+    font-size: 13px;
+  }
+}
