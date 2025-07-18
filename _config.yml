@@ -24,6 +24,13 @@ highlighter: rouge
 kramdown:
     input: GFM
     syntax_highlighter: rouge
+    footnote_nr: 1
+    entity_output: as_char
+    toc_levels: 1..6
+    smart_quotes: lsquo,rsquo,ldquo,rdquo
+    enable_coderay: false
+    parse_block_html: true
+    parse_span_html: true
 
 # Collections and defaults
 defaults:

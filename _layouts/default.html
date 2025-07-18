@@ -135,118 +135,32 @@
       });
     });
 
-    // Comprehensive footnote handling for Jekyll/Kramdown
-    function handleFootnotes() {
-      // Debug: Log all footnote-related elements on page load
-      console.log('Footnote debug - All elements with id containing "fn":',
-        Array.from(document.querySelectorAll('[id*="fn"]')).map(el => ({
-          id: el.id,
-          tag: el.tagName,
-          text: el.textContent.slice(0, 50)
-        }))
-      );
+    // Simple footnote enhancement for Jekyll/Kramdown
+    // Let Jekyll handle the basic functionality, just add smooth scrolling
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add smooth scrolling to footnote links
+      document.querySelectorAll('a[href^="#fn"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          const target = document.querySelector(href);
 
-      // Enhanced footnote link detection - multiple selectors
-      const footnoteSelectors = [
-        'a[href^="#fn"]',
-        'a[href^="#fnref"]',
-        'sup a[href^="#fn"]',
-        '.footnote',
-        '.footnote-ref'
-      ];
-
-      footnoteSelectors.forEach(selector => {
-        document.querySelectorAll(selector).forEach(link => {
-          link.addEventListener('click', function(e) {
+          if (target) {
             e.preventDefault();
-            const href = this.getAttribute('href');
-            console.log('Footnote link clicked:', href);
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
 
-            // Try multiple target selection strategies
-            let target = null;
-            const targetId = href.replace('#', '');
-
-            // Strategy 1: Direct match
-            target = document.querySelector(href);
-            console.log('Direct match result:', target);
-
-            // Strategy 2: Try common Jekyll/Kramdown formats
-            if (!target) {
-              const possibleIds = [
-                targetId,                    // fn1, fnref1
-                targetId.replace(':', ''),   // fn:1 -> fn1
-                targetId.replace(/(\d+)/, ':$1'), // fn1 -> fn:1
-                'fn:' + targetId.replace(/^fn(ref)?/, ''), // fn1 -> fn:1
-                'fnref:' + targetId.replace(/^fn(ref)?/, ''), // fnref1 -> fnref:1
-              ];
-
-              for (const id of possibleIds) {
-                target = document.querySelector('#' + id);
-                if (target) {
-                  console.log('Found target with id:', id);
-                  break;
-                }
-              }
-            }
-
-            // Strategy 3: Find footnote by content/context
-            if (!target && targetId.match(/\d+/)) {
-              const num = targetId.match(/\d+/)[0];
-              // Look for footnote definitions
-              const candidates = document.querySelectorAll('div, p, li, span');
-              for (const candidate of candidates) {
-                if (candidate.textContent.includes(`[${num}]`) ||
-                    candidate.className.includes('footnote') ||
-                    candidate.id.includes(num)) {
-                  target = candidate;
-                  console.log('Found target by content matching:', candidate);
-                  break;
-                }
-              }
-            }
-
-            if (target) {
-              console.log('Scrolling to target:', target);
-              target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-              });
-
-              // Enhanced highlight effect
-              const originalStyles = {
-                background: target.style.background,
-                borderRadius: target.style.borderRadius,
-                padding: target.style.padding,
-                border: target.style.border
-              };
-
-              target.style.background = 'rgba(139, 92, 246, 0.3)';
-              target.style.borderRadius = '6px';
-              target.style.padding = '4px 8px';
-              target.style.border = '2px solid rgba(139, 92, 246, 0.5)';
-              target.style.transition = 'all 0.3s ease';
-
-              setTimeout(() => {
-                Object.keys(originalStyles).forEach(prop => {
-                  target.style[prop] = originalStyles[prop];
-                });
-              }, 3000);
-            } else {
-              console.error('Footnote target not found for:', href);
-              // Fallback: scroll to bottom where footnotes usually are
-              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }
-          });
+            // Brief highlight effect
+            target.style.background = 'rgba(139, 92, 246, 0.2)';
+            target.style.transition = 'background 0.5s ease';
+            setTimeout(() => {
+              target.style.background = '';
+            }, 2000);
+          }
         });
       });
-    }
-
-    // Run footnote handler after page load
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', handleFootnotes);
-    } else {
-      handleFootnotes();
-    }
+    });
 
     // Add copy functionality to code blocks
     document.querySelectorAll('pre code').forEach(block => {
