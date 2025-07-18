@@ -24,7 +24,8 @@ yay -S --noconfirm --needed \
     curl \
     wget \
     unzip \
-    zip
+    zip \
+    tmux
 
 # Install migrate backup tool (simple binary download)
 echo "📦 Installing migrate backup tool..."
