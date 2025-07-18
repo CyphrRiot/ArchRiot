@@ -30,6 +30,7 @@ ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a us
 - **One-Liner Install:** Single command. Done.
 - **Hyprland:** Tiling that doesn't suck. Workflow stays tight.
 - **Dev Tools:** Code, debug, git—preconfigured, Zed by default, with a kick-ass theme.
+- **Beautiful Themes:** Tokyo Night inspired aesthetics with custom backgrounds that adapt to your workflow.
 - **Privacy:** Doesn't leak your data or install telemetry-based software.
 - **Tweakable:** Strip it, mod it, own it.
 
