@@ -121,8 +121,7 @@ class WelcomeWindow:
             "SUPER+SPACE = Launch App Search Window\n",
             "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
             "Don't like the background? SUPER+CTRL+SPACE to switch between over a dozen hand-crafted backgrounds made (mostly) for ArchRiot.\n\n",
-            "Many other commands!\n\n",
-            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together.\n\n"
+            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together."
         ]
 
         # Insert text parts
@@ -130,6 +129,14 @@ class WelcomeWindow:
         for part in text_content_parts:
             buffer.insert(iter_end, part)
             iter_end = buffer.get_end_iter()
+
+        # Insert signature with larger font
+        signature_tag = buffer.create_tag("signature", scale=1.2)
+        buffer.insert_with_tags(iter_end, "\n\n𝓒𝔂𝓹𝓱𝓮𝓻 𝓡𝓲𝓸𝓽", signature_tag)
+        iter_end = buffer.get_end_iter()
+
+        buffer.insert(iter_end, "\n\n")
+        iter_end = buffer.get_end_iter()
 
         # Insert clickable link for Twitter
         twitter_tag = buffer.create_tag("twitter_link", foreground="#89b4fa", underline=True)
@@ -144,9 +151,6 @@ class WelcomeWindow:
         buffer.insert_with_tags(iter_end, "ArchRiot on GitHub", github_tag)
         iter_end = buffer.get_end_iter()
 
-        # Insert signature with larger font
-        signature_tag = buffer.create_tag("signature", scale=1.2)
-        buffer.insert_with_tags(iter_end, ".\n\n𝓒𝔂𝓹𝓱𝓮𝓻 𝓡𝓲𝓸𝓽", signature_tag)
 
         # Connect click events for links
         text_view.connect("button-press-event", self.on_text_clicked)
