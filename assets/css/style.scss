@@ -363,7 +363,7 @@ strong:contains("⚠️"), strong:contains("Important") {
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Footnote styling for Jekyll */
+/* Comprehensive footnote styling for all Jekyll/Kramdown formats */
 .footnotes {
   margin-top: 2rem;
   padding-top: 1rem;
@@ -377,10 +377,29 @@ strong:contains("⚠️"), strong:contains("Important") {
 
 .footnotes li {
   margin-bottom: 0.5rem;
+  line-height: 1.6;
 }
 
-/* Footnote reference links */
-a[href^="#fn:"] {
+/* Footnote definitions */
+.footnotes li:target {
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  animation: highlight-footnote 2s ease-out;
+}
+
+@keyframes highlight-footnote {
+  0% { background: rgba(139, 92, 246, 0.3); }
+  100% { background: rgba(139, 92, 246, 0.1); }
+}
+
+/* Footnote reference links - all possible formats */
+a[href^="#fn:"],
+a[href^="#fn"],
+sup a[href^="#fn"],
+.footnote-ref,
+.footnote {
   color: var(--archriot-purple-light) !important;
   text-decoration: none;
   font-weight: bold;
@@ -391,23 +410,46 @@ a[href^="#fn:"] {
   background: rgba(139, 92, 246, 0.1);
   border-radius: 3px;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-a[href^="#fn:"]:hover {
+a[href^="#fn:"]:hover,
+a[href^="#fn"]:hover,
+sup a[href^="#fn"]:hover,
+.footnote-ref:hover,
+.footnote:hover {
   color: var(--archriot-cyan) !important;
   background: rgba(139, 92, 246, 0.2);
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
 }
 
-/* Footnote backlinks */
-a[href^="#fnref:"] {
+/* Footnote backlinks - all possible formats */
+a[href^="#fnref:"],
+a[href^="#fnref"],
+.footnote-backref {
   color: var(--archriot-purple-light) !important;
   text-decoration: none;
   margin-left: 0.5em;
+  font-size: 0.9em;
+  opacity: 0.8;
 }
 
-a[href^="#fnref:"]:hover {
+a[href^="#fnref:"]:hover,
+a[href^="#fnref"]:hover,
+.footnote-backref:hover {
   color: var(--archriot-cyan) !important;
+  opacity: 1;
+}
+
+/* Special handling for superscript footnotes */
+sup {
+  line-height: 0;
+}
+
+sup a {
+  top: 0;
+  vertical-align: super;
 }
 
 /* Responsive tooltip for mobile */
