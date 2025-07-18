@@ -1,6 +1,6 @@
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-# 󰒙  󱐌 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 󱐌  
+# 🛡️🗲 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 🗲🛡️
 
 ![Version](https://img.shields.io/badge/version-1.1.42-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
