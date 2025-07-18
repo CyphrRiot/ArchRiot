@@ -305,6 +305,7 @@ strong:contains("⚠️"), strong:contains("Important") {
 .tooltip .tooltiptext {
   visibility: hidden;
   opacity: 0;
+  display: none;
   width: 400px;
   background: var(--archriot-darker-bg);
   color: var(--archriot-text);
@@ -345,6 +346,7 @@ strong:contains("⚠️"), strong:contains("Important") {
 .tooltip:hover .tooltiptext {
   visibility: visible;
   opacity: 1;
+  display: block;
 }
 
 /* Responsive tooltip for mobile */
