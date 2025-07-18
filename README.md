@@ -27,7 +27,7 @@ Turn a fresh Arch installation into a fully-configured, beautiful, and modern de
 
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
-ArchRiot is an even more opiniated setup and was originally a unique rice¹ and then a fork of [DHH's Omarchy](https://github.com/basecamp/archriot) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
+ArchRiot is an even more opiniated setup and was originally a <span class="tooltip">unique rice<span class="tooltiptext">In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).</span></span>¹ and then a fork of [DHH's Omarchy](https://github.com/basecamp/archriot) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
 ¹ _In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars)._
 

@@ -310,6 +310,11 @@ strong:contains("⚠️"), strong:contains("Important") {
   top: -9999px;
   left: -9999px;
   width: 400px;
+  height: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
   background: var(--archriot-darker-bg);
   color: var(--archriot-text);
   text-align: left;
@@ -346,6 +351,11 @@ strong:contains("⚠️"), strong:contains("Important") {
   visibility: visible;
   opacity: 1;
   display: block;
+  height: auto !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  overflow: visible !important;
+  white-space: normal !important;
   top: auto;
   left: 50%;
   bottom: 125%;
