@@ -454,16 +454,9 @@ start_theme_services() {
     # Ask about and optionally start blue light filter
     if ask_blue_light_filter; then
         start_blue_light_filter
-
-        # Add hyprsunset to hyprland autostart if user wants it
-        if ! grep -q "exec-once = hyprsunset" ~/.config/hypr/hyprland.conf; then
-            sed -i '/exec-once = mako/a exec-once = hyprsunset -t 3500' ~/.config/hypr/hyprland.conf
-            echo "✓ Added hyprsunset to Hyprland autostart"
-        fi
+        echo "✓ Blue light filter will start automatically (hyprsunset configured in base hyprland.conf)"
     else
-        # Remove hyprsunset from hyprland autostart if user doesn't want it
-        sed -i '/exec-once = hyprsunset/d' ~/.config/hypr/hyprland.conf
-        echo "✓ Removed hyprsunset from Hyprland autostart"
+        echo "✓ Blue light filter skipped"
     fi
 }
 
