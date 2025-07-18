@@ -109,8 +109,7 @@
         "**/.golang*",
         "**/.cursor*",
         "go.sum",
-        "**/backups",
-        "**/old_wallets"
+        "**/backups"
     ],
     "telemetry": {
         "diagnostics": false,
