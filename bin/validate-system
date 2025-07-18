@@ -305,7 +305,6 @@ test_fix_scripts() {
     local fix_scripts=(
         "fix-thunar-thumbnails"
         "fix-background"
-        "fix-waybar-theme"
     )
 
     for script in "${fix_scripts[@]}"; do

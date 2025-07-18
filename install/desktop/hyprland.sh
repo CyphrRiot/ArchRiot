@@ -99,6 +99,31 @@ show_summary() {
     echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher)"
 }
 
+# Restart waybar with new configuration if in graphical session
+restart_waybar() {
+    echo "🔄 Restarting waybar with new configuration..."
+
+    # Kill existing waybar if running
+    pkill -f waybar 2>/dev/null || true
+    sleep 1
+
+    # Start waybar if we're in a graphical session
+    if [[ -n "$WAYLAND_DISPLAY" ]] || [[ -n "$DISPLAY" ]]; then
+        setsid waybar >/dev/null 2>&1 &
+        echo "✓ Waybar restarted with new configuration"
+
+        # Brief verification that waybar started
+        sleep 2
+        if pgrep -f waybar >/dev/null; then
+            echo "✓ Waybar is running successfully"
+        else
+            echo "⚠ Waybar may not have started properly (this is normal during installation)"
+        fi
+    else
+        echo "ℹ No graphical session detected - waybar will start on next login"
+    fi
+}
+
 # Touchpad configuration is now handled in the base hyprland.conf
 # No post-processing needed to avoid config corruption
 
@@ -122,6 +147,9 @@ main() {
     else
         echo "ℹ Hyprland not running - configuration will be applied on next start"
     fi
+
+    # Restart waybar after configuration changes
+    restart_waybar
 
     show_summary
 

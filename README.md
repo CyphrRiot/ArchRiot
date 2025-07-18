@@ -215,7 +215,6 @@ Click network icon                  # Open network manager
 ```bash
 fix-thunar-thumbnails                # Fix thumbnail generation
 fix-background                       # Fix theme backgrounds
-fix-waybar-theme                     # Fix waybar styling
 ```
 
 ### 🔧 Troubleshooting
@@ -224,7 +223,6 @@ Quick fixes for common issues:
 
 - **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
 - **Reliable installer**: Rock-solid installation process with comprehensive error handling
-- **Theme not applying**: Run `fix-waybar-theme`
 - **Background issues**: Run `fix-background`
 - **Thumbnail problems**: Run `fix-thunar-thumbnails`
 
@@ -511,7 +509,6 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-
 update                               # Update system packages
 theme-next                           # Switch to next theme
 fix-background                       # Reset background system
-fix-waybar-theme                     # Reset waybar styling
 validate-system                      # Check system health
 ```
 
