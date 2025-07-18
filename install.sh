@@ -63,7 +63,24 @@ fi
 if [ -f "$HOME/.local/share/archriot/install/lib/sudo-helper.sh" ]; then
     source "$HOME/.local/share/archriot/install/lib/sudo-helper.sh"
     echo "🔒 Setting up temporary passwordless sudo for installation..."
-    setup_passwordless_sudo || exit 1
+    if setup_passwordless_sudo; then
+        echo "🔍 Validating passwordless sudo configuration..."
+        if validate_passwordless_sudo; then
+            echo "✅ Passwordless sudo is working correctly"
+        else
+            echo "❌ Passwordless sudo validation failed!"
+            echo "📋 Installation will continue but may prompt for passwords"
+            echo "💡 You can enter your password when prompted during installation"
+            sleep 3
+        fi
+    else
+        echo "❌ Failed to setup passwordless sudo!"
+        echo "📋 Installation will continue but will prompt for passwords"
+        echo "💡 You will need to enter your password when prompted during installation"
+        sleep 3
+    fi
+else
+    echo "⚠ Sudo helper not found - installation may prompt for passwords"
 fi
 
 # Define installation order for modular structure
@@ -377,10 +394,11 @@ if ! command -v gum &>/dev/null; then
     yay -S --noconfirm --needed gum
 fi
 
-# Keep passwordless sudo for package management (yay, pacman, systemctl)
+# Clean up passwordless sudo after installation
 if command -v cleanup_passwordless_sudo &>/dev/null; then
-    echo "🔒 Keeping passwordless sudo for package management (yay, pacman, systemctl)"
-    echo "   To remove later, run: sudo sed -i '/# OhmArchy temporary rule/d' /etc/sudoers"
+    echo "🔒 Cleaning up temporary passwordless sudo..."
+    cleanup_passwordless_sudo 2>/dev/null || true
+    echo "✓ Sudo configuration restored to normal"
 fi
 
 echo ""

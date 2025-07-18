@@ -34,12 +34,15 @@ is_in_wheel() {
 
 # Check if passwordless sudo works for our commands
 is_passwordless() {
-    sudo -n pacman --version >/dev/null 2>&1
+    sudo -n pacman --version >/dev/null 2>&1 && \
+    sudo -n yay --version >/dev/null 2>&1 && \
+    sudo -n systemctl --version >/dev/null 2>&1
 }
 
 # Check if our rule is already active
 has_archriot_rule() {
-    sudo grep -q "$OMARCHY_SUDO_MARKER" /etc/sudoers 2>/dev/null
+    sudo grep -q "$OMARCHY_SUDO_MARKER" /etc/sudoers 2>/dev/null && \
+    sudo grep -q "$CURRENT_USER ALL=(ALL) NOPASSWD:" /etc/sudoers 2>/dev/null
 }
 
 # Add user to wheel group (for system consistency)
@@ -61,12 +64,26 @@ add_passwordless_rule() {
     # Create the rule with marker
     local rule_line="$OMARCHY_SUDO_RULE $OMARCHY_SUDO_MARKER"
 
-    # Add the rule using visudo for safety
-    if echo "$rule_line" | sudo EDITOR='tee -a' visudo >/dev/null 2>&1; then
+    # Create a temporary file for visudo
+    local temp_file=$(mktemp)
+    sudo cp /etc/sudoers "$temp_file"
+
+    # Add our rule to the temp file
+    echo "$rule_line" >> "$temp_file"
+
+    # Use visudo to validate and install
+    if sudo visudo -c -f "$temp_file" >/dev/null 2>&1; then
+        sudo cp "$temp_file" /etc/sudoers
+        rm -f "$temp_file"
         print_status "INFO" "✓ Passwordless sudo enabled for: pacman, yay, systemctl"
+
+        # Force reload sudo rules for current session
+        sudo -k
+
         return 0
     else
-        print_status "ERROR" "Failed to add sudo rule"
+        rm -f "$temp_file"
+        print_status "ERROR" "Failed to add sudo rule - syntax validation failed"
         return 1
     fi
 }
@@ -110,13 +127,26 @@ setup_passwordless_sudo() {
         add_passwordless_rule || return 1
     fi
 
+    # Force reload sudo rules and test
+    sudo -k
+    sleep 1
+
     # Test if it works
     if is_passwordless; then
         print_status "INFO" "✓ Passwordless sudo setup complete"
-        return 0
+
+        # Validate it's actually working
+        if validate_passwordless_sudo; then
+            print_status "INFO" "✓ Passwordless sudo validation passed"
+            return 0
+        else
+            print_status "WARN" "Setup completed but validation failed"
+            return 1
+        fi
     else
-        print_status "WARN" "Setup completed but may require re-login to take effect"
-        return 0
+        print_status "ERROR" "Passwordless sudo setup failed - you may need to re-login"
+        print_status "INFO" "Manual test: sudo -n pacman --version"
+        return 1
     fi
 }
 
@@ -157,6 +187,49 @@ show_sudo_status() {
     print_status "INFO" "  • In wheel group: $(is_in_wheel && echo "YES" || echo "NO")"
     print_status "INFO" "  • Passwordless for packages: $(is_passwordless && echo "YES" || echo "NO")"
     print_status "INFO" "  • OhmArchy rule active: $(has_archriot_rule && echo "YES" || echo "NO")"
+}
+
+# Safe sudo wrapper - ensures passwordless operation
+safe_sudo() {
+    local cmd="$*"
+
+    # Test if passwordless sudo works for this command
+    if sudo -n true 2>/dev/null; then
+        # Passwordless sudo is working, execute the command
+        sudo -n "$@"
+    else
+        print_status "ERROR" "Passwordless sudo not working for: $cmd"
+        print_status "ERROR" "Installation cannot continue without passwordless sudo"
+        print_status "INFO" "Please run: sudo -v (enter password once)"
+        print_status "INFO" "Or setup passwordless sudo: setup_passwordless_sudo"
+        return 1
+    fi
+}
+
+# Test and validate passwordless sudo is working
+validate_passwordless_sudo() {
+    print_status "INFO" "Validating passwordless sudo configuration..."
+
+    local test_commands=("true" "pacman --version" "systemctl --version")
+    local all_working=true
+
+    for cmd in "${test_commands[@]}"; do
+        if sudo -n $cmd >/dev/null 2>&1; then
+            print_status "INFO" "✓ Passwordless sudo working for: $cmd"
+        else
+            print_status "ERROR" "✗ Passwordless sudo failed for: $cmd"
+            all_working=false
+        fi
+    done
+
+    if [[ "$all_working" == "true" ]]; then
+        print_status "INFO" "✅ Passwordless sudo validation passed"
+        return 0
+    else
+        print_status "ERROR" "❌ Passwordless sudo validation failed"
+        print_status "INFO" "Some commands will prompt for password during installation"
+        return 1
+    fi
 }
 
 # Emergency cleanup (removes any OhmArchy rules)
