@@ -135,6 +135,28 @@
       });
     });
 
+    // Specific footnote handling for Jekyll
+    document.querySelectorAll('a[href^="#fn:"], a[href^="#fnref:"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const href = this.getAttribute('href');
+        const target = document.querySelector(href);
+
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+
+          // Highlight the target briefly
+          target.style.background = 'rgba(139, 92, 246, 0.2)';
+          setTimeout(() => {
+            target.style.background = '';
+          }, 2000);
+        }
+      });
+    });
+
     // Add copy functionality to code blocks
     document.querySelectorAll('pre code').forEach(block => {
       const button = document.createElement('button');

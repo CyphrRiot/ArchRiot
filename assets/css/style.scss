@@ -363,6 +363,53 @@ strong:contains("⚠️"), strong:contains("Important") {
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
+/* Footnote styling for Jekyll */
+.footnotes {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--archriot-border);
+  font-size: 0.9em;
+}
+
+.footnotes ol {
+  padding-left: 1.5rem;
+}
+
+.footnotes li {
+  margin-bottom: 0.5rem;
+}
+
+/* Footnote reference links */
+a[href^="#fn:"] {
+  color: var(--archriot-purple-light) !important;
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+  top: -0.3em;
+  font-size: 0.8em;
+  padding: 0.1em 0.3em;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+a[href^="#fn:"]:hover {
+  color: var(--archriot-cyan) !important;
+  background: rgba(139, 92, 246, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Footnote backlinks */
+a[href^="#fnref:"] {
+  color: var(--archriot-purple-light) !important;
+  text-decoration: none;
+  margin-left: 0.5em;
+}
+
+a[href^="#fnref:"]:hover {
+  color: var(--archriot-cyan) !important;
+}
+
 /* Responsive tooltip for mobile */
 @media (max-width: 768px) {
   .tooltip .tooltiptext {
