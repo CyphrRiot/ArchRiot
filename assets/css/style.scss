@@ -402,15 +402,16 @@ sup a[href^="#fn"],
 .footnote {
   color: var(--archriot-purple-light) !important;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: normal;
   position: relative;
-  top: -0.3em;
-  font-size: 0.8em;
-  padding: 0.1em 0.3em;
+  top: -0.4em;
+  font-size: 0.65em !important;
+  padding: 0.1em 0.25em;
   background: rgba(139, 92, 246, 0.1);
-  border-radius: 3px;
+  border-radius: 2px;
   transition: all 0.2s ease;
   cursor: pointer;
+  vertical-align: super;
 }
 
 a[href^="#fn:"]:hover,
@@ -445,10 +446,12 @@ a[href^="#fnref"]:hover,
 /* Special handling for superscript footnotes */
 sup {
   line-height: 0;
+  font-size: 0.65em !important;
 }
 
 sup a {
   top: 0;
+  font-size: 1em !important;
   vertical-align: super;
 }
 
