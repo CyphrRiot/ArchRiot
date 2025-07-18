@@ -100,6 +100,11 @@ install_file_management() {
     local file_enhancements=(
         "sushi"                # File previewer
         "ffmpegthumbnailer"   # Video thumbnails
+        "tumbler"             # Image/document thumbnails for Thunar
+        "libwebp"             # WEBP image format support
+        "libheif"             # HEIF/HEIC image format support (iPhone photos)
+        "libavif"             # AVIF image format support
+        "raw-thumbnailer"     # RAW camera file thumbnails
     )
 
     for enhancement in "${file_enhancements[@]}"; do
