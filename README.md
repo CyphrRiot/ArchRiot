@@ -33,16 +33,22 @@ ArchRiot is an even more opiniated setup and was originally a unique rice[^1] an
 
 ![ArchRiot Screenshot](images/screenshot.png)
 
-## 🆕 **What's New in v1.1.40**
+## 🆕 **What's New in v1.1.42**
 
-**UI & Documentation Fixes**
+**Smart Application Launcher & Enhanced System Management**
 
+- 🚀 **Optimized Upgrade System** - New `upgrade-system` utility with parallel downloads, intelligent error recovery, and ArchRiot integration
+- 📊 **Enhanced Update Management** - Progress tracking, detailed logging, backup integration, and .pacnew file detection
+- 🛡️ **Intelligent Error Recovery** - Automatic handling of corrupted downloads and package conflicts during upgrades
+- 🎯 **Smart Signal Launcher** - SUPER+G now intelligently launches Signal if not running or focuses existing window if already open
+- ⌨️ **Enhanced Keybinding Logic** - Application shortcuts now handle running instances gracefully instead of failing to launch
+- 🪟 **Better Window Management** - Signal launcher includes workspace switching and cross-monitor window focusing
 - 🎨 **Fixed Welcome Screen Font** - Welcome window now properly uses "Hack Nerd Font Mono" consistently across all text elements
 - 📖 **Improved README Formatting** - Restored proper footnote format for "unique rice" definition that works correctly on both GitHub and Jekyll site
 - 🔧 **Font Consistency** - Updated Python GTK welcome script with proper Pango font handling and CSS styling
 - 📝 **Better Cross-Platform Display** - README now renders properly on GitHub while maintaining Jekyll site functionality
 
-This release fixes visual inconsistencies and ensures a polished, consistent user experience across all ArchRiot interfaces.
+This release improves the user experience with smarter application management, enhanced system maintenance tools, and polished visual consistency across all ArchRiot interfaces.
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 
@@ -154,7 +160,10 @@ SUPER + CTRL + SPACE                 # Cycle through backgrounds
 ### System Management
 
 ```bash
-update                               # Update system packages
+upgrade-system                       # Optimized system upgrade utility (ArchRiot enhanced)
+upgrade-system --all --backup        # Full automated upgrade with backup
+upgrade-system --dry-run             # Preview available updates
+update                               # Basic system update (legacy)
 migrate                              # Backup/restore system (interactive TUI)
 sudo systemctl reboot               # Restart system
 sudo systemctl poweroff             # Shutdown system
@@ -169,7 +178,7 @@ SUPER + D  or  SUPER + SPACE         # App launcher (fuzzel)
 SUPER + F                            # File manager (Thunar)
 SUPER + B                            # Browser (Brave)
 SUPER + E                            # Email (Proton Mail)
-SUPER + G                            # Signal messenger
+SUPER + G                            # Signal messenger (smart launcher)
 SUPER + M                            # Google Messages
 SUPER + O                            # Text editor (Gnome Text Editor)
 SUPER + N                            # Text editor (Neovim)

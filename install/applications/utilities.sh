@@ -107,6 +107,18 @@ else
   echo "⚠ Hidden applications directory not found"
 fi
 
+# Install ArchRiot upgrade-system script
+echo "🚀 Installing ArchRiot upgrade-system utility..."
+local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$script_dir/../../bin/upgrade-system" ]]; then
+  cp "$script_dir/../../bin/upgrade-system" ~/.local/bin/
+  chmod +x ~/.local/bin/upgrade-system
+  echo "✓ ArchRiot upgrade-system installed to ~/.local/bin/"
+  echo "  Usage: upgrade-system --help"
+else
+  echo "⚠ ArchRiot upgrade-system script not found in repository bin"
+fi
+
 # Update desktop database
 update-desktop-database ~/.local/share/applications/
 
