@@ -451,18 +451,9 @@ start_theme_services() {
         fi
     fi
 
-    # Ask about and optionally start blue light filter
-    if ask_blue_light_filter; then
-        start_blue_light_filter
-        echo "✓ Blue light filter will start automatically (hyprsunset configured in base hyprland.conf)"
-    else
-        echo "✓ Blue light filter skipped"
-        # Comment out hyprsunset in hyprland.conf if user doesn't want it
-        if grep -q "^exec-once = hyprsunset" ~/.config/hypr/hyprland.conf; then
-            sed -i 's/^exec-once = hyprsunset/#exec-once = hyprsunset/' ~/.config/hypr/hyprland.conf
-            echo "✓ Disabled hyprsunset autostart in hyprland.conf"
-        fi
-    fi
+    # Start blue light filter by default (no user prompt)
+    start_blue_light_filter
+    echo "✓ Blue light filter enabled by default (hyprsunset configured in base hyprland.conf)"
 }
 
 # Stop theme-related services safely
@@ -480,45 +471,7 @@ stop_theme_services() {
     echo "✓ Services stopped"
 }
 
-# Ask user about blue light filtering
-ask_blue_light_filter() {
-    echo ""
-    echo "🌙 Blue Light Filter Setup"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "Blue light filtering reduces eye strain and improves sleep quality by"
-    echo "warming your screen color temperature, especially during evening hours."
-    echo ""
-    echo "Benefits:"
-    echo "  • Reduces eye fatigue and strain"
-    echo "  • Improves sleep quality (reduces blue light impact on melatonin)"
-    echo "  • More comfortable viewing in low-light environments"
-    echo "  • 3500K temperature - scientifically optimal warm setting"
-    echo ""
-    if command -v gum &>/dev/null; then
-        if gum confirm "Enable blue light filtering (3500K temperature)?"; then
-            echo "✓ Blue light filtering enabled - your eyes and brain will thank you!"
-            return 0
-        else
-            echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
-            return 1
-        fi
-    else
-        # Fallback without gum
-        echo -n "Enable blue light filtering? (y/N): "
-        read -r response
-        case "$response" in
-            [yY]|[yY][eE][sS])
-                echo "✓ Blue light filtering enabled - your eyes and brain will thank you!"
-                return 0
-                ;;
-            *)
-                echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
-                return 1
-                ;;
-        esac
-    fi
-}
+
 
 
 
