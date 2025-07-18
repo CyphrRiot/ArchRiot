@@ -118,8 +118,9 @@ class WelcomeWindow:
             "SUPER+SPACE = Launch App Search Window\n",
             "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
             "Many other commands!\n\n",
+            "Don't like the background? SUPER+CTRL+SPACE to switch between over a dozen hand-crafted backgrounds made (mostly) for ArchRiot.\n\n",
 
-            "ArchRiot started life as a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
+            "ArchRiot started life as a standalone installer, then a fork of DHH's Omarchy project, but has diverged so much there's very little remaining, other than the omarchy folders.\n\n",
             "I hope you enjoy using ArchRiot as much as I enjoyed putting it together.\n"
         ]
 
