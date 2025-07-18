@@ -165,8 +165,8 @@ upgrade-system --all --backup        # Full automated upgrade with backup
 upgrade-system --dry-run             # Preview available updates
 update                               # Basic system update (legacy)
 migrate                              # Backup/restore system (interactive TUI)
-sudo systemctl reboot               # Restart system
-sudo systemctl poweroff             # Shutdown system
+sudo systemctl reboot                # Restart system
+sudo systemctl poweroff              # Shutdown system
 ```
 
 ### Applications (Keybinds)
