@@ -141,11 +141,14 @@
       // Add smooth scrolling to footnote links
       document.querySelectorAll('a[href^="#fn"]').forEach(link => {
         link.addEventListener('click', function(e) {
+          e.preventDefault();
           const href = this.getAttribute('href');
-          const target = document.querySelector(href);
+
+          // Escape colon in CSS selector (Jekyll generates #fn:1 format)
+          const escapedHref = href.replace(':', '\\:');
+          const target = document.querySelector(escapedHref);
 
           if (target) {
-            e.preventDefault();
             target.scrollIntoView({
               behavior: 'smooth',
               block: 'center'
@@ -157,6 +160,8 @@
             setTimeout(() => {
               target.style.background = '';
             }, 2000);
+          } else {
+            console.log('Footnote target not found for:', href, 'tried:', escapedHref);
           }
         });
       });
