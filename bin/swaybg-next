@@ -11,8 +11,16 @@ if [[ ! -d "$BACKGROUNDS_DIR" ]]; then
     exit 1
 fi
 
-# Get all background files, sorted (follow symlinks)
-mapfile -t BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
+# Get numbered background files first, then any others as fallback (follow symlinks)
+mapfile -t NUMBERED_BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f -name "[0-9][0-9]-*" \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
+mapfile -t ALL_BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
+
+# Prefer numbered backgrounds if available
+if [[ ${#NUMBERED_BACKGROUNDS[@]} -gt 0 ]]; then
+    BACKGROUNDS=("${NUMBERED_BACKGROUNDS[@]}")
+else
+    BACKGROUNDS=("${ALL_BACKGROUNDS[@]}")
+fi
 TOTAL=${#BACKGROUNDS[@]}
 
 # Check if any backgrounds exist
@@ -51,7 +59,7 @@ fi
 # Set new background symlink
 ln -snf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
 
-echo "🖼️  Switched to background: $(basename "$NEW_BACKGROUND")"
+echo "🖼️  Switched to background: $(basename "$NEW_BACKGROUND") ($(($NEXT_INDEX + 1))/${#BACKGROUNDS[@]})"
 
 # Relaunch swaybg
 pkill -x swaybg 2>/dev/null

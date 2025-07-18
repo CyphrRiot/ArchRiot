@@ -45,20 +45,68 @@ mkdir -p "$CYPHERRIOT_BACKGROUNDS"
 
 # Copy backgrounds from theme if they don't exist
 if [[ -d "$CYPHERRIOT_THEME/backgrounds" ]]; then
-    echo "  📋 Copying backgrounds from theme (removing duplicates)..."
+    echo "  📋 Automatically discovering and copying backgrounds from theme..."
 
-    # Clear existing backgrounds to prevent duplicates
-    rm -f "$CYPHERRIOT_BACKGROUNDS"/*.jpg "$CYPHERRIOT_BACKGROUNDS"/*.png 2>/dev/null || true
+    # Clear existing numbered backgrounds to prevent duplicates/conflicts
+    echo "  🗑️  Cleaning existing numbered backgrounds..."
+    find "$CYPHERRIOT_BACKGROUNDS" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
 
-    # Copy with proper naming (City-Rainy-Night as #1 default)
-    cp "$CYPHERRIOT_THEME/backgrounds/City-Rainy-Night.png" "$CYPHERRIOT_BACKGROUNDS/1-City-Rainy-Night.png" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/escape_velocity.jpg" "$CYPHERRIOT_BACKGROUNDS/2-escape_velocity.jpg" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/blue_night_moon_over_lake.jpg" "$CYPHERRIOT_BACKGROUNDS/3-blue_night_moon_over_lake.jpg" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/Staircase.png" "$CYPHERRIOT_BACKGROUNDS/4-Staircase.png" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/Anime-Purple-eyes.png" "$CYPHERRIOT_BACKGROUNDS/5-Anime-Purple-eyes.png" 2>/dev/null || true
-    cp "$CYPHERRIOT_THEME/backgrounds/cyber.jpg" "$CYPHERRIOT_BACKGROUNDS/6-cyber.jpg" 2>/dev/null || true
+    # Find all image files and sort them
+    mapfile -t ALL_BACKGROUNDS < <(find "$CYPHERRIOT_THEME/backgrounds" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | sort)
 
-    echo "  ✓ CypherRiot backgrounds copied (6 unique backgrounds)"
+    if [[ ${#ALL_BACKGROUNDS[@]} -gt 0 ]]; then
+        echo "  📋 Found ${#ALL_BACKGROUNDS[@]} background files"
+
+        # Separate riot_zero from other backgrounds for priority ordering
+        RIOT_ZERO=""
+        OTHER_BACKGROUNDS=()
+
+        for bg in "${ALL_BACKGROUNDS[@]}"; do
+            filename=$(basename "$bg")
+            if [[ "$filename" == "riot_zero.png" ]]; then
+                RIOT_ZERO="$bg"
+            else
+                OTHER_BACKGROUNDS+=("$bg")
+            fi
+        done
+
+        # Copy riot_zero as #1 if it exists
+        counter=1
+        if [[ -n "$RIOT_ZERO" ]]; then
+            filename=$(basename "$RIOT_ZERO")
+            dest_file="$CYPHERRIOT_BACKGROUNDS/$(printf "%02d" $counter)-$filename"
+
+            # Only copy if source is different from destination
+            if [[ "$RIOT_ZERO" != "$dest_file" ]]; then
+                cp "$RIOT_ZERO" "$dest_file" 2>/dev/null || true
+                echo "  ✓ Copied default: $(printf "%02d" $counter)-$filename"
+            else
+                echo "  ✓ Default already in place: $(printf "%02d" $counter)-$filename"
+            fi
+            ((counter++))
+        fi
+
+        # Copy all other backgrounds
+        for bg in "${OTHER_BACKGROUNDS[@]}"; do
+            if [[ -f "$bg" ]]; then
+                filename=$(basename "$bg")
+                dest_file="$CYPHERRIOT_BACKGROUNDS/$(printf "%02d" $counter)-$filename"
+
+                # Only copy if source is different from destination
+                if [[ "$bg" != "$dest_file" ]]; then
+                    cp "$bg" "$dest_file" 2>/dev/null || true
+                    echo "  ✓ Copied: $(printf "%02d" $counter)-$filename"
+                else
+                    echo "  ✓ Already in place: $(printf "%02d" $counter)-$filename"
+                fi
+                ((counter++))
+            fi
+        done
+
+        echo "  ✓ CypherRiot backgrounds processed ($((counter-1)) unique backgrounds)"
+    else
+        echo "  ⚠ No background files found in theme directory"
+    fi
 else
     echo "  ⚠ CypherRiot theme backgrounds directory not found"
 fi
@@ -75,15 +123,18 @@ ln -nsf "$CYPHERRIOT_THEME" "$CURRENT_THEME_LINK"
 ln -nsf "$CYPHERRIOT_BACKGROUNDS" "$CURRENT_DIR/backgrounds"
 echo "  ✓ Current theme set to CypherRiot"
 
-# Set default background (City-Rainy-Night.png)
+# Set default background (riot_zero.png preferred, or first available)
 echo "🖼️  Setting default background..."
-DEFAULT_BACKGROUND="$CYPHERRIOT_BACKGROUNDS/1-City-Rainy-Night.png"
-if [[ -f "$DEFAULT_BACKGROUND" ]]; then
+
+# Try to find riot_zero first
+DEFAULT_BACKGROUND=$(find "$CYPHERRIOT_BACKGROUNDS" -name "*riot_zero*" | head -1)
+
+if [[ -n "$DEFAULT_BACKGROUND" && -f "$DEFAULT_BACKGROUND" ]]; then
     ln -nsf "$DEFAULT_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
-    echo "  ✓ Default background set to City-Rainy-Night.png"
+    echo "  ✓ Default background set to $(basename "$DEFAULT_BACKGROUND")"
 else
-    # Fallback to any available background
-    FALLBACK_BG=$(find "$CYPHERRIOT_BACKGROUNDS" -type f \( -name "*.jpg" -o -name "*.png" \) | head -n 1)
+    # Fallback to first numbered background (should be 01-)
+    FALLBACK_BG=$(find "$CYPHERRIOT_BACKGROUNDS" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
     if [[ -n "$FALLBACK_BG" ]]; then
         ln -nsf "$FALLBACK_BG" "$CURRENT_BACKGROUND_LINK"
         echo "  ✓ Fallback background set to $(basename "$FALLBACK_BG")"
@@ -134,12 +185,12 @@ echo "📋 What was fixed:"
 echo "  • Cleaned up old cyber-1.png references"
 echo "  • Set up proper CypherRiot theme structure"
 echo "  • Linked correct background files"
-echo "  • Set City-Rainy-Night.png as default"
+echo "  • Set riot_zero.png as default"
 echo "  • Restarted background service"
 echo ""
-echo "🎮 Available backgrounds:"
+echo "🎮 Available backgrounds (in order):"
 if [[ -d "$CYPHERRIOT_BACKGROUNDS" ]]; then
-    for bg in "$CYPHERRIOT_BACKGROUNDS"/*; do
+    for bg in "$CYPHERRIOT_BACKGROUNDS"/[0-9][0-9]-*; do
         if [[ -f "$bg" ]]; then
             echo "  • $(basename "$bg")"
         fi

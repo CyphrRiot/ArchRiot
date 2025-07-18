@@ -230,24 +230,21 @@ setup_theme_backgrounds() {
     if [[ -d "$bg_dir" ]]; then
         ln -snf "$bg_dir" ~/.config/archriot/current/backgrounds
 
-        # Set default background (City-Rainy-Night.png or first available)
-        local default_bg="$bg_dir/1-City-Rainy-Night.png"
-        if [[ -f "$default_bg" ]]; then
-            ln -snf "$default_bg" ~/.config/archriot/current/background
-            echo "✓ Default background set: City-Rainy-Night.png"
+        # Set default background (riot_zero.png preferred, or first available)
+        # Try to find riot_zero first (any numbered version)
+        local riot_zero_bg=$(find "$bg_dir" -name "*riot_zero*" | head -1)
+
+        if [[ -n "$riot_zero_bg" && -f "$riot_zero_bg" ]]; then
+            ln -snf "$riot_zero_bg" ~/.config/archriot/current/background
+            echo "✓ Default background set: $(basename "$riot_zero_bg")"
         else
-            # Fallback to any City-Rainy-Night variant
-            local city_bg=$(find "$bg_dir" -name "*City-Rainy-Night*" | head -1)
-            if [[ -n "$city_bg" ]]; then
-                ln -snf "$city_bg" ~/.config/archriot/current/background
-                echo "✓ Default background set: $(basename "$city_bg")"
+            # Fallback to first numbered background (should be 01-)
+            local first_bg=$(find "$bg_dir" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
+            if [[ -n "$first_bg" ]]; then
+                ln -snf "$first_bg" ~/.config/archriot/current/background
+                echo "✓ Default background set: $(basename "$first_bg")"
             else
-                # Final fallback to first available
-                local first_bg=$(find "$bg_dir" -name "*.jpg" -o -name "*.png" | head -1)
-                if [[ -n "$first_bg" ]]; then
-                    ln -snf "$first_bg" ~/.config/archriot/current/background
-                    echo "✓ Default background set: $(basename "$first_bg")"
-                fi
+                echo "⚠ No background files found in $bg_dir"
             fi
         fi
     else

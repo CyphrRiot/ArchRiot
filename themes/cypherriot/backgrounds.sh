@@ -1,35 +1,111 @@
 #!/bin/bash
 # CypherRiot theme backgrounds
-# Copy existing wallpapers from repo (NO DOWNLOADS NEEDED)
+# Automatically discover and copy all background files from repo
+# Prevents duplicates and handles existing files intelligently
 
 # Define backgrounds directory
 BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
 
 mkdir -p "$BACKGROUNDS_DIR/cypherriot"
 
-# Clear existing backgrounds to prevent duplicates
-rm -f "$BACKGROUNDS_DIR/cypherriot"/*.jpg "$BACKGROUNDS_DIR/cypherriot"/*.png 2>/dev/null || true
+# Source directory for backgrounds
+SOURCE_DIR="$HOME/.local/share/archriot/themes/cypherriot/backgrounds"
 
-# Copy City Rainy Night wallpaper as default (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/City-Rainy-Night.png "$BACKGROUNDS_DIR/cypherriot/1-City-Rainy-Night.png"
+# Check if source directory exists
+if [[ ! -d "$SOURCE_DIR" ]]; then
+    echo "❌ Source backgrounds directory not found: $SOURCE_DIR"
+    exit 1
+fi
 
-# Copy tokyo_cat wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/tokyo_cat.jpeg "$BACKGROUNDS_DIR/cypherriot/2-tokyo_cat.jpeg"
+echo "🖼️  Discovering background files..."
 
-# Copy escape velocity wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/escape_velocity.jpg "$BACKGROUNDS_DIR/cypherriot/3-escape_velocity.jpg"
+# Find all image files and sort them
+mapfile -t ALL_BACKGROUNDS < <(find "$SOURCE_DIR" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | sort)
 
-# Copy blue night moon over lake wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/blue_night_moon_over_lake.jpg "$BACKGROUNDS_DIR/cypherriot/4-blue_night_moon_over_lake.jpg"
+if [[ ${#ALL_BACKGROUNDS[@]} -eq 0 ]]; then
+    echo "❌ No background files found in $SOURCE_DIR"
+    exit 1
+fi
 
-# Copy Staircase wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/Staircase.png "$BACKGROUNDS_DIR/cypherriot/5-Staircase.png"
+echo "📋 Found ${#ALL_BACKGROUNDS[@]} background files"
 
-# Copy Anime Purple Eyes wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/Anime-Purple-eyes.png "$BACKGROUNDS_DIR/cypherriot/6-Anime-Purple-eyes.png"
+# Clear existing numbered backgrounds to prevent duplicates/conflicts
+echo "🗑️  Cleaning existing numbered backgrounds..."
+find "$BACKGROUNDS_DIR/cypherriot" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
 
-# Copy purple sky wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/purple_sky.jpeg "$BACKGROUNDS_DIR/cypherriot/7-purple_sky.jpeg"
+# Separate riot_zero from other backgrounds for priority ordering
+RIOT_ZERO=""
+OTHER_BACKGROUNDS=()
 
-# Copy cyber wallpaper (already in repo)
-cp ~/.local/share/archriot/themes/cypherriot/backgrounds/cyber.jpg "$BACKGROUNDS_DIR/cypherriot/8-cyber.jpg"
+for bg in "${ALL_BACKGROUNDS[@]}"; do
+    filename=$(basename "$bg")
+    if [[ "$filename" == "riot_zero.png" ]]; then
+        RIOT_ZERO="$bg"
+    else
+        OTHER_BACKGROUNDS+=("$bg")
+    fi
+done
+
+# Copy riot_zero as #1 if it exists
+counter=1
+DEFAULT_BG=""
+
+if [[ -n "$RIOT_ZERO" ]]; then
+    filename=$(basename "$RIOT_ZERO")
+    dest_file="$BACKGROUNDS_DIR/cypherriot/$(printf "%02d" $counter)-$filename"
+
+    # Only copy if source is different from destination (avoid copying file to itself)
+    if [[ "$RIOT_ZERO" != "$dest_file" ]]; then
+        cp "$RIOT_ZERO" "$dest_file"
+        echo "✓ Copied default: $(printf "%02d" $counter)-$filename"
+        DEFAULT_BG="$dest_file"
+    else
+        echo "✓ Default already in place: $(printf "%02d" $counter)-$filename"
+        DEFAULT_BG="$dest_file"
+    fi
+    ((counter++))
+fi
+
+# Copy all other backgrounds
+for bg in "${OTHER_BACKGROUNDS[@]}"; do
+    if [[ -f "$bg" ]]; then
+        filename=$(basename "$bg")
+        dest_file="$BACKGROUNDS_DIR/cypherriot/$(printf "%02d" $counter)-$filename"
+
+        # Only copy if source is different from destination
+        if [[ "$bg" != "$dest_file" ]]; then
+            cp "$bg" "$dest_file"
+            echo "✓ Copied: $(printf "%02d" $counter)-$filename"
+        else
+            echo "✓ Already in place: $(printf "%02d" $counter)-$filename"
+        fi
+
+        # If no riot_zero was found, use the first background as default
+        if [[ -z "$DEFAULT_BG" ]]; then
+            DEFAULT_BG="$dest_file"
+        fi
+
+        ((counter++))
+    fi
+done
+
+echo ""
+echo "🎉 Successfully processed $((counter-1)) backgrounds for CypherRiot theme"
+
+# If this script is being run during installation, set the default background
+if [[ -n "$DEFAULT_BG" && -d "$HOME/.config/archriot/current" ]]; then
+    echo "🖼️  Setting default background..."
+    ln -snf "$DEFAULT_BG" "$HOME/.config/archriot/current/background"
+    echo "✓ Default background set: $(basename "$DEFAULT_BG")"
+fi
+
+echo ""
+echo "💡 Available backgrounds (in order):"
+for bg_file in "$BACKGROUNDS_DIR/cypherriot"/[0-9][0-9]-*; do
+    if [[ -f "$bg_file" ]]; then
+        echo "  • $(basename "$bg_file")"
+    fi
+done
+
+echo ""
+echo "🎮 Use SUPER+CTRL+SPACE to cycle through backgrounds"
