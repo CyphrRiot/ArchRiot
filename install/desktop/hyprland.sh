@@ -110,6 +110,19 @@ main() {
     setup_hyprland_packages || return 1
     validate_installation || return 1
     configure_hyprland
+
+    # Reload Hyprland config if it's running
+    if pgrep -x "Hyprland" >/dev/null; then
+        echo "🔄 Reloading Hyprland configuration..."
+        if hyprctl reload 2>/dev/null; then
+            echo "✓ Hyprland configuration reloaded successfully"
+        else
+            echo "⚠ Failed to reload Hyprland - please restart Hyprland manually"
+        fi
+    else
+        echo "ℹ Hyprland not running - configuration will be applied on next start"
+    fi
+
     show_summary
 
     echo "✅ Hyprland desktop environment setup completed!"
