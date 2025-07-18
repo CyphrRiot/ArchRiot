@@ -33,19 +33,19 @@ _Created by a hacker, cypherpunk, and blockchain developer with decades of exper
 
 ¹ _In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars)._
 
-## 🆕 **What's New in v1.1.36**
+## 🆕 **What's New in v1.1.39**
 
-**Comprehensive Branding & Optimization Update**
+**Enhanced Performance & User Experience**
 
-- ✅ **Complete Branding Consistency** - Eliminated all remaining OhmArchy references throughout the codebase
-- ✅ **Fixed Critical Waybar Issues** - Corrected power-menu paths and module configurations
-- ✅ **Hyprlock Background Fix** - Resolved missing background images on lock screen
-- ✅ **Code Quality Improvements** - Enhanced documentation, error handling, and system validation
-- ✅ **Performance Monitoring** - Added installation timing and optional debug logging
-- ✅ **Clean Codebase** - Removed unused files and fixed filename typos
-- ✅ **Enhanced User Experience** - Added customization hints and better completion feedback
+- 🚀 **Faster Installation** - Streamlined setup process with improved performance monitoring
+- 🎨 **Enhanced Lock Screen** - Beautiful background integration for a seamless visual experience
+- ⚡ **Optimized Waybar** - Smoother module performance and better system integration
+- 📚 **Improved Documentation** - Clearer guides and better customization hints for new users
+- 🔧 **Enhanced Error Handling** - More robust installation with better feedback and validation
+- 🎯 **Better User Feedback** - Comprehensive completion messages and helpful next steps
+- 🧹 **Refined Codebase** - Cleaner, more maintainable code for better long-term stability
 
-This release ensures ArchRiot is fully consistent, optimized, and production-ready with complete ArchRiot branding throughout all 287+ project files.
+This release focuses on delivering a smoother, more polished experience with enhanced performance and user-friendly improvements across the entire ArchRiot ecosystem.
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 
