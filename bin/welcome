@@ -86,6 +86,9 @@ class WelcomeWindow:
                 print(f"Could not load welcome.png: {e}")
 
     def add_main_text(self, container):
+        # Read version from VERSION file
+        version = self.get_archriot_version()
+
         # Create scrollable text view
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -110,7 +113,7 @@ class WelcomeWindow:
 
         # Create text with markup for clickable links
         text_content_parts = [
-            "ArchRiot is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
+            f"ArchRiot v{version} is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
             "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
             "SUPER+B = Open Brave Browser\n",
             "SUPER+ENTER = Open Terminal\n",
@@ -222,6 +225,19 @@ class WelcomeWindow:
                             return True
 
         return False
+
+    def get_archriot_version(self):
+        """Read ArchRiot version from VERSION file"""
+        home_dir = os.environ.get('HOME') or os.path.expanduser('~')
+        version_path = os.path.join(home_dir, '.local', 'share', 'archriot', 'VERSION')
+
+        try:
+            with open(version_path, 'r') as f:
+                version = f.read().strip()
+                return version
+        except Exception as e:
+            print(f"Could not read version file: {e}")
+            return "unknown"
 
     def on_window_destroy(self, widget):
         """Handle window destruction - quit this app's main loop only"""
