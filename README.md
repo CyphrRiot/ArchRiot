@@ -82,7 +82,7 @@ Run `archinstall` and pick these options (and leave anything not mentioned as-is
 
 Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install ArchRiot.
 
-### Method 1: One-Line Install or Upgrade (Recommended)
+### Method 1: One-Line Install or Upgrade (Recommended for Most Users)
 
 ```bash
 curl -fsSL https://archriot.org/setup.sh | bash
@@ -90,12 +90,16 @@ curl -fsSL https://archriot.org/setup.sh | bash
 
 **Note: Upgrading is exactly the same command! Simple!**
 
-### Method 2: Manual Clone (For Customization)
+### Method 2: Manual Clone (Only if You Need to Customize Installation Scripts)
+
+Use this method only if you want to modify the installation scripts before running them:
 
 ```bash
 git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 ~/.local/share/archriot/install.sh
 ```
+
+**Note:** Most users should use Method 1 above. This manual method is only for advanced users who need to customize the installation process.
 
 ### Optional: Pre-Installation Validation
 
@@ -123,26 +127,28 @@ This comprehensive test validates:
 - **Error handling** - Clear feedback and rollback capability
 - **100% confidence** - Comprehensive testing and validation
 
-## 🆕 **What's New in v1.1.42**
+## 🆕 **What's New**
 
-**Smart Application Launcher & Enhanced System Management**
+**Major User Experience Improvements**
 
-- 🚀 **Optimized Upgrade System** - New `upgrade-system` utility with parallel downloads, intelligent error recovery, and ArchRiot integration
-- 📊 **Enhanced Update Management** - Progress tracking, detailed logging, backup integration, and .pacnew file detection
-- 🛡️ **Intelligent Error Recovery** - Automatic handling of corrupted downloads and package conflicts during upgrades
-- 🎯 **Smart Signal Launcher** - SUPER+G now intelligently launches Signal if not running or focuses existing window if already open
-- ⌨️ **Enhanced Keybinding Logic** - Application shortcuts now handle running instances gracefully instead of failing to launch
-- 🪟 **Better Window Management** - Signal launcher includes workspace switching and cross-monitor window focusing
-- 🎨 **Fixed Welcome Screen Font** - Welcome window now properly uses "Hack Nerd Font Mono" consistently across all text elements
-- 📖 **Improved README Formatting** - Restored proper footnote format for "unique rice" definition that works correctly on both GitHub and Jekyll site
-- 🔧 **Font Consistency** - Updated Python GTK welcome script with proper Pango font handling and CSS styling
-- 📝 **Better Cross-Platform Display** - README now renders properly on GitHub while maintaining Jekyll site functionality
+- 🚀 **Faster System Updates** - New `upgrade-system` command with better progress tracking and error handling
+- 🎯 **Smart App Launching** - SUPER+G intelligently opens or focuses Signal and other applications
+- 🎨 **Visual Polish** - Fixed fonts and improved consistency across all interfaces
+- 📱 **Better Status Bar** - Enhanced Waybar with improved modules and transparency
+- 🪟 **Smoother Window Management** - Better handling of application focus and workspace switching
 
-This release improves the user experience with smarter application management, enhanced system maintenance tools, and polished visual consistency across all ArchRiot interfaces.
+**For Developers & Power Users:**
+
+- Enhanced keybinding logic with graceful instance handling
+- Parallel downloads and intelligent error recovery in upgrade system
+- Improved backup integration and .pacnew file detection
+- Cross-platform README formatting improvements
+
+This release focuses on making daily usage smoother with smarter application management and polished visual consistency.
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 
-ArchRiot ships with **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by CyphrRiot. Never lose your configurations again!
+ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by CyphrRiot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
 
 ### 🛡️ **Why Migrate Matters**
 
@@ -164,8 +170,58 @@ migrate                              # Launch interactive backup/restore interfa
 
 ## ⌨️ Essential Commands
 
+### Getting Started
+
 ```bash
 SUPER + H                            # Show HELP (SUPER Key Bindings)
+SUPER + D  or  SUPER + SPACE         # App launcher (fuzzel)
+SUPER + RETURN                       # Open terminal (Ghostty)
+SUPER + L                            # Lock screen (CypherRiot theme)
+SUPER + ESCAPE                       # Power menu
+```
+
+### Window Management (Most Used)
+
+```bash
+SUPER + W  or  SUPER + Q             # Close window
+SUPER + V                            # Toggle floating
+SUPER + J                            # Toggle split
+SUPER + Arrow Keys                   # Move focus
+SUPER + SHIFT + Arrow Keys           # Swap windows
+SUPER + CTRL + Arrow Keys            # Smart window movement
+SUPER + 1-4                          # Switch workspace
+SUPER + SHIFT + 1-4                  # Move window to workspace
+```
+
+### Core Applications
+
+```bash
+SUPER + F                            # File manager (Thunar)
+SUPER + B                            # Browser (Brave)
+SUPER + Z                            # Code editor (Zed)
+SUPER + N                            # Text editor (Neovim)
+SUPER + O                            # Text editor (Gnome Text Editor)
+SUPER + T                            # System monitor (btop)
+SUPER + SHIFT + RETURN               # Centered floating terminal
+```
+
+### Communication & Social
+
+```bash
+SUPER + E                            # Email (Proton Mail)
+SUPER + G                            # Signal messenger (smart launcher)
+SUPER + M                            # Google Messages
+SUPER + X                            # X/Twitter
+```
+
+### Screenshots & Recording
+
+```bash
+SUPER + SHIFT + S                    # Region screenshot
+SUPER + SHIFT + W                    # Window screenshot
+SUPER + SHIFT + F                    # Full screen screenshot
+SUPER + PRINT                        # Color picker
+Kooha                                # GUI screen recorder (launch from SUPER+D)
 ```
 
 ### Theme & Appearance
@@ -188,54 +244,6 @@ sudo systemctl reboot                # Restart system
 sudo systemctl poweroff              # Shutdown system
 ```
 
-### Applications (Keybinds)
-
-```bash
-SUPER + RETURN                       # Open terminal (Ghostty)
-SUPER + SHIFT + RETURN               # Centered floating terminal
-SUPER + D  or  SUPER + SPACE         # App launcher (fuzzel)
-SUPER + F                            # File manager (Thunar)
-SUPER + B                            # Browser (Brave)
-SUPER + E                            # Email (Proton Mail)
-SUPER + G                            # Signal messenger (smart launcher)
-SUPER + M                            # Google Messages
-SUPER + O                            # Text editor (Gnome Text Editor)
-SUPER + N                            # Text editor (Neovim)
-SUPER + T                            # System monitor (btop)
-SUPER + Z                            # Code editor (Zed)
-SUPER + X                            # X/Twitter
-SUPER + L                            # Lock screen (CypherRiot theme)
-SUPER + ESCAPE                       # Power menu
-```
-
-### Screenshots
-
-```bash
-SUPER + SHIFT + S                    # Region screenshot
-SUPER + SHIFT + W                    # Window screenshot
-SUPER + SHIFT + F                    # Full screen screenshot
-SUPER + PRINT                        # Color picker
-```
-
-### Screen Recording
-
-```bash
-Kooha                                # GUI screen recorder (launch from SUPER+D)
-```
-
-### Window Management
-
-```bash
-SUPER + W  or  SUPER + Q             # Close window
-SUPER + V                            # Toggle floating
-SUPER + J                            # Toggle split
-SUPER + Arrow Keys                   # Move focus
-SUPER + SHIFT + Arrow Keys           # Swap windows
-SUPER + CTRL + Arrow Keys            # Smart window movement
-SUPER + 1-4                          # Switch workspace
-SUPER + SHIFT + 1-4                  # Move window to workspace
-```
-
 ### Audio & Media
 
 ```bash
@@ -249,7 +257,7 @@ XF86AudioPlay/Pause                  # Media play/pause (hardware buttons)
 # These are actual hardware keys, not application shortcuts
 ```
 
-### Waybar Controls
+### Waybar Controls (Status Bar)
 
 ```bash
 Click tomato timer                   # Start/pause Pomodoro timer
@@ -295,7 +303,7 @@ Quick fixes for common issues:
 
 Linux's default memory management is **aggressively stupid** about caching. The kernel will happily consume 90%+ of your RAM for file caches, then struggle to free it when applications actually need memory.
 
-ArchRiot fixes this with intelligent memory management tuning:
+**ArchRiot's Solution:** Intelligent memory management tuning that provides:
 
 - **No more lag spikes** when opening applications
 - **Better responsiveness** under memory pressure
@@ -306,13 +314,24 @@ ArchRiot fixes this with intelligent memory management tuning:
 
 ### 📱 **Advanced Waybar Integration**
 
+ArchRiot includes a highly customized Waybar (status bar) with comprehensive system integration:
+
+**Built-in Modules:**
+
 - **Tomato Timer** - Built-in Pomodoro timer with visual states (idle/running/break/finished)
 - **Mullvad VPN Status** - Real-time VPN connection status with location display
 - **System Monitoring** - CPU aggregate usage, accurate memory monitoring
 - **Microphone Control** - Visual mic status with one-click toggle
-- **Custom Separators** - Clean, organized module layout
+- **Network Management** - WiFi status with nmtui integration
+- **Audio Controls** - Volume display with hardware key integration
+
+**Technical Improvements:**
+
 - **CSS Parser Fixed** - Eliminated all !important declarations causing waybar errors
+- **Custom Separators** - Clean, organized module layout for better readability
 - **Transparency System** - Consistent 90-98% opacity across all applications
+- **Font Optimization** - Proper sizing (100%) and improved date format (Sunday • July 13 • 01:49 PM)
+- **Error-free Operation** - All modules validated and tested for reliability
 
 ### 📱 **Clean Web Applications**
 
@@ -343,6 +362,14 @@ ArchRiot automatically detects and installs optimal drivers for all major GPUs:
 - **Intel**: Mesa drivers including Intel Arc support
 
 All GPUs get proper Wayland integration and hardware video acceleration for optimal performance.
+
+**Performance Features:**
+
+- **Hardware acceleration** - Video playback, compositing effects, and application rendering
+- **Wayland native support** - No XWayland compatibility issues
+- **Automatic driver selection** - No manual configuration required
+- **Vulkan support** - Modern graphics API for gaming and development
+- **Multi-monitor optimization** - Proper scaling and display management
 
 ### ⌨️ **Enhanced Keybindings & Productivity**
 
@@ -389,36 +416,64 @@ Updates ArchRiot by pulling latest changes and re-running the installer. Simple,
 migrate
 ```
 
-**🎯 Migrate** (created by CyphrRiot) is a TUI (Text User Interface) with **no command-line options**. Simply run the command and use the interactive menu to:
+**🎯 Migrate** is a separate project by Cypher Riot that gets automatically installed during ArchRiot setup. It's a TUI (Text User Interface) with **no command-line options**. Simply run the command and use the interactive menu to:
 
 - Create comprehensive system backups
 - Restore from previous backups
 - Migrate configurations between installations
 - Preserve all your customizations
 
-**Migrate automatically downloads the latest version during ArchRiot installation** from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate) - ensuring you always have the most current backup capabilities.
+**Integration Details:** ArchRiot automatically downloads and installs the latest version of Migrate from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate) during installation, ensuring you always have the most current backup capabilities without any manual setup.
 
 ## 🎨 Themes & Customization
 
 ### Available Themes
 
-ArchRiot includes two carefully curated themes with CypherRiot as the default:
+ArchRiot includes two carefully curated themes, each with complete system integration:
 
-- **cypherriot** (default) - Custom purple/blue aesthetic with full waybar integration
-- **tokyo-night** - Vibrant city lights with modern cyberpunk vibes
+#### **cypherriot** (Default Theme)
 
-### Theme Management
+- **Visual Style:** Custom purple/blue aesthetic with dark elegance
+- **Color Palette:** Deep purples, electric blues, and charcoal backgrounds
+- **Waybar Integration:** Fully customized status bar with matching colors
+- **Applications:** Consistent theming across terminal, file manager, and editors
+- **Backgrounds:** 6 riot-themed wallpapers including `riot_zero.png` default
 
-- **Switch themes:** `theme-next` or manually symlink
-- **Theme location:** `~/.config/archriot/current/theme`
-- **Backgrounds:** Automatically matched to theme with time-based variants
+#### **tokyo-night** (Alternative Theme)
+
+- **Visual Style:** Vibrant city lights with modern cyberpunk vibes
+- **Color Palette:** Neon blues, electric purples, and deep blacks
+- **Inspiration:** Tokyo's neon-lit streets and cyberpunk aesthetics
+- **Applications:** Matching terminal and editor themes
+- **Backgrounds:** 6 night-themed wallpapers with urban/tech aesthetics
+
+### Theme Management & Customization
+
+**Quick Theme Switching:**
+
+- **Switch themes:** `theme-next` command cycles between available themes
+- **Instant application:** Changes apply immediately to all running applications
+- **Persistent settings:** Theme choice survives reboots and updates
+
+**Background System:**
+
+- **Automatic matching:** Backgrounds automatically match your active theme
+- **Multiple variants:** Each theme includes 6 carefully selected wallpapers
+- **Easy cycling:** Use `SUPER + CTRL + SPACE` to cycle through theme backgrounds
+- **Time-based variants:** Optional time-of-day background switching
+
+**Advanced Customization:**
+
+- **Theme location:** `~/.config/archriot/current/theme` (symlink to active theme)
+- **Custom themes:** Add your own themes to `~/.config/archriot/themes/`
+- **Background override:** Manually set backgrounds in `~/.config/archriot/current/background`
+- **Application integration:** Themes automatically apply to Waybar, terminal, editors, and GTK apps
 
 ## ⚡ Key Features & Performance
 
 ### Window Management
 
 - **Hyprland compositor** - Smooth animations, efficient memory usage
-- **GPU acceleration** - Comprehensive automatic GPU driver setup (see GPU Support section)
 - **Tiling & floating** - Flexible window arrangements
 - **Multi-workspace** - Organized workflow separation
 - **Auto-login** - Direct to tty1 with Hyprland autostart
@@ -465,30 +520,25 @@ ArchRiot includes two carefully curated themes with CypherRiot as the default:
 
 ## 🔀 Differences from Original Omarchy
 
-This is a **heavily customized fork** optimized for:
+ArchRiot is a **heavily customized fork** with these key distinctions:
 
-### Philosophy Changes
+### Core Philosophy
 
-- **Privacy over convenience** - Proton Mail vs. corporate email
-- **Performance over features** - Lightweight apps vs. feature-heavy alternatives
-- **Development focus** - Tools for coding vs. general productivity
-- **Clean aesthetics** - Minimal, distraction-free environment
+- **Privacy-first approach** - Proton Mail, Brave browser, Signal messaging vs. corporate alternatives
+- **Developer-focused** - Zed editor, modern CLI tools, Fish shell, comprehensive dev environment
+- **Performance over bloat** - Lightweight applications, intelligent memory management, native Wayland
+- **Clean aesthetics** - CypherRiot theme, consistent dark mode, minimal distractions
 
-### Technical Changes
+### Major Technical Differences
 
-- **Modern shell** - Fish with intelligent defaults
-- **Better package selection** - Proven, lightweight alternatives (removed Ark, Micro)
-- **Enhanced keybindings** - More intuitive, conflict-free shortcuts
-- **Responsive window management** - Percentage-based sizing that works across all screen resolutions
-- **Wayland-first approach** - Native Wayland for all major applications
-- **Improved theming** - Consistent dark mode throughout with proper GTK integration
-- **Fixed GTK selection highlighting** - No more jarring bright white highlights in file managers
-- **Waybar improvements** - Better font sizing (100%) and improved date format (Sunday • July 13 • 01:49 PM)
-- **Zed editor integration** - Native Wayland support with SUPER+Z keybinding
-- **Application launcher fixes** - All applications properly integrated in Fuzzel
-- **Advanced backup** - Built-in Migrate tool for comprehensive system backup/restore
-- **DPI scaling fixes** - Consistent scaling across all applications
-- **File dialog theming** - Dark themes for all application file choosers
+- **Built-in backup system** - Integrated Migrate tool for complete system backup/restore
+- **Enhanced window management** - Responsive percentage-based sizing across all resolutions
+- **Comprehensive GPU support** - Automatic detection and optimization for NVIDIA, AMD, Intel
+- **Advanced Waybar integration** - Custom modules, Pomodoro timer, VPN status, system monitoring
+- **Modern application stack** - Ghostty terminal, Brave browser, native Wayland applications
+- **Intelligent system tuning** - Memory management fixes, blue light filtering, DPI scaling
+
+ArchRiot transforms Omarchy from a general productivity setup into a specialized development and privacy-focused environment.
 
 ## 🔍 Post-Installation Validation
 
@@ -563,7 +613,6 @@ validate-system                      # Check system health
 ## 📂 Repository Information
 
 - **Main Repository:** https://github.com/CyphrRiot/ArchRiot
-- **Original Upstream:** https://github.com/basecamp/archriot
 - **Maintenance:** Active, with regular updates and improvements
 - **Community:** Open to issues, suggestions, and contributions
 
@@ -574,7 +623,7 @@ validate-system                      # Check system health
 - **4GB+ RAM** (8GB+ recommended for development)
 - **10GB+ storage** (20GB+ for full development setup)
 - **CPU:** Any modern processor (optimized for both Intel/AMD)
-- **GPU:** Automatic detection and setup for NVIDIA, AMD/Radeon, and Intel graphics cards
+- **GPU:** Any modern graphics card (see GPU Support section for full compatibility details)
 
 ## 📄 License
 
