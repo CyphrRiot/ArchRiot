@@ -82,8 +82,8 @@ NoDisplay=true" > ~/.local/share/applications/zed.desktop.bak
         echo "✓ System zed.desktop hidden"
     fi
 
-    # Install our Wayland-fixed version
-    cp "$script_dir/../../applications/zed.desktop" ~/.local/share/applications/
+    # Install our Wayland-fixed version with proper HOME expansion
+    sed "s|\$HOME|$HOME|g" "$script_dir/../../applications/zed.desktop" > ~/.local/share/applications/zed.desktop
     echo "✓ Zed desktop file installed with Wayland support"
 else
     echo "⚠ Zed desktop file not found in repository applications"
