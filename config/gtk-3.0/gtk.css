@@ -117,12 +117,6 @@ window.thunar {
     background-color: #565f89;
 }
 
-/* Thunar selection - simple fix for bright white highlight */
-.thunar *:selected {
-    background-color: rgba(122, 162, 247, 0.3) !important;
-    color: #c0caf5 !important;
-}
-
 /* Thunar file/folder icons hover */
 .thunar .view:hover,
 .thunar iconview:hover,
@@ -264,18 +258,16 @@ selection,
     border: 1px solid rgba(122, 162, 247, 0.6);
 }
 
-/* Specific selection fixes - avoid breaking file browser highlighting */
-.thunar *:selected,
-.thunar treeview:selected,
-.thunar iconview:selected {
-    background-color: rgba(122, 162, 247, 0.3);
-    color: #c0caf5;
-}
-
-/* File browser selection highlighting */
+/* File browser selection highlighting - use system defaults */
 treeview:selected,
 iconview:selected,
 listview row:selected {
-    background-color: #7aa2f7;
-    color: #ffffff;
+    background-color: @selected_bg_color;
+    color: @selected_fg_color;
+}
+
+/* Thunar specific selection without breaking system highlighting */
+.thunar .view:selected {
+    background-color: @selected_bg_color;
+    color: @selected_fg_color;
 }
