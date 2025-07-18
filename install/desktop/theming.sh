@@ -457,6 +457,11 @@ start_theme_services() {
         echo "✓ Blue light filter will start automatically (hyprsunset configured in base hyprland.conf)"
     else
         echo "✓ Blue light filter skipped"
+        # Comment out hyprsunset in hyprland.conf if user doesn't want it
+        if grep -q "^exec-once = hyprsunset" ~/.config/hypr/hyprland.conf; then
+            sed -i 's/^exec-once = hyprsunset/#exec-once = hyprsunset/' ~/.config/hypr/hyprland.conf
+            echo "✓ Disabled hyprsunset autostart in hyprland.conf"
+        fi
     fi
 }
 
@@ -490,18 +495,29 @@ ask_blue_light_filter() {
     echo "  • More comfortable viewing in low-light environments"
     echo "  • 3500K temperature - scientifically optimal warm setting"
     echo ""
-    echo "✓ Enabling blue light filtering automatically (3500K temperature)"
-    # Auto-enable blue light filtering - no interactive prompt
-    case "y" in
-        [nN]|[nN][oO])
-            echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
-            return 1
-            ;;
-        *)
+    if command -v gum &>/dev/null; then
+        if gum confirm "Enable blue light filtering (3500K temperature)?"; then
             echo "✓ Blue light filtering enabled - your eyes and brain will thank you!"
             return 0
-            ;;
-    esac
+        else
+            echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
+            return 1
+        fi
+    else
+        # Fallback without gum
+        echo -n "Enable blue light filtering? (y/N): "
+        read -r response
+        case "$response" in
+            [yY]|[yY][eE][sS])
+                echo "✓ Blue light filtering enabled - your eyes and brain will thank you!"
+                return 0
+                ;;
+            *)
+                echo "⚠ Blue light filtering disabled - your choice, but your eyes might not thank you!"
+                return 1
+                ;;
+        esac
+    fi
 }
 
 
