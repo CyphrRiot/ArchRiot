@@ -51,7 +51,7 @@ get_input() {
 # Get user identity with validation
 get_user_identity() {
     echo -e "\n🔍 Git Configuration (Optional)"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     echo "Configure Git with your name and email for commits and development."
     echo "This is optional - you can skip by pressing Enter or configure later with:"
