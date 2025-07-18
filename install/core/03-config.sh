@@ -34,11 +34,32 @@ setup_environment() {
     local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
-    # Create backup if config exists
+    # Create unified backup system
+    create_unified_backup
+}
+
+# Unified backup system - replaces scattered backup approaches
+create_unified_backup() {
+    local backup_root="$HOME/.config/archriot/backups"
+    local backup_date=$(date +%Y-%m-%d)
+    local backup_dir="$backup_root/$backup_date"
+
+    # Only create one backup per day to avoid clutter
+    if [[ -d "$backup_dir" ]]; then
+        echo "✓ Using existing backup from today: $backup_dir"
+        echo "$backup_dir" > /tmp/archriot-config-backup
+        return 0
+    fi
+
+    # Create new backup for today
     if [[ -d ~/.config ]]; then
-        local backup_dir="$HOME/.config.backup-$(date +%s)"
+        mkdir -p "$backup_root"
+        echo "📦 Creating daily backup: $backup_dir"
         cp -R ~/.config "$backup_dir" && echo "$backup_dir" > /tmp/archriot-config-backup
         echo "✓ Backup created at: $backup_dir"
+
+        # Clean up old backups (keep last 7 days)
+        find "$backup_root" -maxdepth 1 -type d -name "20*-*-*" -mtime +7 -exec rm -rf {} \; 2>/dev/null || true
     fi
 }
 
@@ -400,7 +421,12 @@ main() {
         local backup_file="/tmp/archriot-config-backup"
         if [[ -f "$backup_file" ]]; then
             local backup_dir=$(cat "$backup_file")
-            [[ -d "$backup_dir" ]] && { rm -rf ~/.config; mv "$backup_dir" ~/.config; }
+            if [[ -d "$backup_dir" ]]; then
+                echo "🔄 Restoring from backup: $backup_dir"
+                rm -rf ~/.config
+                cp -R "$backup_dir" ~/.config
+                echo "✓ Configuration restored from backup"
+            fi
         fi
         return 1
     }

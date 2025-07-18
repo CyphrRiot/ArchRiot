@@ -8,7 +8,7 @@ return {
   opts = {
     style = "night", -- The theme comes in three styles, `storm`, `moon`, a darker variant `night` and `day`
     transparent = false,
-    terminal_colors = true,
+    terminal_colors = false,
     styles = {
       comments = { italic = true },
       keywords = { italic = true },
@@ -23,13 +23,13 @@ return {
     dim_inactive = false,
     lualine_bold = false,
     on_colors = function(colors)
-      -- Tokyo Night authentic colors
-      colors.bg = "#1a1b26"           -- Primary background
-      colors.bg_dark = "#16161e"      -- Darker background
-      colors.bg_float = "#1a1b26"     -- Float background
-      colors.bg_popup = "#1a1b26"     -- Popup background
-      colors.bg_sidebar = "#1a1b26"   -- Sidebar background
-      colors.bg_statusline = "#1a1b26" -- Statusline background
+      -- Match Ghostty's exact black background
+      colors.bg = "#0a0b10"           -- Primary background (matches Ghostty)
+      colors.bg_dark = "#0a0b10"      -- Darker background
+      colors.bg_float = "#0a0b10"     -- Float background
+      colors.bg_popup = "#0a0b10"     -- Popup background
+      colors.bg_sidebar = "#0a0b10"   -- Sidebar background
+      colors.bg_statusline = "#0a0b10" -- Statusline background
       colors.fg = "#c0caf5"           -- Foreground text
       colors.fg_dark = "#a9b1d6"      -- Darker foreground
       colors.fg_gutter = "#3b4261"    -- Gutter foreground
@@ -60,17 +60,20 @@ return {
       colors.teal = "#1abc9c"         -- Teal
 
       -- Git colors
+      colors.git = colors.git or {}
       colors.git.add = "#449dab"
       colors.git.change = "#6183bb"
       colors.git.delete = "#914c54"
+      colors.gitSigns = colors.gitSigns or {}
       colors.gitSigns.add = "#266d6a"
       colors.gitSigns.change = "#536c9e"
       colors.gitSigns.delete = "#b2555b"
     end,
     on_highlights = function(highlights, colors)
-      -- Tokyo Night specific highlights
-      highlights.Normal = { bg = colors.bg, fg = colors.fg }
-      highlights.NormalFloat = { bg = colors.bg_float, fg = colors.fg }
+      -- Match Ghostty's exact black background
+      highlights.Normal = { bg = "#0a0b10", fg = colors.fg }
+      highlights.NormalFloat = { bg = "#0a0b10", fg = colors.fg }
+      highlights.NormalNC = { bg = "#0a0b10", fg = colors.fg_dark }
       highlights.CursorLine = { bg = "#292e42" }
       highlights.Visual = { bg = "#33467c" }
       highlights.Search = { bg = colors.orange, fg = colors.bg }
@@ -91,11 +94,13 @@ return {
       highlights.Operator = { fg = colors.blue5 }
       highlights.Identifier = { fg = colors.magenta }
 
-      -- UI elements
-      highlights.Pmenu = { bg = colors.bg_popup, fg = colors.fg }
+      -- UI elements - Match Ghostty black background
+      highlights.Pmenu = { bg = "#0a0b10", fg = colors.fg }
       highlights.PmenuSel = { bg = colors.blue7, fg = colors.fg }
-      highlights.PmenuSbar = { bg = colors.bg_popup }
+      highlights.PmenuSbar = { bg = "#0a0b10" }
       highlights.PmenuThumb = { bg = colors.fg_gutter }
+      highlights.SignColumn = { bg = "#0a0b10" }
+      highlights.FoldColumn = { bg = "#0a0b10" }
 
       -- Status line
       highlights.StatusLine = { bg = colors.bg_statusline, fg = colors.fg }

@@ -55,7 +55,7 @@ function fish_prompt
 end
 
 # =============================================================================
-# Aliases
+# Aliases & Functions
 # =============================================================================
 
 # Vim alias to nvim
@@ -63,6 +63,11 @@ alias vim='nvim'
 
 # Fastfetch with correct logo width
 alias fastfetch='command fastfetch --logo-width 20'
+
+# Disk usage - show top 10 largest items by size
+function dum
+    du -sm * | sort -nr | head -10
+end
 
 # =============================================================================
 # Hyprland Auto-start
