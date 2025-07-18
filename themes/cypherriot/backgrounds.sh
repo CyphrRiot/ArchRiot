@@ -33,30 +33,30 @@ echo "📋 Found ${#ALL_BACKGROUNDS[@]} background files"
 echo "🗑️  Cleaning existing numbered backgrounds..."
 find "$BACKGROUNDS_DIR/cypherriot" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
 
-# Separate riot_twelve from other backgrounds for priority ordering
-RIOT_TWELVE=""
+# Separate riot_clean from other backgrounds for priority ordering
+RIOT_CLEAN=""
 OTHER_BACKGROUNDS=()
 
 for bg in "${ALL_BACKGROUNDS[@]}"; do
     filename=$(basename "$bg")
-    if [[ "$filename" == "riot_twelve.png" ]]; then
-        RIOT_TWELVE="$bg"
+    if [[ "$filename" == "riot_clean.png" ]]; then
+        RIOT_CLEAN="$bg"
     else
         OTHER_BACKGROUNDS+=("$bg")
     fi
 done
 
-# Copy riot_twelve as #1 if it exists
+# Copy riot_clean as #1 if it exists
 counter=1
 DEFAULT_BG=""
 
-if [[ -n "$RIOT_TWELVE" ]]; then
-    filename=$(basename "$RIOT_TWELVE")
+if [[ -n "$RIOT_CLEAN" ]]; then
+    filename=$(basename "$RIOT_CLEAN")
     dest_file="$BACKGROUNDS_DIR/cypherriot/$(printf "%02d" $counter)-$filename"
 
     # Only copy if source is different from destination (avoid copying file to itself)
-    if [[ "$RIOT_TWELVE" != "$dest_file" ]]; then
-        cp "$RIOT_TWELVE" "$dest_file"
+    if [[ "$RIOT_CLEAN" != "$dest_file" ]]; then
+        cp "$RIOT_CLEAN" "$dest_file"
         echo "✓ Copied default: $(printf "%02d" $counter)-$filename"
         DEFAULT_BG="$dest_file"
     else
@@ -80,7 +80,7 @@ for bg in "${OTHER_BACKGROUNDS[@]}"; do
             echo "✓ Already in place: $(printf "%02d" $counter)-$filename"
         fi
 
-        # If no riot_twelve was found, use the first background as default
+        # If no riot_clean was found, use the first background as default
         if [[ -z "$DEFAULT_BG" ]]; then
             DEFAULT_BG="$dest_file"
         fi
