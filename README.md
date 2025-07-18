@@ -158,6 +158,10 @@ migrate                              # Launch interactive backup/restore interfa
 
 ## ⌨️ Essential Commands
 
+```bash
+SUPER + H                            # Show HELP (SUPER Key Bindings)
+```
+
 ### Theme & Appearance
 
 ```bash
@@ -222,20 +226,21 @@ SUPER + J                            # Toggle split
 SUPER + Arrow Keys                   # Move focus
 SUPER + SHIFT + Arrow Keys           # Swap windows
 SUPER + CTRL + Arrow Keys            # Smart window movement
-SUPER + 1-9                          # Switch workspace
-SUPER + SHIFT + 1-9                  # Move window to workspace
+SUPER + 1-4                          # Switch workspace
+SUPER + SHIFT + 1-4                  # Move window to workspace
 ```
 
 ### Audio & Media
 
 ```bash
-XF86AudioRaiseVolume                 # Volume up
-XF86AudioLowerVolume                 # Volume down
-XF86AudioMute                        # Toggle mute
-XF86AudioMicMute                     # Toggle microphone
-XF86AudioPlay/Pause                  # Media play/pause
+XF86AudioRaiseVolume                 # Volume up (hardware buttons)
+XF86AudioLowerVolume                 # Volume down (hardware buttons)
+XF86AudioMute                        # Toggle mute (hardware buttons)
+XF86AudioMicMute                     # Toggle microphone (hardware buttons)
+XF86AudioPlay/Pause                  # Media play/pause (hardware buttons)
 
 # Beautiful volume overlay appears for 1 second with progress bar
+# These are actual hardware keys, not application shortcuts
 ```
 
 ### Waybar Controls

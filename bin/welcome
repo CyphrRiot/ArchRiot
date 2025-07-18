@@ -114,6 +114,7 @@ class WelcomeWindow:
         text_content_parts = [
             f"ArchRiot v{version} is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
             "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
+            "SUPER+H = Help Screen\n\n",
             "SUPER+F = Open File Browser\n",
             "SUPER+ENTER = Open Terminal\n",
             "SUPER+B = Open Brave Browser\n",
