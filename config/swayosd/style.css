@@ -1,0 +1,57 @@
+/* ArchRiot SwayOSD Theme - Purple Theme */
+/* Matches ArchRiot's signature purple/dark aesthetic */
+
+window#osd {
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid #8b5cf6;
+    background: rgba(26, 27, 38, 0.98);
+    color: #cdd6f4;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+    backdrop-filter: blur(15px);
+}
+
+image,
+label {
+    color: #cdd6f4;
+}
+
+progressbar {
+    min-height: 8px;
+    border-radius: 4px;
+}
+
+progressbar trough {
+    min-height: 8px;
+    border-radius: 4px;
+    background-color: rgba(69, 71, 90, 0.6);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+progressbar progress {
+    min-height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+}
+
+/* Special styling for different OSD types */
+.capslock {
+    color: #f9e2af;
+}
+
+.numlock {
+    color: #a6e3a1;
+}
+
+.brightness {
+    color: #fab387;
+}
+
+.volume {
+    color: #89b4fa;
+}
+
+.microphone {
+    color: #f38ba8;
+}
