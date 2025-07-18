@@ -1,5 +1,9 @@
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
+# 🛡️Ω 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 Ω🛡️
+
+</div>
+
 ![Version](https://img.shields.io/badge/version-1.1.44-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
@@ -20,8 +24,6 @@
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
-
-# 🛡️ 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 🛡️
 
 ## **ArchRiot: Arch Linux + Hacker-Style**
 
