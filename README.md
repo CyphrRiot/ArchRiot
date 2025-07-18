@@ -33,19 +33,16 @@ ArchRiot is an even more opiniated setup and was originally a unique rice¹ and 
 
 ![ArchRiot Screenshot](images/screenshot.png)
 
-## 🆕 **What's New in v1.1.39**
+## 🆕 **What's New in v1.1.40**
 
-**Enhanced Performance & User Experience**
+**UI & Documentation Fixes**
 
-- 🚀 **Faster Installation** - Streamlined setup process with improved performance monitoring
-- 🎨 **Enhanced Lock Screen** - Beautiful background integration for a seamless visual experience
-- ⚡ **Optimized Waybar** - Smoother module performance and better system integration
-- 📚 **Improved Documentation** - Clearer guides and better customization hints for new users
-- 🔧 **Enhanced Error Handling** - More robust installation with better feedback and validation
-- 🎯 **Better User Feedback** - Comprehensive completion messages and helpful next steps
-- 🧹 **Refined Codebase** - Cleaner, more maintainable code for better long-term stability
+- 🎨 **Fixed Welcome Screen Font** - Welcome window now properly uses "Hack Nerd Font Mono" consistently across all text elements
+- 📖 **Improved README Formatting** - Restored proper footnote format for "unique rice" definition that works correctly on both GitHub and Jekyll site
+- 🔧 **Font Consistency** - Updated Python GTK welcome script with proper Pango font handling and CSS styling
+- 📝 **Better Cross-Platform Display** - README now renders properly on GitHub while maintaining Jekyll site functionality
 
-This release focuses on delivering a smoother, more polished experience with enhanced performance and user-friendly improvements across the entire ArchRiot ecosystem.
+This release fixes visual inconsistencies and ensures a polished, consistent user experience across all ArchRiot interfaces.
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 

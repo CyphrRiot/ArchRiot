@@ -3,7 +3,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gtk, Gdk, GdkPixbuf, GLib  # type: ignore
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango  # type: ignore
 import os
 import json
 import sys
@@ -100,9 +100,10 @@ class WelcomeWindow:
         text_view.set_top_margin(10)
         text_view.set_bottom_margin(10)
 
-        # Set font size for text view
-        font_desc = text_view.get_pango_context().get_font_description()
-        font_desc.set_size(13 * 1024)  # 13pt font
+        # Set font family and size for text view
+        font_desc = Pango.FontDescription()
+        font_desc.set_family("Hack Nerd Font Mono")
+        font_desc.set_size(13 * Pango.SCALE)
         text_view.override_font(font_desc)
 
         buffer = text_view.get_buffer()
@@ -251,24 +252,32 @@ def main():
     # Set up CSS for styling
     css_provider = Gtk.CssProvider()
     css_data = """
+    * {
+        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+    }
+
     window {
         background: #1e1e2e;
         color: #cdd6f4;
+        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     label {
         color: #cdd6f4;
+        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     textview {
         background: #1e1e2e;
         color: #cdd6f4;
         border: none;
+        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     textview text {
         background: #1e1e2e;
         color: #cdd6f4;
+        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     button {
@@ -280,6 +289,7 @@ def main():
         font-weight: bold;
         min-width: 100px;
         min-height: 32px;
+        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     button:hover {
