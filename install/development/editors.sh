@@ -22,32 +22,9 @@ yay -S --noconfirm --needed \
     typescript-language-server \
     bash-language-server
 
-# Setup LazyVim configuration
-setup_lazyvim() {
-    local nvim_config="$HOME/.config/nvim"
-
-    echo "🚀 Setting up LazyVim..."
-
-    if [[ -d "$nvim_config" ]]; then
-        # Backup existing config
-        local backup_dir="$nvim_config.backup-$(date +%s)"
-        echo "📦 Backing up existing nvim config to: $backup_dir"
-        mv "$nvim_config" "$backup_dir"
-    fi
-
-    # Clone LazyVim starter
-    if git clone https://github.com/LazyVim/starter "$nvim_config"; then
-        rm -rf "$nvim_config/.git"
-        echo "✓ LazyVim starter configuration installed"
-        echo "💡 First nvim launch will install plugins automatically"
-    else
-        echo "❌ Failed to clone LazyVim starter"
-        return 1
-    fi
-}
-
-# Install LazyVim
-setup_lazyvim
+# Note: Neovim configuration with TokyoNight theme is installed by the main config installer
+# This preserves the ArchRiot dark theme setup and prevents overwriting user configs
+echo "✓ Neovim will be configured with ArchRiot TokyoNight theme via main config installer"
 
 # Install Zed desktop file and Wayland launcher
 echo "🎯 Installing Zed desktop integration..."
