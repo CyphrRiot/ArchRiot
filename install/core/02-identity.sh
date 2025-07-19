@@ -61,16 +61,27 @@ get_user_identity() {
     if [[ -n "$existing_name" || -n "$existing_email" ]]; then
         echo "🎉 GitHub credentials found!"
         echo ""
+
+        # Calculate box width and format entries properly
+        local box_width=59
+        local name_display="${existing_name:-"(not set)"}"
+        local email_display="${existing_email:-"(not set)"}"
+
+        # Format lines with proper spacing
+        local name_line=$(printf "│ Username: %-*s │" $((box_width-12)) "$name_display")
+        local email_line=$(printf "│ Email:    %-*s │" $((box_width-12)) "$email_display")
+
         echo "┌─────────────────────────────────────────────────────────┐"
         echo "│                 📋 Current Git Config                   │"
         echo "├─────────────────────────────────────────────────────────┤"
-        echo "│ Username: ${existing_name:-"(not set)"}                                │"
-        echo "│ Email:    ${existing_email:-"(not set)"}                         │"
+        echo "$name_line"
+        echo "$email_line"
         echo "└─────────────────────────────────────────────────────────┘"
         echo ""
 
+        echo ""
         echo -n "Would you like to use these credentials? [Y/n]: "
-        read -r response
+        read -r response </dev/tty
         case "$response" in
             [nN][oO]|[nN])
                 echo ""
