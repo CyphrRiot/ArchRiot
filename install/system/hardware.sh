@@ -19,8 +19,10 @@ if lspci | grep -qi -E 'amd|radeon'; then
     yay -S --noconfirm --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon
 fi
 
-if lspci | grep -qi intel | grep -qi -E 'vga|3d|display'; then
-    yay -S --noconfirm --needed mesa lib32-mesa vulkan-intel intel-media-driver
+if lspci | grep -qi intel | grep -qi -E 'vga|3d|display|graphics'; then
+    echo "🎮 Installing Intel graphics drivers..."
+    yay -S --noconfirm --needed mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver
+    echo "✓ Intel graphics drivers installed"
 fi
 
 # Fix Apple keyboard if detected
