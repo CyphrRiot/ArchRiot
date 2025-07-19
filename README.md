@@ -41,7 +41,7 @@ ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a us
 
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
-> _ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of <a href="https://omarchy.org/" target="_blank">DHH's Omarchy</a>
+> _ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of  [DHH's Omarchy](https://omarchy.org/){:target="_blank"}
 installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
