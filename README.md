@@ -125,6 +125,8 @@ This comprehensive test validates:
 - **Error handling** - Clear feedback and rollback capability
 - **100% confidence** - Comprehensive testing and validation
 
+![ArchRiot Installation Demo](images/archriot-install.gif)
+
 ## 🆕 **What's New**
 
 **Major User Experience Improvements**
