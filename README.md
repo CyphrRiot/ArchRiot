@@ -42,7 +42,7 @@ ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a us
 
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
-> _ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of  [DHH's Omarchy](https://omarchy.org/){:target="_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
+> ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of  [DHH's Omarchy](https://omarchy.org/){:target="_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics.
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
 
@@ -111,7 +111,8 @@ _Created by a hacker, cypherpunk, and blockchain developer with decades of exper
 
 ---
 
-## 🚀 Installation {#installation}
+<a name="installation"></a>
+## 🚀 Installation
 
 ### Prerequisites: Fresh Arch Linux Setup
 
@@ -151,6 +152,12 @@ Once Arch has been installed, pick reboot, login with the user you just setup, a
 curl -fsSL https://archriot.org/setup.sh | bash
 ```
 
+### Or using wget
+
+```bash
+wget -qO- https://archriot.org/setup.sh | bash
+```
+
 **Note:** Upgrading is exactly the same command! Simple!
 
 ### Method 2: Manual Clone (Only if You Need to Customize Installation Scripts)
@@ -170,6 +177,12 @@ Want confidence before installing? Run the validation script to test compatibili
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
+```
+
+### Or using wget
+
+```bash
+wget -qO- https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
 ```
 
 This comprehensive test validates:
@@ -195,8 +208,8 @@ This comprehensive test validates:
 ![ArchRiot Installation Demo](images/archriot-install.gif)
 
 ---
-
-## 🆕 What's New {#whats-new}
+<a name="whats-new"></a>
+## 🆕 What's New
 
 **Major User Experience Improvements**
 
@@ -217,7 +230,8 @@ This release focuses on making daily usage smoother with smarter application man
 
 ---
 
-## 💾 Built-in Backup & Recovery with Migrate {#built-in-backup-recovery-with-migrate}
+<a name="built-in-backup--recovery-with-migrate"></a>
+## 💾 Built-in Backup & Recovery with Migrate
 
 ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** — a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
 
@@ -239,7 +253,8 @@ migrate                              # Launch interactive backup/restore interfa
 
 ---
 
-## ⌨️ Essential Commands {#essential-commands}
+<a name="essential-commands"></a>
+## ⌨️ Essential Commands
 
 ### Getting Started
 
@@ -352,7 +367,8 @@ fix-background                      # Fix theme backgrounds
 
 ---
 
-## 🎯 Key Customizations {#key-customizations}
+<a name="key-customizations"></a>
+## 🎯 Key Customizations
 
 ### Core System Changes
 
@@ -472,7 +488,8 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 
 ---
 
-## 🔄 System Management {#system-management}
+<a name="system-management"></a>
+## 🔄 System Managemen
 
 ### Updates
 
@@ -499,7 +516,8 @@ migrate
 
 ---
 
-## 🎨 Themes & Customization {#themes-customization}
+<a name="themes--customization"></a>
+## 🎨 Themes & Customization
 
 ### Available Themes
 
@@ -543,7 +561,8 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 
 ---
 
-## ⚡ Key Features & Performance {#key-features--performance}
+<a name="key-features--performance"></a>
+## ⚡ Key Features & Performance
 
 ### Window Management
 
@@ -594,7 +613,8 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 
 ---
 
-## 🔀 Differences from Original Omarchy {#differences-from-original-omarchy}
+<a name="differences-from-original-omarchy"></a>
+## 🔀 Differences from Original Omarchy
 
 ArchRiot is a **heavily customized fork** with these key distinctions:
 
@@ -618,7 +638,8 @@ ArchRiot transforms Omarchy from a general productivity setup into a specialized
 
 ---
 
-## 🔍 Post-Installation Validation {#post-installation-validation}
+<a name="post-installation-validation"></a>
+## 🔍 Post-Installation Validation
 
 After installation completes, verify everything is working correctly:
 
@@ -661,7 +682,8 @@ After fresh installation, you should see:
 
 ---
 
-## 🧪 Validation & Testing {#validation--testing}
+<a name="validation--testing"></a>
+## 🧪 Validation & Testing
 
 ### Pre-Installation Validation
 
@@ -669,6 +691,12 @@ Before installing, you can run a comprehensive validation script:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
+```
+
+### Or using wget
+
+```bash
+wget -qO- https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
 ```
 
 **What it tests:**
@@ -683,7 +711,8 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-
 
 ---
 
-## 🛠️ Management Tools {#management-tools}
+<a name="management-tools"></a>
+## 🛠️ Management Tools
 
 ```bash
 update                               # Update system packages
@@ -694,7 +723,8 @@ validate-system                      # Check system health
 
 ---
 
-## 📂 Repository Information {#repository-information}
+<a name="repository-information"></a>
+## 📂 Repository Information
 
 - **Main Repository:** <https://github.com/CyphrRiot/ArchRiot>  
 - **Maintenance:** Active, with regular updates and improvements  
@@ -702,7 +732,8 @@ validate-system                      # Check system health
 
 ---
 
-## 📋 System Requirements {#system-requirements}
+<a name="system-requirements"></a>
+## 📋 System Requirements
 
 - **Fresh Arch Linux installation** (recommended)  
 - **Internet connection** for package downloads  
@@ -713,7 +744,8 @@ validate-system                      # Check system health
 
 ---
 
-## 📄 License {#license}
+<a name="license"></a>
+## 📄 License
 
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
 
