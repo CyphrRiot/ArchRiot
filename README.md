@@ -1,6 +1,6 @@
 <div align="center">
 
-# :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
+# :: 𝔸𝕣𝕔ℝ𝕚𝕠𝕥 ::
 
 ![Version](https://img.shields.io/badge/version-1.1.50-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
@@ -22,6 +22,7 @@
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
+
 </div>
 
 ---
@@ -41,8 +42,7 @@ ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a us
 
 _Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
 
-> _ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of  [DHH's Omarchy](https://omarchy.org/){:target="_blank"}
-installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
+> _ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of  [DHH's Omarchy](https://omarchy.org/){:target="_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
 
@@ -54,13 +54,12 @@ installer with extensive customizations focused on privacy, development producti
 
 - [Installation](#installation)
   - [Prerequisites: Fresh Arch Linux Setup](#prerequisites-fresh-arch-linux-setup)
-  - [WiFi Setup (skip if using ethernet)](#wifi-setup-skip-if-using-ethernet)
-  - [Method 1: One-Line Install or Upgrade](#method-1-one-line-install-or-upgrade-recommended-for-most-users)
-  - [Method 2: Manual Clone](#method-2-manual-clone-only-if-you-need-to-customize-installation-scripts)
+  - [Method 1: One-Line Install or Upgrade (Recommended for Most Users)](#method-1-one-line-install-or-upgrade-recommended-for-most-users)
+  - [Method 2: Manual Clone (Only if You Need to Customize Installation Scripts)](#method-2-manual-clone-only-if-you-need-to-customize-installation-scripts)
   - [Optional: Pre-Installation Validation](#optional-pre-installation-validation)
 - [Installation Features](#installation-features)
 - [What's New](#whats-new)
-- [Built-in Backup & Recovery with Migrate](#built-in-backup--recovery-with-migrate)
+- [Built-in Backup & Recovery with Migrate](#built-in-backup-recovery-with-migrate)
   - [Why Migrate Matters](#why-migrate-matters)
   - [Quick Start](#quick-start)
 - [Essential Commands](#essential-commands)
@@ -70,7 +69,7 @@ installer with extensive customizations focused on privacy, development producti
   - [Communication & Social](#communication--social)
   - [Screenshots & Recording](#screenshots--recording)
   - [Theme & Appearance](#theme--appearance)
-  - [System Management](#system-management)
+  - [System Management](#essential-system-management)
   - [Audio & Media](#audio--media)
   - [Waybar Controls (Status Bar)](#waybar-controls-status-bar)
   - [Fix Scripts (If Needed)](#fix-scripts-if-needed)
@@ -85,14 +84,14 @@ installer with extensive customizations focused on privacy, development producti
   - [Enhanced Keybindings & Productivity](#enhanced-keybindings--productivity)
   - [Document & Media Handling](#document--media-handling)
   - [Removed Bloat & Corporate Apps](#removed-bloat--corporate-apps)
-- [System Management](#system-management-1)
+- [System Management](#system-management)
   - [Updates](#updates)
   - [Backup & Restore](#backup--restore)
-- [Themes & Customization](#themes--customization)
+- [Themes & Customization](#themes-customization)
   - [Available Themes](#available-themes)
   - [Theme Management & Customization](#theme-management--customization)
 - [Key Features & Performance](#key-features--performance)
-  - [Window Management](#window-management-1)
+  - [Window Management](#window-management)
   - [Development Ready](#development-ready)
   - [Privacy & Security Focus](#privacy--security-focus)
   - [Health & Comfort Features](#health--comfort-features)
@@ -104,16 +103,15 @@ installer with extensive customizations focused on privacy, development producti
   - [Automatic Validation](#automatic-validation)
   - [Manual Verification](#manual-verification)
 - [Validation & Testing](#validation--testing)
-  - [Pre-Installation Validation](#pre-installation-validation-1)
+  - [Pre-Installation Validation](#pre-installation-validation)
 - [Management Tools](#management-tools)
 - [Repository Information](#repository-information)
 - [System Requirements](#system-requirements)
 - [License](#license)
-- [Hack the Planet](#hack-the-planet)
 
 ---
 
-## 🚀 Installation
+## 🚀 Installation {#installation}
 
 ### Prerequisites: Fresh Arch Linux Setup
 
@@ -198,7 +196,7 @@ This comprehensive test validates:
 
 ---
 
-## 🆕 What's New
+## 🆕 What's New {#whats-new}
 
 **Major User Experience Improvements**
 
@@ -219,11 +217,11 @@ This release focuses on making daily usage smoother with smarter application man
 
 ---
 
-## 💾 Built-in Backup & Recovery with Migrate
+## 💾 Built-in Backup & Recovery with Migrate {#built-in-backup-recovery-with-migrate}
 
 ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** — a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
 
-### 🛡️ Why Migrate Matters
+### Why Migrate Matters
 
 - **Complete System Backup** — Captures all your dotfiles, configurations, and customizations  
 - **Interactive TUI** — Beautiful text interface makes backup/restore simple  
@@ -231,7 +229,7 @@ ArchRiot automatically installs and integrates **[Migrate](https://github.com/Cy
 - **Cross-Installation Migration** — Move your setup between different machines  
 - **Automatic Updates** — Always gets the latest version during ArchRiot installation  
 
-### 🔥 Quick Start
+### Quick Start
 
 ```bash
 migrate                              # Launch interactive backup/restore interface
@@ -241,7 +239,7 @@ migrate                              # Launch interactive backup/restore interfa
 
 ---
 
-## ⌨️ Essential Commands
+## ⌨️ Essential Commands {#essential-commands}
 
 ### Getting Started
 
@@ -305,7 +303,7 @@ SUPER + CTRL + SHIFT + SPACE        # Switch themes (keybind)
 SUPER + CTRL + SPACE                # Cycle through backgrounds
 ```
 
-### System Management
+### System Management {#essential-system-management}
 
 ```bash
 upgrade-system                      # Optimized system upgrade utility (ArchRiot enhanced)
@@ -354,7 +352,7 @@ fix-background                      # Fix theme backgrounds
 
 ---
 
-## 🎯 Key Customizations
+## 🎯 Key Customizations {#key-customizations}
 
 ### Core System Changes
 
@@ -474,7 +472,7 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 
 ---
 
-## 🔄 System Management
+## 🔄 System Management {#system-management}
 
 ### Updates
 
@@ -501,7 +499,7 @@ migrate
 
 ---
 
-## 🎨 Themes & Customization
+## 🎨 Themes & Customization {#themes-customization}
 
 ### Available Themes
 
@@ -545,7 +543,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 
 ---
 
-## ⚡ Key Features & Performance
+## ⚡ Key Features & Performance {#key-features--performance}
 
 ### Window Management
 
@@ -596,7 +594,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 
 ---
 
-## 🔀 Differences from Original Omarchy
+## 🔀 Differences from Original Omarchy {#differences-from-original-omarchy}
 
 ArchRiot is a **heavily customized fork** with these key distinctions:
 
@@ -620,7 +618,7 @@ ArchRiot transforms Omarchy from a general productivity setup into a specialized
 
 ---
 
-## 🔍 Post-Installation Validation
+## 🔍 Post-Installation Validation {#post-installation-validation}
 
 After installation completes, verify everything is working correctly:
 
@@ -663,7 +661,7 @@ After fresh installation, you should see:
 
 ---
 
-## 🧪 Validation & Testing
+## 🧪 Validation & Testing {#validation--testing}
 
 ### Pre-Installation Validation
 
@@ -685,7 +683,7 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-
 
 ---
 
-## 🛠️ Management Tools
+## 🛠️ Management Tools {#management-tools}
 
 ```bash
 update                               # Update system packages
@@ -696,7 +694,7 @@ validate-system                      # Check system health
 
 ---
 
-## 📂 Repository Information
+## 📂 Repository Information {#repository-information}
 
 - **Main Repository:** <https://github.com/CyphrRiot/ArchRiot>  
 - **Maintenance:** Active, with regular updates and improvements  
@@ -704,7 +702,7 @@ validate-system                      # Check system health
 
 ---
 
-## 📋 System Requirements
+## 📋 System Requirements {#system-requirements}
 
 - **Fresh Arch Linux installation** (recommended)  
 - **Internet connection** for package downloads  
@@ -715,7 +713,7 @@ validate-system                      # Check system health
 
 ---
 
-## 📄 License
+## 📄 License {#license}
 
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
 
