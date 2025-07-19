@@ -10,11 +10,12 @@ show_help() {
     echo ""
     echo "Options:"
     echo "  -s, --speed SPEED    Playback speed (default: 1.0)"
+    echo "  -f, --fps FPS        Frames per second (default: 10)"
     echo "  -h, --help           Show help"
     echo ""
     echo "Examples:"
     echo "  asciinema-to-gif demo.cast"
-    echo "  asciinema-to-gif -s 2.0 demo.cast output.gif"
+    echo "  asciinema-to-gif -s 2.0 -f 10 demo.cast output.gif"
 }
 
 error() {
@@ -22,14 +23,19 @@ error() {
     exit 1
 }
 
-# Default speed
+# Defaults
 SPEED=1.0
+FPS=10
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         -s|--speed)
             SPEED="$2"
+            shift 2
+            ;;
+        -f|--fps)
+            FPS="$2"
             shift 2
             ;;
         -h|--help)
@@ -67,8 +73,13 @@ fi
 TEMP_FILE=$(mktemp --suffix=.cast)
 trap "rm -f $TEMP_FILE" EXIT
 
-# Convert v3 to v2 format
+# Convert v3 to v2 format using asciinema official converter
 echo "Converting asciinema v3 → v2 format..."
+
+if asciinema convert --output-format asciicast-v2 "$INPUT_FILE" "$TEMP_FILE"; then
+    echo "Official asciinema conversion completed"
+else
+    echo "Official conversion failed, trying manual method..."
 
 python3 << EOF
 import json
@@ -123,14 +134,15 @@ except Exception as e:
     exit(1)
 EOF
 
-if [ $? -ne 0 ]; then
-    error "Format conversion failed"
+    if [ $? -ne 0 ]; then
+        error "Format conversion failed"
+    fi
 fi
 
-# Convert to GIF with minimal options
-echo "Converting to GIF (speed: ${SPEED}x)..."
+# Convert to GIF with optimized compression
+echo "Converting to GIF (speed: ${SPEED}x, fps: ${FPS})..."
 
-if agg --speed "$SPEED" --idle-time-limit 600 "$TEMP_FILE" "$OUTPUT_FILE"; then
+if agg --speed "$SPEED" --fps-cap "$FPS" --idle-time-limit 999999 --last-frame-duration 1 "$TEMP_FILE" "$OUTPUT_FILE"; then
     if [ -f "$OUTPUT_FILE" ]; then
         SIZE=$(du -h "$OUTPUT_FILE" | cut -f1)
         echo "GIF created: $OUTPUT_FILE ($SIZE)"
