@@ -49,11 +49,32 @@ install_cursor_theme() {
     echo "✓ Cursor theme installation verified"
 }
 
+cleanup_old_icon_themes() {
+    echo "🧹 Cleaning up old icon themes..."
+
+    # Remove Obsidian icon themes if installed
+    if pacman -Qi obsidian-icon-theme &>/dev/null; then
+        echo "🗑️  Removing obsidian-icon-theme..."
+        yay -Rs --noconfirm obsidian-icon-theme 2>/dev/null || sudo pacman -Rs --noconfirm obsidian-icon-theme 2>/dev/null || true
+    fi
+
+    # Clean up any remaining Obsidian icon directories
+    if [ -d "/usr/share/icons/Obsidian" ] || [ -d "/usr/share/icons/Obsidian-Purple" ]; then
+        echo "🗑️  Removing leftover Obsidian icon directories..."
+        sudo rm -rf /usr/share/icons/Obsidian* 2>/dev/null || true
+    fi
+
+    echo "✓ Old icon themes cleaned up"
+}
+
 install_icon_theme() {
     echo "🎨 Installing icon theme..."
 
-    if yay -S --noconfirm --needed obsidian-icon-theme; then
-        echo "✓ Obsidian icon theme installed"
+    # Clean up old themes first
+    cleanup_old_icon_themes
+
+    if yay -S --noconfirm --needed tela-icon-theme-purple-git; then
+        echo "✓ Tela purple icon theme installed"
 
         # Reset XDG user directories and icons
         xdg-user-dirs-update
@@ -65,7 +86,7 @@ install_icon_theme() {
 
         echo "✓ XDG folder icons refreshed"
     else
-        echo "⚠ Failed to install obsidian-icon-theme (using fallback)"
+        echo "⚠ Failed to install tela-icon-theme-purple-git (using fallback)"
         return 1
     fi
 }
@@ -104,12 +125,12 @@ configure_gtk_settings() {
         gsettings set org.gnome.desktop.wm.preferences theme "Adwaita-dark" 2>/dev/null || true
 
         # Set icon theme (check multiple possible names)
-        if gsettings set org.gnome.desktop.interface icon-theme "Obsidian-Purple" 2>/dev/null; then
-            echo "✓ Icon theme set to Obsidian-Purple"
-        elif gsettings set org.gnome.desktop.interface icon-theme "obsidian-icon-theme" 2>/dev/null; then
-            echo "✓ Icon theme set to obsidian-icon-theme"
-        elif gsettings set org.gnome.desktop.interface icon-theme "Obsidian" 2>/dev/null; then
-            echo "✓ Icon theme set to Obsidian"
+        if gsettings set org.gnome.desktop.interface icon-theme "Tela-purple-dark" 2>/dev/null; then
+            echo "✓ Icon theme set to Tela-purple-dark"
+        elif gsettings set org.gnome.desktop.interface icon-theme "Tela-dark" 2>/dev/null; then
+            echo "✓ Icon theme set to Tela-dark"
+        elif gsettings set org.gnome.desktop.interface icon-theme "Tela" 2>/dev/null; then
+            echo "✓ Icon theme set to Tela"
         else
             echo "⚠ Could not set icon theme"
         fi
@@ -554,7 +575,7 @@ display_theming_summary() {
     echo ""
     echo "🎨 Installed themes:"
     echo "  • Cursor: Bibata Modern Ice"
-    echo "  • Icons: Obsidian-Purple"
+    echo "  • Icons: Tela-purple-dark"
     echo "  • GTK: Adwaita Dark"
     echo "  • ArchRiot: $(basename "$(readlink ~/.config/archriot/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
     echo ""
