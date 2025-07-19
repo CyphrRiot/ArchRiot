@@ -90,7 +90,7 @@ _Created by a hacker, cypherpunk, and blockchain developer with decades of exper
 - [Themes & Customization](#themes-customization)
   - [Available Themes](#available-themes)
   - [Theme Management & Customization](#theme-management--customization)
-- [Key Features & Performance](#key-features--performance)
+- [Key Features & Performance](#key-features-performance)
   - [Window Management](#window-management)
   - [Development Ready](#development-ready)
   - [Privacy & Security Focus](#privacy--security-focus)
@@ -102,7 +102,7 @@ _Created by a hacker, cypherpunk, and blockchain developer with decades of exper
 - [Post-Installation Validation](#post-installation-validation)
   - [Automatic Validation](#automatic-validation)
   - [Manual Verification](#manual-verification)
-- [Validation & Testing](#validation--testing)
+- [Validation & Testing](#validation-testing)
   - [Pre-Installation Validation](#pre-installation-validation)
 - [Management Tools](#management-tools)
 - [Repository Information](#repository-information)
@@ -230,7 +230,7 @@ This release focuses on making daily usage smoother with smarter application man
 
 ---
 
-<a name="built-in-backup--recovery-with-migrate"></a>
+<a name="built-in-backup-recovery-with-migrate"></a>
 ## 💾 Built-in Backup & Recovery with Migrate
 
 ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** — a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
@@ -516,7 +516,7 @@ migrate
 
 ---
 
-<a name="themes--customization"></a>
+<a name="themes-customization"></a>
 ## 🎨 Themes & Customization
 
 ### Available Themes
@@ -561,7 +561,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 
 ---
 
-<a name="key-features--performance"></a>
+<a name="key-features-performance"></a>
 ## ⚡ Key Features & Performance
 
 ### Window Management
@@ -682,7 +682,7 @@ After fresh installation, you should see:
 
 ---
 
-<a name="validation--testing"></a>
+<a name="validation-testing"></a>
 ## 🧪 Validation & Testing
 
 ### Pre-Installation Validation
