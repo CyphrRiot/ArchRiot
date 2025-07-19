@@ -107,6 +107,15 @@ else
   echo "⚠ Hidden applications directory not found"
 fi
 
+# Install iwgtk desktop file with better name and icon
+echo "📶 Installing WiFi Manager desktop file..."
+if [[ -f "$script_dir/../../applications/iwgtk.desktop" ]]; then
+  cp "$script_dir/../../applications/iwgtk.desktop" ~/.local/share/applications/
+  echo "✓ WiFi Manager desktop file installed"
+else
+  echo "⚠ WiFi Manager desktop file not found in repository"
+fi
+
 # Install ArchRiot upgrade-system script
 echo "🚀 Installing ArchRiot upgrade-system utility..."
 local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
