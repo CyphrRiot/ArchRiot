@@ -14,22 +14,10 @@ export QT_QPA_PLATFORM=wayland
 export SDL_VIDEODRIVER=wayland
 export _JAVA_AWT_WM_NONREPARENTING=1
 
-# Intel graphics compatibility fixes
-export MESA_GL_VERSION_OVERRIDE=4.5
-export MESA_GLSL_VERSION_OVERRIDE=450
-export INTEL_DEBUG=norbc
-export LIBGL_DRI3_DISABLE=1
-export __GL_THREADED_OPTIMIZATIONS=0
-
 # Disable X11 fallback to ensure native Wayland
 export GDK_SCALE=1
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_WAYLAND_FORCE_DPI=physical
-
-# Intel Iris graphics performance optimizations
-export GALLIUM_HUD=""
-export INTEL_IRIS_DISABLE_ASYNC_EXEC=1
-export IRIS_DISABLE_THROTTLING=true
 
 # Improve theme integration
 export GTK_THEME="Adwaita:dark"
@@ -43,83 +31,12 @@ export QT_QPA_PLATFORMTHEME=gtk3
 # Ensure proper client-side decorations
 export GDK_USE_CSD=1
 
-# Check if Intel graphics and apply comprehensive fallbacks
+# Intel graphics fix - force software rendering
 if lspci | grep -i "intel.*graphics\|iris" >/dev/null 2>&1; then
-    echo "Intel graphics detected - trying multiple compatibility modes..."
-
-    # Strategy 1: GPU validation with logging
-    echo "Attempt 1: Hardware acceleration with validation"
-    export WGPU_BACKEND=gl
-    export WGPU_POWER_PREF=low-power
-    timeout 10s zeditor --gpu-validation --log-file /tmp/zed-debug.log "$@" 2>&1 | tee /tmp/zed-output.log &
-    ZED_PID=$!
-    sleep 8
-    if kill -0 $ZED_PID 2>/dev/null; then
-        echo "Zed started successfully with hardware acceleration"
-        wait $ZED_PID
-        exit $?
-    fi
-
-    # Strategy 2: Force software rendering
-    echo "Attempt 2: Software rendering"
+    echo "Intel graphics detected - using software rendering"
     export LIBGL_ALWAYS_SOFTWARE=1
     export GALLIUM_DRIVER=llvmpipe
-    export WGPU_BACKEND=gl
-    unset WGPU_POWER_PREF
-    timeout 10s zeditor --log-file /tmp/zed-software.log "$@" 2>&1 | tee /tmp/zed-software-output.log &
-    ZED_PID=$!
-    sleep 8
-    if kill -0 $ZED_PID 2>/dev/null; then
-        echo "Zed started successfully with software rendering"
-        wait $ZED_PID
-        exit $?
-    fi
-
-    # Strategy 3: Vulkan fallback
-    echo "Attempt 3: Vulkan backend"
-    unset LIBGL_ALWAYS_SOFTWARE
-    unset GALLIUM_DRIVER
-    export WGPU_BACKEND=vulkan
-    export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json
-    timeout 10s zeditor --log-file /tmp/zed-vulkan.log "$@" 2>&1 | tee /tmp/zed-vulkan-output.log &
-    ZED_PID=$!
-    sleep 8
-    if kill -0 $ZED_PID 2>/dev/null; then
-        echo "Zed started successfully with Vulkan"
-        wait $ZED_PID
-        exit $?
-    fi
-
-    # Strategy 4: X11 fallback
-    echo "Attempt 4: X11 fallback mode"
-    unset WAYLAND_DISPLAY
-    export GDK_BACKEND=x11
-    export QT_QPA_PLATFORM=xcb
-    export WGPU_BACKEND=gl
-    export DISPLAY=:0
-    timeout 10s zeditor --log-file /tmp/zed-x11.log "$@" 2>&1 | tee /tmp/zed-x11-output.log &
-    ZED_PID=$!
-    sleep 8
-    if kill -0 $ZED_PID 2>/dev/null; then
-        echo "Zed started successfully with X11"
-        wait $ZED_PID
-        exit $?
-    fi
-
-    # All strategies failed
-    echo "ERROR: All Zed launch strategies failed on Intel graphics"
-    echo "Debug logs available at:"
-    echo "  /tmp/zed-debug.log"
-    echo "  /tmp/zed-software.log"
-    echo "  /tmp/zed-vulkan.log"
-    echo "  /tmp/zed-x11.log"
-    echo "Output logs:"
-    echo "  /tmp/zed-output.log"
-    echo "  /tmp/zed-software-output.log"
-    echo "  /tmp/zed-vulkan-output.log"
-    echo "  /tmp/zed-x11-output.log"
-    exit 1
-else
-    # Launch Zed with all arguments passed through (non-Intel systems)
-    exec zeditor "$@"
 fi
+
+# Launch Zed with all arguments passed through
+exec zeditor "$@"
