@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-# 🛡️ Hack the Planet 🛡️
+# 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
 
 ![Version](https://img.shields.io/badge/version-1.1.38-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
