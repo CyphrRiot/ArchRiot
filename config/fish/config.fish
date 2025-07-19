@@ -19,6 +19,14 @@ end
 fish_add_path --prepend $HOME/.local/share/archriot/bin
 fish_add_path --prepend $HOME/.local/bin
 
+# =============================================================================
+# Graphics Environment Configuration
+# =============================================================================
+
+# Fix GTK rendering artifacts in Thunar and other applications
+# Force software rendering to avoid OpenGL hardware acceleration bugs
+set -gx LIBGL_ALWAYS_SOFTWARE 1
+
 # Git Prompt Configuration
 set -g __fish_git_prompt_showdirtystate yes
 set -g __fish_git_prompt_showstashstate yes
