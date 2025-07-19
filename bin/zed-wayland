@@ -31,12 +31,5 @@ export QT_QPA_PLATFORMTHEME=gtk3
 # Ensure proper client-side decorations
 export GDK_USE_CSD=1
 
-# Intel graphics fix - force software rendering
-if lspci | grep -i "intel.*graphics\|iris" >/dev/null 2>&1; then
-    echo "Intel graphics detected - using software rendering"
-    export LIBGL_ALWAYS_SOFTWARE=1
-    export GALLIUM_DRIVER=llvmpipe
-fi
-
 # Launch Zed with all arguments passed through
 exec zeditor "$@"
