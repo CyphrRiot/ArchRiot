@@ -4,7 +4,7 @@
 
 # 🛡️ 𝙹𝚘𝚒𝚗 𝚃𝚑𝚎 𝚁𝚎𝚜𝚒𝚜𝚝𝚊𝚗𝚌𝚎 🛡️
 
-![Version](https://img.shields.io/badge/version-1.1.44-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.45-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -148,7 +148,7 @@ This release focuses on making daily usage smoother with smarter application man
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 
-ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by CyphrRiot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
+ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
 
 ### 🛡️ **Why Migrate Matters**
 
