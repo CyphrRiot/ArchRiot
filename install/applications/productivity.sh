@@ -9,6 +9,7 @@
 # Install productivity tools (no heavy office suites)
 yay -S --noconfirm --needed \
     gnome-text-editor \
+    zed \
     abiword \
     papers \
     thunar \
@@ -65,6 +66,36 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     else
         echo "ℹ Using default text editor theme"
     fi
+fi
+
+# Install Zed editor configuration and launcher
+echo "🖥️ Installing Zed editor configuration..."
+local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Install Zed Wayland launcher
+if [[ -f "$script_dir/../../bin/zed-wayland" ]]; then
+  cp "$script_dir/../../bin/zed-wayland" ~/.local/bin/
+  chmod +x ~/.local/bin/zed-wayland
+  echo "✓ Zed Wayland launcher installed"
+else
+  echo "⚠ Zed Wayland launcher not found in repository"
+fi
+
+# Install Zed desktop file
+if [[ -f "$script_dir/../../applications/zed.desktop" ]]; then
+  cp "$script_dir/../../applications/zed.desktop" ~/.local/share/applications/
+  echo "✓ Zed desktop file installed"
+else
+  echo "⚠ Zed desktop file not found in repository"
+fi
+
+# Install Zed configuration
+if [[ -d "$script_dir/../../config/zed" ]]; then
+  mkdir -p ~/.config/zed
+  cp -r "$script_dir/../../config/zed"/* ~/.config/zed/
+  echo "✓ Zed configuration installed"
+else
+  echo "⚠ Zed configuration not found in repository"
 fi
 
 echo "✅ Productivity applications setup complete!"
