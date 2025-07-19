@@ -14,10 +14,22 @@ export QT_QPA_PLATFORM=wayland
 export SDL_VIDEODRIVER=wayland
 export _JAVA_AWT_WM_NONREPARENTING=1
 
+# Intel graphics compatibility fixes
+export MESA_GL_VERSION_OVERRIDE=4.5
+export MESA_GLSL_VERSION_OVERRIDE=450
+export INTEL_DEBUG=norbc
+export LIBGL_DRI3_DISABLE=1
+export __GL_THREADED_OPTIMIZATIONS=0
+
 # Disable X11 fallback to ensure native Wayland
 export GDK_SCALE=1
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_WAYLAND_FORCE_DPI=physical
+
+# Intel Iris graphics performance optimizations
+export GALLIUM_HUD=""
+export INTEL_IRIS_DISABLE_ASYNC_EXEC=1
+export IRIS_DISABLE_THROTTLING=true
 
 # Improve theme integration
 export GTK_THEME="Adwaita:dark"
@@ -31,5 +43,19 @@ export QT_QPA_PLATFORMTHEME=gtk3
 # Ensure proper client-side decorations
 export GDK_USE_CSD=1
 
-# Launch Zed with all arguments passed through
-exec zeditor "$@"
+# Check if Intel graphics and apply fallback if needed
+if lspci | grep -i "intel.*graphics\|iris" >/dev/null 2>&1; then
+    echo "Intel graphics detected - applying compatibility mode"
+    export WGPU_BACKEND=gl
+    export WGPU_POWER_PREF=low-power
+    # Fallback to software rendering if GPU acceleration fails
+    timeout 5s zeditor --gpu-validation --log-file /tmp/zed.log "$@" 2>/dev/null || {
+        echo "Hardware acceleration failed, falling back to software rendering"
+        export LIBGL_ALWAYS_SOFTWARE=1
+        export GALLIUM_DRIVER=llvmpipe
+        exec zeditor "$@"
+    }
+else
+    # Launch Zed with all arguments passed through
+    exec zeditor "$@"
+fi
