@@ -25,7 +25,7 @@
 
 </div>
 
-## **ArchRiot: Arch Linux + Hacker-Style**
+## **ArchRiot: A Modern & Beautiful Arch Linux System**
 
 ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a usable, functional, and fast environment in one command. It's built around the Hyprland tiling window manager -- fast, keyboard-driven, and no bullshit.
 
