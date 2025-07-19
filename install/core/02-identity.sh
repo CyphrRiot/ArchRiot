@@ -68,8 +68,8 @@ get_user_identity() {
         local email_display="${existing_email:-"(not set)"}"
 
         # Format lines with proper spacing
-        local name_line=$(printf "│ Username: %-*s │" $((box_width-12)) "$name_display")
-        local email_line=$(printf "│ Email:    %-*s │" $((box_width-12)) "$email_display")
+        local name_line=$(printf "│ Username: %-*s │" $((box_width-14)) "$name_display")
+        local email_line=$(printf "│ Email:    %-*s │" $((box_width-14)) "$email_display")
 
         echo "┌─────────────────────────────────────────────────────────┐"
         echo "│                 📋 Current Git Config                   │"
