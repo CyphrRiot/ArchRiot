@@ -5,6 +5,6 @@ Comment=System activity from btop
 Exec=ghostty --class=Activity --title=Activity -e btop
 Terminal=false
 Type=Application
-Icon=Activity
+Icon=utilities-system-monitor
 Categories=GTK;
 StartupNotify=false
