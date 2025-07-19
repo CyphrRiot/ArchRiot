@@ -48,19 +48,54 @@ get_input() {
     done
 }
 
-# Get user identity with validation
+# Get user identity with validation and smart credential detection
 get_user_identity() {
     echo -e "\n🔍 Git Configuration (Optional)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Configure Git with your name and email for commits and development."
-    echo "This is optional - you can skip by pressing Enter or configure later with:"
-    echo "  git config --global user.name \"Your Name\""
-    echo "  git config --global user.email \"your@email.com\""
-    echo ""
 
-    ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
-    ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
+    # Check for existing git credentials
+    local existing_name=$(git config --global user.name 2>/dev/null || echo "")
+    local existing_email=$(git config --global user.email 2>/dev/null || echo "")
+
+    if [[ -n "$existing_name" || -n "$existing_email" ]]; then
+        echo "🎉 GitHub credentials found!"
+        echo ""
+        echo "┌─────────────────────────────────────────────────────────┐"
+        echo "│                 📋 Current Git Config                   │"
+        echo "├─────────────────────────────────────────────────────────┤"
+        echo "│ Username: ${existing_name:-"(not set)"}                                │"
+        echo "│ Email:    ${existing_email:-"(not set)"}                         │"
+        echo "└─────────────────────────────────────────────────────────┘"
+        echo ""
+
+        echo -n "Would you like to use these credentials? [Y/n]: "
+        read -r response
+        case "$response" in
+            [nN][oO]|[nN])
+                echo ""
+                echo "💬 No problem! Let's set up new credentials..."
+                echo ""
+                ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
+                ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
+                ;;
+            *)
+                echo ""
+                echo "✅ Using existing credentials!"
+                ARCHRIOT_USER_NAME="$existing_name"
+                ARCHRIOT_USER_EMAIL="$existing_email"
+                ;;
+        esac
+    else
+        echo "Configure Git with your name and email for commits and development."
+        echo "This is optional - you can skip by pressing Enter or configure later with:"
+        echo "  git config --global user.name \"Your Name\""
+        echo "  git config --global user.email \"your@email.com\""
+        echo ""
+
+        ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
+        ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
+    fi
 
     # Export and persist
     export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
