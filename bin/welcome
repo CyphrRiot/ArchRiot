@@ -22,17 +22,17 @@ class WelcomeWindow:
         self.window.set_focus_on_map(False)
         self.window.set_type_hint(Gdk.WindowTypeHint.NORMAL)
 
-        # Set window to be 80% of screen height
+        # Set window to be smaller for better compatibility with scaled displays
         try:
             display = Gdk.Display.get_default()
             monitor = display.get_primary_monitor()
             if monitor:
                 geometry = monitor.get_geometry()
-                window_height = int(geometry.height * 0.9)
+                window_height = min(int(geometry.height * 0.75), 650)  # Max 650px or 75% of screen
             else:
-                window_height = 700  # fallback
+                window_height = 650  # fallback
         except:
-            window_height = 700  # fallback
+            window_height = 650  # fallback
         self.window.set_default_size(800, window_height)
 
         # Create main container
