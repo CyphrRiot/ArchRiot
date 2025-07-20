@@ -18,6 +18,10 @@ class UpdateDialog:
         self.home_dir = os.path.expanduser('~')
         self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
         self.config_file = os.path.join(self.config_dir, 'versions.cfg')
+        self.lock_file = "/tmp/archriot_upgrade.lock"
+
+        # Create lock file
+        self.create_lock_file()
 
         self.window = Gtk.Window()
         self.window.set_title("ArchRiot Update Available")
@@ -54,6 +58,22 @@ class UpdateDialog:
         print("Showing dialog window...")
         self.window.show_all()
         print("Dialog window should now be visible")
+
+    def create_lock_file(self):
+        """Create lock file with current PID"""
+        try:
+            with open(self.lock_file, 'w') as f:
+                f.write(str(os.getpid()))
+        except Exception as e:
+            print(f"Warning: Could not create lock file: {e}")
+
+    def remove_lock_file(self):
+        """Remove lock file"""
+        try:
+            if os.path.exists(self.lock_file):
+                os.remove(self.lock_file)
+        except Exception as e:
+            print(f"Warning: Could not remove lock file: {e}")
 
     def add_title(self, container):
         """Add main title"""
@@ -197,6 +217,7 @@ Choose an option below to proceed."""
                 dialog.destroy()
 
             # Close the update dialog
+            self.remove_lock_file()
             Gtk.main_quit()
 
         except Exception as e:
@@ -237,6 +258,7 @@ Choose an option below to proceed."""
             dialog.destroy()
 
             # Close the update dialog
+            self.remove_lock_file()
             Gtk.main_quit()
 
         except Exception as e:
@@ -244,6 +266,7 @@ Choose an option below to proceed."""
 
     def on_close_clicked(self, button):
         """Handle close button click - just close the dialog"""
+        self.remove_lock_file()
         Gtk.main_quit()
 
     def load_config(self):
@@ -280,6 +303,7 @@ Choose an option below to proceed."""
 
     def on_window_destroy(self, widget):
         """Handle window destruction"""
+        self.remove_lock_file()
         Gtk.main_quit()
 
 def main():

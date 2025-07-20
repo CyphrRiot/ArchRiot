@@ -9,6 +9,20 @@ install_hyprland_configs() {
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
 
+    # PRESERVE USER MONITORS.CONF BEFORE NUKING CONFIGS
+    local monitors_conf="$HOME/.config/hypr/monitors.conf"
+    local monitors_backup=""
+    if [[ -f "$monitors_conf" ]]; then
+        # Check if user has customized monitors.conf
+        if grep -q "# User customized" "$monitors_conf" ||
+           ! grep -q "# ArchRiot auto-generated" "$monitors_conf" ||
+           grep -q -v "^#\|^$\|env = GDK_SCALE\|monitor=,preferred,auto" "$monitors_conf"; then
+            monitors_backup="/tmp/archriot_monitors_backup.conf"
+            cp "$monitors_conf" "$monitors_backup"
+            echo "🖥️ Backing up user-customized monitors.conf"
+        fi
+    fi
+
     # Install hypr configs - REPLACE existing configs (this is what users want!)
     for item in "$source_config"/*; do
         local basename=$(basename "$item")
@@ -26,6 +40,13 @@ install_hyprland_configs() {
             echo "✓ Installed ArchRiot config: $basename"
         fi
     done
+
+    # RESTORE USER MONITORS.CONF IF IT WAS BACKED UP
+    if [[ -n "$monitors_backup" && -f "$monitors_backup" ]]; then
+        cp "$monitors_backup" "$monitors_conf"
+        rm "$monitors_backup"
+        echo "✓ Restored user-customized monitors.conf"
+    fi
 
     echo "✓ Hyprland configurations installed"
 }
@@ -133,13 +154,13 @@ setup_vm_scaling() {
 
     local monitors_conf="$HOME/.config/hypr/monitors.conf"
 
-    # Check if user has already customized monitors.conf
+    # Check if user has already customized monitors.conf (should have been preserved above)
     if [[ -f "$monitors_conf" ]]; then
         # Check if it contains user customizations (not just default content)
         if grep -q "# User customized" "$monitors_conf" ||
            ! grep -q "# ArchRiot auto-generated" "$monitors_conf" ||
            grep -q -v "^#\|^$\|env = GDK_SCALE\|monitor=,preferred,auto" "$monitors_conf"; then
-            echo "🖥️ Existing custom monitor configuration detected - preserving user settings"
+            echo "🖥️ User-customized monitors.conf preserved - skipping auto-scaling"
             echo "ℹ️ To reset auto-scaling: rm ~/.config/hypr/monitors.conf && re-run installer"
             return 0
         fi

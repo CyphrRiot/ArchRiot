@@ -150,6 +150,22 @@ class VersionChecker:
             print(f"Update dialog script not found: {self.dialog_script}")
             return False
 
+        # Check if update dialog is already running using lock file
+        lock_file = "/tmp/archriot_upgrade.lock"
+        if os.path.exists(lock_file):
+            try:
+                with open(lock_file, 'r') as f:
+                    lock_pid = f.read().strip()
+                # Check if the PID is still running
+                if os.path.exists(f"/proc/{lock_pid}"):
+                    print("Update dialog already running - skipping duplicate")
+                    return False
+                else:
+                    # Stale lock file, remove it
+                    os.remove(lock_file)
+            except Exception as e:
+                print(f"Warning: Could not check lock file: {e}")
+
         try:
             # Launch dialog with version information
             env = os.environ.copy()
