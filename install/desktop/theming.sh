@@ -73,6 +73,13 @@ install_icon_theme() {
     # Clean up old themes first
     cleanup_old_icon_themes
 
+    # Install Kora icon theme (required by Fuzzel config)
+    if yay -S --noconfirm --needed kora-icon-theme; then
+        echo "✓ Kora icon theme installed (Fuzzel dependency)"
+    else
+        echo "⚠ Failed to install kora-icon-theme"
+    fi
+
     if yay -S --noconfirm --needed tela-icon-theme-purple-git; then
         echo "✓ Tela purple icon theme installed"
 
@@ -84,7 +91,7 @@ install_icon_theme() {
         gtk-update-icon-cache -f -t ~/.local/share/icons/ 2>/dev/null || true
         gtk-update-icon-cache -f -t /usr/share/icons/ 2>/dev/null || true
 
-        echo "✓ XDG folder icons refreshed"
+        echo "✓ Icon theme configuration complete"
     else
         echo "⚠ Failed to install tela-icon-theme-purple-git (using fallback)"
         return 1

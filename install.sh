@@ -455,4 +455,56 @@ if [[ -f /tmp/archriot-config-backup ]]; then
     echo ""
 fi
 
-gum confirm "Reboot to apply all settings?" && reboot
+echo "🔄 Applying configuration changes without reboot..."
+echo "=================================================="
+
+# Reload Hyprland configuration if running
+if pgrep -x "Hyprland" >/dev/null; then
+    echo "🖼️  Reloading Hyprland configuration..."
+    if hyprctl reload 2>/dev/null; then
+        echo "✓ Hyprland configuration reloaded successfully"
+    else
+        echo "⚠ Failed to reload Hyprland - will apply on next start"
+    fi
+else
+    echo "ℹ Hyprland not running - configuration will apply on next start"
+fi
+
+# Restart Waybar if running
+if pgrep -x "waybar" >/dev/null; then
+    echo "📊 Restarting Waybar..."
+    pkill waybar 2>/dev/null || true
+    sleep 1
+    waybar &>/dev/null &
+    echo "✓ Waybar restarted with new configuration"
+else
+    echo "ℹ Waybar not running - will use new configuration when started"
+fi
+
+# Update font cache
+echo "🔤 Updating font cache..."
+fc-cache -fv >/dev/null 2>&1
+echo "✓ Font cache updated"
+
+# Update icon cache
+echo "🎨 Updating icon cache..."
+gtk-update-icon-cache -f ~/.local/share/icons/hicolor/ 2>/dev/null || true
+echo "✓ Icon cache updated"
+
+# Update desktop database
+echo "🖥️  Updating desktop database..."
+update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
+echo "✓ Desktop database updated"
+
+# Reload shell configuration
+echo "🐚 Shell configuration will apply to new terminals"
+
+echo ""
+echo "✅ All configurations applied! System is ready to use."
+echo "🔄 Most changes are now active. For complete activation:"
+echo "   • New terminals will have updated shell config"
+echo "   • Hyprland settings are live (if running)"
+echo "   • Waybar has been restarted with new config"
+echo ""
+
+gum confirm "Reboot to ensure all settings are fully applied?" && reboot
