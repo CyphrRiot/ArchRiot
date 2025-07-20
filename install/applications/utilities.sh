@@ -100,6 +100,7 @@ fi
 
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
+local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -d "$script_dir/../../applications/hidden" ]]; then
   # Force copy all hidden desktop files to suppress system ones
   for hidden_file in "$script_dir/../../applications/hidden"/*.desktop; do
