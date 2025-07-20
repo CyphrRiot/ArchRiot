@@ -24,6 +24,22 @@ fi
 echo -e "🎭 ArchRiot Setup - Version: $ARCHRIOT_VERSION"
 echo -e "================================================\n"
 
+# Check if ArchRiot is already installed with the same version
+LOCAL_VERSION=""
+if [[ -f "$HOME/.local/share/archriot/VERSION" ]]; then
+    LOCAL_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "")
+fi
+
+# Compare versions and exit if they match
+if [[ -n "$LOCAL_VERSION" && "$LOCAL_VERSION" == "$ARCHRIOT_VERSION" ]]; then
+    echo -e "✨ ${PURPLE}ArchRiot v$ARCHRIOT_VERSION is already installed!${NC}"
+    echo -e "📦 Your system is up to date - no upgrade needed."
+    echo -e "🔄 To force reinstall: rm -rf ~/.local/share/archriot && curl -fsSL https://ArchRiot.org/setup.sh | bash"
+    echo -e "🆔 To check version: cat ~/.local/share/archriot/VERSION"
+    echo -e "\nHave a great day! 🎉"
+    exit 0
+fi
+
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
