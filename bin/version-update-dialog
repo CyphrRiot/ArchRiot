@@ -177,7 +177,8 @@ Choose an option below to proceed."""
             update_command = "curl https://ArchRiot.org/setup.sh | bash"
 
             # Use hyprctl dispatch to launch terminal EXACTLY like SUPER+SHIFT+ENTER
-            terminal_cmd = f"ghostty --class=com.mitchellh.ghostty-floating -e bash -c 'echo \"Starting ArchRiot update...\"; {update_command}; echo \"Update complete. Press Enter to close.\"; read'"
+            # Change to home directory first to avoid getcwd errors
+            terminal_cmd = f"ghostty --class=com.mitchellh.ghostty-floating -e bash -c 'cd $HOME; echo \"Starting ArchRiot update...\"; {update_command}; echo \"Update complete. Press Enter to close.\"; read'"
 
             try:
                 # Use hyprctl dispatch exec to launch exactly like SUPER+SHIFT+ENTER
