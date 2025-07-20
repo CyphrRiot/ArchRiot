@@ -190,7 +190,7 @@ hr {
 }
 
 /* Download buttons and CTAs */
-.btn, .button, a[href*="download"], a[href*="install"] {
+.btn, .button, a[href*="download"]:not([href^="#"]), a[href*="install"]:not([href^="#"]) {
   background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-blue)) !important;
   color: white !important;
   padding: 0.8rem 1.5rem;
@@ -205,7 +205,7 @@ hr {
   margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
-.btn:hover, .button:hover, a[href*="download"]:hover, a[href*="install"]:hover {
+.btn:hover, .button:hover, a[href*="download"]:not([href^="#"]):hover, a[href*="install"]:not([href^="#"]):hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
   color: white !important;
