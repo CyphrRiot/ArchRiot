@@ -50,7 +50,6 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 ## Table of Contents
 
-- [Installation](#installation)
 - [Installation Features](#installation-features)
 - [What's New](#whats-new)
 - [Built-in Backup & Recovery](#built-in-backup--recovery-with-migrate)
