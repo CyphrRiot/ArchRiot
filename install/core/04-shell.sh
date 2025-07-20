@@ -7,17 +7,12 @@ setup_packages() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install essentials (critical)
-    local essentials="wget curl unzip inetutils git neovim"
+    local essentials="wget curl unzip inetutils git neovim ghostty ghostty-shell-integration"
     yay -S --noconfirm --needed $essentials || return 1
 
-    # Install terminal (try ghostty first, fallback to alternatives)
-    if ! yay -S --noconfirm --needed ghostty-git ghostty-shell-integration-git; then
-        echo "⚠ Ghostty installation failed, installing fallback terminals..."
-        yay -S --noconfirm --needed kitty alacritty xterm || {
-            echo "❌ CRITICAL: No terminal could be installed!"
-            return 1
-        }
-    fi
+    # Install backup terminal (in case ghostty integration fails)
+    echo "📱 Installing backup terminal..."
+    pacman -S --noconfirm --needed kitty || echo "⚠ Backup terminal installation failed"
 
     # Install shell tools (best effort)
     local shell_tools="fish fd eza fzf ripgrep zoxide bat lsd fastfetch btop"
