@@ -129,7 +129,14 @@ This comprehensive test validates:
 
 ## 🆕 **What's New**
 
-**Major User Experience Improvements**
+**Critical Installer Fixes (v1.1.56)**
+
+- 🔥 **Fixed Hidden Desktop Files** - Unwanted applications (btop++, About Xfce, etc.) no longer appear in Fuzzel menu
+- 📁 **Fixed Thunar Bookmarks** - No more "Failed to open file://$HOME/..." errors
+- 🎨 **Fixed Missing Icons** - Web applications now display proper icons (Proton Mail, Google Messages, etc.)
+- 🧹 **Clean Fresh Installs** - All installer bugs resolved for professional out-of-the-box experience
+
+**Previous Major Improvements**
 
 - 🚀 **Faster System Updates** - New `upgrade-system` command with better progress tracking and error handling
 - 🎯 **Smart App Launching** - SUPER+G intelligently opens or focuses Signal and other applications
@@ -144,7 +151,7 @@ This comprehensive test validates:
 - Improved backup integration and .pacnew file detection
 - Cross-platform README formatting improvements
 
-This release focuses on making daily usage smoother with smarter application management and polished visual consistency.
+This release focuses on rock-solid installation reliability with comprehensive testing and validation.
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 

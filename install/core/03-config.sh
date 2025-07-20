@@ -97,15 +97,23 @@ install_configs() {
             # Copy our theme files
             cp -R "$item"/* "$target/" 2>/dev/null || true
 
-            # Preserve existing bookmarks or create default ones
+            # Create proper bookmarks with expanded HOME paths
             local bookmarks_file="$target/bookmarks"
+
+            # Check if bookmarks exist and contain literal $HOME (broken)
+            if [[ -f "$bookmarks_file" ]] && grep -q '\$HOME' "$bookmarks_file"; then
+                echo "🔧 Fixing broken Thunar bookmarks (literal \$HOME found)"
+                rm "$bookmarks_file"
+            fi
+
             if [[ ! -f "$bookmarks_file" ]]; then
-                echo "📁 Creating default Thunar bookmarks"
+                echo "📁 Creating default Thunar bookmarks with proper paths"
                 echo "file://${HOME}/Downloads Downloads" > "$bookmarks_file"
                 echo "file://${HOME}/Documents Documents" >> "$bookmarks_file"
                 echo "file://${HOME}/Pictures Pictures" >> "$bookmarks_file"
                 echo "file://${HOME}/Music Music" >> "$bookmarks_file"
                 echo "file://${HOME}/Videos Videos" >> "$bookmarks_file"
+                echo "✓ Thunar bookmarks created with expanded paths"
             else
                 echo "✓ Preserved existing Thunar bookmarks"
             fi

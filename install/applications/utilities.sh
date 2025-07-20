@@ -153,19 +153,12 @@ fi
 # Install custom renamed desktop files with shorter names
 echo "✂️ Installing custom desktop files with cleaner names..."
 
-# Clean up ALL conflicting desktop files from previous installs
-echo "🧹 Aggressively cleaning up conflicting desktop files from previous installs..."
-rm -f ~/.local/share/applications/gnome-system-monitor-kde.desktop
-rm -f ~/.local/share/applications/gnome-system-monitor.desktop
-rm -f ~/.local/share/applications/mpv.desktop
-rm -f ~/.local/share/applications/thunar.desktop
-rm -f ~/.local/share/applications/thunar-volman-settings.desktop
+# Clean up ONLY old custom desktop files from previous installs (NOT hidden files)
+echo "🧹 Cleaning up old custom desktop files from previous installs..."
 rm -f ~/.local/share/applications/system-monitor.desktop
 rm -f ~/.local/share/applications/media-player.desktop
 rm -f ~/.local/share/applications/file-manager.desktop
-rm -f ~/.local/share/applications/btop.desktop
-rm -f ~/.local/share/applications/xfce4-about.desktop
-echo "✓ All old conflicting desktop files removed"
+echo "✓ Old custom desktop files removed (hidden files preserved)"
 
 # System Monitor (renamed from GNOME System Monitor)
 if [[ -f "$script_dir/../../applications/gnome-system-monitor-kde.desktop" ]]; then
