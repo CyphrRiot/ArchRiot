@@ -58,7 +58,7 @@ mkdir -p ~/.local/share/applications ~/.local/bin ~/.local/share/icons/hicolor/2
 
 # Install Feather Wallet desktop file and icon
 # Feather Wallet
-local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "$script_dir/../../applications/feather-wallet.desktop" ]]; then
   cp "$script_dir/../../applications/feather-wallet.desktop" ~/.local/share/applications/
   echo "✓ Feather Wallet desktop file installed"
@@ -100,27 +100,18 @@ fi
 
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
-local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo "DEBUG: script_dir = $script_dir"
-echo "DEBUG: Looking for hidden dir at: $script_dir/../../applications/hidden"
-echo "DEBUG: Directory exists? $(ls -la "$script_dir/../../applications/hidden" 2>/dev/null && echo YES || echo NO)"
-if [[ -d "$script_dir/../../applications/hidden" ]]; then
-  echo "DEBUG: Found hidden directory, listing files:"
-  ls -la "$script_dir/../../applications/hidden"
+hidden_dir="$script_dir/../../applications/hidden"
+if [[ -d "$hidden_dir" ]]; then
   # Force copy all hidden desktop files to suppress system ones
-  for hidden_file in "$script_dir/../../applications/hidden"/*.desktop; do
+  for hidden_file in "$hidden_dir"/*.desktop; do
     if [[ -f "$hidden_file" ]]; then
-      echo "DEBUG: Copying $hidden_file to ~/.local/share/applications/"
-      cp "$hidden_file" ~/.local/share/applications/
-      echo "DEBUG: Copy result: $?"
+      cp "$hidden_file" "$HOME/.local/share/applications/"
     fi
   done
-  hidden_count=$(find "$script_dir/../../applications/hidden" -name "*.desktop" 2>/dev/null | wc -l)
-  echo "✓ $hidden_count hidden applications forcefully installed"
+  hidden_count=$(find "$hidden_dir" -name "*.desktop" 2>/dev/null | wc -l)
+  echo "✓ $hidden_count hidden applications installed"
 else
-  echo "⚠ Hidden applications directory not found at: $script_dir/../../applications/hidden"
-  echo "DEBUG: Contents of $script_dir/../../applications/:"
-  ls -la "$script_dir/../../applications/" 2>/dev/null || echo "applications directory not found"
+  echo "⚠ Hidden applications directory not found at: $hidden_dir"
 fi
 
 # Install iwgtk desktop file with better name and icon
@@ -134,9 +125,14 @@ fi
 
 # Copy icons for applications (critical for missing icons issue)
 echo "🎨 Installing application icons..."
-if [[ -d "$script_dir/../../applications/icons" ]]; then
-    mkdir -p ~/.local/share/icons
-    cp -r "$script_dir/../../applications/icons"/* ~/.local/share/icons/ 2>/dev/null || true
+icons_dir="$script_dir/../../applications/icons"
+if [[ -d "$icons_dir" ]]; then
+    mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"
+    for icon_file in "$icons_dir"/*.png; do
+        if [[ -f "$icon_file" ]]; then
+            cp "$icon_file" "$HOME/.local/share/icons/hicolor/256x256/apps/"
+        fi
+    done
     echo "✓ Application icons installed"
 fi
 
@@ -183,7 +179,6 @@ fi
 
 # Install ArchRiot upgrade-system script
 echo "🚀 Installing ArchRiot upgrade-system utility..."
-local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "$script_dir/../../bin/upgrade-system" ]]; then
   cp "$script_dir/../../bin/upgrade-system" ~/.local/bin/
   chmod +x ~/.local/bin/upgrade-system
