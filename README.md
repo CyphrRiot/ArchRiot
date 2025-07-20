@@ -33,7 +33,7 @@ ArchRiot is a privacy-focused Arch Linux setup that delivers a complete, functio
 
 - **One-Command Install:** Complete setup in minutes
 - **Hyprland Tiling:** Efficient window management that enhances productivity
-- **Development Ready:** Preconfigured coding environment with Zed editor and comprehensive tooling
+- **Development Ready:** Preconfigured with Zed IDE, nvim, and themes
 - **Beautiful Aesthetics:** Custom themes with adaptive backgrounds for focused work
 - **Privacy First:** No telemetry, no data collection, privacy-respecting applications
 - **Fully Customizable:** Modify, extend, or strip down to your exact needs
