@@ -100,9 +100,14 @@ fi
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
 if [[ -d "$script_dir/../../applications/hidden" ]]; then
-  cp "$script_dir/../../applications/hidden"/*.desktop ~/.local/share/applications/ 2>/dev/null || true
+  # Force copy all hidden desktop files to suppress system ones
+  for hidden_file in "$script_dir/../../applications/hidden"/*.desktop; do
+    if [[ -f "$hidden_file" ]]; then
+      cp "$hidden_file" ~/.local/share/applications/
+    fi
+  done
   hidden_count=$(find "$script_dir/../../applications/hidden" -name "*.desktop" 2>/dev/null | wc -l)
-  echo "✓ $hidden_count hidden applications installed"
+  echo "✓ $hidden_count hidden applications forcefully installed"
 else
   echo "⚠ Hidden applications directory not found"
 fi
@@ -116,16 +121,30 @@ else
   echo "⚠ WiFi Manager desktop file not found in repository"
 fi
 
+# Copy icons for applications (critical for missing icons issue)
+echo "🎨 Installing application icons..."
+if [[ -d "$script_dir/../../applications/icons" ]]; then
+    mkdir -p ~/.local/share/icons
+    cp -r "$script_dir/../../applications/icons"/* ~/.local/share/icons/ 2>/dev/null || true
+    echo "✓ Application icons installed"
+fi
+
 # Install custom renamed desktop files with shorter names
 echo "✂️ Installing custom desktop files with cleaner names..."
 
-# Clean up any conflicting desktop files from previous installs
-echo "🧹 Cleaning up conflicting desktop files from previous installs..."
+# Clean up ALL conflicting desktop files from previous installs
+echo "🧹 Aggressively cleaning up conflicting desktop files from previous installs..."
 rm -f ~/.local/share/applications/gnome-system-monitor-kde.desktop
+rm -f ~/.local/share/applications/gnome-system-monitor.desktop
 rm -f ~/.local/share/applications/mpv.desktop
 rm -f ~/.local/share/applications/thunar.desktop
 rm -f ~/.local/share/applications/thunar-volman-settings.desktop
-echo "✓ Old conflicting desktop files removed"
+rm -f ~/.local/share/applications/system-monitor.desktop
+rm -f ~/.local/share/applications/media-player.desktop
+rm -f ~/.local/share/applications/file-manager.desktop
+rm -f ~/.local/share/applications/btop.desktop
+rm -f ~/.local/share/applications/xfce4-about.desktop
+echo "✓ All old conflicting desktop files removed"
 
 # System Monitor (renamed from GNOME System Monitor)
 if [[ -f "$script_dir/../../applications/gnome-system-monitor-kde.desktop" ]]; then
@@ -163,7 +182,12 @@ else
   echo "⚠ ArchRiot upgrade-system script not found in repository bin"
 fi
 
-# Update desktop database
-update-desktop-database ~/.local/share/applications/
+# Force update desktop database multiple times to ensure changes take effect
+echo "🔄 Updating desktop database..."
+update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
+sleep 1
+update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
+echo "✓ Desktop database forcefully updated"
 
 echo "✅ Utilities setup complete!"
+echo "🔄 You may need to restart fuzzel/rofi for changes to take full effect"

@@ -625,6 +625,37 @@ validate-system                      # Check system health
 - **CPU:** Any modern processor (optimized for both Intel/AMD)
 - **GPU:** Any modern graphics card (see GPU Support section for full compatibility details)
 
+## 🔧 Optional Advanced Tools
+
+ArchRiot includes optional tools for advanced users who need additional functionality beyond the core installation. These tools are **completely optional** and should only be used if you understand the risks.
+
+### 🛡️ Secure Boot Setup
+
+**Clean, safe, and simple UEFI Secure Boot implementation**
+
+- **Purpose:** Implement UEFI Secure Boot using standard Arch Linux methods
+- **Compatibility:** AMD, Intel, Any UEFI system with Secure Boot
+- **Safety:** Uses official Arch packages (`sbctl`, `shim-signed`)
+- **Status:** ✅ **Available and Ready**
+
+```bash
+# Launch optional tools menu
+./optional-tools/launcher.sh
+
+# Or run directly
+./optional-tools/secure-boot/setup-secure-boot.sh
+```
+
+**Features:**
+
+- ✅ Microsoft hardware compatibility guaranteed
+- ✅ Automatic kernel signing on updates
+- ✅ Windows dual-boot support
+- ✅ Interactive guided setup with safety checks
+- ✅ Comprehensive documentation and recovery options
+
+**⚠️ Important:** These tools modify critical system components. Always have a backup plan and test thoroughly. Read `optional-tools/README.md` for complete documentation.
+
 ## 📄 License
 
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.

@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# ArchRiot Optional Tools Access Script
+# Simple shortcut to access advanced ArchRiot tools
+# Version: 1.0.0
+
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOOLS_LAUNCHER="$SCRIPT_DIR/optional-tools/launcher.sh"
+
+print_header() {
+    clear
+    echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${PURPLE}║${NC}  ${CYAN}🔧 ArchRiot Tools - Optional Advanced Features 🔧${NC}           ${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  Quick access to power user tools                            ${PURPLE}║${NC}"
+    echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo
+}
+
+print_info() {
+    echo -e "${BLUE}ℹ${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+check_environment() {
+    # Check if we're in the right directory
+    if [[ ! -f "$SCRIPT_DIR/README.md" ]] || [[ ! -f "$SCRIPT_DIR/VERSION" ]]; then
+        print_error "This doesn't appear to be the ArchRiot directory"
+        print_info "Please run this script from the ArchRiot installation directory"
+        exit 1
+    fi
+
+    # Check if optional tools exist
+    if [[ ! -f "$TOOLS_LAUNCHER" ]]; then
+        print_error "Optional tools not found"
+        print_info "Expected location: $TOOLS_LAUNCHER"
+        print_info "Please ensure ArchRiot is fully installed"
+        exit 1
+    fi
+
+    # Check if tools launcher is executable
+    if [[ ! -x "$TOOLS_LAUNCHER" ]]; then
+        print_warning "Tools launcher not executable, fixing..."
+        chmod +x "$TOOLS_LAUNCHER"
+        print_success "Fixed permissions"
+    fi
+}
+
+show_quick_info() {
+    echo -e "${CYAN}Available Optional Tools:${NC}"
+    echo
+    echo "🛡️  Secure Boot Setup"
+    echo "   • Clean UEFI Secure Boot implementation"
+    echo "   • Uses standard Arch Linux methods (sbctl + shim-signed)"
+    echo "   • Works on Intel, AMD, and any UEFI system"
+    echo "   • Includes comprehensive safety checks"
+    echo
+    print_warning "These are ADVANCED tools that modify critical system components"
+    print_info "Always have a backup plan before proceeding"
+    echo
+}
+
+main() {
+    print_header
+
+    # Verify environment
+    check_environment
+
+    # Show quick info
+    show_quick_info
+
+    # Ask for confirmation
+    echo -n "Launch ArchRiot Optional Tools? (y/N): "
+    read -r response
+
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        echo
+        print_info "Launching ArchRiot Optional Tools..."
+        echo
+        exec "$TOOLS_LAUNCHER"
+    else
+        echo
+        print_info "Optional tools launcher cancelled"
+        echo
+        print_info "You can also run tools directly:"
+        echo "  • All tools:     ./optional-tools/launcher.sh"
+        echo "  • Secure Boot:   ./optional-tools/secure-boot/setup-secure-boot.sh"
+        echo "  • Documentation: ./optional-tools/README.md"
+        echo
+    fi
+}
+
+# Handle help flag
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+    print_header
+    echo "ArchRiot Optional Tools Access Script"
+    echo
+    echo "This script provides quick access to ArchRiot's optional advanced tools."
+    echo "These tools are NOT part of the standard installation and should only"
+    echo "be used by advanced users who understand the risks."
+    echo
+    echo "Usage:"
+    echo "  $0              Launch interactive tools menu"
+    echo "  $0 --help      Show this help message"
+    echo
+    echo "Available Tools:"
+    echo "  • Secure Boot Setup (UEFI Secure Boot implementation)"
+    echo
+    echo "Direct Access:"
+    echo "  ./optional-tools/launcher.sh                    # Main launcher"
+    echo "  ./optional-tools/secure-boot/setup-secure-boot.sh  # Secure Boot tool"
+    echo
+    echo "Documentation:"
+    echo "  ./optional-tools/README.md                      # Overview"
+    echo "  ./optional-tools/secure-boot/README.md          # Secure Boot docs"
+    echo
+    exit 0
+fi
+
+# Run main function
+main "$@"
