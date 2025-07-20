@@ -46,6 +46,34 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 ![ArchRiot Screenshot](images/screenshot.png)
 
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+    - [Prerequisites: Fresh Arch Linux Setup](#prerequisites-fresh-arch-linux-setup)
+    - [Method 1: One-Line Install or Upgrade (Recommended for Most Users)](#method-1-one-line-install-or-upgrade-recommended-for-most-users)
+    - [Method 2: Manual Clone (Only if You Need to Customize Installation Scripts)](#method-2-manual-clone-only-if-you-need-to-customize-installation-scripts)
+    - [Optional: Pre-Installation Validation](#optional-pre-installation-validation)
+- [Installation Features](#installation-features)
+- [What's New](#whats-new)
+- [Built-in Backup & Recovery with Migrate](#built-in-backup--recovery-with-migrate)
+    - [Why Migrate Matters](#why-migrate-matters)
+    - [Quick Start](#quick-start)
+- [Essential Commands](#essential-commands)
+    - [Getting Started](#getting-started)
+    - [Window Management (Most Used)](#window-management-most-used)
+    - [Core Applications](#core-applications)
+    - [Communication & Social](#communication--social)
+    - [Screenshots & Recording](#screenshots--recording)
+    - [Theme & Appearance](#theme--appearance)
+    - [System Management](#essential-system-management)
+    - [Audio & Media](#audio--media)
+    - [Waybar Controls (Status Bar)](#waybar-controls-status-bar)
+    - [Fix Scripts (If Needed)](#fix-scripts-if-needed)
+    - [Troubleshooting](#troubleshooting)
+- [Key Customizations](#key-customizations)
+
 ## 🚀 Installation
 
 ### Prerequisites: Fresh Arch Linux Setup
