@@ -495,6 +495,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 - **Proton Mail** - End-to-end encrypted email with XF86Mail key support and proper icon
 - **Mullvad VPN** - Anonymous browsing with live waybar status indicator
 - **Feather Wallet** - Privacy-focused Monero wallet with beautiful feather icon
+- **GNOME Secrets** - 💀 Clean password manager using KeePass format with perfect GTK integration
 - **Signal** - Secure messaging with native Wayland support (no more scaling issues)
 - **Local tools** - Reduced dependency on cloud services
 - **Clean telemetry** - Minimal data collection

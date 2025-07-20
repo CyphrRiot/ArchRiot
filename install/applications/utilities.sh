@@ -12,7 +12,7 @@ if command -v install_packages_clean &>/dev/null; then
     install_packages_clean "thunar thunar-volman thunar-archive-plugin gvfs gvfs-mtp" "Installing file management" "GREEN"
     install_packages_clean "gnome-system-monitor" "Installing system monitoring" "GREEN"
     install_packages_clean "iwgtk" "Installing network utilities" "GREEN"
-    install_packages_clean "gnome-calculator file-roller" "Installing essential tools" "GREEN"
+    install_packages_clean "gnome-calculator file-roller secrets" "Installing essential tools" "GREEN"
     install_packages_clean "featherwallet-bin" "Installing financial tools" "GREEN"
     install_packages_clean "fragments" "Installing torrent client" "GREEN"
 else
@@ -42,7 +42,8 @@ else
 
     yay -S --noconfirm --needed \
       gnome-calculator \
-      file-roller
+      file-roller \
+      secrets \
 
     yay -S --noconfirm --needed \
       featherwallet-bin
