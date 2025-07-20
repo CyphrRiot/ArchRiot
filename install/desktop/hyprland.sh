@@ -134,7 +134,11 @@ setup_vm_scaling() {
     # Detect if running in a virtual machine
     local virt_type="none"
     if command -v systemd-detect-virt >/dev/null 2>&1; then
-        virt_type=$(systemd-detect-virt 2>/dev/null || echo "none")
+        if systemd-detect-virt >/dev/null 2>&1; then
+            virt_type=$(systemd-detect-virt)
+        else
+            virt_type="none"
+        fi
     fi
 
     local monitors_conf="$HOME/.config/hypr/monitors.conf"
