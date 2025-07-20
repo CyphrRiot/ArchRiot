@@ -101,17 +101,26 @@ fi
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
 local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "DEBUG: script_dir = $script_dir"
+echo "DEBUG: Looking for hidden dir at: $script_dir/../../applications/hidden"
+echo "DEBUG: Directory exists? $(ls -la "$script_dir/../../applications/hidden" 2>/dev/null && echo YES || echo NO)"
 if [[ -d "$script_dir/../../applications/hidden" ]]; then
+  echo "DEBUG: Found hidden directory, listing files:"
+  ls -la "$script_dir/../../applications/hidden"
   # Force copy all hidden desktop files to suppress system ones
   for hidden_file in "$script_dir/../../applications/hidden"/*.desktop; do
     if [[ -f "$hidden_file" ]]; then
+      echo "DEBUG: Copying $hidden_file to ~/.local/share/applications/"
       cp "$hidden_file" ~/.local/share/applications/
+      echo "DEBUG: Copy result: $?"
     fi
   done
   hidden_count=$(find "$script_dir/../../applications/hidden" -name "*.desktop" 2>/dev/null | wc -l)
   echo "✓ $hidden_count hidden applications forcefully installed"
 else
-  echo "⚠ Hidden applications directory not found"
+  echo "⚠ Hidden applications directory not found at: $script_dir/../../applications/hidden"
+  echo "DEBUG: Contents of $script_dir/../../applications/:"
+  ls -la "$script_dir/../../applications/" 2>/dev/null || echo "applications directory not found"
 fi
 
 # Install iwgtk desktop file with better name and icon
