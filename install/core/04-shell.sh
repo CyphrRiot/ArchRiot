@@ -6,8 +6,8 @@ setup_packages() {
     local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
-    # Install essentials (critical)
-    local essentials="wget curl unzip inetutils git neovim ghostty ghostty-shell-integration"
+    # Install essentials (critical) - ghostty now installed in desktop module
+    local essentials="wget curl unzip inetutils git neovim"
     yay -S --noconfirm --needed $essentials || return 1
 
     # Install backup terminal (in case ghostty integration fails)
@@ -67,7 +67,7 @@ show_summary() {
     echo ""
     echo "🎉 Terminal and shell setup complete!"
     echo ""
-    echo "📋 Installed: Fish shell, modern CLI tools, Ghostty terminal, Neovim"
+    echo "📋 Installed: Fish shell, modern CLI tools, Neovim"
     echo "✨ Features: Ω prompt, Git integration, Fastfetch greeting, vim→nvim alias"
     echo "🚀 Quick start: Type 'fish' to test or log out/in for default shell"
 

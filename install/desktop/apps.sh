@@ -17,6 +17,14 @@ load_user_environment() {
 install_system_controls() {
     echo "🎛️  Installing system control utilities..."
 
+    # CRITICAL: Install ghostty terminal FIRST before configs are processed
+    echo "📱 Installing ghostty terminal (critical for Hyprland integration)..."
+    yay -S --noconfirm --needed "ghostty" "ghostty-shell-integration" || {
+        echo "❌ Failed to install ghostty terminal"
+        return 1
+    }
+    echo "✓ Ghostty terminal installed"
+
     local control_packages=(
         "brightnessctl"     # Screen brightness control
         "playerctl"         # Media player control
@@ -257,6 +265,7 @@ validate_desktop_apps() {
 
     # Check critical applications
     local critical_apps=(
+        "ghostty:Terminal emulator"
         "thunar:File manager"
         "brightnessctl:Brightness control"
         "playerctl:Media control"
@@ -312,6 +321,11 @@ validate_desktop_apps() {
 test_application_functionality() {
     echo "🔧 Testing application functionality..."
 
+    # Test terminal
+    if command -v ghostty &>/dev/null; then
+        ghostty --help >/dev/null 2>&1 && echo "✓ Terminal functional"
+    fi
+
     # Test file manager
     if command -v thunar &>/dev/null; then
         thunar --help >/dev/null 2>&1 && echo "✓ File manager functional"
@@ -341,6 +355,7 @@ display_apps_summary() {
     echo "🎉 Desktop applications setup complete!"
     echo ""
     echo "📦 Installed categories:"
+    echo "  • Terminal emulator (ghostty with shell integration)"
     echo "  • System controls (brightness, audio, media)"
     echo "  • File management (thunar + enhancements)"
     echo "  • Input methods (fcitx5 for international input)"
