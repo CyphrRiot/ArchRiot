@@ -64,7 +64,7 @@ class VersionChecker:
         """Fetch remote version from GitHub API"""
         try:
             # Primary method: Direct VERSION file from ArchRiot website
-            url = "https://cyphrriot.github.io/ArchRiot/VERSION"
+            url = "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION"
             req = urllib.request.Request(url)
             req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
 
@@ -77,7 +77,7 @@ class VersionChecker:
 
         try:
             # Fallback method: GitHub API
-            url = "https://api.github.com/repos/cyphrriot/ArchRiot/releases/latest"
+            url = "https://api.github.com/repos/CyphrRiot/ArchRiot/releases/latest"
             req = urllib.request.Request(url)
             req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
 
