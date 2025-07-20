@@ -157,11 +157,12 @@ This comprehensive test validates:
 
 ## 🆕 **What's New**
 
-**Critical Installer Fixes (v1.1.56)**
+**Critical Installer Fixes (v1.1.57)**
 
 - 🔥 **Fixed Hidden Desktop Files** - Unwanted applications (btop++, About Xfce, etc.) no longer appear in Fuzzel menu
 - 📁 **Fixed Thunar Bookmarks** - No more "Failed to open file://$HOME/..." errors
-- 🎨 **Fixed Missing Icons** - Web applications now display proper icons (Proton Mail, Google Messages, etc.)
+- 🎨 **Fixed Missing Icons** - Web applications now display proper icons (Proton Mail, Google Messages, X, Activity, Zed)
+- 🌐 **Fixed Web App Installation** - Custom web applications now properly install with correct icon references
 - 🧹 **Clean Fresh Installs** - All installer bugs resolved for professional out-of-the-box experience
 
 **Previous Major Improvements**

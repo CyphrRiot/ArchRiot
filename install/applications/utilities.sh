@@ -98,34 +98,32 @@ else
   echo "⚠ Brave Private desktop file not found in repository applications"
 fi
 
+# Install web application and custom icon desktop files
+echo "🌐 Installing web applications and custom icon apps..."
+custom_apps=("Google Messages.desktop" "Proton Mail.desktop" "X.desktop" "Activity.desktop" "zed.desktop")
+for app in "${custom_apps[@]}"; do
+  if [[ -f "$script_dir/../../applications/$app" ]]; then
+    cp "$script_dir/../../applications/$app" ~/.local/share/applications/
+    echo "✓ Custom app installed: $(basename "$app" .desktop)"
+  else
+    echo "⚠ Custom app not found: $app"
+  fi
+done
+
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
-echo "DEBUG: script_dir = $script_dir"
-echo "DEBUG: PWD = $(pwd)"
 hidden_dir="$script_dir/../../applications/hidden"
-echo "DEBUG: hidden_dir = $hidden_dir"
-echo "DEBUG: hidden_dir resolved = $(readlink -f "$hidden_dir" 2>/dev/null || echo "FAILED TO RESOLVE")"
-echo "DEBUG: Directory exists? $(test -d "$hidden_dir" && echo "YES" || echo "NO")"
 if [[ -d "$hidden_dir" ]]; then
-  echo "DEBUG: Files in hidden_dir:"
-  ls -la "$hidden_dir"
   # Force copy all hidden desktop files to suppress system ones
   for hidden_file in "$hidden_dir"/*.desktop; do
     if [[ -f "$hidden_file" ]]; then
-      echo "DEBUG: Copying $hidden_file to $HOME/.local/share/applications/"
       cp "$hidden_file" "$HOME/.local/share/applications/"
-      echo "DEBUG: Copy result: $?"
     fi
   done
   hidden_count=$(find "$hidden_dir" -name "*.desktop" 2>/dev/null | wc -l)
   echo "✓ $hidden_count hidden applications installed"
 else
   echo "⚠ Hidden applications directory not found at: $hidden_dir"
-  echo "DEBUG: Let's see what's around here:"
-  echo "DEBUG: Contents of $script_dir:"
-  ls -la "$script_dir" 2>/dev/null || echo "script_dir doesn't exist"
-  echo "DEBUG: Contents of $script_dir/../..:"
-  ls -la "$script_dir/../.." 2>/dev/null || echo "parent dir doesn't exist"
 fi
 
 # Install iwgtk desktop file with better name and icon
