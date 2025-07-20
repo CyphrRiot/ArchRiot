@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.66-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.67-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -27,18 +27,18 @@
 
 ## **ArchRiot: A Modern & Beautiful, Opinionated Arch Linux System**
 
-ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a usable, functional, and fast environment in one command. It's built around the Hyprland tiling window manager -- fast, keyboard-driven, and no bullshit.
+ArchRiot is a privacy-focused Arch Linux setup that delivers a complete, functional environment with a single command. Built around the Hyprland tiling window manager for fast, keyboard-driven workflows.
 
 **What You Get:**
 
-- **One-Liner Install:** Single command. Done.
-- **Hyprland:** Tiling that doesn't suck. Workflow stays tight.
-- **Dev Tools:** Code, debug, git—preconfigured, Zed by default, with a kick-ass theme.
-- **Beautiful Themes:** Tokyo Night inspired aesthetics with custom backgrounds that adapt to your workflow.
-- **Privacy:** Doesn't leak your data or install telemetry-based software.
-- **Tweakable:** Strip it, mod it, own it.
+- **One-Command Install:** Complete setup in minutes
+- **Hyprland Tiling:** Efficient window management that enhances productivity
+- **Development Ready:** Preconfigured coding environment with Zed editor and comprehensive tooling
+- **Beautiful Aesthetics:** Custom themes with adaptive backgrounds for focused work
+- **Privacy First:** No telemetry, no data collection, privacy-respecting applications
+- **Fully Customizable:** Modify, extend, or strip down to your exact needs
 
-_Created by a hacker, cypherpunk, and blockchain developer with decades of experience running Linux and Unix - this is the system I've always wanted._
+_Created by an experienced developer and privacy advocate - this is the Linux system I've always wanted to use._
 
 _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/){:target="\_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 

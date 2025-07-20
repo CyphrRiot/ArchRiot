@@ -205,12 +205,14 @@ setup_scripts_and_env() {
         echo "⚠ Volume OSD script not found"
     fi
 
-    # Install welcome script
+    # Install welcome script (force overwrite to ensure latest version)
     local welcome_script="$HOME/.local/share/archriot/bin/welcome"
     if [[ -f "$welcome_script" ]]; then
+        # Remove existing welcome script first to ensure fresh install
+        rm -f "$script_dest/welcome" 2>/dev/null || true
         cp "$welcome_script" "$script_dest/"
         chmod +x "$script_dest/welcome"
-        echo "✓ Welcome script installed"
+        echo "✓ Welcome script installed (latest version)"
     else
         echo "⚠ Welcome script not found"
     fi
