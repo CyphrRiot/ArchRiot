@@ -110,26 +110,25 @@ for app in "${custom_apps[@]}"; do
   fi
 done
 
-# Install hidden applications to suppress unwanted launchers
-echo "🙈 Installing hidden applications..."
+# Hide duplicate system applications and install clean renamed versions
+echo "🙈 Hiding duplicate system applications..."
 
-# FIX: Ensure user owns all files in applications directory
-echo "🔧 Fixing file ownership in applications directory..."
-sudo chown -R "$USER:$USER" "$HOME/.local/share/applications/" 2>/dev/null || true
-chmod -R u+w "$HOME/.local/share/applications/"*.desktop 2>/dev/null || true
+# Hide all System Monitor duplicates
+echo '[Desktop Entry]
+NoDisplay=true' > ~/.local/share/applications/gnome-system-monitor-kde.desktop
 
-hidden_dir="$script_dir/../../applications/hidden"
-if [[ -d "$hidden_dir" ]]; then
-  # Force copy all hidden desktop files to suppress system ones
-  for hidden_file in "$hidden_dir"/*.desktop; do
-    if [[ -f "$hidden_file" ]]; then
-      cp "$hidden_file" "$HOME/.local/share/applications/"
-    fi
-  done
-  hidden_count=$(find "$hidden_dir" -name "*.desktop" 2>/dev/null | wc -l)
-  echo "✓ $hidden_count hidden applications installed"
+echo '[Desktop Entry]
+NoDisplay=true' > ~/.local/share/applications/org.gnome.SystemMonitor.desktop
+
+echo '[Desktop Entry]
+NoDisplay=true' > ~/.local/share/applications/btop.desktop
+
+# Install our clean renamed System Monitor
+if [[ -f "$script_dir/../../applications/system-monitor.desktop" ]]; then
+  cp "$script_dir/../../applications/system-monitor.desktop" ~/.local/share/applications/
+  echo "✓ System Monitor (clean renamed version) installed"
 else
-  echo "⚠ Hidden applications directory not found at: $hidden_dir"
+  echo "⚠ System Monitor desktop file not found"
 fi
 
 # Install iwgtk desktop file with better name and icon
@@ -157,18 +156,11 @@ fi
 # Install custom renamed desktop files with shorter names
 echo "✂️ Installing custom desktop files with cleaner names..."
 
-# Clean up ONLY old custom desktop files from previous installs (NOT hidden files)
-echo "🧹 Cleaning up old custom desktop files from previous installs..."
-rm -f ~/.local/share/applications/system-monitor.desktop
+# Clean up old duplicate desktop files
+echo "🧹 Cleaning up old duplicate desktop files..."
 rm -f ~/.local/share/applications/media-player.desktop
 rm -f ~/.local/share/applications/file-manager.desktop
-echo "✓ Old custom desktop files removed (hidden files preserved)"
-
-# System Monitor (renamed from GNOME System Monitor)
-if [[ -f "$script_dir/../../applications/gnome-system-monitor-kde.desktop" ]]; then
-  cp "$script_dir/../../applications/gnome-system-monitor-kde.desktop" ~/.local/share/applications/system-monitor.desktop
-  echo "✓ System Monitor desktop file installed"
-fi
+echo "✓ Old duplicate desktop files removed"
 
 # Media Player (renamed from mpv Media Player)
 if [[ -f "$script_dir/../../applications/mpv.desktop" ]]; then
@@ -203,6 +195,8 @@ fi
 echo "🔧 Final ownership fix for all application files..."
 sudo chown -R "$USER:$USER" "$HOME/.local/share/applications/" 2>/dev/null || true
 sudo chown -R "$USER:$USER" "$HOME/.local/share/icons/" 2>/dev/null || true
+
+echo "✓ Duplicate applications hidden, clean versions installed"
 
 # Force update desktop database multiple times to ensure changes take effect
 echo "🔄 Updating desktop database..."
