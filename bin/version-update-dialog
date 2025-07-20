@@ -176,62 +176,38 @@ Choose an option below to proceed."""
             # Create the update command
             update_command = "curl https://ArchRiot.org/setup.sh | bash"
 
-            # Launch terminal with the update command
-            # Try different terminal approaches based on what's available
-            terminal_commands = [
-                # Ghostty (ArchRiot's default terminal)
-                ['ghostty', '--title=ArchRiot Update', '-e', 'bash', '-c',
-                 f'echo "Starting ArchRiot update..."; {update_command}; echo "Update complete. Press Enter to close."; read'],
+            # Use hyprctl dispatch to launch terminal EXACTLY like SUPER+SHIFT+ENTER
+            terminal_cmd = f"ghostty --class=com.mitchellh.ghostty-floating -e bash -c 'echo \"Starting ArchRiot update...\"; {update_command}; echo \"Update complete. Press Enter to close.\"; read'"
 
-                # Fallback terminals
-                ['kitty', '--title=ArchRiot Update', '-e', 'bash', '-c',
-                 f'echo "Starting ArchRiot update..."; {update_command}; echo "Update complete. Press Enter to close."; read'],
+            try:
+                # Use hyprctl dispatch exec to launch exactly like SUPER+SHIFT+ENTER
+                result = subprocess.run(['hyprctl', 'dispatch', 'exec', terminal_cmd],
+                                      capture_output=True, text=True, timeout=10)
 
-                ['alacritty', '--title=ArchRiot Update', '-e', 'bash', '-c',
-                 f'echo "Starting ArchRiot update..."; {update_command}; echo "Update complete. Press Enter to close."; read'],
+                if result.returncode == 0:
+                    print("Successfully launched update terminal via hyprctl dispatch")
+                else:
+                    raise Exception(f"hyprctl dispatch failed: {result.stderr}")
+            except Exception as e:
+                raise Exception(f"Failed to launch terminal via hyprctl: {e}")
 
-                # Generic fallback
-                ['xterm', '-title', 'ArchRiot Update', '-e', 'bash', '-c',
-                 f'echo "Starting ArchRiot update..."; {update_command}; echo "Update complete. Press Enter to close."; read']
-            ]
-
-            launched = False
-            for cmd in terminal_commands:
-                try:
-                    subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    launched = True
-                    break
-                except FileNotFoundError:
-                    continue
-
-            if not launched:
-                # Last resort: show command in a dialog
-                dialog = Gtk.MessageDialog(
-                    parent=self.window,
-                    type=Gtk.MessageType.INFO,
-                    buttons=Gtk.ButtonsType.OK,
-                    message_format="Please run this command in your terminal:"
-                )
-                dialog.format_secondary_text(update_command)
-                dialog.run()
-                dialog.destroy()
-
-            # Close the update dialog
-            self.remove_lock_file()
-            Gtk.main_quit()
+            # Keep dialog open briefly to show success
+            print("Update terminal launched successfully")
+            GLib.timeout_add_seconds(2, lambda: (self.remove_lock_file(), Gtk.main_quit()))
 
         except Exception as e:
             print(f"Error launching update: {e}")
-            # Show error dialog
-            dialog = Gtk.MessageDialog(
+            # Show error dialog but keep update dialog open
+            error_dialog = Gtk.MessageDialog(
                 parent=self.window,
                 type=Gtk.MessageType.ERROR,
                 buttons=Gtk.ButtonsType.OK,
-                message_format="Error launching update"
+                message_format="Failed to launch update terminal"
             )
-            dialog.format_secondary_text(f"Please manually run: {update_command}")
-            dialog.run()
-            dialog.destroy()
+            error_dialog.format_secondary_text(f"Error: {e}\n\nPlease manually run:\n{update_command}")
+            error_dialog.run()
+            error_dialog.destroy()
+            # Don't close the main dialog, let user try again or close manually
 
     def on_ignore_clicked(self, button):
         """Handle ignore button click - disable future notifications"""
