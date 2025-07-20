@@ -184,8 +184,8 @@ fi
 
 # File Manager (renamed from Thunar File Manager)
 if [[ -f "$script_dir/../../applications/thunar.desktop" ]]; then
-  cp "$script_dir/../../applications/thunar.desktop" ~/.local/share/applications/file-manager.desktop
-  echo "✓ File Manager desktop file installed"
+  cp "$script_dir/../../applications/thunar.desktop" ~/.local/share/applications/thunar.desktop
+  echo "✓ File Manager desktop file installed (overwriting original)"
 fi
 
 # Removable Drives (shortened from Removable Drives and Media)
