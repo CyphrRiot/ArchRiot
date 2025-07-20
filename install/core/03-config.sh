@@ -38,28 +38,16 @@ setup_environment() {
     create_unified_backup
 }
 
-# Unified backup system - replaces scattered backup approaches
+# Unified backup system - single overwriting backup
 create_unified_backup() {
-    local backup_root="$HOME/.config/archriot/backups"
-    local backup_date=$(date +%Y-%m-%d)
-    local backup_dir="$backup_root/$backup_date"
+    local backup_dir="$HOME/.archriot/backups"
 
-    # Only create one backup per day to avoid clutter
-    if [[ -d "$backup_dir" ]]; then
-        echo "✓ Using existing backup from today: $backup_dir"
-        echo "$backup_dir" > /tmp/archriot-config-backup
-        return 0
-    fi
-
-    # Create new backup for today
     if [[ -d ~/.config ]]; then
-        mkdir -p "$backup_root"
-        echo "📦 Creating daily backup: $backup_dir"
+        echo "📦 Creating backup (overwriting previous): $backup_dir"
+        rm -rf "$backup_dir" 2>/dev/null || true
+        mkdir -p "$(dirname "$backup_dir")"
         cp -R ~/.config "$backup_dir" && echo "$backup_dir" > /tmp/archriot-config-backup
         echo "✓ Backup created at: $backup_dir"
-
-        # Clean up old backups (keep only latest)
-        find "$backup_root" -maxdepth 1 -type d -name "20*-*-*" ! -path "$backup_dir" -exec rm -rf {} \; 2>/dev/null || true
     fi
 }
 

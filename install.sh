@@ -447,4 +447,12 @@ echo "  • System validation: validate-system"
 echo "  • Performance analysis: performance-analysis"
 echo ""
 
+# Show backup location if backup was created
+if [[ -f /tmp/archriot-config-backup ]]; then
+    local backup_location=$(cat /tmp/archriot-config-backup)
+    echo "📦 Your previous configuration files were backed up to:"
+    echo "   $backup_location"
+    echo ""
+fi
+
 gum confirm "Reboot to apply all settings?" && reboot
