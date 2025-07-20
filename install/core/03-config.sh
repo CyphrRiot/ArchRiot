@@ -101,13 +101,11 @@ install_configs() {
             local bookmarks_file="$target/bookmarks"
             if [[ ! -f "$bookmarks_file" ]]; then
                 echo "📁 Creating default Thunar bookmarks"
-                cat > "$bookmarks_file" << EOF
-file://$HOME/Downloads Downloads
-file://$HOME/Documents Documents
-file://$HOME/Pictures Pictures
-file://$HOME/Music Music
-file://$HOME/Videos Videos
-EOF
+                echo "file://${HOME}/Downloads Downloads" > "$bookmarks_file"
+                echo "file://${HOME}/Documents Documents" >> "$bookmarks_file"
+                echo "file://${HOME}/Pictures Pictures" >> "$bookmarks_file"
+                echo "file://${HOME}/Music Music" >> "$bookmarks_file"
+                echo "file://${HOME}/Videos Videos" >> "$bookmarks_file"
             else
                 echo "✓ Preserved existing Thunar bookmarks"
             fi
