@@ -17,9 +17,8 @@ install_hyprland_configs() {
         # Focus on hypr configs needed for desktop setup
         if [[ "$basename" == "hypr" ]]; then
             if [[ -e "$target" ]]; then
-                # Back up existing config before replacing
-                echo "📦 Backing up existing config: $basename"
-                cp -R "$target" "$target.backup-$(date +%Y%m%d-%H%M%S)" 2>/dev/null || true
+                # Remove existing config (backup already created by consolidated system)
+                echo "📦 Replacing existing config: $basename"
                 rm -rf "$target"
             fi
             # Install fresh ArchRiot config

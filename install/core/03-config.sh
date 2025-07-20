@@ -58,8 +58,8 @@ create_unified_backup() {
         cp -R ~/.config "$backup_dir" && echo "$backup_dir" > /tmp/archriot-config-backup
         echo "✓ Backup created at: $backup_dir"
 
-        # Clean up old backups (keep last 7 days)
-        find "$backup_root" -maxdepth 1 -type d -name "20*-*-*" -mtime +7 -exec rm -rf {} \; 2>/dev/null || true
+        # Clean up old backups (keep only latest)
+        find "$backup_root" -maxdepth 1 -type d -name "20*-*-*" ! -path "$backup_dir" -exec rm -rf {} \; 2>/dev/null || true
     fi
 }
 
@@ -133,11 +133,10 @@ EOF
             cp -R "$item" "$target" || return 1
             echo "✓ Installed new config: $basename"
         else
-            # Backup existing and install ArchRiot version
-            local backup_target="$target.user-backup-$(date +%s)"
-            mv "$target" "$backup_target" 2>/dev/null || true
+            # Remove existing and install ArchRiot version (backup already created)
+            rm -rf "$target" 2>/dev/null || true
             cp -R "$item" "$target" || return 1
-            echo "✓ Force installed ArchRiot config: $basename (backup: $(basename "$backup_target"))"
+            echo "✓ Force installed ArchRiot config: $basename"
         fi
     done
 
