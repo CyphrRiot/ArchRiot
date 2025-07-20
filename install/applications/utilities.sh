@@ -100,18 +100,32 @@ fi
 
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
-hidden_dir="$HOME/.local/share/archriot/applications/hidden"
+echo "DEBUG: script_dir = $script_dir"
+echo "DEBUG: PWD = $(pwd)"
+hidden_dir="$script_dir/../../applications/hidden"
+echo "DEBUG: hidden_dir = $hidden_dir"
+echo "DEBUG: hidden_dir resolved = $(readlink -f "$hidden_dir" 2>/dev/null || echo "FAILED TO RESOLVE")"
+echo "DEBUG: Directory exists? $(test -d "$hidden_dir" && echo "YES" || echo "NO")"
 if [[ -d "$hidden_dir" ]]; then
+  echo "DEBUG: Files in hidden_dir:"
+  ls -la "$hidden_dir"
   # Force copy all hidden desktop files to suppress system ones
   for hidden_file in "$hidden_dir"/*.desktop; do
     if [[ -f "$hidden_file" ]]; then
+      echo "DEBUG: Copying $hidden_file to $HOME/.local/share/applications/"
       cp "$hidden_file" "$HOME/.local/share/applications/"
+      echo "DEBUG: Copy result: $?"
     fi
   done
   hidden_count=$(find "$hidden_dir" -name "*.desktop" 2>/dev/null | wc -l)
   echo "✓ $hidden_count hidden applications installed"
 else
   echo "⚠ Hidden applications directory not found at: $hidden_dir"
+  echo "DEBUG: Let's see what's around here:"
+  echo "DEBUG: Contents of $script_dir:"
+  ls -la "$script_dir" 2>/dev/null || echo "script_dir doesn't exist"
+  echo "DEBUG: Contents of $script_dir/../..:"
+  ls -la "$script_dir/../.." 2>/dev/null || echo "parent dir doesn't exist"
 fi
 
 # Install iwgtk desktop file with better name and icon
@@ -125,7 +139,7 @@ fi
 
 # Copy icons for applications (critical for missing icons issue)
 echo "🎨 Installing application icons..."
-icons_dir="$HOME/.local/share/archriot/applications/icons"
+icons_dir="$script_dir/../../applications/icons"
 if [[ -d "$icons_dir" ]]; then
     mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"
     for icon_file in "$icons_dir"/*.png; do
