@@ -126,21 +126,35 @@ show_summary() {
 restart_waybar() {
     echo "🔄 Restarting waybar with new configuration..."
 
-    # Kill existing waybar if running
+    # Kill existing waybar processes more thoroughly
     pkill -f waybar 2>/dev/null || true
-    sleep 1
+    killall waybar 2>/dev/null || true
+    sleep 2
+
+    # Ensure waybar is completely stopped
+    local attempts=0
+    while pgrep -f waybar >/dev/null && [ $attempts -lt 5 ]; do
+        echo "⏳ Waiting for waybar to stop..."
+        pkill -9 waybar 2>/dev/null || true
+        sleep 1
+        ((attempts++))
+    done
 
     # Start waybar if we're in a graphical session
     if [[ -n "$WAYLAND_DISPLAY" ]] || [[ -n "$DISPLAY" ]]; then
-        setsid waybar >/dev/null 2>&1 &
-        echo "✓ Waybar restarted with new configuration"
+        echo "🚀 Starting waybar with new configuration..."
+        # Use nohup to properly detach from installation process
+        nohup waybar </dev/null >/dev/null 2>&1 &
 
-        # Brief verification that waybar started
-        sleep 2
+        # Wait longer for waybar to initialize
+        sleep 3
+
+        # Verify waybar started successfully
         if pgrep -f waybar >/dev/null; then
             echo "✓ Waybar is running successfully"
         else
-            echo "⚠ Waybar may not have started properly (this is normal during installation)"
+            echo "⚠ Waybar failed to start - try: waybar &"
+            echo "🔍 Check waybar config: waybar --log-level debug"
         fi
     else
         echo "ℹ No graphical session detected - waybar will start on next login"

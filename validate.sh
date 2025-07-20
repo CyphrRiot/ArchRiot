@@ -302,7 +302,7 @@ test_package_availability() {
     local critical_packages=(
         "hyprland"
         "waybar"
-        "ghostty"
+        "ghostty-git"
         "fish"
         "git"
         "curl"
@@ -321,7 +321,7 @@ test_package_availability() {
 
     # Test AUR packages (if yay is available)
     if command -v yay &>/dev/null; then
-        local aur_packages=("bibata-cursor-theme" "ghostty-shell-integration")
+        local aur_packages=("bibata-cursor-theme" "ghostty-shell-integration-git")
         for package in "${aur_packages[@]}"; do
             if yay -Ss "^$package$" &>/dev/null; then
                 print_status "PASS" "AUR package available: $package"
