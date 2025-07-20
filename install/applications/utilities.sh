@@ -100,7 +100,7 @@ fi
 
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
-hidden_dir="$script_dir/../../applications/hidden"
+hidden_dir="$HOME/.local/share/archriot/applications/hidden"
 if [[ -d "$hidden_dir" ]]; then
   # Force copy all hidden desktop files to suppress system ones
   for hidden_file in "$hidden_dir"/*.desktop; do
@@ -125,7 +125,7 @@ fi
 
 # Copy icons for applications (critical for missing icons issue)
 echo "🎨 Installing application icons..."
-icons_dir="$script_dir/../../applications/icons"
+icons_dir="$HOME/.local/share/archriot/applications/icons"
 if [[ -d "$icons_dir" ]]; then
     mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"
     for icon_file in "$icons_dir"/*.png; do
