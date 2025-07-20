@@ -112,6 +112,12 @@ done
 
 # Install hidden applications to suppress unwanted launchers
 echo "🙈 Installing hidden applications..."
+
+# FIX: Ensure user owns all files in applications directory
+echo "🔧 Fixing file ownership in applications directory..."
+sudo chown -R "$USER:$USER" "$HOME/.local/share/applications/" 2>/dev/null || true
+chmod -R u+w "$HOME/.local/share/applications/"*.desktop 2>/dev/null || true
+
 hidden_dir="$script_dir/../../applications/hidden"
 if [[ -d "$hidden_dir" ]]; then
   # Force copy all hidden desktop files to suppress system ones
@@ -192,6 +198,11 @@ if [[ -f "$script_dir/../../bin/upgrade-system" ]]; then
 else
   echo "⚠ ArchRiot upgrade-system script not found in repository bin"
 fi
+
+# FINAL FIX: Ensure all files are owned by user
+echo "🔧 Final ownership fix for all application files..."
+sudo chown -R "$USER:$USER" "$HOME/.local/share/applications/" 2>/dev/null || true
+sudo chown -R "$USER:$USER" "$HOME/.local/share/icons/" 2>/dev/null || true
 
 # Force update desktop database multiple times to ensure changes take effect
 echo "🔄 Updating desktop database..."
