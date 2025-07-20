@@ -116,6 +116,41 @@ else
   echo "⚠ WiFi Manager desktop file not found in repository"
 fi
 
+# Install custom renamed desktop files with shorter names
+echo "✂️ Installing custom desktop files with cleaner names..."
+
+# Clean up any conflicting desktop files from previous installs
+echo "🧹 Cleaning up conflicting desktop files from previous installs..."
+rm -f ~/.local/share/applications/gnome-system-monitor-kde.desktop
+rm -f ~/.local/share/applications/mpv.desktop
+rm -f ~/.local/share/applications/thunar.desktop
+rm -f ~/.local/share/applications/thunar-volman-settings.desktop
+echo "✓ Old conflicting desktop files removed"
+
+# System Monitor (renamed from GNOME System Monitor)
+if [[ -f "$script_dir/../../applications/gnome-system-monitor-kde.desktop" ]]; then
+  cp "$script_dir/../../applications/gnome-system-monitor-kde.desktop" ~/.local/share/applications/system-monitor.desktop
+  echo "✓ System Monitor desktop file installed"
+fi
+
+# Media Player (renamed from mpv Media Player)
+if [[ -f "$script_dir/../../applications/mpv.desktop" ]]; then
+  cp "$script_dir/../../applications/mpv.desktop" ~/.local/share/applications/media-player.desktop
+  echo "✓ Media Player desktop file installed"
+fi
+
+# File Manager (renamed from Thunar File Manager)
+if [[ -f "$script_dir/../../applications/thunar.desktop" ]]; then
+  cp "$script_dir/../../applications/thunar.desktop" ~/.local/share/applications/file-manager.desktop
+  echo "✓ File Manager desktop file installed"
+fi
+
+# Removable Drives (shortened from Removable Drives and Media)
+if [[ -f "$script_dir/../../applications/thunar-volman-settings.desktop" ]]; then
+  cp "$script_dir/../../applications/thunar-volman-settings.desktop" ~/.local/share/applications/
+  echo "✓ Removable Drives desktop file installed"
+fi
+
 # Install ArchRiot upgrade-system script
 echo "🚀 Installing ArchRiot upgrade-system utility..."
 local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
