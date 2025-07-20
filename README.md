@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.55-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.58-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -25,7 +25,7 @@
 
 </div>
 
-## **ArchRiot: A Modern & Beautiful Arch Linux System**
+## **ArchRiot: A Modern & Beautiful, Opinionated Arch Linux System**
 
 ArchRiot is a lean, privacy-and-beauty-first Arch Linux setup that spins up a usable, functional, and fast environment in one command. It's built around the Hyprland tiling window manager -- fast, keyboard-driven, and no bullshit.
 
@@ -115,7 +115,7 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 Want confidence before installing? Run the validation script to test compatibility:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate.sh | bash
 ```
 
 This comprehensive test validates:
@@ -608,7 +608,7 @@ After fresh installation, you should see:
 Before installing, you can run a comprehensive validation script:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate-installation.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate.sh | bash
 ```
 
 **What it tests:**

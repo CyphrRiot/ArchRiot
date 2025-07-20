@@ -8,54 +8,62 @@ install_fonts() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install system fonts via package manager
-    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-hack-nerd ttf-jetbrains-mono-nerd ttf-cascadia-mono-nerd"
+    local system_fonts="ttf-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-liberation ttf-hack-nerd ttf-jetbrains-mono-nerd ttf-cascadia-mono-nerd ttf-ia-writer"
     yay -S --noconfirm --needed $system_fonts || echo "⚠ Some system fonts may have failed"
 
     echo "✓ System fonts installed"
 }
 
-# Download and install programming fonts
+# Additional programming fonts (if needed in future)
 install_programming_fonts() {
-    echo "💻 Installing programming fonts..."
-
-    mkdir -p ~/.local/share/fonts
-
-    # Install iA Writer Mono fonts
-    if ! fc-list | grep -qi "iA Writer Mono"; then
-        echo "⬇️  Downloading iA Writer fonts..."
-        local temp_dir="/tmp/iawriter-$$"
-        mkdir -p "$temp_dir"
-
-        if wget -q "https://github.com/iaolo/iA-Fonts/archive/refs/heads/master.zip" -O "$temp_dir/iafonts.zip" &&
-           cd "$temp_dir" && unzip -q iafonts.zip &&
-           find . -name "iAWriterMonoS-*.ttf" -exec cp {} ~/.local/share/fonts/ \;; then
-            echo "✓ iA Writer Mono fonts installed"
-        else
-            echo "⚠ iA Writer fonts installation failed"
-        fi
-        rm -rf "$temp_dir"
-    fi
+    echo "💻 Checking programming fonts..."
+    echo "✓ iA Writer fonts installed via AUR package"
 }
 
 # Refresh cache and validate
 finalize_fonts() {
     echo "🔄 Finalizing font installation..."
 
-    # Refresh font cache
-    command -v fc-cache >/dev/null && fc-cache -f ~/.local/share/fonts 2>/dev/null
+    # Comprehensive font cache refresh
+    echo "🔄 Refreshing system font cache..."
 
-    # Quick validation
-    local issues=0
-    fc-list | grep -qi "noto" || ((issues++))
-    fc-list | grep -qi "font awesome" || ((issues++))
-
-    if [[ $issues -eq 0 ]]; then
-        echo "✓ Essential fonts validated"
-    else
-        echo "⚠ $issues font issues detected"
+    # Refresh user font cache
+    if command -v fc-cache >/dev/null; then
+        fc-cache -f ~/.local/share/fonts 2>/dev/null || true
+        fc-cache -fv 2>/dev/null || true
+        echo "✓ User font cache refreshed"
     fi
 
-    echo "✓ Font cache refreshed"
+    # Refresh system font cache (if possible)
+    if sudo -n true 2>/dev/null; then
+        sudo fc-cache -f 2>/dev/null || true
+        echo "✓ System font cache refreshed"
+    fi
+
+    # Update fontconfig cache
+    fc-cache --system-only 2>/dev/null || true
+    fc-cache --really-force 2>/dev/null || true
+
+    # Force reload for current session
+    hash -r 2>/dev/null || true
+
+    # Enhanced validation with detailed feedback
+    echo "🧪 Validating font installation..."
+    local issues=0
+
+    fc-list | grep -qi "noto" || { echo "⚠ Noto fonts missing"; ((issues++)); }
+    fc-list | grep -qi "font awesome" || { echo "⚠ Font Awesome missing"; ((issues++)); }
+    fc-list | grep -qi "jetbrains" || { echo "⚠ JetBrains fonts missing"; ((issues++)); }
+    fc-list | grep -qi "ia writer\|iawriter" || { echo "⚠ iA Writer fonts missing"; ((issues++)); }
+
+    if [[ $issues -eq 0 ]]; then
+        echo "✓ All essential fonts validated and available"
+    else
+        echo "⚠ $issues font validation issues detected"
+        echo "💡 Try restarting applications to refresh font cache"
+    fi
+
+    echo "✓ Font cache refresh complete"
 }
 
 # Display summary
@@ -63,7 +71,7 @@ show_summary() {
     echo ""
     echo "🎉 Font installation complete!"
     echo ""
-    echo "📝 Installed: Noto fonts, Font Awesome icons, Hack Nerd Font, JetBrainsMono Nerd Font, Cascadia Mono Nerd Font, iA Writer Mono"
+    echo "📝 Installed: Noto fonts, Font Awesome icons, Hack Nerd Font, JetBrainsMono Nerd Font, Cascadia Mono Nerd Font, iA Writer fonts"
     echo "💡 Usage: Terminal fonts available, restart apps to use new fonts"
 }
 

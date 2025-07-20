@@ -45,6 +45,9 @@ setup_hyprland_packages() {
     local utilities="waybar fuzzel mako swaybg hyprlock hypridle swayosd grim slurp hyprshot hyprpicker hyprland-qtutils kooha gst-libav gst-plugins-ugly x264"
     yay -S --noconfirm --needed $utilities || echo "⚠ Some Hyprland utilities may have failed"
 
+    # Display management GUI
+    yay -S --noconfirm --needed nwg-displays || echo "⚠ nwg-displays installation failed"
+
     # Python dependencies
     yay -S --noconfirm --needed python python-psutil || return 1
     python3 -c "import psutil" || return 1
@@ -124,6 +127,68 @@ restart_waybar() {
 }
 
 # Touchpad configuration is now handled in the base hyprland.conf
+# Setup VM-specific scaling configuration
+setup_vm_scaling() {
+    echo "🖥️ Configuring display scaling for current environment..."
+
+    # Detect if running in a virtual machine
+    local virt_type="none"
+    if command -v systemd-detect-virt >/dev/null 2>&1; then
+        virt_type=$(systemd-detect-virt 2>/dev/null || echo "none")
+    fi
+
+    local monitors_conf="$HOME/.config/hypr/monitors.conf"
+
+    # Generate appropriate scaling based on environment
+    if [[ "$virt_type" != "none" ]]; then
+        echo "🖥️ Virtual machine detected ($virt_type) - applying VM-optimized scaling"
+        cat > "$monitors_conf" << 'EOF'
+# See https://wiki.hyprland.org/Configuring/Monitors/
+
+# VM-optimized scaling for better visibility
+# Change to 1 if display appears too large, or 1.5 for even larger scaling
+env = GDK_SCALE,1.25
+
+# Use single default monitor with VM-optimized scaling
+# Format: monitor = [port], resolution, position, scale
+monitor=,preferred,auto,1.25
+
+# Alternative scaling options for VMs:
+# monitor=,preferred,auto,1.0    # Normal scaling (may be small)
+# monitor=,preferred,auto,1.5    # Larger scaling for high-DPI VM displays
+
+# Example for specific VM resolutions:
+# monitor=,1920x1080@60.00, auto, 1.25
+# monitor=,2560x1440@60.00, auto, 1.5
+EOF
+        echo "✓ VM-optimized display scaling configured (1.25x)"
+    else
+        echo "🖥️ Physical hardware detected - applying standard scaling"
+        cat > "$monitors_conf" << 'EOF'
+# See https://wiki.hyprland.org/Configuring/Monitors/
+
+# Physical hardware scaling
+# Change to 1.25 or 1.5 for fractional scaling on high-DPI displays
+env = GDK_SCALE,1
+
+# Use single default monitor (see all monitors with: hyprctl monitors)
+# Format: monitor = [port], resolution, position, scale
+monitor=,preferred,auto,1.0
+
+# Example for fractional scaling on high-DPI displays:
+# env = GDK_SCALE,1.75
+# monitor=,preferred,auto,1.666667
+
+# Example multi-monitor setup:
+# monitor = DP-5, 6016x3384@60.00, auto, 2
+# monitor = eDP-1, 2880x1920@120.00, auto, 2
+EOF
+        echo "✓ Standard display scaling configured (1.0x)"
+    fi
+
+    echo "✓ Display scaling configuration complete"
+}
+
 # No post-processing needed to avoid config corruption
 
 # Main execution
@@ -132,6 +197,7 @@ main() {
 
     install_hyprland_configs || return 1
     setup_hyprland_packages || return 1
+    setup_vm_scaling || return 1
     validate_installation || return 1
     configure_hyprland
 
