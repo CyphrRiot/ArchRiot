@@ -28,11 +28,11 @@ class WelcomeWindow:
             monitor = display.get_primary_monitor()
             if monitor:
                 geometry = monitor.get_geometry()
-                window_height = min(int(geometry.height * 0.75), 650)  # Max 650px or 75% of screen
+                window_height = min(int(geometry.height * 0.65), 550)  # Max 550px or 65% of screen
             else:
-                window_height = 650  # fallback
+                window_height = 550  # fallback
         except:
-            window_height = 650  # fallback
+            window_height = 550  # fallback
         self.window.set_default_size(800, window_height)
 
         # Create main container
