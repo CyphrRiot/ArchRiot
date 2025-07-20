@@ -110,10 +110,10 @@ for app in "${custom_apps[@]}"; do
   fi
 done
 
-# Hide duplicate system applications and install clean renamed versions
-echo "🙈 Hiding duplicate system applications..."
+# Replicate exact working local system setup
+echo "🎯 Installing applications exactly like working local system..."
 
-# Hide all System Monitor duplicates
+# Hide ALL system monitor duplicates with NoDisplay=true (matches local working system)
 echo '[Desktop Entry]
 NoDisplay=true' > ~/.local/share/applications/gnome-system-monitor-kde.desktop
 
@@ -123,12 +123,22 @@ NoDisplay=true' > ~/.local/share/applications/org.gnome.SystemMonitor.desktop
 echo '[Desktop Entry]
 NoDisplay=true' > ~/.local/share/applications/btop.desktop
 
-# Install our clean renamed System Monitor
+# Install our clean renamed System Monitor (matches local working system)
 if [[ -f "$script_dir/../../applications/system-monitor.desktop" ]]; then
   cp "$script_dir/../../applications/system-monitor.desktop" ~/.local/share/applications/
   echo "✓ System Monitor (clean renamed version) installed"
 else
   echo "⚠ System Monitor desktop file not found"
+fi
+
+# Fix disk space issues that cause 0-byte icon files
+echo "💾 Checking disk space before copying icons..."
+available_space=$(df ~/.local/share/icons/ | tail -1 | awk '{print $4}')
+if [[ $available_space -lt 100000 ]]; then
+  echo "⚠ Low disk space detected. Cleaning up..."
+  sudo pacman -Scc --noconfirm 2>/dev/null || true
+  sudo journalctl --vacuum-time=7d 2>/dev/null || true
+  echo "✓ Disk cleanup completed"
 fi
 
 # Install iwgtk desktop file with better name and icon
@@ -140,17 +150,21 @@ else
   echo "⚠ WiFi Manager desktop file not found in repository"
 fi
 
-# Copy icons for applications (critical for missing icons issue)
-echo "🎨 Installing application icons..."
+# Copy icons for applications - ensure they're not 0-byte files
+echo "🎨 Installing application icons (preventing 0-byte corruption)..."
 icons_dir="$script_dir/../../applications/icons"
 if [[ -d "$icons_dir" ]]; then
     mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"
     for icon_file in "$icons_dir"/*.png; do
-        if [[ -f "$icon_file" ]]; then
+        if [[ -f "$icon_file" && -s "$icon_file" ]]; then
+            # Only copy non-empty icon files
             cp "$icon_file" "$HOME/.local/share/icons/hicolor/256x256/apps/"
+            echo "✓ Copied $(basename "$icon_file")"
+        elif [[ -f "$icon_file" ]]; then
+            echo "⚠ Skipping empty icon file: $(basename "$icon_file")"
         fi
     done
-    echo "✓ Application icons installed"
+    echo "✓ Application icons installed (0-byte files prevented)"
 fi
 
 # Install custom renamed desktop files with shorter names
@@ -191,12 +205,16 @@ else
   echo "⚠ ArchRiot upgrade-system script not found in repository bin"
 fi
 
-# FINAL FIX: Ensure all files are owned by user
-echo "🔧 Final ownership fix for all application files..."
+# FINAL FIX: Ensure all files are owned by user and icons work
+echo "🔧 Final ownership and icon cache fixes..."
 sudo chown -R "$USER:$USER" "$HOME/.local/share/applications/" 2>/dev/null || true
 sudo chown -R "$USER:$USER" "$HOME/.local/share/icons/" 2>/dev/null || true
 
+# Critical: Update icon cache so custom icons are found
+gtk-update-icon-cache -f "$HOME/.local/share/icons/hicolor/" 2>/dev/null || true
+
 echo "✓ Duplicate applications hidden, clean versions installed"
+echo "✓ Icon cache updated - custom icons should now work"
 
 # Force update desktop database multiple times to ensure changes take effect
 echo "🔄 Updating desktop database..."

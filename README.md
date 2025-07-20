@@ -52,27 +52,27 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 **Quick Navigation:**
 
-1. **[Installation](#installation)**
+1. [Installation](#installation)
     - [Prerequisites: Fresh Arch Linux Setup](#prerequisites-fresh-arch-linux-setup)
     - [Method 1: One-Line Install](#method-1-one-line-install-or-upgrade-recommended-for-most-users)
     - [Method 2: Manual Clone](#method-2-manual-clone-only-if-you-need-to-customize-installation-scripts)
     - [Pre-Installation Validation](#optional-pre-installation-validation)
 
-2. **[Installation Features](#installation-features)**
+2. [Installation Features](#installation-features)
 
-3. **[What's New](#whats-new)**
+3. [What's New](#whats-new)
 
-4. **[Built-in Backup & Recovery](#built-in-backup--recovery-with-migrate)**
+4. [Built-in Backup & Recovery](#built-in-backup--recovery-with-migrate)
     - [Why Migrate Matters](#why-migrate-matters) • [Quick Start](#quick-start)
 
-5. **[Essential Commands](#essential-commands)**
+5. [Essential Commands](#essential-commands)
     - [Getting Started](#getting-started) • [Window Management](#window-management-most-used) • [Core Applications](#core-applications)
     - [Communication & Social](#communication--social) • [Screenshots & Recording](#screenshots--recording)
     - [Theme & Appearance](#theme--appearance) • [System Management](#essential-system-management)
     - [Audio & Media](#audio--media) • [Waybar Controls](#waybar-controls-status-bar)
     - [Fix Scripts](#fix-scripts-if-needed) • [Troubleshooting](#troubleshooting)
 
-6. **[Key Customizations](#key-customizations)**
+6. [Key Customizations](#key-customizations)
 
 ## 🚀 Installation
 
