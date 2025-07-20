@@ -23,9 +23,8 @@ fish_add_path --prepend $HOME/.local/bin
 # Graphics Environment Configuration
 # =============================================================================
 
-# Fix GTK rendering artifacts in Thunar and other applications
-# Force software rendering to avoid OpenGL hardware acceleration bugs
-set -gx LIBGL_ALWAYS_SOFTWARE 1
+# Graphics configuration moved to ~/.config/environment.d/graphics.conf
+# Software rendering breaks Intel graphics - use hardware acceleration by default
 
 # Git Prompt Configuration
 set -g __fish_git_prompt_showdirtystate yes
