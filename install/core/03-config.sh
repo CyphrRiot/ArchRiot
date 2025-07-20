@@ -215,6 +215,25 @@ setup_scripts_and_env() {
         echo "⚠ Welcome script not found"
     fi
 
+    # Install version check scripts
+    local version_check_script="$HOME/.local/share/archriot/bin/version-check"
+    if [[ -f "$version_check_script" ]]; then
+        cp "$version_check_script" "$script_dest/"
+        chmod +x "$script_dest/version-check"
+        echo "✓ Version check script installed"
+    else
+        echo "⚠ Version check script not found"
+    fi
+
+    local version_dialog_script="$HOME/.local/share/archriot/bin/version-update-dialog"
+    if [[ -f "$version_dialog_script" ]]; then
+        cp "$version_dialog_script" "$script_dest/"
+        chmod +x "$script_dest/version-update-dialog"
+        echo "✓ Version update dialog script installed"
+    else
+        echo "⚠ Version update dialog script not found"
+    fi
+
     # Install performance analysis tools
     local performance_tools=(
         "performance-analysis"
@@ -235,6 +254,27 @@ setup_scripts_and_env() {
     done
 
     echo "✓ Scripts and environment configured"
+
+    # Install systemd version check service
+    local systemd_user_dir="$HOME/.config/systemd/user"
+    local service_source="$HOME/.local/share/archriot/config/systemd/user"
+
+    mkdir -p "$systemd_user_dir"
+
+    if [[ -f "$service_source/version-check.service" ]] && [[ -f "$service_source/version-check.timer" ]]; then
+        cp "$service_source/version-check.service" "$systemd_user_dir/"
+        cp "$service_source/version-check.timer" "$systemd_user_dir/"
+
+        # Reload systemd and enable the timer
+        systemctl --user daemon-reload
+        systemctl --user enable version-check.timer
+        systemctl --user start version-check.timer
+
+        echo "✓ Version check systemd timer installed and enabled"
+        echo "🔄 Automatic update notifications will check every 4 hours"
+    else
+        echo "⚠ Version check systemd files not found"
+    fi
 
     # Install welcome image from repository
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

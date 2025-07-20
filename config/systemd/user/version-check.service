@@ -1,0 +1,9 @@
+[Unit]
+Description=ArchRiot Version Check
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/version-check
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=%t

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.58-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.59-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -115,7 +115,8 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 Want confidence before installing? Run the validation script to test compatibility:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate.sh | bash
+wget https://cyphrriot.github.io/ArchRiot/validate.sh
+bash validate.sh
 ```
 
 This comprehensive test validates:
@@ -151,6 +152,7 @@ This comprehensive test validates:
 **Previous Major Improvements**
 
 - 🚀 **Faster System Updates** - New `upgrade-system` command with better progress tracking and error handling
+- 🔄 **Automatic Update Notifications** - Built-in version checking with periodic notifications for new releases
 - 🎯 **Smart App Launching** - SUPER+G intelligently opens or focuses Signal and other applications
 - 🎨 **Visual Polish** - Fixed fonts and improved consistency across all interfaces
 - 📱 **Better Status Bar** - Enhanced Waybar with improved modules and transparency
@@ -247,8 +249,8 @@ Kooha                                # GUI screen recorder (launch from SUPER+D)
 
 ```bash
 theme-next                           # Switch to next theme
-SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
 SUPER + CTRL + SPACE                 # Cycle through backgrounds
+SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
 ```
 
 ### System Management
@@ -257,7 +259,7 @@ SUPER + CTRL + SPACE                 # Cycle through backgrounds
 upgrade-system                       # Optimized system upgrade utility (ArchRiot enhanced)
 upgrade-system --all --backup        # Full automated upgrade with backup
 upgrade-system --dry-run             # Preview available updates
-update                               # Basic system update (legacy)
+
 migrate                              # Backup/restore system (interactive TUI)
 sudo systemctl reboot                # Restart system
 sudo systemctl poweroff              # Shutdown system
@@ -424,8 +426,13 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 ### Updates
 
 ```bash
-update
+update                               # Manual system update (legacy)
+version-check --test                 # Check for available ArchRiot updates
+version-check --force                # Force update check (ignores timing)
+version-check --reset                # Reset update notification settings
 ```
+
+**Automatic Update Notifications**: ArchRiot now automatically checks for updates every 4 hours and shows a notification dialog when newer versions are available. You can install updates, ignore notifications, or simply close the dialog.
 
 Updates ArchRiot by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.
 

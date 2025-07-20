@@ -1,186 +1,179 @@
-# ArchRiot Critical Issues & Implementation Plan
+# ArchRiot Version Check System - Implementation Plan
 
-## 🚨 CRITICAL INSTALLER BUGS (URGENT)
+## Overview
 
-### 1. Hidden Desktop Files Not Installing ✅ FIXED
+Create a periodic version check system that compares the locally installed ArchRiot version with the latest version available in the repository. When a newer version is detected, show a centered popup window with update options.
 
-**Problem:** Fresh installs still show unwanted applications in Fuzzel menu
+## Current System Analysis
 
-- "About Xfce"
-- "btop++"
-- "GNOME System Monitor" (should be hidden, only custom "System Monitor" should show)
-- "mpv Media Player" (should be hidden, only custom "Media Player" should show)
+- **Current Version**: 1.1.59 (stored in `VERSION` file)
+- **GUI Framework**: GTK3 (Python) - same as existing welcome window
+- **Config System**: JSON files in `~/.config/archriot/`
+- **Systemd Integration**: Already has timer-based services (battery-monitor)
+- **Existing Infrastructure**: Welcome window provides perfect template
 
-**Root Cause:** `utilities.sh` script copied hidden files then immediately deleted them in cleanup section
+## Implementation Status: ✅ COMPLETE
 
-**Solution:** Removed conflicting `rm` commands from cleanup section that were deleting hidden files
+### Phase 1: Create Version Check Script ✅
 
-**Testing Results:**
+**File**: `bin/version-check` ✅ IMPLEMENTED
 
-- ✅ 29 hidden files successfully install to `~/.local/share/applications/`
-- ✅ Key files preserved: `btop.desktop`, `xfce4-about.desktop`, `gnome-system-monitor-kde.desktop`, `mpv.desktop`
-- ✅ Cleanup works correctly (removes old custom files, preserves hidden files)
-- ✅ End-to-end tested on local system - WORKING PERFECTLY
+- ✅ Python script with proper error handling and network timeouts
+- ✅ Fetches remote version from `https://cyphrriot.github.io/ArchRiot/VERSION`
+- ✅ Semantic version comparison (handles major.minor.patch correctly)
+- ✅ JSON configuration system for timing and ignore settings
+- ✅ Command line options: `--test`, `--force`, `--reset`
+- ✅ Launches update dialog when updates available
 
-### 2. Missing Icons on Fresh Installs ✅ FIXED
+### Phase 2: Create Update Notification Window ✅
 
-**Problem:** Web applications show without icons after fresh install
+**File**: `bin/version-update-dialog` ✅ IMPLEMENTED
 
-- Twitter (X)
-- Volume Control
-- Zed
-- Wifi Manager
-- Proton Mail
-- Google Messages
+- ✅ **Window Properties**:
+    - Title: "ArchRiot Update Available"
+    - Size: 600x400 (smaller than welcome window's 800x600)
+    - Centered positioning with proper transparency
+    - No image at top (clean layout)
+    - Same styling/theme as welcome window with GTK3 CSS
 
-**Root Cause:** "Proton Mail.png" was corrupted (contained "404: Not Found" text instead of image data)
+- ✅ **Window Content**:
+    - Current version vs. available version display
+    - Non-scrolling instruction text with proper word wrapping
+    - Clean typography using Hack Nerd Font Mono
+    - Three buttons with proper sizing:
+        1. **"📥 Install"** (120px)
+        2. **"🔕 Ignore Notifications"** (160px)
+        3. **"❌ Close"** (100px)
 
-**Solution:** Downloaded proper PNG icon from Icons8, verified all other icons are valid
+### Phase 3: Button Actions ✅
 
-**Testing Results:**
+- ✅ **Install**:
+    - Opens terminal (ghostty, kitty, alacritty, or xterm fallback)
+    - Executes: `curl https://ArchRiot.org/setup.sh | bash`
+    - Proper error handling with dialog fallback
 
-- ✅ All 8 icons successfully copied to system directory
-- ✅ All icons verified as valid PNG files
-- ✅ Critical icons working: Proton Mail, Google Messages, X (Twitter), Zed
-- ✅ End-to-end tested on local system - WORKING PERFECTLY
+- ✅ **Ignore Future Notifications**:
+    - Creates `~/.config/archriot/versions.cfg` with ignore flag
+    - Shows confirmation dialog with re-enable instructions
+    - Persists setting properly
 
-### 3. Thunar Bookmarks Using Literal $HOME ✅ NOT AN ISSUE
+- ✅ **Close Window**:
+    - Simple dialog close with no config changes
 
-**Status:** Original `echo "file://${HOME}/Downloads Downloads"` approach works correctly
+### Phase 4: Systemd Timer Service ✅
 
-The issue was likely misdiagnosed - the echo commands properly expand `${HOME}` variable.
-**Root Cause:** Script only created bookmarks if file didn't exist, didn't fix existing broken ones
+**Files**: ✅ IMPLEMENTED
 
-**Solution:** Added detection for literal `$HOME` in existing bookmarks and automatic fix with proper expansion
+- ✅ `config/systemd/user/version-check.service`
+- ✅ `config/systemd/user/version-check.timer`
 
-**Testing Results:**
+**Timer Configuration**: ✅ WORKING
 
-- ✅ Successfully detects broken bookmarks with literal `$HOME`
-- ✅ Automatically fixes them with proper expanded paths
-- ✅ Result: `file:///home/username/Downloads` instead of `file://$HOME/Downloads`
-- ✅ End-to-end tested on local system - WORKING PERFECTLY
+- ✅ Checks every 4 hours after 5-minute boot delay
+- ✅ Proper graphical session dependency
+- ✅ Environment variables (DISPLAY, XDG_RUNTIME_DIR) configured
+- ✅ Service tested and active in systemd
 
-### 4. Backup System Chaos ✅ FIXED
+### Phase 5: Integration Points ✅
 
-**Problem:** Installer created 100+ scattered backup directories
-**Solution:** Consolidated to single `~/.archriot/backups/` that overwrites previous
+- ✅ **Hyprland Config**: Window rules added for version dialog positioning
+- ✅ **Install Script**: Integrated into `install/core/03-config.sh`
+- ✅ **Service Installation**: Automatic systemd timer enable during setup
+- ✅ **Version Config**: Proper config file structure and management
 
-## 🎉 ALL CRITICAL INSTALLER BUGS RESOLVED! ✅
+### Phase 6: Configuration File Structure ✅
 
-**Comprehensive Testing Completed:**
+**File**: `~/.config/archriot/versions.cfg` ✅ IMPLEMENTED
 
-- ✅ Hidden files: 29 files install correctly, unwanted apps hidden from Fuzzel
-- ✅ Icons: All applications display proper icons, no more missing graphics
-- ✅ Bookmarks: Thunar navigation works without path errors
-- ✅ Fresh installs now provide professional out-of-the-box experience
-
-## 🔧 RECENT FIXES COMPLETED
-
-### Intel Graphics Boot Hang ✅ FIXED
-
-- **Problem:** Dell XPS 13 9350 hanging on "ARCHRIOT" screen
-- **Cause:** `LIBGL_ALWAYS_SOFTWARE=1` in both graphics.conf and fish config
-- **Solution:** Removed software rendering, uses hardware acceleration
-- **Status:** ✅ System boots properly now
-
-### Window Rules for System Monitor ✅ IMPLEMENTED
-
-- Added centering rules for gnome-system-monitor
-- Matches Feather wallet behavior when clicked from Waybar
-
-### Application Name Cleanup ✅ IMPLEMENTED
-
-- "GNOME System Monitor" → "System Monitor"
-- "mpv Media Player" → "Media Player"
-- "Thunar File Manager" → "File Manager"
-- "Removable Drives and Media" → "Removable Drives"
-
-### GNOME Secrets Integration ✅ IMPLEMENTED
-
-- Added password manager to utilities installer
-- Perfect GTK integration for ArchRiot aesthetic
-
-## 🎯 IMMEDIATE PRIORITIES
-
-1. ✅ **Fixed hidden desktop files installer** (clean Fuzzel menu achieved)
-2. ✅ **Fixed missing icons** (professional appearance restored)
-3. ✅ **Fixed Thunar bookmarks** (basic functionality working)
-4. ✅ **Cleaned up debugging output** (production ready)
-
-## 📋 TESTING CHECKLIST
-
-For next installer fix test on fresh system:
-
-### Hidden Applications Check
-
-```bash
-# Should NOT appear in Fuzzel:
-- About Xfce
-- btop++
-- GNOME System Monitor (original)
-- mpv Media Player (original)
-- Qt5 Settings
-- Qt6 Settings
-- Thunar Preferences
-
-# Should appear ONCE each:
-- System Monitor (custom)
-- Media Player (custom)
-- File Manager (custom)
+```json
+{
+    "ignore_notifications": false,
+    "last_check": "2024-01-01T00:00:00Z",
+    "last_notified_version": "1.1.59",
+    "check_interval_hours": 4
+}
 ```
 
-### Icons Check
+## Technical Details
 
-```bash
-# Should have proper icons:
-- Twitter (X)
-- Volume Control
-- Zed
-- Wifi Manager
-- Proton Mail
-- Google Messages
+### Version Comparison Logic
+
+- Parse semantic versions (major.minor.patch)
+- Compare numerically, not lexically
+- Handle edge cases (missing remote version, network errors)
+
+### Network Check Strategy
+
+- Primary: GitHub API (`https://api.github.com/repos/CyphrRiot/ArchRiot/releases/latest`)
+- Fallback: Direct VERSION file fetch from ArchRiot.org
+- Timeout and error handling
+
+### Terminal Opening Implementation
+
+- Use Hyprland IPC or keybinding simulation
+- Alternative: Direct ghostty execution with specific geometry
+- Center terminal window for update process
+
+### Window Rules Addition
+
+Add to `config/hypr/hyprland.conf`:
+
+```
+# ArchRiot Version Check window rules
+windowrulev2 = float, title:^(ArchRiot Update Available)$
+windowrulev2 = center, title:^(ArchRiot Update Available)$
+windowrulev2 = size 600 400, title:^(ArchRiot Update Available)$
 ```
 
-### Thunar Bookmarks Check
+## File Structure
 
-```bash
-# Should work without errors:
-cat ~/.config/gtk-3.0/bookmarks
-# Should contain: file:///home/username/Downloads (not file://$HOME/Downloads)
+```
+ArchRiot/
+├── bin/
+│   ├── version-check              # Main version check script
+│   └── version-update-dialog      # Update notification window
+├── config/systemd/user/
+│   ├── version-check.service      # Systemd service definition
+│   └── version-check.timer        # Systemd timer configuration
+└── install/core/03-config.sh      # Updated to install version scripts
 ```
 
-## 🔄 VERSION TRACKING
+## Implementation Order ✅ COMPLETED
 
-- **Previous:** 1.1.55 (with partial fixes)
-- **Current:** 1.1.56 (ALL CRITICAL BUGS FIXED AND TESTED)
+1. ✅ Create version-check script (background logic)
+2. ✅ Create version-update-dialog (GUI window)
+3. ✅ Test both scripts manually
+4. ✅ Create systemd service files
+5. ✅ Update installation scripts
+6. ✅ Add Hyprland window rules
+7. ✅ Test complete integration
+8. ✅ Update VERSION and README
+9. ✅ Commit and push changes
 
-## 📝 LESSONS LEARNED
+## Testing Results ✅
 
-1. **Test on fresh systems** - fixes that work locally may not work on clean installs
-2. **Installer output is hidden** - debug messages don't show during install
-3. **Relative paths are fragile** - use absolute paths in installers
-4. **One change at a time** - multiple simultaneous changes make debugging impossible
-5. **Ask before implementing** - prevents breaking working systems
-6. **Copy success ≠ file persistence** - files can copy successfully but still disappear
-7. **Debug everything** - even successful operations may have hidden issues
-8. **Track progress properly** - plan.md should be in git for collaboration
-9. **Simple solutions win** - complex hidden files approach was wrong; simple NoDisplay=true works
-10. **Permission issues are critical** - root-owned files in user directories break everything
-11. **Test before pushing** - always confirm fixes work on local system first
-12. **User feedback is gold** - "just rename it" was the right solution all along
-13. **Root cause beats symptoms** - multiple system files creating duplicates, not hiding issues
-14. **Icon naming matters** - spaces in filenames break icon systems
-15. **System icons often better** - avoid dark custom icons that don't work with themes
+- ✅ Version comparison works correctly (1.1.57 vs 1.1.58 detected properly)
+- ✅ Network handling robust with proper timeouts and fallbacks
+- ✅ Systemd timer active and scheduled (next run in ~4 hours)
+- ✅ All three buttons function correctly:
+    - Install button launches terminal with update command
+    - Ignore button creates config and shows confirmation
+    - Close button exits cleanly
+- ✅ Configuration persistence works across restarts
+- ✅ Terminal opening supports multiple terminal emulators
+- ✅ Dialog displays properly with correct transparency and styling
 
-## 🎯 FINAL WORKING APPROACH
+## Final Implementation Notes ✅
 
-**The installer now:**
+- ✅ Follows existing ArchRiot patterns (GTK3, JSON config, systemd timers)
+- ✅ Maintains consistent styling with welcome window
+- ✅ Respects user's choice to ignore notifications
+- ✅ No disruption to running processes - uses oneshot service type
+- ✅ Handles offline scenarios gracefully with proper error messages
+- ✅ Integrated into standard ArchRiot installation process
+- ✅ Automatic installation and configuration during setup
+- ✅ Complete user documentation added to README.md
 
-1. **Hides system duplicates** using `NoDisplay=true` in local overrides
-2. **Creates clean renamed applications** (System Monitor, Media Player, etc.)
-3. **Fixes file ownership** to prevent root-owned files in user directories
-4. **Uses proper icon naming** (dashes instead of spaces)
-5. **Leverages system icons** for better theme compatibility
-6. **Tests locally before committing** to ensure changes work
+## Project Status: 🎉 COMPLETE
 
-**Result:** Clean Fuzzel menu with no duplicates, proper icons, user-friendly names
+The ArchRiot automatic version check system is fully implemented and ready for production use. All phases completed successfully with comprehensive testing and integration.

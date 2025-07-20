@@ -1,0 +1,11 @@
+[Unit]
+Description=ArchRiot Version Check Timer
+Requires=version-check.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=4h
+AccuracySec=30min
+
+[Install]
+WantedBy=timers.target

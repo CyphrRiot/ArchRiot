@@ -1,0 +1,256 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import json
+import subprocess
+import urllib.request
+import urllib.error
+from datetime import datetime, timezone
+import re
+
+class VersionChecker:
+    def __init__(self):
+        self.home_dir = os.path.expanduser('~')
+        self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
+        self.config_file = os.path.join(self.config_dir, 'versions.cfg')
+        self.version_file = os.path.join(self.home_dir, '.local', 'share', 'archriot', 'VERSION')
+        self.dialog_script = os.path.join(self.home_dir, '.local', 'bin', 'version-update-dialog')
+
+    def load_config(self):
+        """Load version check configuration"""
+        default_config = {
+            "ignore_notifications": False,
+            "last_check": None,
+            "last_notified_version": None,
+            "check_interval_hours": 4
+        }
+
+        if not os.path.exists(self.config_file):
+            return default_config
+
+        try:
+            with open(self.config_file, 'r') as f:
+                config = json.load(f)
+                # Merge with defaults to handle missing keys
+                for key, value in default_config.items():
+                    if key not in config:
+                        config[key] = value
+                return config
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return default_config
+
+    def save_config(self, config):
+        """Save version check configuration"""
+        try:
+            os.makedirs(self.config_dir, exist_ok=True)
+            with open(self.config_file, 'w') as f:
+                json.dump(config, f, indent=2)
+        except Exception as e:
+            print(f"Error saving config: {e}")
+
+    def get_local_version(self):
+        """Read local ArchRiot version from VERSION file"""
+        try:
+            with open(self.version_file, 'r') as f:
+                version = f.read().strip()
+                return version
+        except Exception as e:
+            print(f"Error reading local version: {e}")
+            return None
+
+    def get_remote_version(self):
+        """Fetch remote version from GitHub API"""
+        try:
+            # Primary method: Direct VERSION file from ArchRiot website
+            url = "https://cyphrriot.github.io/ArchRiot/VERSION"
+            req = urllib.request.Request(url)
+            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
+
+            with urllib.request.urlopen(req, timeout=10) as response:
+                version = response.read().decode().strip()
+                return version
+
+        except Exception as e:
+            print(f"Primary version fetch failed: {e}")
+
+        try:
+            # Fallback method: GitHub API
+            url = "https://api.github.com/repos/cyphrriot/ArchRiot/releases/latest"
+            req = urllib.request.Request(url)
+            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
+
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode())
+                tag_name = data.get('tag_name', '')
+                # Remove 'v' prefix if present
+                version = tag_name.lstrip('v')
+                return version
+
+        except Exception as e:
+            print(f"Fallback GitHub API failed: {e}")
+            return None
+
+    def parse_version(self, version_str):
+        """Parse version string into comparable tuple"""
+        if not version_str:
+            return (0, 0, 0)
+
+        # Remove any non-digit/dot characters and extract version parts
+        clean_version = re.sub(r'[^0-9.]', '', version_str)
+        parts = clean_version.split('.')
+
+        try:
+            # Pad with zeros if needed and convert to integers
+            while len(parts) < 3:
+                parts.append('0')
+            return tuple(int(part) for part in parts[:3])
+        except ValueError:
+            return (0, 0, 0)
+
+    def is_newer_version(self, local_version, remote_version):
+        """Compare versions semantically"""
+        local_tuple = self.parse_version(local_version)
+        remote_tuple = self.parse_version(remote_version)
+
+        return remote_tuple > local_tuple
+
+    def should_check_now(self, config):
+        """Determine if we should check for updates now"""
+        if config.get('ignore_notifications', False):
+            return False
+
+        last_check = config.get('last_check')
+        if not last_check:
+            return True
+
+        try:
+            last_check_time = datetime.fromisoformat(last_check.replace('Z', '+00:00'))
+            now = datetime.now(timezone.utc)
+            hours_since_check = (now - last_check_time).total_seconds() / 3600
+
+            interval = config.get('check_interval_hours', 4)
+            return hours_since_check >= interval
+        except Exception:
+            return True
+
+    def should_notify_version(self, config, remote_version):
+        """Check if we should notify about this specific version"""
+        last_notified = config.get('last_notified_version')
+        if not last_notified:
+            return True
+
+        # Don't notify again for the same version
+        return last_notified != remote_version
+
+    def launch_update_dialog(self, local_version, remote_version):
+        """Launch the update notification dialog"""
+        if not os.path.exists(self.dialog_script):
+            print(f"Update dialog script not found: {self.dialog_script}")
+            return False
+
+        try:
+            # Launch dialog with version information
+            env = os.environ.copy()
+            env['ARCHRIOT_LOCAL_VERSION'] = local_version
+            env['ARCHRIOT_REMOTE_VERSION'] = remote_version
+
+            subprocess.Popen([
+                'python3', self.dialog_script
+            ], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+            return True
+        except Exception as e:
+            print(f"Error launching update dialog: {e}")
+            return False
+
+    def update_check_timestamp(self, config):
+        """Update the last check timestamp"""
+        config['last_check'] = datetime.now(timezone.utc).isoformat()
+        self.save_config(config)
+
+    def update_notified_version(self, config, version):
+        """Update the last notified version"""
+        config['last_notified_version'] = version
+        self.save_config(config)
+
+    def run_check(self):
+        """Main version check logic"""
+        config = self.load_config()
+
+        # Check if we should run now
+        if not self.should_check_now(config):
+            return
+
+        # Update check timestamp
+        self.update_check_timestamp(config)
+
+        # Get local version
+        local_version = self.get_local_version()
+        if not local_version:
+            print("Could not determine local version")
+            return
+
+        # Get remote version
+        remote_version = self.get_remote_version()
+        if not remote_version:
+            print("Could not fetch remote version")
+            return
+
+        print(f"Local version: {local_version}")
+        print(f"Remote version: {remote_version}")
+
+        # Check if update is available
+        if self.is_newer_version(local_version, remote_version):
+            print("Update available!")
+
+            # Check if we should notify about this version
+            if self.should_notify_version(config, remote_version):
+                print("Launching update dialog...")
+                if self.launch_update_dialog(local_version, remote_version):
+                    self.update_notified_version(config, remote_version)
+                else:
+                    print("Failed to launch update dialog")
+            else:
+                print("Already notified about this version")
+        else:
+            print("No update available")
+
+def main():
+    """Main entry point"""
+    checker = VersionChecker()
+
+    # Handle command line arguments
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--force":
+            # Force check regardless of timing
+            checker.run_check()
+        elif sys.argv[1] == "--test":
+            # Test mode - show current versions
+            local = checker.get_local_version()
+            remote = checker.get_remote_version()
+            print(f"Local: {local}")
+            print(f"Remote: {remote}")
+            if local and remote:
+                is_newer = checker.is_newer_version(local, remote)
+                print(f"Update available: {is_newer}")
+        elif sys.argv[1] == "--reset":
+            # Reset config
+            config = {
+                "ignore_notifications": False,
+                "last_check": None,
+                "last_notified_version": None,
+                "check_interval_hours": 4
+            }
+            checker.save_config(config)
+            print("Configuration reset")
+        else:
+            print("Usage: version-check [--force|--test|--reset]")
+            sys.exit(1)
+    else:
+        # Normal check
+        checker.run_check()
+
+if __name__ == "__main__":
+    main()
