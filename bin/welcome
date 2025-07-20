@@ -59,11 +59,13 @@ class WelcomeWindow:
             try:
                 # Load and scale the image to window width
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(image_path)
-                # Scale to full window width (800px) while maintaining aspect ratio
+                # Scale image proportionally to window width (smaller for better fit)
                 width = pixbuf.get_width()
                 height = pixbuf.get_height()
-                scale_factor = 800.0 / width
-                new_width = 800
+                # Use 70% of window width instead of full width to save space
+                target_width = int(800 * 0.7)  # 560px instead of 800px
+                scale_factor = target_width / width
+                new_width = target_width
                 new_height = int(height * scale_factor)
                 pixbuf = pixbuf.scale_simple(new_width, new_height, GdkPixbuf.InterpType.BILINEAR)
 
