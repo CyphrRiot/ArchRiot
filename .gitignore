@@ -2,7 +2,6 @@
 # Prevents sensitive information from being committed
 
 # Mail configuration with credentials
-plan.md
 
 # User-specific configurations
 config/omarchy/user.env
