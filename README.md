@@ -434,6 +434,11 @@ version-check --reset                # Reset update notification settings
 
 **Automatic Update Notifications**: ArchRiot now automatically checks for updates every 4 hours and shows a notification dialog when newer versions are available. You can install updates, ignore notifications, or simply close the dialog.
 
+<div align="center">
+<img src="images/upgrade.png" alt="ArchRiot Update Dialog" width="600">
+<br><em>Automatic update notification dialog with one-click installation</em>
+</div>
+
 Updates ArchRiot by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.
 
 ### Backup & Restore

@@ -131,6 +131,20 @@ restart_waybar() {
 setup_vm_scaling() {
     echo "🖥️ Configuring display scaling for current environment..."
 
+    local monitors_conf="$HOME/.config/hypr/monitors.conf"
+
+    # Check if user has already customized monitors.conf
+    if [[ -f "$monitors_conf" ]]; then
+        # Check if it contains user customizations (not just default content)
+        if grep -q "# User customized" "$monitors_conf" ||
+           ! grep -q "# ArchRiot auto-generated" "$monitors_conf" ||
+           grep -q -v "^#\|^$\|env = GDK_SCALE\|monitor=,preferred,auto" "$monitors_conf"; then
+            echo "🖥️ Existing custom monitor configuration detected - preserving user settings"
+            echo "ℹ️ To reset auto-scaling: rm ~/.config/hypr/monitors.conf && re-run installer"
+            return 0
+        fi
+    fi
+
     # Detect if running in a virtual machine
     local virt_type="none"
     if command -v systemd-detect-virt >/dev/null 2>&1; then
@@ -140,8 +154,6 @@ setup_vm_scaling() {
             virt_type="none"
         fi
     fi
-
-    local monitors_conf="$HOME/.config/hypr/monitors.conf"
 
     # Generate appropriate scaling based on environment
     if [[ "$virt_type" != "none" ]]; then
@@ -164,8 +176,13 @@ monitor=,preferred,auto,1.25
 # Example for specific VM resolutions:
 # monitor=,1920x1080@60.00, auto, 1.25
 # monitor=,2560x1440@60.00, auto, 1.5
+
+# ArchRiot auto-generated scaling config
+# To prevent overwriting: add "# User customized" anywhere in this file
+# or modify any monitor/scaling settings below
 EOF
         echo "✓ VM-optimized display scaling configured (1.25x)"
+        echo "ℹ️ To customize scaling: edit ~/.config/hypr/monitors.conf"
     else
         echo "🖥️ Physical hardware detected - applying standard scaling"
         cat > "$monitors_conf" << 'EOF'
@@ -186,8 +203,13 @@ monitor=,preferred,auto,1.0
 # Example multi-monitor setup:
 # monitor = DP-5, 6016x3384@60.00, auto, 2
 # monitor = eDP-1, 2880x1920@120.00, auto, 2
+
+# ArchRiot auto-generated scaling config
+# To prevent overwriting: add "# User customized" anywhere in this file
+# or modify any monitor/scaling settings below
 EOF
         echo "✓ Standard display scaling configured (1.0x)"
+        echo "ℹ️ To customize scaling: edit ~/.config/hypr/monitors.conf"
     fi
 
     echo "✓ Display scaling configuration complete"
