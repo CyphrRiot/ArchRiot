@@ -51,6 +51,7 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 ## Table of Contents
 
 - [Installation](#-installation)
+- [VM Installation Notes](#-vm-installation-notes)
 - [Installation Features](#installation-features)
 - [What's New](#-whats-new)
 - [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
@@ -109,6 +110,49 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 ```
 
 **Note:** Most users should use Method 1 above. This manual method is only for advanced users who need to customize the installation process.
+
+## 🖥️ VM Installation Notes
+
+_Thanks to [DTWaling on X](https://x.com/DTWaling) for VM installation guidance._
+
+### Disk Partitioning in VirtualBox
+
+The Arch Linux installer's auto partitioning might not detect the full disk space allocated by VirtualBox. If this happens, archinstall will partition based on the actual space pre-allocated by VirtualBox rather than the full virtual disk size.
+
+**Solutions:**
+
+1. **Pre-allocate full space:** In VirtualBox disk settings, pre-allocate the full disk space before installation
+2. **Manual partitioning:** Use `gdisk` to create your own EFI boot and root partitions, then configure archinstall to use your pre-configured partitions
+
+### Plymouth Installation Issues
+
+If installation stops at the "running: plymouth" step (95% progress) and returns to command prompt:
+
+**The installation is likely 99% complete!** Plymouth is a boot splash screen and not essential for desktop functionality.
+
+**To complete installation:**
+
+```bash
+# Navigate to ArchRiot directory
+cd ~/.local/share/archriot
+
+# Complete remaining steps (run with bash in fish shell)
+bash -c "sudo updatedb && fc-cache -fv"
+
+# Verify core components
+which waybar && echo "✓ Waybar OK" || echo "❌ Waybar missing"
+which hyprland && echo "✓ Hyprland OK" || echo "❌ Hyprland missing"
+
+# Reboot to apply all configurations
+reboot
+```
+
+**To install Plymouth later:**
+
+```bash
+cd ~/.local/share/archriot
+bash install/plymouth.sh
+```
 
 ### Optional: Pre-Installation Validation
 
