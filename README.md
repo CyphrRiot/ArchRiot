@@ -718,10 +718,10 @@ ArchRiot includes optional tools for advanced users who need additional function
 
 ```bash
 # Launch optional tools menu
-./optional-tools/launcher.sh
+~/.local/share/archriot/optional-tools/launcher.sh
 
 # Or run directly
-./optional-tools/secure-boot/setup-secure-boot.sh
+~/.local/share/archriot/optional-tools/secure-boot/setup-secure-boot.sh
 ```
 
 **Features:**
