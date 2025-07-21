@@ -267,14 +267,7 @@ setup_scripts_and_env() {
         echo "⚠ Version check script not found"
     fi
 
-    local version_dialog_script="$HOME/.local/share/archriot/bin/version-update-dialog"
-    if [[ -f "$version_dialog_script" ]]; then
-        cp "$version_dialog_script" "$script_dest/"
-        chmod +x "$script_dest/version-update-dialog"
-        echo "✓ Version update dialog script installed"
-    else
-        echo "⚠ Version update dialog script not found"
-    fi
+
 
     # Install performance analysis tools
     local performance_tools=(

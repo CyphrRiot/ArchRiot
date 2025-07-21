@@ -24,6 +24,8 @@ class UpdateDialog:
         self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
         self.config_file = os.path.join(self.config_dir, 'versions.cfg')
         self.lock_file = "/tmp/archriot_upgrade.lock"
+        self.user_interacted = False  # Track if user actually interacted with dialog
+        self.dialog_timeout_id = None  # Track timeout for visibility check
 
         # Create lock file
         self.create_lock_file()
@@ -38,6 +40,10 @@ class UpdateDialog:
         self.window.set_modal(True)
         self.window.set_keep_above(True)
         self.window.set_type_hint(Gdk.WindowTypeHint.DIALOG)
+
+        # Force window to be urgent and demand attention
+        self.window.set_urgency_hint(True)
+        self.window.present()
 
         # Create main container
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
@@ -65,6 +71,13 @@ class UpdateDialog:
         self.setup_styling()
 
         self.window.show_all()
+
+        # Log dialog creation for debugging
+        self.log_dialog_state(f"Dialog created for update {local_version} -> {remote_version}")
+
+        # Set up timeout to check if dialog is actually visible to user
+        # If no interaction after 30 seconds, send fallback notification
+        self.dialog_timeout_id = GLib.timeout_add_seconds(30, self.on_dialog_timeout)
 
     def create_lock_file(self):
         """Create lock file with PID and cleanup handling"""
@@ -125,14 +138,14 @@ class UpdateDialog:
     def add_instructions(self, container):
         """Add update instructions"""
         instructions_label = Gtk.Label()
-        instructions_text = f"""A newer version of ArchRiot ({self.remote_version}) is available!
+        instructions_text = f"""A new version of ArchRiot ({self.remote_version}) is available!
 
-The update process will:
+⦿ The update process will... ⦿
 
-• Download the latest ArchRiot setup script
-• Backup your current configuration
-• Update system files and scripts
-• Preserve your personal settings
+• Download the latest ArchRiot setup script •
+• Backup your current configuration •
+• Update system files and scripts •
+• Preserve your personal settings •
 
 Choose an option below to proceed."""
 
@@ -184,6 +197,13 @@ Choose an option below to proceed."""
 
     def on_install_clicked(self, button):
         """Handle install button click - open terminal and run update command"""
+        self.user_interacted = True  # Mark that user interacted
+        self.log_dialog_state("User clicked Install button")
+
+        # Cancel timeout since user interacted
+        if self.dialog_timeout_id:
+            GLib.source_remove(self.dialog_timeout_id)
+            self.dialog_timeout_id = None
         try:
             # Create the update command
             update_command = "curl https://ArchRiot.org/setup.sh | bash"
@@ -213,6 +233,13 @@ Choose an option below to proceed."""
 
     def on_ignore_clicked(self, button):
         """Handle ignore notifications button click"""
+        self.user_interacted = True  # Mark that user interacted
+        self.log_dialog_state("User clicked Ignore button")
+
+        # Cancel timeout since user interacted
+        if self.dialog_timeout_id:
+            GLib.source_remove(self.dialog_timeout_id)
+            self.dialog_timeout_id = None
         try:
             config = self.load_config()
             config['ignore_notifications'] = True
@@ -237,13 +264,72 @@ Choose an option below to proceed."""
 
     def on_close_clicked(self, button):
         """Handle close button click"""
+        self.user_interacted = True  # Mark that user interacted
+        self.log_dialog_state("User clicked Close button")
+
+        # Cancel timeout since user interacted
+        if self.dialog_timeout_id:
+            GLib.source_remove(self.dialog_timeout_id)
+            self.dialog_timeout_id = None
         self.cleanup_lock_file()
         Gtk.main_quit()
 
     def on_window_destroy(self, widget):
         """Handle window destruction"""
+        # Cancel timeout if still active
+        if self.dialog_timeout_id:
+            GLib.source_remove(self.dialog_timeout_id)
+            self.dialog_timeout_id = None
+
+        # Log dialog destruction
+        self.log_dialog_state(f"Dialog destroyed (user_interacted: {self.user_interacted})")
+
+        # Only mark as interacted if dialog was visible for reasonable time
+        # This prevents marking as interacted when dialog fails to show
         self.cleanup_lock_file()
         Gtk.main_quit()
+
+    def on_dialog_timeout(self):
+        """Handle dialog timeout - send fallback notification if no user interaction"""
+        if not self.user_interacted:
+            self.log_dialog_state("Dialog timeout - no user interaction detected")
+            print("Dialog timeout - user may not have seen GTK dialog, sending fallback notification")
+            # Send system notification as fallback
+            try:
+                subprocess.run([
+                    'notify-send',
+                    '--urgency=critical',
+                    '--icon=system-software-update',
+                    'ArchRiot Update Available',
+                    f'New version {self.remote_version} is available!\nCurrent: {self.local_version}\n\nRun: python3 bin/version-check --force'
+                ], check=False)
+                print("Fallback notification sent")
+            except Exception as e:
+                print(f"Failed to send fallback notification: {e}")
+
+            # Close the invisible dialog
+            self.cleanup_lock_file()
+            Gtk.main_quit()
+
+        # Remove timeout
+        self.dialog_timeout_id = None
+        return False  # Don't repeat timeout
+
+    def log_dialog_state(self, message):
+        """Log dialog state for debugging"""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_message = f"[{timestamp}] DIALOG: {message}"
+        print(log_message)
+
+        # Also log to file for persistent debugging
+        try:
+            log_dir = os.path.join(self.config_dir, 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            log_file = os.path.join(log_dir, 'version-check.log')
+            with open(log_file, 'a') as f:
+                f.write(log_message + '\n')
+        except Exception:
+            pass  # Don't let logging errors break the dialog
 
     def load_config(self):
         """Load version check configuration"""
@@ -341,7 +427,7 @@ class VersionChecker:
         self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
         self.config_file = os.path.join(self.config_dir, 'versions.cfg')
         self.version_file = os.path.join(self.home_dir, '.local', 'share', 'archriot', 'VERSION')
-        self.dialog_script = os.path.join(self.home_dir, '.local', 'bin', 'version-update-dialog')
+
 
     def load_config(self):
         """Load version check configuration"""
@@ -493,13 +579,22 @@ class VersionChecker:
             print(f"Launching direct GTK dialog with LOCAL={local_version}, REMOTE={remote_version}")
 
             # Create and show dialog directly - no subprocess needed!
-            UpdateDialog(local_version, remote_version)
+            dialog = UpdateDialog(local_version, remote_version)
 
             # Run GTK main loop
             Gtk.main()
 
             print("Dialog closed by user")
-            return True
+
+            # Only return True if user actually interacted with the dialog
+            # This prevents marking versions as "notified" when dialog isn't visible
+            if dialog.user_interacted:
+                print("User interacted with dialog - marking as notified")
+                return True
+            else:
+                print("User did not interact with dialog - will retry on next check")
+                return False
+
         except Exception as e:
             print(f"Error launching update dialog: {e}")
             return False
@@ -551,11 +646,24 @@ class VersionChecker:
                 print("Launching GUI notification...")
                 success = self.launch_update_dialog(local_version, remote_version)
 
-                # Only mark as notified if GUI notification was successful
+                # Only mark as notified if GUI notification was successful AND user interacted
                 if success:
                     self.update_notified_version(config, remote_version)
+                    print("Update notification completed successfully")
                 else:
-                    print("GUI notification failed - will retry on next check")
+                    print("GUI notification failed or user did not interact - will retry on next check")
+                    # Send immediate fallback notification
+                    try:
+                        subprocess.run([
+                            'notify-send',
+                            '--urgency=critical',
+                            '--icon=system-software-update',
+                            'ArchRiot Update Available',
+                            f'New version {remote_version} is available!\nCurrent: {local_version}\n\nRun: python3 bin/version-check --force'
+                        ], check=False)
+                        print("Sent fallback notification due to GUI dialog failure")
+                    except Exception as e:
+                        print(f"Failed to send fallback notification: {e}")
             else:
                 print("Already notified about this version")
         else:
