@@ -86,8 +86,22 @@ show_tool_info() {
     echo -e "${CYAN}Available Tools:${NC}"
     echo
 
+    # Dell XPS Sleep Fix
+    echo -e "${GREEN}1. Dell XPS Sleep Crash Fix${NC}"
+    echo "   Purpose: Fix sleep/suspend crashes on Dell XPS with Intel Arc Graphics"
+    echo "   Risk Level: ⚠️  MODERATE - Modifies kernel parameters and power management"
+    echo "   Compatibility: Dell XPS laptops with Intel Lunar Lake Arc Graphics (130V/140V)"
+    echo "   Requirements: Dell XPS hardware, XE graphics driver"
+
+    if check_tool_availability "$SCRIPT_DIR/dell-sleep-fix/setup-dell-sleep-fix.sh" "Dell Sleep Fix" >/dev/null 2>&1; then
+        echo -e "   Status: ${GREEN}✓ Available${NC}"
+    else
+        echo -e "   Status: ${RED}✗ Not Available${NC}"
+    fi
+    echo
+
     # Secure Boot Setup
-    echo -e "${GREEN}1. Secure Boot Setup${NC}"
+    echo -e "${GREEN}2. Secure Boot Setup${NC}"
     echo "   Purpose: Implement UEFI Secure Boot using standard Arch methods"
     echo "   Risk Level: ⚠️  MODERATE - Uses tested Arch packages"
     echo "   Compatibility: AMD, Intel, Any UEFI system"
@@ -101,9 +115,23 @@ show_tool_info() {
     echo
 
     # Future tools can be added here
-    echo -e "${BLUE}2. More tools coming soon...${NC}"
+    echo -e "${BLUE}3. More tools coming soon...${NC}"
     echo "   Additional optional tools will be added in future releases"
     echo
+}
+
+run_dell_sleep_fix() {
+    local tool_path="$SCRIPT_DIR/dell-sleep-fix/setup-dell-sleep-fix.sh"
+
+    if check_tool_availability "$tool_path" "Dell Sleep Fix"; then
+        echo
+        print_info "Starting Dell XPS Sleep Crash Fix..."
+        echo
+        exec sudo "$tool_path"
+    else
+        print_error "Dell Sleep Fix tool is not available"
+        return 1
+    fi
 }
 
 run_secure_boot_setup() {
@@ -126,26 +154,31 @@ show_main_menu() {
         show_tool_info
 
         echo -e "${CYAN}Options:${NC}"
-        echo "1. Launch Secure Boot Setup"
-        echo "2. View Documentation"
-        echo "3. Check System Requirements"
-        echo "4. Exit"
+        echo "1. Launch Dell XPS Sleep Crash Fix"
+        echo "2. Launch Secure Boot Setup"
+        echo "3. View Documentation"
+        echo "4. Check System Requirements"
+        echo "5. Exit"
         echo
-        echo -n "Enter choice [1-4]: "
+        echo -n "Enter choice [1-5]: "
         read -r choice
 
         case $choice in
             1)
-                run_secure_boot_setup
+                run_dell_sleep_fix
                 break
                 ;;
             2)
-                show_documentation
+                run_secure_boot_setup
+                break
                 ;;
             3)
-                check_system_requirements
+                show_documentation
                 ;;
             4)
+                check_system_requirements
+                ;;
+            5)
                 echo "Goodbye!"
                 exit 0
                 ;;
@@ -212,6 +245,13 @@ check_system_requirements() {
         print_warning "Running as root - tools should be run as regular user"
     else
         print_success "Running as regular user (recommended)"
+    fi
+
+    # Check for Dell XPS hardware (for Dell sleep fix)
+    if lspci | grep -q "Intel Corporation Lunar Lake.*Graphics"; then
+        print_success "Intel Lunar Lake Arc Graphics detected (Dell sleep fix compatible)"
+    else
+        print_info "Intel Lunar Lake Arc Graphics not detected (Dell sleep fix not needed)"
     fi
 
     # Check sudo access

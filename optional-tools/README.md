@@ -9,9 +9,32 @@ These tools are provided for advanced users who need specific functionality beyo
 - **These tools can modify critical system components**
 - **Always have a backup and recovery plan**
 - **Test thoroughly in a virtual machine first**
-- **Only use if you understand UEFI/BIOS concepts**
+- **Only use if you understand the risks involved**
 
-## 🛡️ Available Tools
+## 🛠️ Available Tools
+
+### Dell XPS Sleep Crash Fix
+
+**Purpose:** Fix sleep/suspend crashes on Dell XPS laptops with Intel Arc Graphics
+**Location:** `dell-sleep-fix/setup-dell-sleep-fix.sh`
+**Risk Level:** ⚠️ MODERATE - Modifies kernel parameters and power management
+**Compatibility:** Dell XPS laptops with Intel Lunar Lake Arc Graphics (130V/140V)
+
+**What it does:**
+
+- Fixes crashes when closing laptop lid or entering sleep mode
+- Stabilizes Intel XE graphics driver for sleep/wake cycles
+- Configures s2idle sleep mode for maximum compatibility
+- Adds Dell-specific power management workarounds
+- Creates diagnostic and emergency fix tools
+
+**Features:**
+
+- ✅ Fixes Dell XPS lid-close crashes
+- ✅ Stabilizes Intel Arc Graphics sleep/wake
+- ✅ Automatic pre/post sleep state management
+- ✅ Comprehensive diagnostic tools
+- ✅ Emergency recovery utilities
 
 ### Secure Boot Setup
 
@@ -21,6 +44,7 @@ These tools are provided for advanced users who need specific functionality beyo
 **Compatibility:** AMD, Intel, Any UEFI system with Secure Boot
 
 **What it does:**
+
 - Uses `sbctl` (official Arch package) for key management
 - Uses `shim-signed` (AUR) for Microsoft hardware compatibility
 - Follows Arch Wiki recommendations exactly
@@ -28,6 +52,7 @@ These tools are provided for advanced users who need specific functionality beyo
 - Supports Windows dual-boot scenarios
 
 **Features:**
+
 - ✅ Microsoft hardware compatibility guaranteed
 - ✅ Automatic kernel signing with pacman hooks
 - ✅ Windows dual-boot support
@@ -41,10 +66,35 @@ These tools are provided for advanced users who need specific functionality beyo
 Before using any optional tool:
 
 1. **Fresh ArchRiot installation** (recommended)
-2. **UEFI boot mode** (required for Secure Boot)
+2. **System backup** with ArchRiot's Migrate tool
 3. **Internet connection** (for package downloads)
-4. **Basic UEFI/BIOS knowledge**
+4. **Understanding of the risks involved**
 5. **Backup/recovery capability**
+
+### Running Dell XPS Sleep Fix
+
+```bash
+# Navigate to ArchRiot directory
+cd /path/to/ArchRiot
+
+# Make executable
+chmod +x optional-tools/dell-sleep-fix/setup-dell-sleep-fix.sh
+
+# Run the installer
+sudo ./optional-tools/dell-sleep-fix/setup-dell-sleep-fix.sh
+
+# IMPORTANT: Reboot after installation
+sudo reboot
+```
+
+**The script will:**
+
+1. Check hardware compatibility (Dell XPS + Intel Arc Graphics)
+2. Configure Intel XE graphics driver parameters
+3. Set up systemd sleep configuration
+4. Install pre/post sleep hooks
+5. Add kernel parameters for stability
+6. Create diagnostic and recovery tools
 
 ### Running Secure Boot Setup
 
@@ -60,6 +110,7 @@ chmod +x optional-tools/secure-boot/setup-secure-boot.sh
 ```
 
 **The script will:**
+
 1. Check system compatibility
 2. Install required packages (`sbctl`, `shim-signed`)
 3. Guide you through UEFI setup
@@ -70,25 +121,48 @@ chmod +x optional-tools/secure-boot/setup-secure-boot.sh
 ## 🔍 Safety Features
 
 ### Built-in Protections
-- **Pre-flight checks:** Verifies UEFI mode, internet, etc.
+
+- **Pre-flight checks:** Verifies system compatibility
 - **User confirmation:** Requires explicit approval for risky operations
-- **Comprehensive logging:** All actions logged to `/var/log/archriot-secureboot.log`
+- **Comprehensive logging:** All actions logged for troubleshooting
 - **Verification steps:** Checks setup integrity before completion
 
 ### Recovery Options
-- **Disable Secure Boot:** Enter UEFI and turn off Secure Boot if issues occur
-- **Verify files:** Use `sudo sbctl verify` to check signed files
-- **Re-sign files:** Use `sudo sbctl sign -s <file>` to sign missing files
+
+- **System restore:** Use ArchRiot's Migrate tool to restore backups
+- **Disable features:** Instructions provided for disabling changes
+- **Emergency tools:** Built-in recovery utilities
+- **Manual rollback:** Detailed uninstall instructions in each tool's README
 
 ## 📋 System Requirements
 
+### For Dell XPS Sleep Fix
+
+- **Dell XPS laptop** with Intel Lunar Lake processor
+- **Intel Arc Graphics 130V/140V** (check with `lspci | grep VGA`)
+- **XE graphics driver** (automatically detected)
+- **systemd-boot** (ArchRiot default)
+- **Kernel 6.15+** (included in ArchRiot)
+
 ### For Secure Boot Setup
+
 - **UEFI firmware** (not Legacy BIOS)
 - **Secure Boot capable system**
 - **Setup Mode access** in UEFI/BIOS
 - **Internet connection** for package installation
 
 ### Tested Hardware
+
+#### Dell Sleep Fix:
+
+- ✅ Dell XPS 13 Plus (Intel Lunar Lake)
+- ✅ Dell XPS 15 (Intel Arc Graphics 130V/140V)
+- ✅ Other Dell XPS models with Intel Arc Graphics
+- ❌ Non-Dell laptops (Dell-specific workarounds)
+- ❌ AMD or NVIDIA graphics (Intel-specific fixes)
+
+#### Secure Boot:
+
 - ✅ AMD Ryzen systems
 - ✅ Intel Core/Xeon systems
 - ✅ Standard UEFI motherboards
@@ -98,51 +172,69 @@ chmod +x optional-tools/secure-boot/setup-secure-boot.sh
 ## 🚨 Important Notes
 
 ### Before You Start
-1. **Test in VM first** if possible
-2. **Create system backup** with ArchRiot's Migrate tool
-3. **Understand your hardware** - know how to access UEFI setup
-4. **Have recovery media ready** - ArchRiot USB or Arch Linux ISO
+
+1. **Create system backup** with ArchRiot's Migrate tool
+2. **Understand your hardware** - verify compatibility first
+3. **Have recovery media ready** - ArchRiot USB or Arch Linux ISO
+4. **Read the specific tool's README** for detailed information
 
 ### During Setup
-- **Follow prompts carefully** - the script guides you through each step
-- **Don't skip UEFI steps** - Setup Mode must be enabled first
-- **Don't interrupt the process** - let it complete fully
+
+- **Follow prompts carefully** - the scripts guide you through each step
+- **Don't interrupt the process** - let installations complete fully
+- **Pay attention to warnings** - some operations require manual steps
 
 ### After Setup
+
 - **Test thoroughly** - ensure all hardware works correctly
-- **Monitor updates** - kernels are automatically signed but verify occasionally
-- **Keep recovery plan** - know how to disable Secure Boot if needed
+- **Monitor logs** - check for any issues or warnings
+- **Keep recovery plan** - know how to disable features if needed
 
 ## 🔄 Maintenance
 
-### Automatic Maintenance
-- **Kernel signing** happens automatically on pacman updates
-- **No manual intervention** needed for normal updates
+### Dell Sleep Fix
 
-### Manual Checks
-```bash
-# Check Secure Boot status
-sudo sbctl status
+- **Automatic:** No maintenance required - hooks run automatically
+- **Manual checks:** Verify configurations persist after updates
+- **Diagnostics:** Use `check-sleep-blockers` command
 
-# Verify all files are signed
-sudo sbctl verify
+### Secure Boot
 
-# List signed files
-sudo sbctl list-files
-```
+- **Automatic:** Kernel signing happens automatically on updates
+- **Manual checks:** Use `sudo sbctl status` to verify
+- **Maintenance:** Occasionally verify signed files
 
 ## 🤝 Support
 
 ### Getting Help
-1. **Check logs first:** `/var/log/archriot-secureboot.log`
-2. **Verify setup:** Run `sudo sbctl status`
-3. **Arch Wiki:** Comprehensive Secure Boot documentation
-4. **ArchRiot Issues:** GitHub issues for ArchRiot-specific problems
+
+1. **Check tool-specific README** - Each tool has detailed documentation
+2. **Check logs** - Located in `/var/log/` directory
+3. **Arch Wiki** - Comprehensive documentation for underlying technologies
+4. **ArchRiot Issues** - GitHub issues for ArchRiot-specific problems
 
 ### Common Issues
-- **Boot failure:** Disable Secure Boot in UEFI, then troubleshoot
-- **Unsigned files:** Use `sudo sbctl sign -s <file>` to sign missing files
-- **Hardware incompatibility:** Some older systems may not support modern Secure Boot
+
+- **Hardware incompatibility:** Verify your hardware matches requirements
+- **Boot failure:** Use recovery media to disable problematic features
+- **Driver conflicts:** Check that you're using the correct drivers
+
+## 📁 Tool Structure
+
+```
+optional-tools/
+├── README.md                 # This file
+├── launcher.sh              # Future: unified launcher
+├── dell-sleep-fix/
+│   ├── README.md            # Detailed Dell sleep fix documentation
+│   ├── setup-dell-sleep-fix.sh  # Main installation script
+│   ├── xe-graphics-fix.conf     # XE driver configuration
+│   ├── dell-sleep-fix.conf      # systemd sleep configuration
+│   └── dell-sleep-hook.sh       # Pre/post sleep scripts
+└── secure-boot/
+    ├── README.md            # Detailed Secure Boot documentation
+    └── setup-secure-boot.sh # Main installation script
+```
 
 ## 📄 License
 
