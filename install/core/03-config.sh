@@ -34,21 +34,79 @@ setup_environment() {
     local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
-    # Create unified backup system
-    create_unified_backup
+    # Prompt for user consent before making changes
+    prompt_backup_consent
+
+    # Create surgical backup system
+    create_surgical_backup
 }
 
-# Unified backup system - single overwriting backup
-create_unified_backup() {
-    local backup_dir="$HOME/.archriot/backups"
+# User consent mechanism
+prompt_backup_consent() {
+    echo "⚠️ ArchRiot will backup and modify these configuration directories:"
+    echo "   btop, environment.d, fastfetch, fish, fuzzel, ghostty,"
+    echo "   gtk-3.0, gtk-4.0, hypr, nvim, systemd, waybar,"
+    echo "   xdg-desktop-portal, zed"
+    echo
+    read -p "Continue with installation? [y/N]: " consent
 
-    if [[ -d ~/.config ]]; then
-        echo "📦 Creating backup (overwriting previous): $backup_dir"
-        rm -rf "$backup_dir" 2>/dev/null || true
-        mkdir -p "$(dirname "$backup_dir")"
-        cp -R ~/.config "$backup_dir" && echo "$backup_dir" > /tmp/archriot-config-backup
-        echo "✓ Backup created at: $backup_dir"
+    case "${consent,,}" in
+        y|yes) return 0 ;;
+        *) echo "Installation cancelled by user"; exit 1 ;;
+    esac
+}
+
+# Surgical backup system - only backup ArchRiot-managed configs
+create_surgical_backup() {
+    local backup_dir="$HOME/.archriot/backups/$(date +%Y-%m-%d-%H%M%S)"
+    local configs_to_backup=(
+        "btop" "environment.d" "fastfetch" "fish" "fuzzel"
+        "ghostty" "gtk-3.0" "gtk-4.0" "hypr" "nvim"
+        "systemd" "waybar" "xdg-desktop-portal" "zed"
+    )
+
+    echo "📦 Creating surgical backup of ArchRiot-managed configs only..."
+
+    for config in "${configs_to_backup[@]}"; do
+        local source="$HOME/.config/$config"
+        local target="$backup_dir/$config"
+
+        if [[ -e "$source" ]]; then
+            echo "  → Backing up: $config"
+            mkdir -p "$(dirname "$target")"
+            cp -R "$source" "$target"
+        fi
+    done
+
+    # Save backup manifest
+    printf '%s\n' "${configs_to_backup[@]}" > "$backup_dir/MANIFEST"
+    echo "$backup_dir" > /tmp/archriot-config-backup
+    echo "✓ Surgical backup created at: $backup_dir"
+}
+
+# Smart restoration from surgical backup
+restore_from_backup() {
+    local backup_dir="$1"
+
+    if [[ ! -d "$backup_dir" || ! -f "$backup_dir/MANIFEST" ]]; then
+        echo "⚠️ Invalid backup directory or missing manifest"
+        return 1
     fi
+
+    echo "🔄 Restoring from surgical backup: $backup_dir"
+
+    while IFS= read -r config; do
+        local source="$backup_dir/$config"
+        local target="$HOME/.config/$config"
+
+        if [[ -e "$source" ]]; then
+            echo "  → Restoring: $config"
+            rm -rf "$target"
+            cp -R "$source" "$target"
+        fi
+    done < "$backup_dir/MANIFEST"
+
+    echo "✓ Configuration restored from backup"
 }
 
 # Install dependencies and copy configurations
