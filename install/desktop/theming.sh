@@ -469,15 +469,32 @@ start_theme_services() {
         echo "⚠ No background configured"
     fi
 
-    # Start waybar if config exists
+    # Start waybar with improved reliability
     if [[ -f "$HOME/.config/waybar/config" ]]; then
-        waybar >/dev/null 2>&1 &
-        sleep 2
-        if pgrep waybar >/dev/null; then
-            echo "✓ Waybar started successfully"
+        if [[ -n "$WAYLAND_DISPLAY" ]] || [[ -n "$DISPLAY" ]]; then
+            echo "🚀 Starting waybar with new configuration..."
+            # Use nohup to properly detach from installation process
+            nohup waybar </dev/null >/dev/null 2>&1 &
+
+            # Wait for waybar to initialize
+            sleep 3
+
+            # Verify waybar started successfully
+            if pgrep -f waybar >/dev/null; then
+                echo "✓ Waybar is running successfully"
+            else
+                echo "⚠ Waybar failed to start - config may have issues"
+                echo "🔍 Debug with: waybar --log-level debug"
+                # Try one more time with visible output for debugging
+                echo "🔄 Attempting waybar restart with debug output..."
+                waybar &
+                sleep 2
+            fi
         else
-            echo "⚠ Waybar failed to start"
+            echo "ℹ Not in graphical session - waybar will start when GUI is available"
         fi
+    else
+        echo "⚠ Waybar config not found at ~/.config/waybar/config"
     fi
 
     # Start blue light filter by default (no user prompt)
@@ -489,9 +506,19 @@ start_theme_services() {
 stop_theme_services() {
     echo "🛑 Stopping existing theme services..."
 
-    # Stop waybar
-    pkill waybar 2>/dev/null || true
-    sleep 1
+    # Stop waybar more thoroughly
+    pkill -f waybar 2>/dev/null || true
+    killall waybar 2>/dev/null || true
+    sleep 2
+
+    # Ensure waybar is completely stopped
+    local attempts=0
+    while pgrep -f waybar >/dev/null && [ $attempts -lt 5 ]; do
+        echo "⏳ Waiting for waybar to stop..."
+        pkill -9 waybar 2>/dev/null || true
+        sleep 1
+        ((attempts++))
+    done
 
     # Stop background service
     pkill swaybg 2>/dev/null || true

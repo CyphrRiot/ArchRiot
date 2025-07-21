@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.76-4c1d95)
+![Version](https://img.shields.io/badge/version-1.1.77-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -510,7 +510,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 
 #### **cypherriot** (Default Theme)
 
-- **Visual Style:** Custom purple/blue aesthetic with dark elegance
+- **Visual Style:** Custom Neo Tokyo Dark aesthetic with dark elegance
 - **Color Palette:** Deep purples, electric blues, and charcoal backgrounds
 - **Waybar Integration:** Fully customized status bar with matching colors
 - **Applications:** Consistent theming across terminal, file manager, and editors
@@ -653,7 +653,7 @@ pgrep waybar                          # Should show running process
 
 After fresh installation, you should see:
 
-- **Default theme:** CypherRiot (purple/blue aesthetic)
+- **Default theme:** CypherRiot (Neo Tokyo Dark aesthetic)
 - **Default background:** riot_zero.png (riot-themed wallpaper)
 - **PDF files:** Show proper document icons (not thumbnails)
 - **Image files:** Show thumbnail previews in Thunar
