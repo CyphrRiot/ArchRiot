@@ -170,7 +170,9 @@
 		"class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>": "<span font='11'>󰈹 </span>",
 		"class<signal>": "<span font='11'>󰍡 </span>",
 		"class<com.transmissionbt.transmission.*>": "<span font='11'>󰇚 </span>",
-		"class<de.haeckerfelix.Fragments>": "<span font='11'>󰅐 </span>",
+		// 10 alternative icon suggestions for Fragments (torrent/download app):
+		// 󰇚 󰅐 󰛴 󰉍 󰦖 󰄠 󰶼 󰦤 󰦕 󰛶 󰅐
+		"class<de.haeckerfelix.Fragments>": "<span font='11'>󰇚 </span>",
 		"class<zen>": "<span font='11'>󰰷 </span>",
 		"class<waterfox|waterfox-bin>": "<span font='11'>󰈹 </span>",
 		"class<microsoft-edge>": "<span font='11'>󰇩 </span>",
@@ -232,9 +234,9 @@
 "class<VSCode|code-url-handler|code-oss|codium|codium-url-handler|VSCodium>": "<span font='11'>󰨞 </span>",
 		// 10 alternative icon suggestions for Zed:
 		// ⚡ 󰓕 󰆼 󰘦 󰤌 󰝤 󰩃 󰢩 󰊄 󰂺 ☡ ≡
-		"class<dev.zed.Zed|dev.zed.Zed-Preview>": "<span font='11'>≡ </span>",
-"class<codeblocks>": "<span font='11'>󰅩 </span>",
-"class<geany>": "<span font='11'>󰈙 </span>",
+		"class<dev.zed.Zed|dev.zed.Zed-Preview>": "<span font='12'>≡ </span>",
+        "class<codeblocks>": "<span font='11'>󰅩 </span>",
+        "class<geany>": "<span font='11'>󰈙 </span>",
 		"title<.*github.*>": "<span font='11'> </span>",
 		"class<mousepad>": "<span font='11'> </span>",
 		"class<libreoffice-writer>": "<span font='11'>󰈙 </span>",
