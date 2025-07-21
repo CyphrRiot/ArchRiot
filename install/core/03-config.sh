@@ -34,26 +34,8 @@ setup_environment() {
     local env_file="$HOME/.config/archriot/user.env"
     [[ -f "$env_file" ]] && source "$env_file"
 
-    # Prompt for user consent before making changes
-    prompt_backup_consent
-
     # Create surgical backup system
     create_surgical_backup
-}
-
-# User consent mechanism
-prompt_backup_consent() {
-    echo "⚠️ ArchRiot will backup and modify these configuration directories:"
-    echo "   btop, environment.d, fastfetch, fish, fuzzel, ghostty,"
-    echo "   gtk-3.0, gtk-4.0, hypr, nvim, systemd, waybar,"
-    echo "   xdg-desktop-portal, zed"
-    echo
-    read -p "Continue with installation? [y/N]: " consent
-
-    case "${consent,,}" in
-        y|yes) return 0 ;;
-        *) echo "Installation cancelled by user"; exit 1 ;;
-    esac
 }
 
 # Surgical backup system - only backup ArchRiot-managed configs
