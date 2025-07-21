@@ -67,8 +67,9 @@ end
 # Aliases & Functions
 # =============================================================================
 
-# Vim alias to nvim
+# Vim/Vi aliases to nvim
 alias vim='nvim'
+alias vi='nvim'
 
 # Fastfetch with correct logo width
 alias fastfetch='command fastfetch --logo-width 20'
