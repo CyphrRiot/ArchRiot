@@ -57,6 +57,8 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 - [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
 - [Essential Commands](#️-essential-commands)
 - [Key Customizations](#-key-customizations)
+- [Optional Advanced Tools](#-optional-advanced-tools)
+- [Secure Boot Setup](#️-secure-boot-setup)
 
 ## 🚀 Installation
 

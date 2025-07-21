@@ -24,6 +24,20 @@
             "binary": {
                 "ignore_system_version": true
             }
+        },
+        "pylsp": {
+            "settings": {
+                "pylsp": {
+                    "plugins": {
+                        "rope_completion": {
+                            "enabled": false
+                        },
+                        "rope_rename": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
         }
     },
     "languages": {
