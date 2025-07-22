@@ -82,12 +82,9 @@
 },
 
 "custom/archriot-update": {
-	"format": "{}",
-	"return-type": "json",
-	"escape": true,
-	"exec-on-event": true,
-	"interval": 3600,
 	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
+	"return-type": "json",
+	"interval": 300,
 	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
 	"tooltip": true,
 },
