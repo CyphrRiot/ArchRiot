@@ -204,6 +204,10 @@ Choose an option below to proceed."""
         if self.dialog_timeout_id:
             GLib.source_remove(self.dialog_timeout_id)
             self.dialog_timeout_id = None
+
+        # Clear waybar state file if managed by waybar
+        if hasattr(self, 'waybar_managed') and self.waybar_managed:
+            self.clear_waybar_state()
         try:
             # Create the update command
             update_command = "curl https://ArchRiot.org/setup.sh | bash"
@@ -330,6 +334,21 @@ Choose an option below to proceed."""
                 f.write(log_message + '\n')
         except Exception:
             pass  # Don't let logging errors break the dialog
+
+    def clear_waybar_state(self):
+        """Clear waybar state files when upgrade is started"""
+        try:
+            update_flag_file = os.path.join(self.config_dir, 'update_available')
+            update_state_file = os.path.join(self.config_dir, 'update_state')
+
+            if os.path.exists(update_flag_file):
+                os.remove(update_flag_file)
+            if os.path.exists(update_state_file):
+                os.remove(update_state_file)
+
+            self.log_dialog_state("Cleared waybar state files")
+        except Exception as e:
+            self.log_dialog_state(f"Failed to clear waybar state: {e}")
 
     def load_config(self):
         """Load version check configuration"""
@@ -643,27 +662,30 @@ class VersionChecker:
 
             # Check if we should notify about this version
             if self.should_notify_version(config, remote_version):
-                print("Launching GUI notification...")
-                success = self.launch_update_dialog(local_version, remote_version)
+                # Check if running from systemd (no TERM, no interactive session)
+                is_systemd = not os.environ.get('TERM') and not sys.stdin.isatty()
 
-                # Only mark as notified if GUI notification was successful AND user interacted
-                if success:
-                    self.update_notified_version(config, remote_version)
-                    print("Update notification completed successfully")
-                else:
-                    print("GUI notification failed or user did not interact - will retry on next check")
-                    # Send immediate fallback notification
+                if is_systemd:
+                    print("Running from systemd - creating waybar notification flag")
+                    # Create flag file for waybar to show update icon
+                    update_flag_file = os.path.join(self.config_dir, 'update_available')
                     try:
-                        subprocess.run([
-                            'notify-send',
-                            '--urgency=critical',
-                            '--icon=system-software-update',
-                            'ArchRiot Update Available',
-                            f'New version {remote_version} is available!\nCurrent: {local_version}\n\nRun: python3 bin/version-check --force'
-                        ], check=False)
-                        print("Sent fallback notification due to GUI dialog failure")
+                        with open(update_flag_file, 'w') as f:
+                            f.write(f"UPDATE_AVAILABLE:{local_version}->{remote_version}\n")
+                        print(f"Update flag created: {local_version} -> {remote_version}")
+                        # Don't mark as notified - let user click the waybar icon
                     except Exception as e:
-                        print(f"Failed to send fallback notification: {e}")
+                        print(f"Failed to create update flag: {e}")
+                else:
+                    print("Running interactively - launching GUI notification...")
+                    success = self.launch_update_dialog(local_version, remote_version)
+
+                    # Only mark as notified if GUI notification was successful AND user interacted
+                    if success:
+                        self.update_notified_version(config, remote_version)
+                        print("Update notification completed successfully")
+                    else:
+                        print("GUI notification failed or user did not interact - will retry on next check")
             else:
                 print("Already notified about this version")
         else:
@@ -676,7 +698,7 @@ def main():
     # Handle command line arguments
     if len(sys.argv) > 1:
         if sys.argv[1] == "--force":
-            # Force check regardless of timing
+            # Force check regardless of timing - always show GUI
             checker.run_check(force=True)
         elif sys.argv[1] == "--test":
             # Test mode - show current versions
@@ -703,8 +725,46 @@ def main():
             config['last_notified_version'] = None
             checker.save_config(config)
             print("Notification state reset - will notify about current updates")
+        elif sys.argv[1] == "--clear-flag":
+            # Clear waybar update flag
+            update_flag_file = os.path.join(checker.config_dir, 'update_available')
+            try:
+                if os.path.exists(update_flag_file):
+                    os.remove(update_flag_file)
+                    print("Update flag cleared")
+                else:
+                    print("No update flag to clear")
+            except Exception as e:
+                print(f"Failed to clear update flag: {e}")
+        elif sys.argv[1] == "--gui":
+            # Fast GUI launch using cached data from waybar flag file
+            update_flag_file = os.path.join(checker.config_dir, 'update_available')
+            try:
+                if os.path.exists(update_flag_file):
+                    with open(update_flag_file, 'r') as f:
+                        content = f.read().strip()
+                    if content.startswith("UPDATE_AVAILABLE:"):
+                        version_info = content.replace("UPDATE_AVAILABLE:", "")
+                        if "->" in version_info:
+                            local_ver, remote_ver = version_info.split("->", 1)
+                            print(f"Fast GUI launch: {local_ver} -> {remote_ver}")
+                            # Launch dialog directly with cached version info
+                            # Create special dialog that doesn't mark as notified
+                            dialog = UpdateDialog(local_ver, remote_ver)
+                            dialog.waybar_managed = True  # Flag to prevent auto-notification
+                            Gtk.main()
+                        else:
+                            print("Invalid version format in flag file")
+                    else:
+                        print("No update available in flag file")
+                else:
+                    print("No update flag file found")
+            except Exception as e:
+                print(f"Error launching fast GUI: {e}")
+                # Fallback to normal force check
+                checker.run_check(force=True)
         else:
-            print("Usage: version-check [--force|--test|--reset|--reset-notifications]")
+            print("Usage: version-check [--force|--test|--reset|--reset-notifications|--clear-flag|--gui]")
             sys.exit(1)
     else:
         # Normal check

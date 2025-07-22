@@ -159,6 +159,10 @@ tooltip {
 #custom-light_dark,
 #custom-lock,
 #custom-hint,
+#custom-archriot-update,
+#custom-archriot-update.update-new,
+#custom-archriot-update.update-seen,
+#custom-archriot-update.update-none,
 #custom-hypridle,
 #custom-menu,
 #custom-playerctl,
@@ -614,4 +618,36 @@ widget > #custom-mic.muted {
     color: @accent5; /* Same cyan color as battery and other menu items */
     font-size: 150%;
     padding: 0 5px;
+}
+
+/* ArchRiot Update Notification Styling */
+#custom-archriot-update {
+    font-size: 110%;
+    padding: 0 5px;
+}
+
+/* New update - pulsing urgent red */
+#custom-archriot-update.update-new {
+    color: @accent1; /* Pink/red color for urgency */
+    animation: pulse 2s ease-in-out infinite alternate;
+}
+
+/* Update seen but not upgraded - steady purple like power/lock */
+#custom-archriot-update.update-seen {
+    color: @power_color; /* Same purple as power/lock icons */
+}
+
+/* No updates - darker blue like notification bell */
+#custom-archriot-update.update-none {
+    color: @accent5; /* Same blue as other status icons */
+    opacity: 0.7;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.8;
+    }
+    to {
+        opacity: 1;
+    }
 }

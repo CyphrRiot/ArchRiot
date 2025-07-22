@@ -5,6 +5,62 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.80] - 2025-07-21
+
+### 🎯 Major System Improvements
+
+- **Waybar Update Notifications**: Complete redesign of upgrade notification system
+    - **NEW**: Three-state waybar icon system for update notifications
+    - **NEW**: `󰚰` (pulsing red) for new updates available
+    - **NEW**: `󱧘` (steady purple) for updates seen but not upgraded
+    - **NEW**: `󰸾` (muted blue) for no updates available (always visible)
+    - **SOLUTION**: Fast-loading upgrade dialog via cached version data
+    - **SOLUTION**: Eliminates systemd GTK environment issues completely
+    - **IMPACT**: Reliable, always-visible update status in waybar
+
+### 🔧 Critical Bug Fixes
+
+- **Missing Mako Configuration**: Added missing notification theme configuration to installer
+    - **ROOT CAUSE**: Installer was missing `config/mako/` directory entirely
+    - **SOLUTION**: Added proper CypherRiot-themed Mako config for installation
+    - **IMPACT**: New installations now have proper themed notifications
+
+### ⚡ Performance Improvements
+
+- **Fast Upgrade Dialog Launch**: New `--gui` flag uses cached version data
+    - **IMPROVEMENT**: Launch time reduced from ~10 seconds to ~3 seconds
+    - **BENEFIT**: Instant response when clicking waybar update icon
+
+### 🔄 Backward Compatibility
+
+- **Seamless Upgrade Path**: Existing systemd timers automatically benefit from new system
+    - **PRESERVED**: Same `version-check` binary name and systemd service
+    - **AUTOMATIC**: Timer switches from broken GTK-in-systemd to working waybar approach
+    - **NO ACTION REQUIRED**: Users get improved notifications on next system update
+
+---
+
+## [1.1.79] - 2025-07-21
+
+### 🔧 Critical Bug Fixes
+
+- **Upgrade Dialog Visibility**: Fixed critical issue where upgrade notifications were marked as "shown" even when invisible to users
+    - **ROOT CAUSE**: GTK dialog marked versions as "notified" regardless of user visibility in Hyprland/Wayland environments
+    - **ROOT CAUSE**: Window manager focus issues caused dialogs to be created but not visible to users
+    - **SOLUTION**: Added user interaction tracking - only mark as notified when user actually clicks buttons
+    - **SOLUTION**: Added 30-second timeout with fallback system notifications when GTK dialog fails
+    - **SOLUTION**: Enhanced dialog urgency hints and presentation for better visibility
+    - **IMPACT**: Users will now always receive upgrade notifications, even with window manager issues
+
+### 🧹 Code Cleanup
+
+- **Consolidated Dialog System**: Removed obsolete `version-update-dialog` standalone script
+    - **BENEFIT**: Single consolidated script reduces maintenance complexity
+    - **BENEFIT**: All dialog functionality now integrated into `version-check` script
+    - **IMPACT**: Existing systemd timers automatically benefit from fixes
+
+---
+
 ## [1.1.9] - 2025-07-16
 
 ### 🔧 Critical Bug Fixes

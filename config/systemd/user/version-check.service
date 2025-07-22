@@ -4,6 +4,13 @@ After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/bin/version-check
+ExecStart=/bin/bash -c '%h/.local/bin/version-check >> %h/.config/archriot/logs/systemd-version-check.log 2>&1'
 Environment=DISPLAY=:0
+Environment=WAYLAND_DISPLAY=wayland-1
 Environment=XDG_RUNTIME_DIR=%t
+Environment=XDG_SESSION_TYPE=wayland
+Environment=XDG_CURRENT_DESKTOP=Hyprland
+Environment=QT_QPA_PLATFORM=wayland
+Environment=GDK_BACKEND=wayland,x11
+StandardOutput=append:%h/.config/archriot/logs/systemd-version-check.log
+StandardError=append:%h/.config/archriot/logs/systemd-version-check.log
