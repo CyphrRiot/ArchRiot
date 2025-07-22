@@ -17,8 +17,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
     ARCHRIOT_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 else
-    # Fetch version from GitHub when running via curl
-    ARCHRIOT_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION 2>/dev/null || echo "unknown")
+    # Fetch version from GitHub when running via curl - WITH CACHE BUSTING
+    # CRITICAL: Never use cached content for installer scripts!
+    # CDN caching causes stale versions and prevents immediate upgrades
+    CACHE_BUSTER=$(date +%s)
+    ARCHRIOT_VERSION=$(curl -fsSL -H "Cache-Control: no-cache" -H "Pragma: no-cache" "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION?v=$CACHE_BUSTER" 2>/dev/null || echo "unknown")
 fi
 
 echo -e "🎭 ArchRiot Setup - Version: $ARCHRIOT_VERSION"
@@ -48,6 +51,9 @@ echo -e "\n🧹 NUCLEAR cleanup of old installations..."
 echo "   Removing ALL ArchRiot and OhmArchy directories..."
 rm -rf ~/.local/share/archriot/
 rm -rf ~/.local/share/omarchy/
+
+# Force fresh download with cache busting
+echo -e "📥 Downloading ArchRiot with cache-busting headers..."
 rm -rf ~/.config/archriot/
 rm -rf ~/.config/omarchy/
 echo "✓ Cleanup complete - fresh install guaranteed"
