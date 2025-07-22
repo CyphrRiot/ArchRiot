@@ -5,6 +5,18 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-07-21
+
+### 🚨 CRITICAL HOTFIX
+
+- **Fixed Broken Systemd Timer**: Resolved conflicting output directives in version-check service
+    - **ROOT CAUSE**: Debugging session left conflicting StandardOutput and ExecStart redirection
+    - **IMPACT**: All new installations had broken automatic update timers
+    - **SOLUTION**: Removed conflicting logging directives from systemd service configuration
+    - **URGENCY**: Critical - affects all fresh installations and upgrades
+
+---
+
 ## [1.2.0] - 2025-07-21
 
 ### 🎯 MAJOR: Revolutionary Waybar Update System
