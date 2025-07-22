@@ -66,13 +66,13 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 Download the Arch Linux ISO, put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick.
 
-**"Coming Soon..." ArchRiot ISO!**
-
-Get ready for the ultimate streamlined experience! We're developing a custom ArchRiot ISO that will eliminate the manual Arch installation process entirely.
-
-🚀 **[Preview the ArchRiot ISO Project](https://github.com/CyphrRiot/ArchISO)**
-
-This will provide a single bootable ISO that installs a complete ArchRiot system automatically - no more archinstall configuration or manual setup steps required!
+> **"Coming Soon..." ArchRiot ISO!**
+>
+> Get ready for the ultimate streamlined experience! We're developing a custom ArchRiot ISO that will eliminate the manual Arch installation process entirely.
+>
+> 🚀 **[Preview the ArchRiot ISO Project](https://github.com/CyphrRiot/ArchISO)**
+>
+> This will provide a single bootable ISO that installs a complete ArchRiot system automatically - no more archinstall configuration or manual setup steps required!
 
 **WiFi Setup** (skip if using ethernet):
 
