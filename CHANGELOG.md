@@ -5,6 +5,42 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-07-21
+
+### 🎯 MAJOR: Revolutionary Waybar Update System
+
+- **Complete Waybar Notification Redesign**: Three-state update system with always-visible status
+    - **NEW**: `󰚰` (pulsing red) for new updates available
+    - **NEW**: `󱧘` (steady purple) for updates seen but not upgraded
+    - **NEW**: `-` (dark purple) for no updates available (always visible)
+    - **SOLUTION**: Fast-loading upgrade dialog via cached version data (3s vs 10s)
+    - **SOLUTION**: Eliminates systemd GTK environment issues completely
+    - **IMPACT**: Reliable, always-visible update notifications that just work
+
+### 🎨 UI/UX Improvements
+
+- **Waybar Refinements**: Cleaner, more focused interface
+    - **REMOVED**: Microphone module (reduced clutter)
+    - **REMOVED**: IP addresses from network display (privacy & cleanliness)
+    - **IMPROVED**: Tighter spacing between Mullvad VPN icon and location
+    - **IMPACT**: Streamlined waybar with essential information only
+
+### 🔧 Technical Improvements
+
+- **Seamless Backward Compatibility**: Existing systemd timers automatically benefit
+    - **PRESERVED**: Same `version-check` binary name and systemd service
+    - **AUTOMATIC**: Timer switches from broken GTK-in-systemd to working waybar approach
+    - **NO ACTION REQUIRED**: Users get improved notifications on next system update
+
+### 🐛 Critical Bug Fixes
+
+- **Missing Mako Configuration**: Fixed missing notification theme in installer
+    - **ROOT CAUSE**: Installer lacked `config/mako/` directory for themed notifications
+    - **SOLUTION**: Added proper CypherRiot-themed Mako config for all installations
+    - **IMPACT**: New installations now have properly themed notifications from day one
+
+---
+
 ## [1.1.80] - 2025-07-21
 
 ### 🎯 Major System Improvements

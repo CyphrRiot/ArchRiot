@@ -265,8 +265,8 @@
 "network": {
 	"interface": "wlan0",
 	"format": "{ifname}",
-	"format-wifi": "{icon}  {ipaddr}",
-	"format-ethernet": "󰌘  {ipaddr}",
+	"format-wifi": "{icon}",
+	"format-ethernet": "󰌘",
 	"format-disconnected": "󰌙",
 	"tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
 	"format-linked": "󰈁 {ifname}",

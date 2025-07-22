@@ -174,8 +174,8 @@ main() {
                 ;;
         esac
     else
-        # No update available - package icon, darker
-        echo "{\"text\":\"󰸾\",\"tooltip\":\"ArchRiot is up to date\\nCurrent: $local_version\",\"class\":\"update-none\"}"
+        # No update available - solid circle, darker
+        echo "{\"text\":\"-\",\"tooltip\":\"ArchRiot is up to date\\nCurrent: $local_version\",\"class\":\"update-none\"}"
 
         # Clean up flag files
         [[ -f "$UPDATE_FLAG_FILE" ]] && rm -f "$UPDATE_FLAG_FILE"

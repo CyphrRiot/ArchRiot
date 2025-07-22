@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.1.80-4c1d95)
+![Version](https://img.shields.io/badge/version-1.2.0-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -198,7 +198,7 @@ This comprehensive test validates:
 **Previous Major Improvements**
 
 - 🚀 **Faster System Updates** - New `upgrade-system` command with better progress tracking and error handling
-- 🔄 **Automatic Update Notifications** - Built-in version checking with periodic notifications for new releases
+- 🔄 **Smart Waybar Update Notifications** - Revolutionary 3-state update system with always-visible status indicators
 - 🎯 **Smart App Launching** - SUPER+G intelligently opens or focuses Signal and other applications
 - 🎨 **Visual Polish** - Fixed fonts and improved consistency across all interfaces
 - 📱 **Better Status Bar** - Enhanced Waybar with improved modules and transparency
@@ -482,7 +482,7 @@ version-check --reset                # Reset update notification settings
 
 <div align="center">
 <img src="images/upgrade.png" alt="ArchRiot Update Dialog" width="600">
-<br><em>Automatic update notification dialog with one-click installation</em>
+<br><em>Waybar update notifications: 󰚰 (new), 󱧘 (seen), - (up-to-date) with one-click upgrade dialog</em>
 </div>
 
 Updates ArchRiot by pulling latest changes and re-running the installer. Simple, safe, and reliable - no dangerous migrations.

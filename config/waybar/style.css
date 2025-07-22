@@ -520,7 +520,7 @@ label:focus {
 
 /* Mullvad VPN module */
 #custom-mullvad {
-    padding-left: 2px; /* Reduced padding */
+    padding-left: 0px; /* Tightened spacing */
     padding-right: 6px;
     border-radius: 6px;
     font-size: 98%; /* Match the global waybar font size */
@@ -637,10 +637,9 @@ widget > #custom-mic.muted {
     color: @power_color; /* Same purple as power/lock icons */
 }
 
-/* No updates - darker blue like notification bell */
+/* No updates - dark purple like power/lock icons */
 #custom-archriot-update.update-none {
-    color: @accent5; /* Same blue as other status icons */
-    opacity: 0.7;
+    color: @power_color; /* Same purple as power/lock icons */
 }
 
 @keyframes pulse {

@@ -140,21 +140,21 @@ class UpdateDialog:
         instructions_label = Gtk.Label()
         instructions_text = f"""A new version of ArchRiot ({self.remote_version}) is available!
 
-⦿ The update process will... ⦿
+    The update process will:
 
-• Download the latest ArchRiot setup script •
-• Backup your current configuration •
-• Update system files and scripts •
-• Preserve your personal settings •
+    • Download the latest ArchRiot setup script
+    • Backup your current configuration
+    • Update system files and scripts
+    • Preserve your personal settings
 
 Choose an option below to proceed."""
 
         instructions_label.set_text(instructions_text)
         instructions_label.set_line_wrap(True)
         instructions_label.set_line_wrap_mode(Pango.WrapMode.WORD)
-        instructions_label.set_halign(Gtk.Align.CENTER)
+        instructions_label.set_halign(Gtk.Align.START)
         instructions_label.set_valign(Gtk.Align.CENTER)
-        instructions_label.set_justify(Gtk.Justification.CENTER)
+        instructions_label.set_justify(Gtk.Justification.LEFT)
         instructions_label.set_margin_start(20)
         instructions_label.set_margin_end(20)
         instructions_label.set_margin_top(15)
@@ -334,21 +334,6 @@ Choose an option below to proceed."""
                 f.write(log_message + '\n')
         except Exception:
             pass  # Don't let logging errors break the dialog
-
-    def clear_waybar_state(self):
-        """Clear waybar state files when upgrade is started"""
-        try:
-            update_flag_file = os.path.join(self.config_dir, 'update_available')
-            update_state_file = os.path.join(self.config_dir, 'update_state')
-
-            if os.path.exists(update_flag_file):
-                os.remove(update_flag_file)
-            if os.path.exists(update_state_file):
-                os.remove(update_state_file)
-
-            self.log_dialog_state("Cleared waybar state files")
-        except Exception as e:
-            self.log_dialog_state(f"Failed to clear waybar state: {e}")
 
     def load_config(self):
         """Load version check configuration"""
