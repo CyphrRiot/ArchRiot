@@ -5,6 +5,32 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2025-07-21
+
+### 🔍 Installation Reliability Improvements
+
+- **Visible Failure Tracking**: Added comprehensive failure reporting system to installer
+    - **NEW**: Installation failures are now impossible to miss with big warning messages
+    - **NEW**: Detailed failure log with specific component names and errors
+    - **NEW**: Automatic fix commands provided for failed components
+    - **SOLUTION**: Prevents silent failures that leave systems partially broken
+    - **IMPACT**: Users can immediately identify and fix installation issues
+
+### 📚 Documentation
+
+- **Installer Architecture Documentation**: Added comprehensive INSTALLER.md
+    - **PREVENTS**: Future accidental breaking of installer functionality
+    - **DOCUMENTS**: Complete installation flow and dependencies
+    - **GUIDES**: Safe modification practices for developers
+
+### 🔧 Technical Improvements
+
+- **Enhanced Error Visibility**: Failures are logged and displayed prominently
+- **Recovery Commands**: Automatic generation of fix commands for specific failures
+- **Maintains Compatibility**: All improvements preserve existing installation behavior
+
+---
+
 ## [1.2.1] - 2025-07-21
 
 ### 🚨 CRITICAL HOTFIX

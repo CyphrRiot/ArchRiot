@@ -3,13 +3,28 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Optional installation logging for troubleshooting
+# Failure tracking for visible error reporting
+FAILURE_LOG="$HOME/.local/share/archriot/logs/install_failures.log"
 INSTALL_LOG_FILE="$HOME/.local/share/archriot/logs/install-$(date +%Y%m%d-%H%M%S).log"
+
+# Initialize failure tracking
+mkdir -p "$(dirname "$FAILURE_LOG")"
+rm -f "$FAILURE_LOG"  # Clear any previous failures
+
+# Optional installation logging for troubleshooting
 if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
     mkdir -p "$(dirname "$INSTALL_LOG_FILE")"
     echo "🗂️  Debug mode enabled - logging to: $INSTALL_LOG_FILE"
     exec > >(tee -a "$INSTALL_LOG_FILE") 2>&1
 fi
+
+# Function to log failures visibly
+log_failure() {
+    local module="$1"
+    local error="$2"
+    echo "🚨 FAILURE: $module - $error" | tee -a "$FAILURE_LOG"
+    echo "❌ $module failed but installation continuing..."
+}
 
 # Simple error handler that gives retry instructions and cleans up sudo
 cleanup_on_exit() {
@@ -499,12 +514,31 @@ echo "✓ Desktop database updated"
 # Reload shell configuration
 echo "🐚 Shell configuration will apply to new terminals"
 
-echo ""
-echo "✅ All configurations applied! System is ready to use."
-echo "🔄 Most changes are now active. For complete activation:"
-echo "   • New terminals will have updated shell config"
-echo "   • Hyprland settings are live (if running)"
-echo "   • Waybar has been restarted with new config"
-echo ""
+# Check for installation failures and report them
+if [[ -f "$FAILURE_LOG" && -s "$FAILURE_LOG" ]]; then
+    echo ""
+    echo "⚠️ ⚠️ ⚠️  INSTALLATION COMPLETED WITH FAILURES  ⚠️ ⚠️ ⚠️"
+    echo ""
+    echo "The following components failed during installation:"
+    cat "$FAILURE_LOG"
+    echo ""
+    echo "🔧 To fix these issues, run:"
+    echo "   source ~/.local/share/archriot/install.sh"
+    echo "   # Or fix individual components:"
+    if grep -q "theming" "$FAILURE_LOG"; then
+        echo "   source ~/.local/share/archriot/install/desktop/theming.sh && setup_archriot_theme_system"
+    fi
+    echo ""
+    echo "⚠️  Your system may have missing functionality until these are resolved."
+    echo ""
+else
+    echo ""
+    echo "✅ All configurations applied! System is ready to use."
+    echo "🔄 Most changes are now active. For complete activation:"
+    echo "   • New terminals will have updated shell config"
+    echo "   • Hyprland settings are live (if running)"
+    echo "   • Waybar has been restarted with new config"
+    echo ""
+fi
 
 gum confirm "Reboot to ensure all settings are fully applied?" && reboot
