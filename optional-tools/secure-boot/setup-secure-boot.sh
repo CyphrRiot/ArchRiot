@@ -26,10 +26,8 @@ log() {
 
 print_header() {
     clear
-    echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║${NC}  ${CYAN}🛡️ ArchRiot Secure Boot Setup (The Arch Way) 🛡️${NC}           ${PURPLE}║${NC}"
-    echo -e "${PURPLE}║${NC}  Safe, Standard Arch Linux Implementation                   ${PURPLE}║${NC}"
-    echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${CYAN}🛡️ ArchRiot Secure Boot Setup (The Arch Way) 🛡️${NC}"
+    echo -e "${PURPLE}Safe, Standard Arch Linux Implementation${NC}"
     echo
 }
 

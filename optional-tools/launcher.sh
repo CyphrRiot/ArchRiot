@@ -19,10 +19,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 print_header() {
     clear
-    echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${PURPLE}║${NC}  ${CYAN}🔧 ArchRiot Optional Tools Launcher 🔧${NC}                  ${PURPLE}║${NC}"
-    echo -e "${PURPLE}║${NC}  Advanced tools for power users                            ${PURPLE}║${NC}"
-    echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${CYAN}🔧 ArchRiot Optional Tools Launcher 🔧${NC}"
+    echo -e "${PURPLE}Advanced tools for power users${NC}"
     echo
 }
 
