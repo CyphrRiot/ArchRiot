@@ -111,6 +111,29 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 ~/.local/share/archriot/install.sh
 ```
 
+### Method 3: The Beta ISO for ArchRiot Linux
+
+> ## 🚀 **BETA ArchRiot ISO Available!**
+>
+> Skip the manual Arch installation entirely with our custom ArchRiot ISO!
+>
+> ![ArchRiot ISO Girl](https://github.com/CyphrRiot/ArchISO/blob/main/images/iso_girl.png)
+>
+> ### **Downloads**
+>
+> - **[archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.iso)**
+> - **[archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.sha256)**\_
+>
+> ### **SHA256 Checksum**
+>
+> **Verify the Download**:
+>
+> ```bash
+> sha256sum -c archriot_2025.sha256
+> ```
+>
+> Boot and run `archriot-install` from the prompt!
+
 **Note:** Most users should use Method 1 above. This manual method is only for advanced users who need to customize the installation process.
 
 ## 🖥️ VM Installation Notes
