@@ -81,11 +81,11 @@ test_background_system() {
         local bg_file=$(readlink ~/.config/archriot/current/background)
         local bg_name=$(basename "$bg_file")
 
-        # Check if it's riot_zero (preferred default)
-        if [[ "$bg_name" == *"riot_zero"* ]]; then
-            test_pass "Default background is riot_zero: $bg_name"
+        # Check if it's riot_23 (preferred default)
+        if [[ "$bg_name" == *"riot_23"* ]]; then
+            test_pass "Default background is riot_23: $bg_name"
         else
-            test_warn "Background is not riot_zero: $bg_name"
+            test_warn "Background is not riot_23: $bg_name"
         fi
 
         # Check if file exists

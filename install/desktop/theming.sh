@@ -264,13 +264,13 @@ setup_theme_backgrounds() {
     if [[ -d "$bg_dir" ]]; then
         ln -snf "$bg_dir" ~/.config/archriot/current/backgrounds
 
-        # Set default background (riot_clean.png preferred, or first available)
-        # Try to find riot_clean first (any numbered version)
-        local riot_clean_bg=$(find "$bg_dir" -name "*riot_clean*" | head -1)
+        # Set default background (riot_23.png preferred, or first available)
+        # Try to find riot_23 first (any numbered version)
+        local riot_23_bg=$(find "$bg_dir" -name "*riot_23*" | head -1)
 
-        if [[ -n "$riot_clean_bg" && -f "$riot_clean_bg" ]]; then
-            ln -snf "$riot_clean_bg" ~/.config/archriot/current/background
-            echo "✓ Default background set: $(basename "$riot_clean_bg")"
+        if [[ -n "$riot_23_bg" && -f "$riot_23_bg" ]]; then
+            ln -snf "$riot_23_bg" ~/.config/archriot/current/background
+            echo "✓ Default background set: $(basename "$riot_23_bg")"
         else
             # Fallback to first numbered background (should be 01-)
             local first_bg=$(find "$bg_dir" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
@@ -304,6 +304,19 @@ link_theme_configs() {
         mkdir -p "$HOME/.config/gtk-3.0"
         cp "$HOME/.local/share/archriot/config/gtk-3.0/gtk.css" "$HOME/.config/gtk-3.0/gtk.css"
         echo "✓ GTK dark theme CSS applied"
+    fi
+
+    # Copy GTK settings (includes recent files disabled)
+    if [[ -f "$HOME/.local/share/archriot/config/gtk-3.0/settings.ini" ]]; then
+        mkdir -p "$HOME/.config/gtk-3.0"
+        cp "$HOME/.local/share/archriot/config/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
+        echo "✓ GTK-3.0 settings applied (recent files disabled)"
+    fi
+
+    if [[ -f "$HOME/.local/share/archriot/config/gtk-4.0/settings.ini" ]]; then
+        mkdir -p "$HOME/.config/gtk-4.0"
+        cp "$HOME/.local/share/archriot/config/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
+        echo "✓ GTK-4.0 settings applied (recent files disabled)"
     fi
 
     # Handle hyprlock config specially (link main config that sources theme)
@@ -400,6 +413,8 @@ backup_existing_configs() {
         "$HOME/.config/hypr/hyprlock.conf"
         "$HOME/.config/mako/config"
         "$HOME/.config/gtk-3.0/gtk.css"
+        "$HOME/.config/gtk-3.0/settings.ini"
+        "$HOME/.config/gtk-4.0/settings.ini"
     )
 
     local backed_up=0

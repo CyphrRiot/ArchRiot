@@ -535,7 +535,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 - **Color Palette:** Deep purples, electric blues, and charcoal backgrounds
 - **Waybar Integration:** Fully customized status bar with matching colors
 - **Applications:** Consistent theming across terminal, file manager, and editors
-- **Backgrounds:** 6 riot-themed wallpapers including `riot_zero.png` default
+- **Backgrounds:** 23 riot-themed wallpapers including `riot_23.png` default
 
 #### **tokyo-night** (Alternative Theme)
 
@@ -675,7 +675,7 @@ pgrep waybar                          # Should show running process
 After fresh installation, you should see:
 
 - **Default theme:** CypherRiot (Neo Tokyo Dark aesthetic)
-- **Default background:** riot_zero.png (riot-themed wallpaper)
+- **Default background:** riot_23.png (riot-themed wallpaper)
 - **PDF files:** Show proper document icons (not thumbnails)
 - **Image files:** Show thumbnail previews in Thunar
 - **Waybar:** Running with tomato timer, system stats, and transparent microphone button
