@@ -96,7 +96,7 @@ check_arch() {
 
 check_internet() {
     print_info "Checking internet connection..."
-    if ! ping -c 1 archlinux.org &> /dev/null; then
+    if ! ping -c 1 8.8.8.8 &> /dev/null; then
         print_error "Internet connection required for package installation."
         exit 1
     fi
