@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.2.6-4c1d95)
+![Version](https://img.shields.io/badge/version-1.2.7-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -64,15 +64,7 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 ### Prerequisites: Fresh Arch Linux Setup
 
-Download the Arch Linux ISO, put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick.
-
-> **"Coming Soon..." ArchRiot ISO!**
->
-> Get ready for the ultimate streamlined experience! We're developing a custom ArchRiot ISO that will eliminate the manual Arch installation process entirely.
->
-> 🚀 **[Preview the ArchRiot ISO Project](https://github.com/CyphrRiot/ArchISO)**
->
-> This will provide a single bootable ISO that installs a complete ArchRiot system automatically - no more archinstall configuration or manual setup steps required!
+Download the [Arch Linux ISO](https://archlinux.org/download), put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick. You can also use [Ventoy](https://www.ventoy.net/en/index.html) which is quite simple compared to other options.
 
 **WiFi Setup** (skip if using ethernet):
 
