@@ -117,12 +117,10 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 >
 > Skip the manual Arch installation entirely with our custom ArchRiot ISO!
 >
-> ![ArchRiot ISO Girl](https://github.com/CyphrRiot/ArchISO/blob/main/images/iso_girl.png)
->
 > ### **Downloads**
 >
-> - **[archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.iso)**
-> - **[archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.sha256)**\_
+> - [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.iso)
+> - [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.sha256)
 >
 > ### **SHA256 Checksum**
 >

@@ -69,6 +69,49 @@
       margin: 5px 0;
       line-height: 1.2;
     }
+
+    /* Normalize all markdown links to prevent automatic download button styling */
+    #main_content a {
+      display: inline !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      font-size: inherit !important;
+      line-height: inherit !important;
+      background: none !important;
+      border: none !important;
+      box-sizing: content-box !important;
+      text-decoration: underline !important;
+      color: #63b3ed !important;
+      vertical-align: baseline !important;
+      transform: none !important;
+      position: static !important;
+      float: none !important;
+      clear: none !important;
+      overflow: visible !important;
+      text-align: left !important;
+      white-space: normal !important;
+    }
+
+    /* Ensure hover states remain normal */
+    #main_content a:hover {
+      color: #90cdf4 !important;
+      text-decoration: underline !important;
+      background: none !important;
+      transform: none !important;
+    }
+
+    /* Override any bold link styling */
+    #main_content strong a,
+    #main_content a strong {
+      display: inline !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: none !important;
+      border: none !important;
+      font-weight: bold !important;
+    }
   </style>
 
 {% seo %}
