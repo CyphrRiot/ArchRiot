@@ -113,9 +113,9 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 
 ### Method 3: The Beta ISO for ArchRiot Linux
 
-> ## 🚀 **BETA ArchRiot ISO Available!**
+> ## 🚀 **BETA ArchRiot Linux ISO Available!**
 >
-> Skip the manual Arch installation entirely with our custom ArchRiot ISO!
+> Skip the manual Arch installation entirely with our custom ArchRiot Linux ISO!
 >
 > ### **Downloads**
 >
