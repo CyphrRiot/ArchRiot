@@ -1,5 +1,5 @@
 {
-    "icon_theme": "Catppuccin Mocha",
+    "icon_theme": "Zed (Default)",
     "agent": {
         "inline_assistant_model": {
             "provider": "zed.dev",
