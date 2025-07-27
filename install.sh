@@ -3,13 +3,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Failure tracking for visible error reporting
-FAILURE_LOG="$HOME/.local/share/archriot/logs/install_failures.log"
-INSTALL_LOG_FILE="$HOME/.local/share/archriot/logs/install-$(date +%Y%m%d-%H%M%S).log"
-
-# Initialize failure tracking
-mkdir -p "$(dirname "$FAILURE_LOG")"
-rm -f "$FAILURE_LOG"  # Clear any previous failures
+# Legacy variables for backward compatibility
+INSTALL_LOG_FILE="$HOME/.cache/archriot/install.log"
 
 # Optional installation logging for troubleshooting
 if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
@@ -22,7 +17,7 @@ fi
 log_failure() {
     local module="$1"
     local error="$2"
-    echo "🚨 FAILURE: $module - $error" | tee -a "$FAILURE_LOG"
+    echo "[$(date)] FAILURE: $module - $error" >> "$HOME/.cache/archriot/install.log"
     echo "❌ $module failed but installation continuing..."
 }
 
@@ -96,6 +91,8 @@ fi
 # Load clean progress system for better user feedback during installation
 if [ -f "$HOME/.local/share/archriot/install/lib/simple-progress.sh" ]; then
     source "$HOME/.local/share/archriot/install/lib/simple-progress.sh"
+    # Initialize single error log file
+    init_error_log
 fi
 
 
@@ -133,7 +130,7 @@ declare -a install_modules=(
     "core/03-config.sh"     # Config installation and validation (after desktop components exist)
     "core/04-shell.sh"      # Shell configuration
     "system"                # System-level functionality (audio, networking, bluetooth, etc.)
-    "development"           # Development tools (editors, tools, containers)
+    "development"           # Development tools (editors, tools)
     "applications"          # User applications (media, productivity, communication, utilities)
     "optional"              # Optional components (specialty apps)
 )
@@ -177,7 +174,7 @@ get_installer_files() {
                 skip_file=true ;;
             "desktop.sh"|"hyprlandia.sh"|"z-theme-final.sh"|"fonts.sh")
                 skip_file=true ;;
-            "development.sh"|"nvim.sh"|"docker.sh")
+            "development.sh"|"nvim.sh")
                 skip_file=true ;;
             "xtras.sh")
                 skip_file=true ;;
@@ -279,7 +276,7 @@ process_installer_with_progress() {
         *theme*|*font*) color="YELLOW" ;;
         *shell*|*terminal*) color="GREEN" ;;
         *audio*|*network*|*bluetooth*|*power*) color="ORANGE" ;;
-        *development*|*nvim*|*docker*) color="CYAN" ;;
+        *development*|*nvim*) color="CYAN" ;;
         *application*|*media*|*productivity*) color="GREEN" ;;
         *optional*|*xtras*) color="YELLOW" ;;
         *plymouth*|*final*) color="PURPLE" ;;
@@ -306,6 +303,12 @@ process_installer_with_progress() {
         if command -v start_module &>/dev/null; then
             start_module "$installer_name" "$color"
         fi
+
+        # Special warning for Plymouth before output capture
+        if [[ "$installer_name" == "plymouth" ]]; then
+            echo "⏳ Installing LUKS update (be patient - this takes a while)..."
+        fi
+
         run_command_clean "source '$installer_file'" "$installer_name" "$color"
     else
         # Fallback to original method
@@ -566,19 +569,15 @@ echo "✓ Desktop database updated"
 echo "🐚 Shell configuration will apply to new terminals"
 
 # Check for installation failures and report them
-if [[ -f "$FAILURE_LOG" && -s "$FAILURE_LOG" ]]; then
+if [[ -f "$HOME/.cache/archriot/install.log" ]] && grep -q "FAILURE\|ERROR" "$HOME/.cache/archriot/install.log" 2>/dev/null; then
     echo ""
     echo "⚠️ ⚠️ ⚠️  INSTALLATION COMPLETED WITH FAILURES  ⚠️ ⚠️ ⚠️"
     echo ""
-    echo "The following components failed during installation:"
-    cat "$FAILURE_LOG"
+    echo "Some components failed during installation."
+    echo "Check the log for details: ~/.cache/archriot/install.log"
     echo ""
     echo "🔧 To fix these issues, run:"
     echo "   source ~/.local/share/archriot/install.sh"
-    echo "   # Or fix individual components:"
-    if grep -q "theming" "$FAILURE_LOG"; then
-        echo "   source ~/.local/share/archriot/install/desktop/theming.sh && setup_archriot_theme_system"
-    fi
     echo ""
     echo "⚠️  Your system may have missing functionality until these are resolved."
     echo ""

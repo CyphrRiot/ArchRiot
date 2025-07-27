@@ -29,15 +29,18 @@ START_TIME=""
 CURRENT_PHASE=""
 PHASE_COUNT=0
 TOTAL_PHASES=0
-LOG_DIR="/tmp/archriot-install"
+LOG_FILE="$HOME/.cache/archriot/install.log"
 
 # Disable progress in non-interactive terminals
 if [[ ! -t 1 ]] || [[ -z "$TERM" ]] || [[ "$TERM" == "dumb" ]]; then
     PROGRESS_ENABLED=false
 fi
 
-# Create log directory
-mkdir -p "$LOG_DIR"
+# Initialize single log file
+init_error_log() {
+    mkdir -p "$(dirname "$LOG_FILE")"
+    echo "=== ArchRiot Installation Log - $(date) ===" > "$LOG_FILE"
+}
 
 # Initialize progress tracking
 init_clean_progress() {
@@ -111,10 +114,8 @@ install_packages_clean() {
     local packages="$1"
     local phase_name="$2"
     local color="${3:-BLUE}"
-    local log_file="$LOG_DIR/$(date +%s)-$(echo "$phase_name" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').log"
 
     echo -e "${COLORS[BLUE]}📦 Installing: $packages${COLORS[RESET]}"
-    echo -e "${COLORS[GRAY]}   (Output logged to: $log_file)${COLORS[RESET]}"
 
     # Install with output captured - use yay if available, otherwise fallback to pacman
     local install_cmd
@@ -124,27 +125,34 @@ install_packages_clean() {
         install_cmd="sudo pacman -S --noconfirm --needed $packages"
     fi
 
-    if $install_cmd > "$log_file" 2>&1; then
-        echo -e "${COLORS[PURPLE]}✓ Successfully installed${COLORS[RESET]}"
-
-        # Show any warnings from the log
-        if grep -q "warning:" "$log_file"; then
-            local warnings=$(grep "warning:" "$log_file" | wc -l)
-            echo -e "${COLORS[YELLOW]}  ⚠ $warnings warnings (see log for details)${COLORS[RESET]}"
+    # Capture output to check for warnings/errors
+    local temp_output=$(mktemp)
+    if $install_cmd > "$temp_output" 2>&1; then
+        # Check for warnings and log them
+        if grep -q "warning:" "$temp_output"; then
+            local warnings=$(grep "warning:" "$temp_output" | wc -l)
+            echo -e "${COLORS[YELLOW]}  ⚠ $warnings warnings${COLORS[RESET]}"
+            echo "[$(date)] WARNINGS in $phase_name:" >> "$LOG_FILE"
+            grep "warning:" "$temp_output" >> "$LOG_FILE"
+            echo "" >> "$LOG_FILE"
         fi
 
+        echo -e "${COLORS[PURPLE]}✓ Successfully installed${COLORS[RESET]}"
+        rm -f "$temp_output"
         echo
         return 0
     else
         local exit_code=$?
         echo -e "${COLORS[RED]}❌ Installation failed (exit code: $exit_code)${COLORS[RESET]}"
+        echo -e "${COLORS[YELLOW]}Error details logged to: ~/.cache/archriot/install.log${COLORS[RESET]}"
+
+        # Log error details
+        echo "[$(date)] ERROR in $phase_name ($packages):" >> "$LOG_FILE"
+        cat "$temp_output" >> "$LOG_FILE"
+        echo "" >> "$LOG_FILE"
+
+        rm -f "$temp_output"
         echo
-        echo -e "${COLORS[RED]}Error details:${COLORS[RESET]}"
-        echo -e "${COLORS[GRAY]}$(printf '─%.0s' {1..60})${COLORS[RESET]}"
-        cat "$log_file"
-        echo -e "${COLORS[GRAY]}$(printf '─%.0s' {1..60})${COLORS[RESET]}"
-        echo
-        echo -e "${COLORS[YELLOW]}Full log saved to: $log_file${COLORS[RESET]}"
         return $exit_code
     fi
 }
@@ -154,28 +162,30 @@ run_command_clean() {
     local command="$1"
     local phase_name="$2"
     local color="${3:-BLUE}"
-    local log_file="$LOG_DIR/$(date +%s)-$(echo "$phase_name" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').log"
 
     show_phase_progress "$phase_name" "$color"
 
     echo -e "${COLORS[BLUE]}⚙ Running: $phase_name${COLORS[RESET]}"
-    echo -e "${COLORS[GRAY]}   (Output logged to: $log_file)${COLORS[RESET]}"
 
     # Run command with output captured
-    if eval "$command" > "$log_file" 2>&1; then
+    local temp_output=$(mktemp)
+    if eval "$command" > "$temp_output" 2>&1; then
         echo -e "${COLORS[PURPLE]}✓ Successfully completed${COLORS[RESET]}"
+        rm -f "$temp_output"
         echo
         return 0
     else
         local exit_code=$?
         echo -e "${COLORS[RED]}❌ Command failed (exit code: $exit_code)${COLORS[RESET]}"
+        echo -e "${COLORS[YELLOW]}Error details logged to: ~/.cache/archriot/install.log${COLORS[RESET]}"
+
+        # Log error details
+        echo "[$(date)] ERROR in $phase_name:" >> "$LOG_FILE"
+        cat "$temp_output" >> "$LOG_FILE"
+        echo "" >> "$LOG_FILE"
+
+        rm -f "$temp_output"
         echo
-        echo -e "${COLORS[RED]}Error details:${COLORS[RESET]}"
-        echo -e "${COLORS[GRAY]}$(printf '─%.0s' {1..60})${COLORS[RESET]}"
-        cat "$log_file"
-        echo -e "${COLORS[GRAY]}$(printf '─%.0s' {1..60})${COLORS[RESET]}"
-        echo
-        echo -e "${COLORS[YELLOW]}Full log saved to: $log_file${COLORS[RESET]}"
         return $exit_code
     fi
 }
@@ -204,7 +214,7 @@ complete_clean_installation() {
         echo -e "${COLORS[GRAY]}Total time: ${total_seconds}s${COLORS[RESET]}"
     fi
 
-    echo -e "${COLORS[GRAY]}Installation logs: $LOG_DIR${COLORS[RESET]}"
+    echo -e "${COLORS[GRAY]}Installation log: ~/.cache/archriot/install.log${COLORS[RESET]}"
     echo
 }
 
@@ -220,7 +230,7 @@ show_clean_failure() {
         local elapsed_seconds=$(($(date +%s) - START_TIME))
         local elapsed_minutes=$((elapsed_seconds / 60))
         echo -e "${COLORS[GRAY]}Time elapsed: ${elapsed_minutes}m${COLORS[RESET]}"
-        echo -e "${COLORS[GRAY]}Installation logs: $LOG_DIR${COLORS[RESET]}"
+        echo -e "${COLORS[GRAY]}Installation log: ~/.cache/archriot/install.log${COLORS[RESET]}"
         echo
         echo -e "${COLORS[YELLOW]}To retry installation:${COLORS[RESET]}"
         echo -e "${COLORS[WHITE]}  source ~/.local/share/archriot/install.sh${COLORS[RESET]}"
@@ -229,7 +239,9 @@ show_clean_failure() {
 
 # Clean up old log files (optional)
 cleanup_old_logs() {
-    find "$LOG_DIR" -name "*.log" -mtime +7 -delete 2>/dev/null || true
+    # Single log file - no cleanup needed
+    # User can manually delete ~/.cache/archriot/install.log if desired
+    return 0
 }
 
 # Enhanced wrapper functions for backward compatibility
@@ -271,6 +283,6 @@ resume_progress() {
 }
 
 # Export functions for use in installers
-export -f init_clean_progress start_module show_phase_progress install_packages_clean
+export -f init_error_log init_clean_progress start_module show_phase_progress install_packages_clean
 export -f run_command_clean complete_clean_installation show_clean_failure
 export -f install_packages install_essential install_optional cleanup_old_logs
