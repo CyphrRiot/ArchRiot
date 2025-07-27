@@ -46,24 +46,40 @@ fi
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
-# NUCLEAR cleanup of ALL ArchRiot/ArchRiot directories before fresh install
-echo -e "\n🧹 NUCLEAR cleanup of old installations..."
-echo "   Removing ALL ArchRiot and ArchRiot directories..."
-rm -rf ~/.local/share/archriot/
-rm -rf ~/.local/share/archriot/
+# Cleanup OLD installations only
+echo -e "\n🧹 Cleaning up old OhmArchy installations..."
+rm -rf ~/.local/share/ohmarchy/
+rm -rf ~/.config/ohmarchy/
+echo "✓ Old installations cleaned"
 
-# Force fresh download with cache busting
-echo -e "📥 Downloading ArchRiot with cache-busting headers..."
-rm -rf ~/.config/archriot/
-rm -rf ~/.config/archriot/
-echo "✓ Cleanup complete - fresh install guaranteed"
+# Smart ArchRiot installation/update
+if [[ -d ~/.local/share/archriot/.git ]]; then
+    echo -e "\n🔄 Updating existing ArchRiot installation..."
+    cd ~/.local/share/archriot
 
-# Clone ArchRiot repository
-echo -e "\nCloning ArchRiot..."
-git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
-    echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
-    exit 1
-}
+    # Safe update with fallback to fresh clone
+    if git fetch origin && git reset --hard origin/master; then
+        echo "✓ ArchRiot updated successfully"
+    else
+        echo "⚠ Update failed, performing fresh installation..."
+        cd - >/dev/null
+        rm -rf ~/.local/share/archriot
+        git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
+            echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
+            exit 1
+        }
+        echo "✓ Fresh installation completed"
+    fi
+    cd - >/dev/null
+else
+    echo -e "\n📥 Fresh ArchRiot installation..."
+    rm -rf ~/.local/share/archriot  # Remove any non-git directory
+    git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
+        echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
+        exit 1
+    }
+    echo "✓ ArchRiot cloned successfully"
+fi
 
 # Switch to custom branch if specified
 if [[ -n "$ARCHRIOT_REF" ]]; then
