@@ -38,7 +38,9 @@ ArchRiot is a privacy-focused Arch Linux setup that delivers a complete, functio
 - **Privacy First:** No telemetry, no data collection, privacy-respecting applications
 - **Fully Customizable:** Modify, extend, or strip down to your exact needs
 
-_Created by an experienced developer and privacy advocate - this is the Linux system I've always wanted to use._
+_Created by an long-time Linux user, experienced developer, and privacy advocate - this is the Linux system I've always wanted to use._
+
+🎉 Thank you to [Vaxryy](https://x.com/vaxryy) for creating Hyprland! ✨
 
 ![ArchRiot Screenshot](images/screenshot.png)
 
