@@ -743,11 +743,26 @@ def main():
                     else:
                         print("No update available in flag file")
                 else:
-                    print("No update flag file found")
+                    # No flag file exists - do a quick check for fresh installs
+                    print("No update flag file found - checking for updates...")
+                    local_version = checker.get_local_version()
+                    remote_version = checker.get_remote_version()
+
+                    if local_version and remote_version and checker.is_newer_version(local_version, remote_version):
+                        print(f"Update found: {local_version} -> {remote_version}")
+                        # Create flag file for future fast access
+                        os.makedirs(checker.config_dir, exist_ok=True)
+                        with open(update_flag_file, 'w') as f:
+                            f.write(f"UPDATE_AVAILABLE:{local_version}->{remote_version}\n")
+
+                        # Launch dialog
+                        dialog = UpdateDialog(local_version, remote_version)
+                        dialog.waybar_managed = True
+                        Gtk.main()
+                    else:
+                        print("No updates available")
             except Exception as e:
-                print(f"Error launching fast GUI: {e}")
-                # Fallback to normal force check
-                checker.run_check(force=True)
+                print(f"Error launching GUI: {e}")
         else:
             print("Usage: version-check [--force|--test|--reset|--reset-notifications|--clear-flag|--gui]")
             sys.exit(1)
