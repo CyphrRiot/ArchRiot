@@ -8,7 +8,7 @@
 
 # Install system utilities
 if command -v install_packages_clean &>/dev/null; then
-    install_packages_clean "btop neofetch fastfetch tree wget curl unzip p7zip" "Installing system utilities" "GREEN"
+    install_packages_clean "btop fastfetch tree wget curl unzip p7zip" "Installing system utilities" "GREEN"
     install_packages_clean "thunar thunar-volman thunar-archive-plugin gvfs gvfs-mtp" "Installing file management" "GREEN"
     install_packages_clean "gnome-system-monitor" "Installing system monitoring" "GREEN"
     install_packages_clean "iwgtk" "Installing network utilities" "GREEN"
@@ -19,7 +19,6 @@ else
     # Fallback to direct yay commands
     yay -S --noconfirm --needed \
       btop \
-      neofetch \
       fastfetch \
       tree \
       wget \
