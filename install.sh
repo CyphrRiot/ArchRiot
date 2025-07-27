@@ -29,10 +29,14 @@ log_failure() {
 # Simple error handler that gives retry instructions and cleans up sudo
 cleanup_on_exit() {
     echo "❌ ArchRiot installation failed! You can retry by running: source $HOME/.local/share/archriot/install.sh"
+    echo "💡 Most components are idempotent - re-running will skip already installed items"
     # Clean up sudo if helper is available
-    if command -v cleanup_passwordless_sudo &>/dev/null; then
-        echo "🔒 Cleaning up sudo configuration..."
-        cleanup_passwordless_sudo 2>/dev/null || true
+    if [ -f "$HOME/.local/share/archriot/install/lib/sudo-helper.sh" ]; then
+        source "$HOME/.local/share/archriot/install/lib/sudo-helper.sh" 2>/dev/null || true
+        if command -v cleanup_passwordless_sudo &>/dev/null; then
+            echo "🔒 Cleaning up sudo configuration..."
+            cleanup_passwordless_sudo 2>/dev/null || true
+        fi
     fi
 }
 trap cleanup_on_exit ERR
@@ -56,15 +60,28 @@ sudo pacman -Sy --noconfirm --needed base-devel git rsync bc || {
 if ! command -v yay &>/dev/null; then
     echo "📦 Installing yay AUR helper..."
     cd /tmp
-    git clone https://aur.archlinux.org/yay-bin.git
+    git clone https://aur.archlinux.org/yay-bin.git || {
+        echo "❌ CRITICAL: Failed to clone yay-bin repository"
+        exit 1
+    }
     cd yay-bin
-    makepkg -si --noconfirm
+    makepkg -si --noconfirm || {
+        echo "❌ CRITICAL: yay installation failed"
+        exit 1
+    }
     cd /
     rm -rf /tmp/yay-bin
 
     # Refresh PATH
     export PATH="/usr/bin:$PATH"
     hash -r 2>/dev/null || true
+
+    # Verify yay is now available after PATH refresh
+    if ! command -v yay &>/dev/null; then
+        echo "❌ CRITICAL: yay not found in PATH after installation"
+        echo "   Try opening a new terminal and running the installer again"
+        exit 1
+    fi
 
     # Verify yay is now available
     if ! command -v yay &>/dev/null; then
@@ -279,6 +296,9 @@ process_installer_with_progress() {
             echo "✓ Successfully completed"
         else
             echo "❌ Failed: $installer_name"
+            echo "⚠ System may be in partially configured state"
+            echo "💡 To rollback: restore from backup at ~/.config-backup-$(date +%Y%m%d) (if created)"
+            echo "🔄 To retry: source ~/.local/share/archriot/install.sh"
             exit 1
         fi
     elif command -v run_command_clean &>/dev/null; then
@@ -309,6 +329,9 @@ process_installer_with_progress() {
             fi
         else
             echo "❌ Failed: $installer_name"
+            echo "⚠ System may be in partially configured state"
+            echo "💡 To rollback: restore from backup at ~/.config-backup-$(date +%Y%m%d) (if created)"
+            echo "🔄 To retry: source ~/.local/share/archriot/install.sh"
             exit 1
         fi
     fi
@@ -434,7 +457,24 @@ echo "⏱️  Total installation time: ${INSTALL_DURATION_MIN}m ${INSTALL_DURATI
 # Ensure gum is available for final prompt (BEFORE sudo cleanup)
 if ! command -v gum &>/dev/null; then
     echo "Installing gum for final prompt..."
-    yay -S --noconfirm --needed gum
+    yay -S --noconfirm --needed gum || {
+        echo "❌ CRITICAL: Failed to install gum"
+        echo "   gum is required for ArchRiot user interface"
+        exit 1
+    }
+fi
+
+# Verify gum is actually working
+if ! command -v gum &>/dev/null; then
+    echo "❌ CRITICAL: gum not available after installation"
+    exit 1
+fi
+
+# Update local version file after successful installation
+echo "🔖 Updating local version file..."
+if [[ -n "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
+    echo "$ARCHRIOT_VERSION" > "$HOME/.local/share/archriot/VERSION"
+    echo "✓ Version $ARCHRIOT_VERSION recorded"
 fi
 
 # Clean up passwordless sudo after installation
@@ -476,10 +516,15 @@ echo "=================================================="
 # Reload Hyprland configuration if running
 if pgrep -x "Hyprland" >/dev/null; then
     echo "🖼️  Reloading Hyprland configuration..."
-    if hyprctl reload 2>/dev/null; then
-        echo "✓ Hyprland configuration reloaded successfully"
+    # Test config syntax first to avoid crashing session
+    if hyprctl keyword misc:disable_hyprland_logo true 2>/dev/null; then
+        if hyprctl reload 2>/dev/null; then
+            echo "✓ Hyprland configuration reloaded successfully"
+        else
+            echo "⚠ Failed to reload Hyprland - will apply on next start"
+        fi
     else
-        echo "⚠ Failed to reload Hyprland - will apply on next start"
+        echo "⚠ Hyprland config test failed - skipping reload to protect session"
     fi
 else
     echo "ℹ Hyprland not running - configuration will apply on next start"
@@ -488,10 +533,16 @@ fi
 # Restart Waybar if running
 if pgrep -x "waybar" >/dev/null; then
     echo "📊 Restarting Waybar..."
-    pkill waybar 2>/dev/null || true
-    sleep 1
-    waybar &>/dev/null &
-    echo "✓ Waybar restarted with new configuration"
+    # Test new config before killing current waybar
+    if waybar --config ~/.config/waybar/config --style ~/.config/waybar/style.css --dry-run 2>/dev/null; then
+        pkill waybar 2>/dev/null || true
+        sleep 1
+        waybar &>/dev/null &
+        echo "✓ Waybar restarted with new configuration"
+    else
+        echo "⚠ Waybar config test failed - keeping current instance running"
+        echo "  New configuration will apply on next manual restart"
+    fi
 else
     echo "ℹ Waybar not running - will use new configuration when started"
 fi

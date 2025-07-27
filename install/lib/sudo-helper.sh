@@ -100,10 +100,26 @@ add_wheel_rule() {
 
         # Validate and apply
         if sudo visudo -c -f "$temp_file" >/dev/null 2>&1; then
-            sudo cp "$temp_file" /etc/sudoers
-            rm -f "$temp_file"
-            print_status "INFO" "✓ Wheel group passwordless sudo enabled"
-            return 0
+            # Atomic replacement: backup original, then replace
+            sudo cp /etc/sudoers /etc/sudoers.archriot-backup || {
+                rm -f "$temp_file"
+                print_status "ERROR" "Failed to backup sudoers file"
+                return 1
+            }
+
+            if sudo cp "$temp_file" /etc/sudoers; then
+                sudo rm -f /etc/sudoers.archriot-backup
+                rm -f "$temp_file"
+                print_status "INFO" "✓ Wheel group passwordless sudo enabled"
+                return 0
+            else
+                # Restore backup if copy failed
+                sudo cp /etc/sudoers.archriot-backup /etc/sudoers
+                sudo rm -f /etc/sudoers.archriot-backup
+                rm -f "$temp_file"
+                print_status "ERROR" "Failed to update sudoers file (restored backup)"
+                return 1
+            fi
         else
             rm -f "$temp_file"
             print_status "ERROR" "Failed to add wheel rule (syntax error)"
@@ -208,9 +224,19 @@ setup_passwordless_sudo() {
         add_wheel_rule || return 1
     fi
 
-    # Force reload sudo rules and test
+    # Force reload sudo rules and wait for it to take effect
     sudo -k
-    sleep 1
+
+    # Wait for sudo to properly reload (with timeout)
+    local max_attempts=10
+    local attempt=0
+    while [ $attempt -lt $max_attempts ]; do
+        if sudo -n true 2>/dev/null; then
+            break
+        fi
+        attempt=$((attempt + 1))
+        sleep 0.5
+    done
 
     # Test if it works
     if is_passwordless; then

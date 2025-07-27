@@ -34,7 +34,7 @@ if [[ -f "$HOME/.local/share/archriot/VERSION" ]]; then
 fi
 
 # Compare versions and exit if they match
-if [[ -n "$LOCAL_VERSION" && "$LOCAL_VERSION" == "$ARCHRIOT_VERSION" ]]; then
+if [[ -n "$LOCAL_VERSION" && "$LOCAL_VERSION" == "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
     echo -e "✨ ${PURPLE}ArchRiot v$ARCHRIOT_VERSION is already installed!${NC}"
     echo -e "📦 Your system is up to date - no upgrade needed."
     echo -e "🔄 To force reinstall: rm -rf ~/.local/share/archriot && curl -fsSL https://ArchRiot.org/setup.sh | bash"
@@ -57,6 +57,13 @@ if [[ -d ~/.local/share/archriot/.git ]]; then
     echo -e "\n🔄 Updating existing ArchRiot installation..."
     cd ~/.local/share/archriot
 
+    # Backup any local changes before destructive reset
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        backup_dir="$HOME/.local/share/archriot-backup-$(date +%Y%m%d-%H%M%S)"
+        cp -r ~/.local/share/archriot "$backup_dir"
+        echo "📦 Local changes backed up to: $backup_dir"
+    fi
+
     # Safe update with fallback to fresh clone
     if git fetch origin && git reset --hard origin/master; then
         echo "✓ ArchRiot updated successfully"
@@ -66,8 +73,19 @@ if [[ -d ~/.local/share/archriot/.git ]]; then
         rm -rf ~/.local/share/archriot
         git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
             echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
+            echo "🧹 Cleaning up partial download..."
+            rm -rf ~/.local/share/archriot
             exit 1
         }
+
+        # Verify clone contains required files
+        if [[ ! -f ~/.local/share/archriot/install.sh ]]; then
+            echo "❌ CRITICAL: Clone incomplete - install.sh missing"
+            echo "   Repository may be corrupted or incomplete"
+            rm -rf ~/.local/share/archriot
+            exit 1
+        fi
+
         echo "✓ Fresh installation completed"
     fi
     cd - >/dev/null
@@ -76,8 +94,19 @@ else
     rm -rf ~/.local/share/archriot  # Remove any non-git directory
     git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
         echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
+        echo "🧹 Cleaning up partial download..."
+        rm -rf ~/.local/share/archriot
         exit 1
     }
+
+    # Verify clone contains required files
+    if [[ ! -f ~/.local/share/archriot/install.sh ]]; then
+        echo "❌ CRITICAL: Clone incomplete - install.sh missing"
+        echo "   Repository may be corrupted or incomplete"
+        rm -rf ~/.local/share/archriot
+        exit 1
+    fi
+
     echo "✓ ArchRiot cloned successfully"
 fi
 
