@@ -31,6 +31,7 @@ if ! grep "^HOOKS=" /etc/mkinitcpio.conf | grep -q "plymouth"; then
 
   # Regenerate initramfs only if we modified hooks
   echo "🔄 Regenerating initramfs with Plymouth support..."
+  echo "⏳ Installing LUKS update (be patient - this takes a while)..."
   sudo mkinitcpio -P
 fi
 
