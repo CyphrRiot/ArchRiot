@@ -318,12 +318,12 @@ process_installer_with_progress() {
 # Priority: local repo (development) → installed location → GitHub fallback
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
-    OMARCHY_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
+    ARCHRIOT_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 elif [ -f "$HOME/.local/share/archriot/VERSION" ]; then
-    OMARCHY_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
+    ARCHRIOT_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
 else
     # Fetch version from GitHub when running via curl
-    OMARCHY_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION 2>/dev/null || echo "unknown")
+    ARCHRIOT_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION 2>/dev/null || echo "unknown")
 fi
 
 # Track installation performance
@@ -332,7 +332,7 @@ INSTALL_START_DATE=$(date)
 
 echo "🚀 Starting ArchRiot Installation (Fixed Module Order)"
 echo "====================================================="
-echo "Version: $OMARCHY_VERSION"
+echo "Version: $ARCHRIOT_VERSION"
 echo "Total modules: ${#install_modules[@]}"
 echo "Start time: $INSTALL_START_DATE"
 echo "🔒 Sudo status: $(if sudo -n true 2>/dev/null; then echo "Passwordless ✓"; else echo "Will prompt for password"; fi)"
@@ -427,7 +427,7 @@ INSTALL_DURATION_SEC=$((INSTALL_DURATION % 60))
 
 echo "================================="
 echo "🎉 ArchRiot installation complete!"
-echo "Version: $OMARCHY_VERSION"
+echo "Version: $ARCHRIOT_VERSION"
 echo "Completed at: $(date)"
 echo "⏱️  Total installation time: ${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s"
 

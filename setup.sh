@@ -46,16 +46,16 @@ fi
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
-# NUCLEAR cleanup of ALL ArchRiot/OhmArchy directories before fresh install
+# NUCLEAR cleanup of ALL ArchRiot/ArchRiot directories before fresh install
 echo -e "\n🧹 NUCLEAR cleanup of old installations..."
-echo "   Removing ALL ArchRiot and OhmArchy directories..."
+echo "   Removing ALL ArchRiot and ArchRiot directories..."
 rm -rf ~/.local/share/archriot/
-rm -rf ~/.local/share/omarchy/
+rm -rf ~/.local/share/archriot/
 
 # Force fresh download with cache busting
 echo -e "📥 Downloading ArchRiot with cache-busting headers..."
 rm -rf ~/.config/archriot/
-rm -rf ~/.config/omarchy/
+rm -rf ~/.config/archriot/
 echo "✓ Cleanup complete - fresh install guaranteed"
 
 # Clone ArchRiot repository
@@ -66,14 +66,14 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
 }
 
 # Switch to custom branch if specified
-if [[ -n "$OMARCHY_REF" ]]; then
-    echo -e "\nUsing branch: $OMARCHY_REF"
+if [[ -n "$ARCHRIOT_REF" ]]; then
+    echo -e "\nUsing branch: $ARCHRIOT_REF"
     if cd ~/.local/share/archriot &&
-       git fetch origin "${OMARCHY_REF}" &&
-       git checkout "${OMARCHY_REF}"; then
-        echo "✓ Switched to branch $OMARCHY_REF"
+       git fetch origin "${ARCHRIOT_REF}" &&
+       git checkout "${ARCHRIOT_REF}"; then
+        echo "✓ Switched to branch $ARCHRIOT_REF"
     else
-        echo "⚠ Failed to switch to branch $OMARCHY_REF, using default"
+        echo "⚠ Failed to switch to branch $ARCHRIOT_REF, using default"
     fi
     cd - >/dev/null
 fi

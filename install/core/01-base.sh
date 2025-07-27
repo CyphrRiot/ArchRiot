@@ -44,7 +44,7 @@ install_yay() {
         return 0
     fi
 
-    echo "📦 Installing yay AUR helper (required for OhmArchy packages)..."
+    echo "📦 Installing yay AUR helper (required for ArchRiot packages)..."
 
     # Verify prerequisites
     if ! command -v git &>/dev/null; then
@@ -157,7 +157,7 @@ fi
 
 if ! install_yay; then
     echo "❌ CRITICAL: yay AUR helper installation failed"
-    echo "   OhmArchy requires yay to install AUR packages"
+    echo "   ArchRiot requires yay to install AUR packages"
     echo "   Please install yay manually and try again"
     exit 1
 fi

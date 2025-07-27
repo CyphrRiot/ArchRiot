@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# OhmArchy Shared Library
+# ArchRiot Shared Library
 # Central library that loads all common functions for installation scripts
 # =============================================================================
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Specialty Applications Setup
+# ArchRiot Specialty Applications Setup
 # ==============================================================================
 # Optional specialty applications installation supporting:
 # - Financial tools (cryptocurrency wallets, trading)

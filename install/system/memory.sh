@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OhmArchy Memory Optimization Configuration
+# ArchRiot Memory Optimization Configuration
 # Intelligent memory management that prevents aggressive caching and preserves 1GB free RAM
 
 set -e
@@ -12,7 +12,7 @@ echo "📝 Creating memory optimization configuration..."
 
 # Create the sysctl configuration file
 sudo tee /etc/sysctl.d/99-memory-optimization.conf >/dev/null <<EOF
-# OhmArchy Memory Management Optimization
+# ArchRiot Memory Management Optimization
 # Fixes Linux's aggressive caching behavior that consumes all available RAM
 
 # Reserve 1GB of free memory (1048576 KB)

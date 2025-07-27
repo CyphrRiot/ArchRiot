@@ -10,7 +10,7 @@
 CURRENT_USER="$(whoami)"
 WHEEL_SUDO_RULE="%wheel ALL=(ALL) NOPASSWD: ALL"
 ARCHRIOT_SUDO_MARKER="# ArchRiot Auto-Generated"
-OMARCHY_SUDO_MARKER="# OhmArchy temporary rule"
+ARCHRIOT_SUDO_MARKER="# ArchRiot temporary rule"
 
 # Colors for output
 RED='\033[0;31m'
@@ -139,10 +139,10 @@ remove_passwordless_rule() {
         fi
     fi
 
-    # Also remove any OhmArchy legacy files
-    if sudo grep -q "$OMARCHY_SUDO_MARKER" /etc/sudoers 2>/dev/null; then
-        if sudo sed -i "/$OMARCHY_SUDO_MARKER/d" /etc/sudoers; then
-            print_status "INFO" "✓ Removed legacy OhmArchy sudo rule"
+    # Also remove any ArchRiot legacy files
+    if sudo grep -q "$ARCHRIOT_SUDO_MARKER" /etc/sudoers 2>/dev/null; then
+        if sudo sed -i "/$ARCHRIOT_SUDO_MARKER/d" /etc/sudoers; then
+            print_status "INFO" "✓ Removed legacy ArchRiot sudo rule"
         fi
     fi
 
@@ -166,7 +166,7 @@ show_current_sudo_state() {
     fi
 
     # Check for legacy rules
-    if sudo grep -q "$OMARCHY_SUDO_MARKER\|$ARCHRIOT_SUDO_MARKER" /etc/sudoers 2>/dev/null; then
+    if sudo grep -q "$ARCHRIOT_SUDO_MARKER\|$ARCHRIOT_SUDO_MARKER" /etc/sudoers 2>/dev/null; then
         print_status "INFO" "  • Legacy sudo rules found: YES (will be cleaned up)"
     else
         print_status "INFO" "  • Legacy sudo rules found: NO"
@@ -302,8 +302,8 @@ validate_passwordless_sudo() {
     fi
 }
 
-# Emergency cleanup (removes any OhmArchy rules)
+# Emergency cleanup (removes any ArchRiot rules)
 emergency_cleanup() {
-    print_status "WARN" "Emergency cleanup - removing all OhmArchy sudo rules..."
+    print_status "WARN" "Emergency cleanup - removing all ArchRiot sudo rules..."
     remove_passwordless_rule
 }

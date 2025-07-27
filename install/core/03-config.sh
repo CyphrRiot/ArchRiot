@@ -26,7 +26,7 @@
 # 5. Enhanced error reporting and validation
 # 6. Fixed installation module ordering
 #
-# This prevents the critical "curl -fsSL https://OhmArchy.org/setup.sh | bash" bug
+# This prevents the critical "curl -fsSL https://ArchRiot.org/setup.sh | bash" bug
 # that was corrupting users' waybar installations and the "No waybar binary found" error.
 
 # Load user environment and create backup
@@ -100,7 +100,7 @@ install_configs() {
     sudo pacman -S --noconfirm --needed python-psutil
     python3 -c "import psutil" || return 1
 
-    # Install OhmArchy configs (SAFELY - preserve user configs)
+    # Install ArchRiot configs (SAFELY - preserve user configs)
     local source_config="$HOME/.local/share/archriot/config"
     [[ -d "$source_config" ]] || return 1
     mkdir -p ~/.config
@@ -421,16 +421,16 @@ configure_user_tools() {
     git config --global pull.rebase true
     git config --global init.defaultBranch master
 
-    [[ -n "${OMARCHY_USER_NAME// /}" ]] && git config --global user.name "$OMARCHY_USER_NAME"
-    [[ -n "${OMARCHY_USER_EMAIL// /}" ]] && git config --global user.email "$OMARCHY_USER_EMAIL"
+    [[ -n "${ARCHRIOT_USER_NAME// /}" ]] && git config --global user.name "$ARCHRIOT_USER_NAME"
+    [[ -n "${ARCHRIOT_USER_EMAIL// /}" ]] && git config --global user.email "$ARCHRIOT_USER_EMAIL"
 
     # XCompose setup
     local archriot_xcompose="$HOME/.local/share/archriot/default/xcompose"
     if [[ -f "$archriot_xcompose" ]]; then
         tee ~/.XCompose >/dev/null <<EOF
 include "$archriot_xcompose"
-<Multi_key> <space> <n> : "${OMARCHY_USER_NAME:-}"
-<Multi_key> <space> <e> : "${OMARCHY_USER_EMAIL:-}"
+<Multi_key> <space> <n> : "${ARCHRIOT_USER_NAME:-}"
+<Multi_key> <space> <e> : "${ARCHRIOT_USER_EMAIL:-}"
 EOF
     fi
 
@@ -493,7 +493,7 @@ validate_installation() {
 
 # Main execution with rollback
 main() {
-    echo "🚀 Starting OhmArchy configuration setup..."
+    echo "🚀 Starting ArchRiot configuration setup..."
 
     {
         pre_installation_safety_check &&

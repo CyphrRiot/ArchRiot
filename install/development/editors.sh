@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Development Editors Setup
+# ArchRiot Development Editors Setup
 # ==============================================================================
 # Simple editor installation - Neovim with LazyVim and alternatives
 # ==============================================================================

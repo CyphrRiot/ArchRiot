@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # =============================================================================
-# OhmArchy Clean Progress System
+# ArchRiot Clean Progress System
 # Shows clean progress bars while capturing package manager output to files
 # =============================================================================
 
-# ANSI Color Codes (OhmArchy Theme)
+# ANSI Color Codes (ArchRiot Theme)
 declare -A COLORS=(
     ["RESET"]='\033[0m'
     ["BOLD"]='\033[1m'
@@ -48,7 +48,7 @@ init_clean_progress() {
 
     if [[ "$PROGRESS_ENABLED" == "true" ]]; then
         echo
-        echo -e "${COLORS[PURPLE]}${COLORS[BOLD]}🚀 OhmArchy Installation${COLORS[RESET]}"
+        echo -e "${COLORS[PURPLE]}${COLORS[BOLD]}🚀 ArchRiot Installation${COLORS[RESET]}"
         echo -e "${COLORS[GRAY]}$(printf '━%.0s' {1..60})${COLORS[RESET]}"
         echo -e "${COLORS[CYAN]}Estimated time: ~$ESTIMATED_TOTAL_MINUTES minutes${COLORS[RESET]}"
         echo

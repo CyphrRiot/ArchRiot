@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Power Management Setup
+# ArchRiot Power Management Setup
 # ==============================================================================
 # Simple power management - basic monitoring tools only
 # Modern Linux power management is sufficient for most users

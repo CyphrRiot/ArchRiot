@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Development Tools Setup
+# ArchRiot Development Tools Setup
 # ==============================================================================
 # Simple development tools - essential compilers and language tools
 # ==============================================================================

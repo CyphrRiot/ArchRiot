@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Bluetooth System Setup
+# ArchRiot Bluetooth System Setup
 # ==============================================================================
 # Simple bluetooth setup - install blueberry and enable service
 # ==============================================================================

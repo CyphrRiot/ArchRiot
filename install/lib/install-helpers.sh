@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# OhmArchy Installation Helper Library
+# ArchRiot Installation Helper Library
 # Centralized error handling and package installation functions
 # =============================================================================
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# OhmArchy Filesystem Support Setup
+# ArchRiot Filesystem Support Setup
 # ==============================================================================
 # Simple filesystem support - GUI mounting and network shares
 # ==============================================================================
