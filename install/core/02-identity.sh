@@ -80,8 +80,17 @@ get_user_identity() {
         echo ""
 
         echo ""
-        echo -n "Would you like to use these credentials? [Y/n]: "
-        read -r response </dev/tty
+        echo -n "Would you like to use these credentials? [Y/n] (auto-yes in 10s): "
+
+        # Use timeout to prevent hanging - default to YES
+        if read -t 10 -r response </dev/tty 2>/dev/null; then
+            echo ""  # Move to next line after user input
+        else
+            response="y"  # Default to yes on timeout
+            echo "y"      # Show the default choice
+            echo ""
+        fi
+
         case "$response" in
             [nN][oO]|[nN])
                 echo ""
