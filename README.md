@@ -361,6 +361,7 @@ fix-background                       # Fix theme backgrounds
 
 Quick fixes for common issues:
 
+- **Installation errors**: Check `~/.cache/archriot/install.log` for detailed error information
 - **Initramfs errors**: Fixed in v1.0.1 - update if experiencing build issues
 - **Reliable installer**: Rock-solid installation process with comprehensive error handling
 - **Background issues**: Run `fix-background`

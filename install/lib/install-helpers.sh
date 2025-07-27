@@ -94,14 +94,14 @@ handle_optional_failure() {
     echo -e "${YELLOW}  This may reduce functionality but installation will continue${NC}"
 
     # Still log for debugging
-    echo "[$(date)] OPTIONAL FAILURE: $CURRENT_INSTALLER - $failed_packages (exit: $exit_code)" >> "$HOME/.cache/archriot/install.log"
+    echo "[$(date)] OPTIONAL FAILURE: $CURRENT_INSTALLER - $failed_packages (exit: $exit_code)" >> "$ARCHRIOT_LOG_FILE"
 }
 
 # Log detailed failure information
 log_failure_details() {
     local failed_packages="$1"
     local exit_code="$2"
-    local log_file="$HOME/.cache/archriot/install.log"
+    local log_file="$ARCHRIOT_LOG_FILE"
 
     {
         echo "[$(date)] FAILURE DETAILS:"
@@ -170,7 +170,7 @@ show_troubleshooting() {
     echo -e "${CYAN}📝 Additional debugging:${NC}"
     echo "• Full logs: journalctl -xe"
     echo "• Package manager logs: tail -f /var/log/pacman.log"
-    echo "• Installation log: cat ~/.cache/archriot/install.log"
+    echo "• Installation log: cat $ARCHRIOT_LOG_FILE"
 }
 
 # Validate that packages were actually installed correctly
@@ -224,10 +224,10 @@ show_install_summary() {
     echo -e "${GREEN}✓ $CURRENT_INSTALLER completed successfully${NC}"
     echo -e "${BLUE}Duration: ${duration}s${NC}"
 
-    if [ -f "$HOME/.cache/archriot/install.log" ]; then
-        local warning_count=$(grep -c "OPTIONAL FAILURE\|WARNING" "$HOME/.cache/archriot/install.log" 2>/dev/null || echo "0")
+    if [ -f "$ARCHRIOT_LOG_FILE" ]; then
+        local warning_count=$(grep -c "OPTIONAL FAILURE\|WARNING" "$ARCHRIOT_LOG_FILE" 2>/dev/null || echo "0")
         if [ $warning_count -gt 0 ]; then
-            echo -e "${YELLOW}⚠ $warning_count warnings (check ~/.cache/archriot/install.log)${NC}"
+            echo -e "${YELLOW}⚠ $warning_count warnings (check $ARCHRIOT_LOG_FILE)${NC}"
         fi
     fi
 }

@@ -3,8 +3,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Legacy variables for backward compatibility
-INSTALL_LOG_FILE="$HOME/.cache/archriot/install.log"
+# Log file will be set after progress system loads
+INSTALL_LOG_FILE=""
 
 # Optional installation logging for troubleshooting
 if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
@@ -17,7 +17,7 @@ fi
 log_failure() {
     local module="$1"
     local error="$2"
-    echo "[$(date)] FAILURE: $module - $error" >> "$HOME/.cache/archriot/install.log"
+    echo "[$(date)] FAILURE: $module - $error" >> "$ARCHRIOT_LOG_FILE"
     echo "❌ $module failed but installation continuing..."
 }
 
@@ -93,6 +93,8 @@ if [ -f "$HOME/.local/share/archriot/install/lib/simple-progress.sh" ]; then
     source "$HOME/.local/share/archriot/install/lib/simple-progress.sh"
     # Initialize single error log file
     init_error_log
+    # Set legacy variable for backward compatibility
+    INSTALL_LOG_FILE="$ARCHRIOT_LOG_FILE"
 fi
 
 
@@ -569,12 +571,12 @@ echo "✓ Desktop database updated"
 echo "🐚 Shell configuration will apply to new terminals"
 
 # Check for installation failures and report them
-if [[ -f "$HOME/.cache/archriot/install.log" ]] && grep -q "FAILURE\|ERROR" "$HOME/.cache/archriot/install.log" 2>/dev/null; then
+if [[ -f "$ARCHRIOT_LOG_FILE" ]] && grep -q "FAILURE\|ERROR" "$ARCHRIOT_LOG_FILE" 2>/dev/null; then
     echo ""
     echo "⚠️ ⚠️ ⚠️  INSTALLATION COMPLETED WITH FAILURES  ⚠️ ⚠️ ⚠️"
     echo ""
     echo "Some components failed during installation."
-    echo "Check the log for details: ~/.cache/archriot/install.log"
+    echo "Check the log for details: $ARCHRIOT_LOG_FILE"
     echo ""
     echo "🔧 To fix these issues, run:"
     echo "   source ~/.local/share/archriot/install.sh"

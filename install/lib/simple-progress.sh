@@ -29,7 +29,8 @@ START_TIME=""
 CURRENT_PHASE=""
 PHASE_COUNT=0
 TOTAL_PHASES=0
-LOG_FILE="$HOME/.cache/archriot/install.log"
+# Global log file location
+export ARCHRIOT_LOG_FILE="$HOME/.cache/archriot/install.log"
 
 # Disable progress in non-interactive terminals
 if [[ ! -t 1 ]] || [[ -z "$TERM" ]] || [[ "$TERM" == "dumb" ]]; then
@@ -38,8 +39,8 @@ fi
 
 # Initialize single log file
 init_error_log() {
-    mkdir -p "$(dirname "$LOG_FILE")"
-    echo "=== ArchRiot Installation Log - $(date) ===" > "$LOG_FILE"
+    mkdir -p "$(dirname "$ARCHRIOT_LOG_FILE")"
+    echo "=== ArchRiot Installation Log - $(date) ===" > "$ARCHRIOT_LOG_FILE"
 }
 
 # Initialize progress tracking
@@ -132,9 +133,9 @@ install_packages_clean() {
         if grep -q "warning:" "$temp_output"; then
             local warnings=$(grep "warning:" "$temp_output" | wc -l)
             echo -e "${COLORS[YELLOW]}  ⚠ $warnings warnings${COLORS[RESET]}"
-            echo "[$(date)] WARNINGS in $phase_name:" >> "$LOG_FILE"
-            grep "warning:" "$temp_output" >> "$LOG_FILE"
-            echo "" >> "$LOG_FILE"
+            echo "[$(date)] WARNINGS in $phase_name:" >> "$ARCHRIOT_LOG_FILE"
+            grep "warning:" "$temp_output" >> "$ARCHRIOT_LOG_FILE"
+            echo "" >> "$ARCHRIOT_LOG_FILE"
         fi
 
         echo -e "${COLORS[PURPLE]}✓ Successfully installed${COLORS[RESET]}"
@@ -144,12 +145,12 @@ install_packages_clean() {
     else
         local exit_code=$?
         echo -e "${COLORS[RED]}❌ Installation failed (exit code: $exit_code)${COLORS[RESET]}"
-        echo -e "${COLORS[YELLOW]}Error details logged to: ~/.cache/archriot/install.log${COLORS[RESET]}"
+        echo -e "${COLORS[YELLOW]}Error details logged to: $ARCHRIOT_LOG_FILE${COLORS[RESET]}"
 
         # Log error details
-        echo "[$(date)] ERROR in $phase_name ($packages):" >> "$LOG_FILE"
-        cat "$temp_output" >> "$LOG_FILE"
-        echo "" >> "$LOG_FILE"
+        echo "[$(date)] ERROR in $phase_name ($packages):" >> "$ARCHRIOT_LOG_FILE"
+        cat "$temp_output" >> "$ARCHRIOT_LOG_FILE"
+        echo "" >> "$ARCHRIOT_LOG_FILE"
 
         rm -f "$temp_output"
         echo
@@ -177,12 +178,12 @@ run_command_clean() {
     else
         local exit_code=$?
         echo -e "${COLORS[RED]}❌ Command failed (exit code: $exit_code)${COLORS[RESET]}"
-        echo -e "${COLORS[YELLOW]}Error details logged to: ~/.cache/archriot/install.log${COLORS[RESET]}"
+        echo -e "${COLORS[YELLOW]}Error details logged to: $ARCHRIOT_LOG_FILE${COLORS[RESET]}"
 
         # Log error details
-        echo "[$(date)] ERROR in $phase_name:" >> "$LOG_FILE"
-        cat "$temp_output" >> "$LOG_FILE"
-        echo "" >> "$LOG_FILE"
+        echo "[$(date)] ERROR in $phase_name:" >> "$ARCHRIOT_LOG_FILE"
+        cat "$temp_output" >> "$ARCHRIOT_LOG_FILE"
+        echo "" >> "$ARCHRIOT_LOG_FILE"
 
         rm -f "$temp_output"
         echo
@@ -214,7 +215,7 @@ complete_clean_installation() {
         echo -e "${COLORS[GRAY]}Total time: ${total_seconds}s${COLORS[RESET]}"
     fi
 
-    echo -e "${COLORS[GRAY]}Installation log: ~/.cache/archriot/install.log${COLORS[RESET]}"
+    echo -e "${COLORS[GRAY]}Installation log: $ARCHRIOT_LOG_FILE${COLORS[RESET]}"
     echo
 }
 
@@ -230,7 +231,7 @@ show_clean_failure() {
         local elapsed_seconds=$(($(date +%s) - START_TIME))
         local elapsed_minutes=$((elapsed_seconds / 60))
         echo -e "${COLORS[GRAY]}Time elapsed: ${elapsed_minutes}m${COLORS[RESET]}"
-        echo -e "${COLORS[GRAY]}Installation log: ~/.cache/archriot/install.log${COLORS[RESET]}"
+        echo -e "${COLORS[GRAY]}Installation log: $ARCHRIOT_LOG_FILE${COLORS[RESET]}"
         echo
         echo -e "${COLORS[YELLOW]}To retry installation:${COLORS[RESET]}"
         echo -e "${COLORS[WHITE]}  source ~/.local/share/archriot/install.sh${COLORS[RESET]}"
@@ -240,7 +241,7 @@ show_clean_failure() {
 # Clean up old log files (optional)
 cleanup_old_logs() {
     # Single log file - no cleanup needed
-    # User can manually delete ~/.cache/archriot/install.log if desired
+    # User can manually delete $ARCHRIOT_LOG_FILE if desired
     return 0
 }
 
