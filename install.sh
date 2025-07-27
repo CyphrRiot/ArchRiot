@@ -465,7 +465,7 @@ fi
 if pgrep -x "waybar" >/dev/null; then
     pkill waybar 2>/dev/null || true
     sleep 1
-    waybar &>/dev/null &
+    nohup waybar &>/dev/null & disown
 fi
 
 fc-cache -fv >/dev/null 2>&1
