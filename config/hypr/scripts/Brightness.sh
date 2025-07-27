@@ -55,7 +55,7 @@ control_brightness() {
     case "$action" in
         --up)
             if command -v brightnessctl &> /dev/null; then
-                brightnessctl -e4 -n2 set 5%+ > /dev/null
+                brightnessctl set 5%+ > /dev/null
                 new_brightness=$(get_brightness)
                 icon=$(get_brightness_icon "$new_brightness")
                 notify "Brightness" "${new_brightness}%" "$icon"
@@ -63,7 +63,7 @@ control_brightness() {
             ;;
         --down)
             if command -v brightnessctl &> /dev/null; then
-                brightnessctl -e4 -n2 set 5%- > /dev/null
+                brightnessctl set 5%- > /dev/null
                 new_brightness=$(get_brightness)
                 icon=$(get_brightness_icon "$new_brightness")
                 notify "Brightness" "${new_brightness}%" "$icon"
