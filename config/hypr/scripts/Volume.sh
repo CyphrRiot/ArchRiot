@@ -11,8 +11,13 @@ notify() {
     local message="$2"
     local icon="$3"
 
+    # Dismiss existing notifications first (for mako)
+    if command -v makoctl &> /dev/null; then
+        makoctl dismiss --all
+    fi
+
     if command -v notify-send &> /dev/null; then
-        notify-send --app-name="Volume Control" --urgency="normal" --icon="$icon" "$title" "$message"
+        notify-send --replace-id=8888 --app-name="Volume Control" --urgency="normal" --icon="$icon" "$title" "$message"
     fi
 }
 

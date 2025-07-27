@@ -264,13 +264,13 @@ setup_theme_backgrounds() {
     if [[ -d "$bg_dir" ]]; then
         ln -snf "$bg_dir" ~/.config/archriot/current/backgrounds
 
-        # Set default background (riot_23.png preferred, or first available)
-        # Try to find riot_23 first (any numbered version)
-        local riot_23_bg=$(find "$bg_dir" -name "*riot_23*" | head -1)
+        # Set default background (riot_zero.png preferred, or first available)
+        # Try to find riot_zero first (any numbered version)
+        local riot_zero_bg=$(find "$bg_dir" -name "*riot_zero*" | head -1)
 
-        if [[ -n "$riot_23_bg" && -f "$riot_23_bg" ]]; then
-            ln -snf "$riot_23_bg" ~/.config/archriot/current/background
-            echo "✓ Default background set: $(basename "$riot_23_bg")"
+        if [[ -n "$riot_zero_bg" && -f "$riot_zero_bg" ]]; then
+            ln -snf "$riot_zero_bg" ~/.config/archriot/current/background
+            echo "✓ Default background set: $(basename "$riot_zero_bg")"
         else
             # Fallback to first numbered background (should be 01-)
             local first_bg=$(find "$bg_dir" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)

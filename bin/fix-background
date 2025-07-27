@@ -57,28 +57,28 @@ if [[ -d "$CYPHERRIOT_THEME/backgrounds" ]]; then
     if [[ ${#ALL_BACKGROUNDS[@]} -gt 0 ]]; then
         echo "  📋 Found ${#ALL_BACKGROUNDS[@]} background files"
 
-        # Separate riot_23.png from other backgrounds for priority ordering
-        RIOT_23=""
+        # Separate riot_zero.png from other backgrounds for priority ordering
+        RIOT_ZERO=""
         OTHER_BACKGROUNDS=()
 
         for bg in "${ALL_BACKGROUNDS[@]}"; do
             filename=$(basename "$bg")
-            if [[ "$filename" == "riot_23.png" ]]; then
-                RIOT_23="$bg"
+            if [[ "$filename" == "riot_zero.png" ]]; then
+                RIOT_ZERO="$bg"
             else
                 OTHER_BACKGROUNDS+=("$bg")
             fi
         done
 
-        # Copy riot_23.png as #1 if it exists
+        # Copy riot_zero.png as #1 if it exists
         counter=1
-        if [[ -n "$RIOT_23" ]]; then
-            filename=$(basename "$RIOT_23")
+        if [[ -n "$RIOT_ZERO" ]]; then
+            filename=$(basename "$RIOT_ZERO")
             dest_file="$CYPHERRIOT_BACKGROUNDS/$(printf "%02d" $counter)-$filename"
 
             # Only copy if source is different from destination
-            if [[ "$RIOT_23" != "$dest_file" ]]; then
-                cp "$RIOT_23" "$dest_file" 2>/dev/null || true
+            if [[ "$RIOT_ZERO" != "$dest_file" ]]; then
+                cp "$RIOT_ZERO" "$dest_file" 2>/dev/null || true
                 echo "  ✓ Copied default: $(printf "%02d" $counter)-$filename"
             else
                 echo "  ✓ Default already in place: $(printf "%02d" $counter)-$filename"
@@ -123,11 +123,11 @@ ln -nsf "$CYPHERRIOT_THEME" "$CURRENT_THEME_LINK"
 ln -nsf "$CYPHERRIOT_BACKGROUNDS" "$CURRENT_DIR/backgrounds"
 echo "  ✓ Current theme set to CypherRiot"
 
-# Set default background (riot_23.png preferred, or first available)
+# Set default background (riot_zero.png preferred, or first available)
 echo "🖼️  Setting default background..."
 
-# Try to find riot_23 first
-DEFAULT_BACKGROUND=$(find "$CYPHERRIOT_BACKGROUNDS" -name "*riot_23*" | head -1)
+# Try to find riot_zero first
+DEFAULT_BACKGROUND=$(find "$CYPHERRIOT_BACKGROUNDS" -name "*riot_zero*" | head -1)
 
 if [[ -n "$DEFAULT_BACKGROUND" && -f "$DEFAULT_BACKGROUND" ]]; then
     ln -nsf "$DEFAULT_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
@@ -185,7 +185,7 @@ echo "📋 What was fixed:"
 echo "  • Cleaned up old cyber-1.png references"
 echo "  • Set up proper CypherRiot theme structure"
 echo "  • Linked correct background files"
-echo "  • Set riot_23.png as default"
+echo "  • Set riot_zero.png as default"
 echo "  • Restarted background service"
 echo ""
 echo "🎮 Available backgrounds (in order):"
