@@ -7,7 +7,7 @@
 # ==============================================================================
 
 # Install bluetooth controls
-yay -S --noconfirm --needed blueberry
+install_packages "blueberry" "essential"
 
 # Turn on bluetooth by default
 sudo systemctl enable --now bluetooth.service

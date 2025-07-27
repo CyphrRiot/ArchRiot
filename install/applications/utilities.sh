@@ -7,49 +7,14 @@
 # ==============================================================================
 
 # Install system utilities
-if command -v install_packages_clean &>/dev/null; then
-    install_packages_clean "btop fastfetch tree wget curl unzip p7zip" "Installing system utilities" "GREEN"
-    install_packages_clean "thunar thunar-volman thunar-archive-plugin gvfs gvfs-mtp" "Installing file management" "GREEN"
-    install_packages_clean "gnome-system-monitor" "Installing system monitoring" "GREEN"
-    install_packages_clean "iwgtk" "Installing network utilities" "GREEN"
-    install_packages_clean "gnome-calculator file-roller secrets" "Installing essential tools" "GREEN"
-    install_packages_clean "featherwallet-bin" "Installing financial tools" "GREEN"
-    install_packages_clean "fragments" "Installing torrent client" "GREEN"
-else
-    # Fallback to direct yay commands
-    yay -S --noconfirm --needed \
-      btop \
-      fastfetch \
-      tree \
-      wget \
-      curl \
-      unzip \
-      p7zip
-
-    yay -S --noconfirm --needed \
-      thunar \
-      thunar-volman \
-      thunar-archive-plugin \
-      gvfs \
-      gvfs-mtp
-
-    yay -S --noconfirm --needed \
-      gnome-system-monitor
-
-    yay -S --noconfirm --needed \
-      iwgtk
-
-    yay -S --noconfirm --needed \
-      gnome-calculator \
-      file-roller \
-      secrets \
-
-    yay -S --noconfirm --needed \
-      featherwallet-bin
-
-    yay -S --noconfirm --needed \
-      fragments
-fi
+# Use centralized package installation for consistency
+install_packages "btop fastfetch tree wget curl unzip p7zip" "essential"
+install_packages "thunar thunar-volman thunar-archive-plugin gvfs gvfs-mtp" "essential"
+install_packages "gnome-system-monitor" "essential"
+install_packages "iwgtk" "essential"
+install_packages "gnome-calculator file-roller secrets" "essential"
+install_packages "featherwallet-bin" "optional"
+install_packages "fragments" "optional"
 
 # Install custom desktop files and launchers
 echo "🎯 Installing custom desktop integrations..."

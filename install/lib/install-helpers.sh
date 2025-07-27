@@ -18,6 +18,19 @@ CURRENT_INSTALLER=""
 INSTALL_START_TIME=""
 FAILED_PACKAGES=()
 
+# Unified status message function for consistency
+print_status() {
+    local status="$1"
+    local message="$2"
+    case "$status" in
+        "SUCCESS") echo -e "${GREEN}✓${NC} $message" ;;
+        "INFO") echo -e "${BLUE}ℹ${NC} $message" ;;
+        "WARN") echo -e "${YELLOW}⚠${NC} $message" ;;
+        "ERROR") echo -e "${RED}❌${NC} $message" ;;
+        "INSTALL") echo -e "${CYAN}📦${NC} $message" ;;
+    esac
+}
+
 # Initialize installer context
 init_installer() {
     local installer_name="$1"
@@ -31,14 +44,14 @@ install_packages() {
     local packages="$1"
     local package_type="${2:-essential}"
 
-    echo -e "${CYAN}📦 Installing $package_type packages: $packages${NC}"
+    print_status "INSTALL" "Installing $package_type packages: $packages"
 
     if yay -S --noconfirm --needed $packages; then
-        echo -e "${GREEN}✓ Successfully installed: $packages${NC}"
+        print_status "SUCCESS" "Successfully installed: $packages"
         return 0
     else
         local exit_code=$?
-        echo -e "${RED}❌ Failed to install: $packages${NC}"
+        print_status "ERROR" "Failed to install: $packages"
         FAILED_PACKAGES+=("$packages")
 
         case $package_type in

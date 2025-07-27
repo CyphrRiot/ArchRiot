@@ -7,9 +7,8 @@
 # ==============================================================================
 
 # Install browsers and communication apps
-yay -S --noconfirm --needed \
-    brave-bin \
-    signal-desktop
+install_packages "brave-bin" "essential"
+install_packages "signal-desktop" "essential"
 
 
 

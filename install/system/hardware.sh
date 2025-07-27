@@ -8,20 +8,20 @@
 
 # Enable multilib for 32-bit support
 sudo sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
-sudo pacman -Sy
+# Note: No manual pacman -Sy needed - yay will sync when installing packages
 
 # Install GPU drivers based on hardware
 if lspci | grep -qi nvidia; then
-    yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils
+    install_packages "nvidia-dkms nvidia-utils lib32-nvidia-utils" "essential"
 fi
 
 if lspci | grep -qi -E 'amd|radeon'; then
-    yay -S --noconfirm --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon
+    install_packages "mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon" "essential"
 fi
 
 if lspci | grep -qi intel | grep -qi -E 'vga|3d|display|graphics'; then
     echo "🎮 Installing Intel graphics drivers..."
-    yay -S --noconfirm --needed mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver
+    install_packages "mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver" "essential"
     echo "✓ Intel graphics drivers installed"
 fi
 

@@ -1,12 +1,58 @@
 #!/usr/bin/env bash
 
-# Install Plymouth if not already installed
-if ! command -v plymouth &>/dev/null; then
-  yay -S --noconfirm --needed plymouth
+# ==============================================================================
+# ArchRiot Plymouth Manual Version Control
+# ==============================================================================
+# Simple version-based system - bump version to force reinstall
+# ==============================================================================
+
+# Manual version control - increment this to force LUKS reinstall
+PLYMOUTH_VERSION="1.0"
+VERSION_FILE="$HOME/.config/archriot/plymouth_version.txt"
+
+# Create config directory if needed
+mkdir -p "$HOME/.config/archriot"
+
+# Check if reinstall is needed
+needs_reinstall() {
+    # Check 1: Initial install (no Plymouth installed)
+    if ! command -v plymouth &>/dev/null; then
+        echo "Initial Plymouth installation needed"
+        return 0
+    fi
+
+    # Check 2: Version changed (manual trigger)
+    local stored_version=$(cat "$VERSION_FILE" 2>/dev/null || echo "0.0")
+    if [[ "$stored_version" != "$PLYMOUTH_VERSION" ]]; then
+        echo "Plymouth version updated ($stored_version → $PLYMOUTH_VERSION) - reinstall needed"
+        return 0
+    fi
+
+    # Check 3: ArchRiot theme missing or broken
+    local current_theme=$(sudo plymouth-set-default-theme 2>/dev/null || echo "none")
+    if [[ "$current_theme" != "archriot" ]] || [[ ! -f "/usr/share/plymouth/themes/archriot/archriot.plymouth" ]]; then
+        echo "ArchRiot Plymouth theme missing - reinstall needed"
+        return 0
+    fi
+
+    echo "Plymouth v$PLYMOUTH_VERSION already installed - skipping"
+    return 1
+}
+
+# Check if reinstall needed
+if ! needs_reinstall; then
+    echo "✅ Plymouth/LUKS v$PLYMOUTH_VERSION already configured"
+    return 0
 fi
 
-# Always update Plymouth configuration (even on re-installs)
-# Backup original mkinitcpio.conf just in case
+echo "🔄 Installing Plymouth v$PLYMOUTH_VERSION..."
+
+# Install Plymouth if not already installed
+if ! command -v plymouth &>/dev/null; then
+  install_packages "plymouth" "essential"
+fi
+
+# Backup original mkinitcpio.conf (only when making changes)
 backup_timestamp=$(date +"%Y%m%d%H%M%S")
 sudo cp /etc/mkinitcpio.conf "/etc/mkinitcpio.conf.bak.${backup_timestamp}"
 
@@ -173,7 +219,7 @@ else
 
     else
         echo "❌ Failed to download Plymouth files from GitHub!"
-        exit 1
+        return 1
     fi
 fi
 
@@ -185,7 +231,7 @@ fi
 # Verify theme files exist
 if [[ ! -f /usr/share/plymouth/themes/archriot/archriot.plymouth ]]; then
     echo "❌ Failed to install Plymouth theme files!"
-    exit 1
+    return 1
 fi
 
 echo "🎨 Setting ArchRiot as default Plymouth theme..."
@@ -197,7 +243,7 @@ if [[ "$CURRENT_THEME" != "archriot" ]]; then
     echo "❌ Failed to set ArchRiot theme! Current: $CURRENT_THEME"
     echo "🔧 Available themes:"
     sudo plymouth-set-default-theme --list
-    exit 1
+    return 1
 fi
 
 echo "✅ Plymouth theme verified: $CURRENT_THEME"
@@ -212,3 +258,8 @@ if [ -f "$HOME/.local/share/archriot/bin/generate-boot-logo.sh" ]; then
 else
     echo "⚠ Logo generator not found, using default logo"
 fi
+
+# Record successful installation
+echo "$PLYMOUTH_VERSION" > "$VERSION_FILE"
+echo "✅ Plymouth v$PLYMOUTH_VERSION installation complete"
+echo "🚀 To force reinstall, increment PLYMOUTH_VERSION in this script"

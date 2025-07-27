@@ -7,13 +7,10 @@
 # ==============================================================================
 
 # Install essential media tools
-yay -S --noconfirm --needed \
-    lollypop \
-    totem \
-    mpv \
-    pavucontrol \
-    ffmpeg \
-    yt-dlp \
-    spotdl
+install_packages "mpv pavucontrol ffmpeg" "essential"
+install_packages "totem" "essential"
+install_packages "yt-dlp" "essential"
+install_packages "lollypop" "optional"
+install_packages "spotdl" "optional"
 
 echo "✅ Media applications setup complete!"

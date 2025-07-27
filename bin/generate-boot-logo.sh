@@ -42,16 +42,65 @@ if ! command -v convert &> /dev/null; then
 fi
 echo -e "${GREEN}✓ ImageMagick available${NC}"
 
-# Use repo logo.png for LUKS boot screen
-echo -e "${YELLOW}Using repo logo for LUKS boot screen...${NC}"
+# Automated change detection for logo updates
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_LOGO="$SCRIPT_DIR/../images/logo.png"
+LOGO_SCRIPT_PATH="$SCRIPT_DIR/../bin/generate-boot-logo.sh"
+LOGO_CHECKSUM_FILE="$HOME/.config/archriot/logo_checksums.txt"
+
+# Create config directory if needed
+mkdir -p "$HOME/.config/archriot"
 
 if [[ ! -f "$SOURCE_LOGO" ]]; then
     echo -e "${RED}❌ Logo not found at: $SOURCE_LOGO${NC}"
     exit 1
 fi
 
+# Check if logo regeneration is needed (automated detection)
+needs_logo_update() {
+    # Check if Plymouth theme directory exists
+    if [[ ! -f "$PLYMOUTH_THEME_DIR/logo.png" ]]; then
+        echo "Plymouth logo missing - generation needed"
+        return 0
+    fi
+
+    # Check if this script changed
+    local script_hash=$(md5sum "$LOGO_SCRIPT_PATH" | cut -d' ' -f1)
+    local stored_script_hash=$(grep "script_hash" "$LOGO_CHECKSUM_FILE" 2>/dev/null | cut -d' ' -f1 || echo "none")
+
+    if [[ "$script_hash" != "$stored_script_hash" ]]; then
+        echo "Logo generator script changed - regeneration needed"
+        return 0
+    fi
+
+    # Check if source logo changed
+    local source_hash=$(md5sum "$SOURCE_LOGO" | cut -d' ' -f1)
+    local stored_source_hash=$(grep "source_logo" "$LOGO_CHECKSUM_FILE" 2>/dev/null | cut -d' ' -f1 || echo "none")
+
+    if [[ "$source_hash" != "$stored_source_hash" ]]; then
+        echo "Source logo changed - regeneration needed"
+        return 0
+    fi
+
+    # Check if logo configuration changed (size, colors, etc.)
+    local config_hash=$(echo "${LOGO_WIDTH}${LOGO_HEIGHT}${BACKGROUND_COLOR}${TEXT_COLOR}" | md5sum | cut -d' ' -f1)
+    local stored_config_hash=$(grep "logo_config" "$LOGO_CHECKSUM_FILE" 2>/dev/null | cut -d' ' -f1 || echo "none")
+
+    if [[ "$config_hash" != "$stored_config_hash" ]]; then
+        echo "Logo configuration changed - regeneration needed"
+        return 0
+    fi
+
+    echo "Logo already up-to-date - skipping generation"
+    return 1
+}
+
+if ! needs_logo_update; then
+    echo -e "${GREEN}✅ Boot logo already up-to-date${NC}"
+    exit 0
+fi
+
+echo -e "${YELLOW}Generating updated boot logo...${NC}"
 echo -e "${GREEN}✓ Using logo: $SOURCE_LOGO${NC}"
 
 # Copy and resize the logo for LUKS boot screen
@@ -124,6 +173,19 @@ else
     echo -e "${YELLOW}⚠ Plymouth not available, logo installed but theme not activated${NC}"
 fi
 
+# Update logo tracking checksums after successful generation
+echo "📝 Updating logo tracking files..."
+local script_hash=$(md5sum "$LOGO_SCRIPT_PATH" | cut -d' ' -f1)
+local source_hash=$(md5sum "$SOURCE_LOGO" | cut -d' ' -f1)
+local config_hash=$(echo "${LOGO_WIDTH}${LOGO_HEIGHT}${BACKGROUND_COLOR}${TEXT_COLOR}" | md5sum | cut -d' ' -f1)
+
+echo "$script_hash script_hash" > "$LOGO_CHECKSUM_FILE"
+echo "$source_hash source_logo" >> "$LOGO_CHECKSUM_FILE"
+echo "$config_hash logo_config" >> "$LOGO_CHECKSUM_FILE"
+echo "✓ Script hash recorded: $script_hash"
+echo "✓ Source logo hash recorded: $source_hash"
+echo "✓ Config hash recorded: $config_hash"
+
 # Create marker file to indicate custom logo is installed
 echo "custom_ascii_logo_installed=$(date)" | sudo tee "$PLYMOUTH_THEME_DIR/.custom_logo_marker" > /dev/null
 sudo chmod 644 "$PLYMOUTH_THEME_DIR/.custom_logo_marker"
@@ -152,3 +214,4 @@ echo -e "${YELLOW}  # Press Ctrl+Alt+F2 to see it, then:${NC}"
 echo -e "${YELLOW}  sudo plymouth --quit${NC}"
 echo ""
 echo -e "${BLUE}NOTE: Your custom ASCII logo will survive ArchRiot re-installations!${NC}"
+echo -e "${GREEN}🚀 Next run will skip logo generation (unless script or source image changes)${NC}"

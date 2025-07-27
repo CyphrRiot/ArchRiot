@@ -7,18 +7,13 @@
 # ==============================================================================
 
 # Install productivity tools (no heavy office suites)
-yay -S --noconfirm --needed \
-    gnome-text-editor \
-    zed \
-    abiword \
-    papers \
-    thunar \
-    unzip \
-    p7zip
+install_packages "gnome-text-editor" "essential"
+install_packages "zed" "essential"
+install_packages "abiword papers" "essential"
+install_packages "thunar unzip p7zip" "essential"
 
 # Install calendar and time management
-yay -S --noconfirm --needed \
-    gnome-clocks
+install_packages "gnome-clocks" "essential"
 
 # Install and configure Gnome Text Editor with theme support
 if command -v gnome-text-editor >/dev/null 2>&1; then

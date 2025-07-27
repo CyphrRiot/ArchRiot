@@ -47,7 +47,7 @@ create_surgical_backup() {
         "systemd" "waybar" "xdg-desktop-portal" "zed"
     )
 
-    echo "📦 Creating surgical backup of ArchRiot-managed configs only..."
+    echo "📦 Installing ArchRiot configurations..."
 
     for config in "${configs_to_backup[@]}"; do
         local source="$HOME/.config/$config"
@@ -63,7 +63,7 @@ create_surgical_backup() {
     # Save backup manifest
     printf '%s\n' "${configs_to_backup[@]}" > "$backup_dir/MANIFEST"
     echo "$backup_dir" > /tmp/archriot-config-backup
-    echo "✓ Surgical backup created at: $backup_dir"
+    echo "✓ Configuration backup created" >> "$ARCHRIOT_LOG_FILE"
 }
 
 # Smart restoration from surgical backup
@@ -93,12 +93,11 @@ restore_from_backup() {
 
 # Install dependencies and copy configurations
 install_configs() {
-    echo "📦 Installing configurations and dependencies..."
     local config_count=0
 
-    # Install Python dependencies
-    command -v python3 &>/dev/null || sudo pacman -S --noconfirm python3
-    sudo pacman -S --noconfirm --needed python-psutil
+    # Install Python dependencies (silent)
+    command -v python3 &>/dev/null || sudo pacman -S --noconfirm python3 >/dev/null 2>&1
+    sudo pacman -S --noconfirm --needed python-psutil >/dev/null 2>&1
     python3 -c "import psutil" || return 1
 
     # Install ArchRiot configs (SAFELY - preserve user configs)
@@ -113,24 +112,24 @@ install_configs() {
 
         # Skip hypr configs - they're installed by desktop module
         if [[ "$basename" == "hypr" ]]; then
-            echo "ℹ️ Skipping hypr config (installed by desktop module)"
+            echo "Skipping hypr config (installed by desktop module)" >> "$ARCHRIOT_LOG_FILE"
             continue
         fi
 
         # Skip Zed configs - preserve user editor customizations
         if [[ "$basename" == "zed" ]]; then
-            echo "ℹ️ Skipping zed config (preserving user editor settings)"
+            echo "Skipping zed config (preserving user editor settings)" >> "$ARCHRIOT_LOG_FILE"
             # Create reference copy for users who want to see ArchRiot's config
             if [[ ! -e "$target.archriot-default" ]]; then
                 cp -R "$item" "$target.archriot-default" 2>/dev/null || true
-                echo "  → Created reference copy: $basename.archriot-default"
+                echo "Created reference copy: $basename.archriot-default" >> "$ARCHRIOT_LOG_FILE"
             fi
             continue
         fi
 
         # Smart GTK config handling - preserve user bookmarks
         if [[ "$basename" == "gtk-3.0" ]]; then
-            echo "ℹ️ Smart GTK-3.0 config installation (preserving bookmarks)"
+            echo "Smart GTK-3.0 config installation (preserving bookmarks)" >> "$ARCHRIOT_LOG_FILE"
 
             # Ensure target directory exists
             mkdir -p "$target"
@@ -148,17 +147,17 @@ install_configs() {
             fi
 
             if [[ ! -f "$bookmarks_file" ]]; then
-                echo "📁 Creating default Thunar bookmarks with proper paths"
+                echo "Creating default Thunar bookmarks with proper paths" >> "$ARCHRIOT_LOG_FILE"
                 echo "file://${HOME}/Downloads Downloads" > "$bookmarks_file"
                 echo "file://${HOME}/Documents Documents" >> "$bookmarks_file"
                 echo "file://${HOME}/Pictures Pictures" >> "$bookmarks_file"
                 echo "file://${HOME}/Music Music" >> "$bookmarks_file"
                 echo "file://${HOME}/Videos Videos" >> "$bookmarks_file"
-                echo "✓ Thunar bookmarks created with expanded paths"
+                echo "Thunar bookmarks created with expanded paths" >> "$ARCHRIOT_LOG_FILE"
             else
-                echo "✓ Preserved existing Thunar bookmarks"
+                echo "Preserved existing Thunar bookmarks" >> "$ARCHRIOT_LOG_FILE"
             fi
-            echo "✓ Smart installed GTK config with bookmark preservation"
+            echo "Smart installed GTK config with bookmark preservation" >> "$ARCHRIOT_LOG_FILE"
             continue
         fi
 
@@ -176,20 +175,20 @@ install_configs() {
         ((config_count++))
     done
 
-    echo "✓ Installed $config_count configuration modules (details in log)"
+    echo "✓ Configurations installed ($config_count modules)"
 }
 
 # Pre-installation safety check
 pre_installation_safety_check() {
-    echo "🔍 Running pre-installation safety checks..."
+    echo "Running pre-installation safety checks..." >> "$ARCHRIOT_LOG_FILE"
 
     # Check if waybar binary exists and is not corrupted
     if [[ -f "$HOME/.local/bin/waybar" ]]; then
         # Check if it's a CSS file (corrupted)
         if head -1 "$HOME/.local/bin/waybar" 2>/dev/null | grep -q "define-color\|/\*.*\*/\|@import"; then
-            echo "🚨 CRITICAL: Corrupted waybar binary detected! Removing before installation..."
+            echo "CRITICAL: Corrupted waybar binary detected! Removing before installation..." >> "$ARCHRIOT_LOG_FILE"
             rm -f "$HOME/.local/bin/waybar"
-            echo "✓ Removed corrupted waybar binary"
+            echo "Removed corrupted waybar binary" >> "$ARCHRIOT_LOG_FILE"
         fi
     fi
 
@@ -211,7 +210,7 @@ pre_installation_safety_check() {
         fi
     fi
 
-    echo "✓ Pre-installation safety checks completed"
+    echo "Pre-installation safety checks completed" >> "$ARCHRIOT_LOG_FILE"
 }
 
 # Setup scripts and environment
@@ -230,15 +229,15 @@ setup_scripts_and_env() {
         # Copy hidden files directly to applications folder (NOT as hidden subfolder)
         if [[ -d "$app_source/hidden" ]]; then
             cp "$app_source/hidden"/* ~/.local/share/applications/ 2>/dev/null || true
-            echo "✓ Desktop applications and hidden menu cleanup installed"
+            echo "Desktop applications and hidden menu cleanup installed" >> "$ARCHRIOT_LOG_FILE"
         else
-            echo "✓ Desktop applications installed"
+            echo "Desktop applications installed" >> "$ARCHRIOT_LOG_FILE"
         fi
 
         # Update desktop database to apply changes immediately
         if command -v update-desktop-database >/dev/null 2>&1; then
-            update-desktop-database ~/.local/share/applications/
-            echo "✓ Desktop database updated"
+            update-desktop-database ~/.local/share/applications/ 2>/dev/null
+            echo "Desktop database updated" >> "$ARCHRIOT_LOG_FILE"
         fi
     else
         echo "⚠ Applications folder not found at $app_source"
@@ -268,9 +267,9 @@ setup_scripts_and_env() {
     if [[ -f "$volume_script" ]]; then
         cp "$volume_script" "$script_dest/"
         chmod +x "$script_dest/volume-osd"
-        echo "✓ Volume OSD script installed"
+        echo "Volume OSD script installed" >> "$ARCHRIOT_LOG_FILE"
     else
-        echo "⚠ Volume OSD script not found"
+        echo "Volume OSD script not found" >> "$ARCHRIOT_LOG_FILE"
     fi
 
     # Install welcome script (force overwrite to ensure latest version)
@@ -280,9 +279,9 @@ setup_scripts_and_env() {
         rm -f "$script_dest/welcome" 2>/dev/null || true
         cp "$welcome_script" "$script_dest/"
         chmod +x "$script_dest/welcome"
-        echo "✓ Welcome script installed (latest version)"
+        echo "Welcome script installed (latest version)" >> "$ARCHRIOT_LOG_FILE"
     else
-        echo "⚠ Welcome script not found"
+        echo "Welcome script not found" >> "$ARCHRIOT_LOG_FILE"
     fi
 
     # Install version check scripts
@@ -290,9 +289,9 @@ setup_scripts_and_env() {
     if [[ -f "$version_check_script" ]]; then
         cp "$version_check_script" "$script_dest/"
         chmod +x "$script_dest/version-check"
-        echo "✓ Version check script installed"
+        echo "Version check script installed" >> "$ARCHRIOT_LOG_FILE"
     else
-        echo "⚠ Version check script not found"
+        echo "Version check script not found" >> "$ARCHRIOT_LOG_FILE"
     fi
 
 
@@ -310,13 +309,13 @@ setup_scripts_and_env() {
         if [[ -f "$tool_script" ]]; then
             cp "$tool_script" "$script_dest/"
             chmod +x "$script_dest/$tool"
-            echo "✓ Performance tool installed: $tool"
+            echo "Performance tool installed: $tool" >> "$ARCHRIOT_LOG_FILE"
         else
-            echo "⚠ Performance tool not found: $tool"
+            echo "Performance tool not found: $tool" >> "$ARCHRIOT_LOG_FILE"
         fi
     done
 
-    echo "✓ Scripts and environment configured"
+    echo "✓ Desktop applications and scripts configured"
 
     # Install systemd version check service
     local systemd_user_dir="$HOME/.config/systemd/user"
@@ -330,11 +329,11 @@ setup_scripts_and_env() {
 
         # Reload systemd and enable the timer
         systemctl --user daemon-reload
-        systemctl --user enable version-check.timer
+        systemctl --user enable version-check.timer >/dev/null 2>&1
         systemctl --user start version-check.timer
 
-        echo "✓ Version check systemd timer installed and enabled"
-        echo "🔄 Automatic update notifications will check every 4 hours"
+        echo "Version check systemd timer installed and enabled" >> "$ARCHRIOT_LOG_FILE"
+        echo "Automatic update notifications will check every 4 hours" >> "$ARCHRIOT_LOG_FILE"
     else
         echo "⚠ Version check systemd files not found"
     fi
@@ -351,13 +350,13 @@ setup_scripts_and_env() {
     if [[ -f "$source_image" ]]; then
         # Check if source and destination are the same file (avoid copying to self)
         if [[ "$(realpath "$source_image")" == "$(realpath "$dest_image" 2>/dev/null || echo "$dest_image")" ]]; then
-            echo "✓ Welcome image already in correct location"
+            echo "Welcome image already in correct location" >> "$ARCHRIOT_LOG_FILE"
         else
             cp "$source_image" "$dest_dir/"
-            echo "✓ Welcome image installed"
+            echo "Welcome image installed" >> "$ARCHRIOT_LOG_FILE"
         fi
     else
-        echo "⚠ Welcome image not found at: $source_image"
+        echo "Welcome image not found at: $source_image" >> "$ARCHRIOT_LOG_FILE"
     fi
 
     # Setup bash environment
@@ -368,12 +367,12 @@ setup_scripts_and_env() {
     local archriot_tmux="$HOME/.local/share/archriot/default/tmux.conf"
     if [[ -f "$archriot_tmux" ]]; then
         cp "$archriot_tmux" ~/.tmux.conf
-        echo "✓ tmux configuration installed"
+        echo "tmux configuration installed" >> "$ARCHRIOT_LOG_FILE"
     else
-        echo "⚠ tmux configuration not found"
+        echo "tmux configuration not found" >> "$ARCHRIOT_LOG_FILE"
     fi
 
-    echo "✓ Scripts and environment configured"
+    echo "Scripts and environment configured" >> "$ARCHRIOT_LOG_FILE"
 }
 
 # Configure system services
@@ -382,7 +381,7 @@ configure_system() {
 
     # Skip display manager removal if we're already running Hyprland
     if [[ "$XDG_CURRENT_DESKTOP" == "Hyprland" ]] || [[ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]]; then
-        echo "✓ Running in Hyprland session - skipping display manager changes"
+        echo "Running in Hyprland session - skipping display manager changes" >> "$ARCHRIOT_LOG_FILE"
     else
         # Remove existing display managers (we use LUKS + hyprlock instead)
         local display_managers=("sddm" "gdm" "lightdm" "lxdm")
@@ -400,9 +399,9 @@ configure_system() {
         done
 
         if [[ "$removed_any" == true ]]; then
-            echo "✓ Display managers removed - using LUKS + autologin + hyprlock"
+            echo "Display managers removed - using LUKS + autologin + hyprlock" >> "$ARCHRIOT_LOG_FILE"
         else
-            echo "✓ No display managers found to remove"
+            echo "No display managers found to remove" >> "$ARCHRIOT_LOG_FILE"
         fi
     fi
 
@@ -415,12 +414,11 @@ ExecStart=
 ExecStart=-/usr/bin/agetty --autologin $USER --noclear %I \$TERM
 EOF
 
-    echo "✓ Autologin configured for: $USER"
+    echo "Autologin configured for: $USER" >> "$ARCHRIOT_LOG_FILE"
 }
 
 # Configure git and XCompose
 configure_user_tools() {
-    echo "📝 Configuring user tools..."
 
     # Git configuration
     git config --global alias.co checkout
@@ -443,7 +441,7 @@ include "$archriot_xcompose"
 EOF
     fi
 
-    echo "✓ Git and XCompose configured"
+    echo "Git and XCompose configured" >> "$ARCHRIOT_LOG_FILE"
 }
 
 # Validate critical components
@@ -492,7 +490,7 @@ validate_installation() {
     done
 
     if [[ $issues -eq 0 ]]; then
-        echo "✅ Validation passed"
+        echo "Validation passed" >> "$ARCHRIOT_LOG_FILE"
         return 0
     else
         echo "⚠ $issues validation issues detected"
@@ -502,8 +500,6 @@ validate_installation() {
 
 # Main execution with rollback
 main() {
-    echo "🚀 Starting ArchRiot configuration setup..."
-
     {
         pre_installation_safety_check &&
         setup_environment &&
@@ -528,7 +524,7 @@ main() {
     }
 
     rm -f /tmp/archriot-config-backup
-    echo "✅ Configuration installation complete!"
+    echo "✓ System services enabled"
 }
 
 main "$@"

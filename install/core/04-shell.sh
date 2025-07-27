@@ -7,20 +7,18 @@ setup_packages() {
     [[ -f "$env_file" ]] && source "$env_file"
 
     # Install essentials (critical) - ghostty now installed in desktop module
-    local essentials="wget curl unzip inetutils git neovim"
-    yay -S --noconfirm --needed $essentials || return 1
+    install_packages "wget curl unzip inetutils git neovim" "essential"
 
     # Install backup terminal (in case ghostty integration fails)
     echo "📱 Installing backup terminal..."
-    pacman -S --noconfirm --needed kitty || echo "⚠ Backup terminal installation failed"
+    install_packages "kitty" "essential"
 
     # Install shell tools (best effort)
-    local shell_tools="fish fd eza fzf ripgrep zoxide bat lsd fastfetch btop"
-    yay -S --noconfirm --needed $shell_tools || echo "⚠ Some shell tools may have failed"
+    install_packages "fish fd eza fzf ripgrep zoxide bat lsd fastfetch btop" "essential"
 
-    # Install utilities (nice-to-have)
-    local utilities="wl-clipboard man tldr less whois plocate bash-completion"
-    yay -S --noconfirm --needed $utilities || true
+    # Install core utilities
+    install_packages "wl-clipboard man less whois" "essential"
+    install_packages "tldr plocate bash-completion" "optional"
 
     echo "✓ Package installation completed"
 }

@@ -6,6 +6,11 @@ set -e
 # Log file will be set after progress system loads
 INSTALL_LOG_FILE=""
 
+echo ""
+echo "🚀 Installing ArchRiot... "
+echo ""
+
+
 # Optional installation logging for troubleshooting
 if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
     mkdir -p "$(dirname "$INSTALL_LOG_FILE")"
@@ -43,7 +48,8 @@ fi
 
 # CRITICAL: Install yay FIRST before anything else that might need it
 # Many ArchRiot packages come from AUR and require yay to install
-echo "🚀 CRITICAL: Installing yay AUR helper before anything else..."
+#
+# echo "🚀 CRITICAL: Installing yay AUR helper befoCRITICAL: Installre anything else..."
 
 # Install base development tools and yay immediately
 sudo pacman -Sy --noconfirm --needed base-devel git rsync bc || {
@@ -293,6 +299,7 @@ process_installer_with_progress() {
 
         if source "$installer_file"; then
             echo "✓ Successfully completed"
+            echo ""
         else
             echo "❌ Failed: $installer_name"
             echo "⚠ System may be in partially configured state"
@@ -306,10 +313,7 @@ process_installer_with_progress() {
             start_module "$installer_name" "$color"
         fi
 
-        # Special warning for Plymouth before output capture
-        if [[ "$installer_name" == "plymouth" ]]; then
-            echo "⏳ Installing LUKS update (be patient - this takes a while)..."
-        fi
+        # No special warning for Plymouth - let the script decide if it's actually installing
 
         run_command_clean "source '$installer_file'" "$installer_name" "$color"
     else
@@ -440,8 +444,8 @@ echo "================================="
 echo "🎉 ArchRiot v$ARCHRIOT_VERSION installed! (${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s)"
 echo ""
 echo "🎯 Quick Commands:"
-echo "  • Launch Apps: Super + D [or Super + Space]"
-echo "  • Change backgrounds: Super + Ctrl + Space"
+echo "  • Launch Apps: Super + D"
+echo "  • Backgrounds: Super + Ctrl + Space"
 echo "  • View Help: Super + H"
 echo ""
 
@@ -470,19 +474,26 @@ update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
 # Reload shell configuration
 echo "🐚 Shell configuration will apply to new terminals"
 
-# Check for installation failures and report them
-if [[ -f "$ARCHRIOT_LOG_FILE" ]] && grep -q "FAILURE\|ERROR" "$ARCHRIOT_LOG_FILE" 2>/dev/null; then
-    echo ""
-    echo "⚠️ ⚠️ ⚠️  INSTALLATION COMPLETED WITH FAILURES  ⚠️ ⚠️ ⚠️"
-    echo ""
-    echo "Some components failed during installation."
-    echo "Check the log for details: $ARCHRIOT_LOG_FILE"
-    echo ""
-    echo "🔧 To fix these issues, run:"
-    echo "   source ~/.local/share/archriot/install.sh"
-    echo ""
-    echo "⚠️  Your system may have missing functionality until these are resolved."
-    echo ""
+# Check for installation failures and report them (ignore yay "up to date" warnings)
+if [[ -f "$ARCHRIOT_LOG_FILE" ]] && grep -q "FAILURE:\|CRITICAL:\|❌" "$ARCHRIOT_LOG_FILE" 2>/dev/null; then
+    # Double-check: exclude harmless "up to date" and "warning:" messages
+    if grep -v "is up to date\|warning:" "$ARCHRIOT_LOG_FILE" | grep -q "FAILURE:\|CRITICAL:\|❌" 2>/dev/null; then
+        echo ""
+        echo "⚠️ ⚠️ ⚠️  INSTALLATION COMPLETED WITH FAILURES  ⚠️ ⚠️ ⚠️"
+        echo ""
+        echo "Some components failed during installation."
+        echo "Check the log for details: $ARCHRIOT_LOG_FILE"
+        echo ""
+        echo "🔧 To fix these issues, run:"
+        echo "   source ~/.local/share/archriot/install.sh"
+        echo ""
+        echo "⚠️  Your system may have missing functionality until these are resolved."
+        echo ""
+    else
+        echo "✅ System ready! New terminals will have updated configs."
+        echo "📝 Minor warnings logged (packages up-to-date) - system is healthy."
+        echo ""
+    fi
 else
     echo "✅ System ready! New terminals will have updated configs."
     echo ""

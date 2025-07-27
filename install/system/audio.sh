@@ -7,14 +7,9 @@
 # ==============================================================================
 
 # Install PipeWire audio system
-yay -S --noconfirm --needed \
-    pipewire \
-    pipewire-alsa \
-    pipewire-pulse \
-    wireplumber \
-    pavucontrol \
-    pamixer \
-    playerctl
+install_packages "pipewire pipewire-alsa pipewire-pulse" "essential"
+install_packages "wireplumber" "essential"
+install_packages "pavucontrol pamixer playerctl" "essential"
 
 # Enable PipeWire services
 systemctl --user enable --now pipewire.service pipewire-pulse.service wireplumber.service

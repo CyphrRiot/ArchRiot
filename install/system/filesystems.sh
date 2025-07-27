@@ -7,12 +7,9 @@
 # ==============================================================================
 
 # Install GUI mounting support and network filesystems
-yay -S --noconfirm --needed \
-    gvfs \
-    udisks2 \
-    gvfs-smb \
-    gvfs-mtp \
-    ntfs-3g
+install_packages "gvfs udisks2" "essential"
+install_packages "gvfs-smb gvfs-mtp" "essential"
+install_packages "ntfs-3g" "essential"
 
 # Enable automatic mounting service
 sudo systemctl enable udisks2.service

@@ -25,21 +25,13 @@ install_system_controls() {
     }
     echo "✓ Ghostty terminal installed"
 
-    local control_packages=(
-        "brightnessctl"     # Screen brightness control
-        "playerctl"         # Media player control
-        "pamixer"          # Audio mixer control
-        "pavucontrol"      # Audio control GUI
-        "wireplumber"      # Audio session manager
-        "xdg-user-dirs"    # XDG folder icons (Downloads, Documents, etc.)
-    )
-
-    for package in "${control_packages[@]}"; do
-        yay -S --noconfirm --needed "$package" || {
-            echo "❌ Failed to install critical control utility: $package"
-            return 1
-        }
-    done
+    # Install system control utilities
+    install_packages "brightnessctl" "essential"    # Screen brightness control
+    install_packages "playerctl" "essential"        # Media player control
+    install_packages "pamixer" "essential"          # Audio mixer control
+    install_packages "pavucontrol" "essential"      # Audio control GUI
+    install_packages "wireplumber" "essential"      # Audio session manager
+    install_packages "xdg-user-dirs" "essential"    # XDG folder icons
 
     echo "✓ System control utilities installed"
 }
