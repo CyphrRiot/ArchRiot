@@ -538,16 +538,11 @@ fi
 # Restart Waybar if running
 if pgrep -x "waybar" >/dev/null; then
     echo "📊 Restarting Waybar..."
-    # Test new config before killing current waybar
-    if waybar --config ~/.config/waybar/config --style ~/.config/waybar/style.css --dry-run 2>/dev/null; then
-        pkill waybar 2>/dev/null || true
-        sleep 1
-        waybar &>/dev/null &
-        echo "✓ Waybar restarted with new configuration"
-    else
-        echo "⚠ Waybar config test failed - keeping current instance running"
-        echo "  New configuration will apply on next manual restart"
-    fi
+    # Restart waybar with new configuration
+    pkill waybar 2>/dev/null || true
+    sleep 1
+    waybar &>/dev/null &
+    echo "✓ Waybar restarted with new configuration"
 else
     echo "ℹ Waybar not running - will use new configuration when started"
 fi
