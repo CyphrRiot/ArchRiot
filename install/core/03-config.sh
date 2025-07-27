@@ -216,12 +216,31 @@ pre_installation_safety_check() {
 setup_scripts_and_env() {
     echo "📊 Setting up scripts and environment..."
 
+    # Install ALL desktop applications (including hidden folder to remove menu bloat)
+    local app_source="$HOME/.local/share/archriot/applications"
+    if [[ -d "$app_source" ]]; then
+        echo "📱 Installing desktop applications and menu cleanup..."
+        mkdir -p ~/.local/share/applications
+
+        # Copy ALL applications including the critical hidden folder
+        cp -r "$app_source"/* ~/.local/share/applications/ 2>/dev/null || true
+        echo "✓ Desktop applications installed (including hidden menu cleanup)"
+
+        # Update desktop database to apply changes immediately
+        if command -v update-desktop-database >/dev/null 2>&1; then
+            update-desktop-database ~/.local/share/applications/
+            echo "✓ Desktop database updated"
+        fi
+    else
+        echo "⚠ Applications folder not found at $app_source"
+    fi
+
     # Install waybar scripts
     local script_source="$HOME/.local/share/archriot/bin/scripts"
     local script_dest="$HOME/.local/bin"
     [[ -d "$script_source" ]] || return 1
 
-    mkdir -p "$script_dest" ~/.local/share/applications
+    mkdir -p "$script_dest"
 
     # Copy scripts individually to avoid overwriting system binaries
     find "$script_source" -type f \( -name "*.py" -o -name "*.sh" \) -print0 | while IFS= read -r -d '' script_file; do
