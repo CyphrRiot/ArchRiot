@@ -105,6 +105,19 @@ class UpdateDialog:
         except Exception:
             pass
 
+    def clear_waybar_state(self):
+        """Clear waybar update state files"""
+        try:
+            update_flag_file = os.path.join(self.config_dir, 'update_available')
+            update_state_file = os.path.join(self.config_dir, 'update_state')
+
+            if os.path.exists(update_flag_file):
+                os.remove(update_flag_file)
+            if os.path.exists(update_state_file):
+                os.remove(update_state_file)
+        except Exception as e:
+            print(f"Warning: Could not clear waybar state: {e}")
+
     def add_title(self, container):
         """Add main title"""
         title_label = Gtk.Label()
