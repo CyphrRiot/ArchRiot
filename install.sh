@@ -28,9 +28,9 @@ cleanup_on_exit() {
     # Clean up sudo if helper is available
     if [ -f "$HOME/.local/share/archriot/install/lib/sudo-helper.sh" ]; then
         source "$HOME/.local/share/archriot/install/lib/sudo-helper.sh" 2>/dev/null || true
-        if command -v cleanup_passwordless_sudo &>/dev/null; then
+        if command -v remove_passwordless_rule &>/dev/null; then
             echo "🔒 Cleaning up sudo configuration..."
-            cleanup_passwordless_sudo 2>/dev/null || true
+            remove_passwordless_rule || true
         fi
     fi
 }
@@ -290,7 +290,7 @@ process_installer_with_progress() {
         if command -v start_module &>/dev/null; then
             start_module "$installer_name" "$color"
         fi
-        echo "⚙ Running: $installer_name (interactive)"
+
         if source "$installer_file"; then
             echo "✓ Successfully completed"
         else
@@ -314,7 +314,7 @@ process_installer_with_progress() {
         run_command_clean "source '$installer_file'" "$installer_name" "$color"
     else
         # Fallback to original method
-        echo "🔧 Installing: $installer_name"
+
         start_time=$(date +%s)
 
         # Initialize installer context if helpers are available
@@ -330,7 +330,7 @@ process_installer_with_progress() {
             if command -v show_install_summary &>/dev/null; then
                 show_install_summary
             else
-                echo "✓ Completed: $installer_name (${duration}s)"
+                echo "✓ Completed (${duration}s)"
             fi
         else
             echo "❌ Failed: $installer_name"
@@ -397,50 +397,7 @@ fi
 sudo updatedb
 
 # Final installation validation
-echo -e "\n🔍 Final Installation Validation"
-echo "================================="
 
-# Test critical components
-command -v waybar &>/dev/null && echo "✓ Waybar installed" || echo "⚠ Waybar installation issue"
-command -v hyprland &>/dev/null && echo "✓ Hyprland installed" || echo "⚠ Hyprland installation issue"
-command -v mullvad &>/dev/null && echo "✓ Mullvad installed" || echo "⚠ Mullvad installation issue"
-
-# Check Zed Wayland integration
-if command -v zed-wayland &>/dev/null; then
-    if [ -f ~/.local/share/applications/zed.desktop ]; then
-        echo "✓ Zed with Wayland support installed"
-    else
-        echo "⚠ Zed Wayland launcher found but desktop file missing"
-        echo "  Expected: ~/.local/share/applications/zed.desktop"
-    fi
-elif command -v zed &>/dev/null; then
-    echo "⚠ Zed installed but Wayland integration missing"
-    echo "  Missing: ~/.local/bin/zed-wayland"
-else
-    echo "⚠ Zed not installed"
-fi
-
-# Check theme system
-if [ -L ~/.config/archriot/current/theme ]; then
-    echo "✓ Theme system configured"
-else
-    echo "⚠ Theme system issue"
-fi
-
-# Check waybar scripts
-script_count=$(find ~/.local/bin -name "waybar-*.py" -executable 2>/dev/null | wc -l)
-if [ $script_count -ge 4 ]; then
-    echo "✓ Waybar scripts installed ($script_count found)"
-else
-    echo "⚠ Missing waybar scripts (found $script_count, expected 4+)"
-fi
-
-# Check background system
-if [ -f ~/.config/archriot/current/background ]; then
-    echo "✓ Background system configured"
-else
-    echo "⚠ Background system issue - no current background set"
-fi
 
 # Show completion summary with progress system
 if command -v complete_clean_installation &>/dev/null; then
@@ -453,15 +410,8 @@ INSTALL_DURATION=$((INSTALL_END_TIME - INSTALL_START_TIME))
 INSTALL_DURATION_MIN=$((INSTALL_DURATION / 60))
 INSTALL_DURATION_SEC=$((INSTALL_DURATION % 60))
 
-echo "================================="
-echo "🎉 ArchRiot installation complete!"
-echo "Version: $ARCHRIOT_VERSION"
-echo "Completed at: $(date)"
-echo "⏱️  Total installation time: ${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s"
-
 # Ensure gum is available for final prompt (BEFORE sudo cleanup)
 if ! command -v gum &>/dev/null; then
-    echo "Installing gum for final prompt..."
     yay -S --noconfirm --needed gum || {
         echo "❌ CRITICAL: Failed to install gum"
         echo "   gum is required for ArchRiot user interface"
@@ -476,35 +426,23 @@ if ! command -v gum &>/dev/null; then
 fi
 
 # Update local version file after successful installation
-echo "🔖 Updating local version file..."
 if [[ -n "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
+    mkdir -p "$HOME/.local/share/archriot"
     echo "$ARCHRIOT_VERSION" > "$HOME/.local/share/archriot/VERSION"
-    echo "✓ Version $ARCHRIOT_VERSION recorded"
 fi
 
 # Clean up passwordless sudo after installation
-if command -v cleanup_passwordless_sudo &>/dev/null; then
-    echo "🔒 Cleaning up temporary passwordless sudo..."
-    cleanup_passwordless_sudo 2>/dev/null || true
-    echo "✓ Sudo configuration restored to normal"
+if command -v remove_passwordless_rule &>/dev/null; then
+    remove_passwordless_rule || true
 fi
 
+echo "================================="
+echo "🎉 ArchRiot v$ARCHRIOT_VERSION installed! (${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s)"
 echo ""
-echo "🎯 Installation Summary:"
-echo "  • All components installed and configured"
-echo "  • Themes and backgrounds properly set up"
-echo "  • All keyboard shortcuts configured"
-echo "  • Installation completed in ${INSTALL_DURATION_MIN}m ${INSTALL_DURATION_SEC}s"
-if [[ "${ARCHRIOT_DEBUG:-}" == "1" ]]; then
-    echo "  • Installation log saved to: $INSTALL_LOG_FILE"
-fi
-echo ""
-echo "🎨 Customization Options:"
-echo "  • Switch themes: Super + Ctrl + Shift + Space"
+echo "🎯 Quick Commands:"
+echo "  • Launch Apps: Super + D [or Super + Space]"
 echo "  • Change backgrounds: Super + Ctrl + Space"
-echo "  • View keybindings: show-keybindings"
-echo "  • System validation: validate-system"
-echo "  • Performance analysis: performance-analysis"
+echo "  • View Help: Super + H"
 echo ""
 
 # Show backup location if backup was created
@@ -515,53 +453,20 @@ if [[ -f /tmp/archriot-config-backup ]]; then
     echo ""
 fi
 
-echo "🔄 Applying configuration changes without reboot..."
-echo "=================================================="
-
-# Reload Hyprland configuration if running
+# Silently apply system updates
 if pgrep -x "Hyprland" >/dev/null; then
-    echo "🖼️  Reloading Hyprland configuration..."
-    # Test config syntax first to avoid crashing session
-    if hyprctl keyword misc:disable_hyprland_logo true 2>/dev/null; then
-        if hyprctl reload 2>/dev/null; then
-            echo "✓ Hyprland configuration reloaded successfully"
-        else
-            echo "⚠ Failed to reload Hyprland - will apply on next start"
-        fi
-    else
-        echo "⚠ Hyprland config test failed - skipping reload to protect session"
-    fi
-else
-    echo "ℹ Hyprland not running - configuration will apply on next start"
+    hyprctl reload 2>/dev/null || true
 fi
 
-# Restart Waybar if running
 if pgrep -x "waybar" >/dev/null; then
-    echo "📊 Restarting Waybar..."
-    # Restart waybar with new configuration
     pkill waybar 2>/dev/null || true
     sleep 1
     waybar &>/dev/null &
-    echo "✓ Waybar restarted with new configuration"
-else
-    echo "ℹ Waybar not running - will use new configuration when started"
 fi
 
-# Update font cache
-echo "🔤 Updating font cache..."
 fc-cache -fv >/dev/null 2>&1
-echo "✓ Font cache updated"
-
-# Update icon cache
-echo "🎨 Updating icon cache..."
 gtk-update-icon-cache -f ~/.local/share/icons/hicolor/ 2>/dev/null || true
-echo "✓ Icon cache updated"
-
-# Update desktop database
-echo "🖥️  Updating desktop database..."
 update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
-echo "✓ Desktop database updated"
-
 # Reload shell configuration
 echo "🐚 Shell configuration will apply to new terminals"
 
@@ -579,12 +484,7 @@ if [[ -f "$ARCHRIOT_LOG_FILE" ]] && grep -q "FAILURE\|ERROR" "$ARCHRIOT_LOG_FILE
     echo "⚠️  Your system may have missing functionality until these are resolved."
     echo ""
 else
-    echo ""
-    echo "✅ All configurations applied! System is ready to use."
-    echo "🔄 Most changes are now active. For complete activation:"
-    echo "   • New terminals will have updated shell config"
-    echo "   • Hyprland settings are live (if running)"
-    echo "   • Waybar has been restarted with new config"
+    echo "✅ System ready! New terminals will have updated configs."
     echo ""
 fi
 

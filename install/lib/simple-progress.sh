@@ -106,7 +106,8 @@ show_phase_progress() {
     local color="${2:-BLUE}"
     # Just show the phase name without incrementing counter
     if [[ "$PROGRESS_ENABLED" == "true" ]]; then
-        echo -e "${COLORS[$color]}$phase_name${COLORS[RESET]}"
+        # Module name already shown in progress bar - no need to repeat
+        true
     fi
 }
 
@@ -166,7 +167,7 @@ run_command_clean() {
 
     show_phase_progress "$phase_name" "$color"
 
-    echo -e "${COLORS[BLUE]}⚙ Running: $phase_name${COLORS[RESET]}"
+    # Module name already shown in progress bar - no redundant display needed
 
     # Run command with output captured
     local temp_output=$(mktemp)

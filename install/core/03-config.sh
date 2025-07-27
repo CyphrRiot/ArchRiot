@@ -54,7 +54,7 @@ create_surgical_backup() {
         local target="$backup_dir/$config"
 
         if [[ -e "$source" ]]; then
-            echo "  → Backing up: $config"
+            echo "  → Backing up: $config" >> "$ARCHRIOT_LOG_FILE"
             mkdir -p "$(dirname "$target")"
             cp -R "$source" "$target"
         fi
@@ -94,6 +94,7 @@ restore_from_backup() {
 # Install dependencies and copy configurations
 install_configs() {
     echo "📦 Installing configurations and dependencies..."
+    local config_count=0
 
     # Install Python dependencies
     command -v python3 &>/dev/null || sudo pacman -S --noconfirm python3
@@ -165,16 +166,17 @@ install_configs() {
         if [[ ! -e "$target" ]]; then
             # New installation - safe to copy
             cp -R "$item" "$target" || return 1
-            echo "✓ Installed new config: $basename"
+            echo "✓ Installed new config: $basename" >> "$ARCHRIOT_LOG_FILE"
         else
             # Remove existing and install ArchRiot version (backup already created)
             rm -rf "$target" 2>/dev/null || true
             cp -R "$item" "$target" || return 1
-            echo "✓ Force installed ArchRiot config: $basename"
+            echo "✓ Force installed ArchRiot config: $basename" >> "$ARCHRIOT_LOG_FILE"
         fi
+        ((config_count++))
     done
 
-    echo "✓ Configurations installed"
+    echo "✓ Installed $config_count configuration modules (details in log)"
 }
 
 # Pre-installation safety check

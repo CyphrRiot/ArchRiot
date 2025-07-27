@@ -30,14 +30,11 @@ install_hyprland_configs() {
 
         # Focus on hypr configs needed for desktop setup
         if [[ "$basename" == "hypr" ]]; then
-            if [[ -e "$target" ]]; then
-                # Remove existing config (backup already created by consolidated system)
-                echo "📦 Replacing existing config: $basename"
-                rm -rf "$target"
-            fi
-            # Install fresh ArchRiot config
-            cp -R "$item" "$target" || return 1
-            echo "✓ Installed ArchRiot config: $basename"
+            # Use rsync for safe config synchronization
+            echo "📦 Syncing config: $basename"
+            mkdir -p "$target"
+            rsync -a --delete "$item/" "$target/" || return 1
+            echo "✓ Synced ArchRiot config: $basename"
         fi
     done
 
@@ -122,44 +119,7 @@ show_summary() {
     echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher)"
 }
 
-# Restart waybar with new configuration if in graphical session
-restart_waybar() {
-    echo "🔄 Restarting waybar with new configuration..."
 
-    # Kill existing waybar processes more thoroughly
-    pkill -f waybar 2>/dev/null || true
-    killall waybar 2>/dev/null || true
-    sleep 2
-
-    # Ensure waybar is completely stopped
-    local attempts=0
-    while pgrep -f waybar >/dev/null && [ $attempts -lt 5 ]; do
-        echo "⏳ Waiting for waybar to stop..."
-        pkill -9 waybar 2>/dev/null || true
-        sleep 1
-        ((attempts++))
-    done
-
-    # Start waybar if we're in a graphical session
-    if [[ -n "$WAYLAND_DISPLAY" ]] || [[ -n "$DISPLAY" ]]; then
-        echo "🚀 Starting waybar with new configuration..."
-        # Use nohup to properly detach from installation process
-        nohup waybar </dev/null >/dev/null 2>&1 &
-
-        # Wait longer for waybar to initialize
-        sleep 3
-
-        # Verify waybar started successfully
-        if pgrep -f waybar >/dev/null; then
-            echo "✓ Waybar is running successfully"
-        else
-            echo "⚠ Waybar failed to start - try: waybar &"
-            echo "🔍 Check waybar config: waybar --log-level debug"
-        fi
-    else
-        echo "ℹ No graphical session detected - waybar will start on next login"
-    fi
-}
 
 # Touchpad configuration is now handled in the base hyprland.conf
 # Setup VM-specific scaling configuration
@@ -263,19 +223,9 @@ main() {
     configure_hyprland
 
     # Reload Hyprland config if it's running
-    if pgrep -x "Hyprland" >/dev/null; then
-        echo "🔄 Reloading Hyprland configuration..."
-        if hyprctl reload 2>/dev/null; then
-            echo "✓ Hyprland configuration reloaded successfully"
-        else
-            echo "⚠ Failed to reload Hyprland - please restart Hyprland manually"
-        fi
-    else
-        echo "ℹ Hyprland not running - configuration will be applied on next start"
-    fi
 
-    # Restart waybar after configuration changes
-    restart_waybar
+
+
 
     show_summary
 

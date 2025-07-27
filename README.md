@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.5.5-4c1d95)
+![Version](https://img.shields.io/badge/version-1.6.0-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -38,7 +38,7 @@ ArchRiot is a privacy-focused Arch Linux setup that delivers a complete, functio
 - **Privacy First:** No telemetry, no data collection, privacy-respecting applications
 - **Fully Customizable:** Modify, extend, or strip down to your exact needs
 
-_Created by an long-time Linux user, experienced developer, and privacy advocate - this is the Linux system I've always wanted to use._
+_Created by a long-time Linux user, experienced developer, and privacy advocate - this is the Linux system I've always wanted to use._
 
 🎉 Thank you to [Vaxryy](https://x.com/vaxryy) for creating Hyprland! ✨
 

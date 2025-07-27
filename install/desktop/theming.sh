@@ -466,8 +466,7 @@ link_waybar_config() {
 start_theme_services() {
     echo "🚀 Starting theme services..."
 
-    # Stop existing services gracefully
-    stop_theme_services
+    # Services will be restarted at end of installation
 
     # Start background service
     local bg_file="$HOME/.config/archriot/current/background"
@@ -484,33 +483,8 @@ start_theme_services() {
         echo "⚠ No background configured"
     fi
 
-    # Start waybar with improved reliability
-    if [[ -f "$HOME/.config/waybar/config" ]]; then
-        if [[ -n "$WAYLAND_DISPLAY" ]] || [[ -n "$DISPLAY" ]]; then
-            echo "🚀 Starting waybar with new configuration..."
-            # Use nohup to properly detach from installation process
-            nohup waybar </dev/null >/dev/null 2>&1 &
-
-            # Wait for waybar to initialize
-            sleep 3
-
-            # Verify waybar started successfully
-            if pgrep -f waybar >/dev/null; then
-                echo "✓ Waybar is running successfully"
-            else
-                echo "⚠ Waybar failed to start - config may have issues"
-                echo "🔍 Debug with: waybar --log-level debug"
-                # Try one more time with visible output for debugging
-                echo "🔄 Attempting waybar restart with debug output..."
-                waybar &
-                sleep 2
-            fi
-        else
-            echo "ℹ Not in graphical session - waybar will start when GUI is available"
-        fi
-    else
-        echo "⚠ Waybar config not found at ~/.config/waybar/config"
-    fi
+    # Waybar will be started at the end of installation
+    echo "✓ Waybar configuration ready"
 
     # Start blue light filter by default (no user prompt)
     start_blue_light_filter
@@ -519,22 +493,6 @@ start_theme_services() {
 
 # Stop theme-related services safely
 stop_theme_services() {
-    echo "🛑 Stopping existing theme services..."
-
-    # Stop waybar more thoroughly
-    pkill -f waybar 2>/dev/null || true
-    killall waybar 2>/dev/null || true
-    sleep 2
-
-    # Ensure waybar is completely stopped
-    local attempts=0
-    while pgrep -f waybar >/dev/null && [ $attempts -lt 5 ]; do
-        echo "⏳ Waiting for waybar to stop..."
-        pkill -9 waybar 2>/dev/null || true
-        sleep 1
-        ((attempts++))
-    done
-
     # Stop background service
     pkill swaybg 2>/dev/null || true
     sleep 1

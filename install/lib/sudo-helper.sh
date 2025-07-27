@@ -130,19 +130,13 @@ add_wheel_rule() {
 
 # Remove ArchRiot sudo rule and old individual user files
 remove_passwordless_rule() {
-    print_status "INFO" "Removing ArchRiot sudo rule..."
-
-    # Remove rule from main sudoers file
+    # Silently remove rule from main sudoers file
     if sudo grep -q "$ARCHRIOT_SUDO_MARKER" /etc/sudoers; then
         # Use sed to remove only our marked line
-        if sudo sed -i "/$ARCHRIOT_SUDO_MARKER/d" /etc/sudoers; then
-            print_status "INFO" "✓ ArchRiot sudo rule removed"
-        else
+        if ! sudo sed -i "/$ARCHRIOT_SUDO_MARKER/d" /etc/sudoers; then
             print_status "ERROR" "Failed to remove sudo rule"
             return 1
         fi
-    else
-        print_status "INFO" "No ArchRiot rule found to remove"
     fi
 
     # Remove old individual user file if it exists
@@ -257,11 +251,7 @@ setup_passwordless_sudo() {
     fi
 }
 
-# Cleanup passwordless sudo (main function)
-cleanup_passwordless_sudo() {
-    print_status "INFO" "Cleaning up temporary passwordless sudo..."
-    remove_passwordless_rule
-}
+
 
 # Test passwordless sudo functionality
 test_passwordless_sudo() {
