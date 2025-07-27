@@ -38,7 +38,7 @@
 [0.000134, "o", "================================================"]
 [0.000016, "o", "\r\n\r\n"]
 [0.015091, "o", "\r\n🧹 NUCLEAR cleanup of old installations...\r\n"]
-[0.000037, "o", "   Removing ALL ArchRiot and ArchRiot directories...\r\n"]
+[0.000037, "o", "   Removing ALL ArchRiot and Ohmarchy directories...\r\n"]
 [0.21699, "o", "✓ Cleanup complete - fresh install guaranteed\r\n"]
 [0.000016, "o", "\r\nCloning ArchRiot...\r\n"]
 [0.001262, "o", "Cloning into '/home/grendel/.local/share/archriot'...\r\n"]
