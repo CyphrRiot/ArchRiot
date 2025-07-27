@@ -222,9 +222,16 @@ setup_scripts_and_env() {
         echo "📱 Installing desktop applications and menu cleanup..."
         mkdir -p ~/.local/share/applications
 
-        # Copy ALL applications including the critical hidden folder
-        cp -r "$app_source"/* ~/.local/share/applications/ 2>/dev/null || true
-        echo "✓ Desktop applications installed (including hidden menu cleanup)"
+        # Copy ALL applications (but NOT as subfolders)
+        find "$app_source" -maxdepth 1 -name "*.desktop" -exec cp {} ~/.local/share/applications/ \; 2>/dev/null || true
+
+        # Copy hidden files directly to applications folder (NOT as hidden subfolder)
+        if [[ -d "$app_source/hidden" ]]; then
+            cp "$app_source/hidden"/* ~/.local/share/applications/ 2>/dev/null || true
+            echo "✓ Desktop applications and hidden menu cleanup installed"
+        else
+            echo "✓ Desktop applications installed"
+        fi
 
         # Update desktop database to apply changes immediately
         if command -v update-desktop-database >/dev/null 2>&1; then
