@@ -23,8 +23,6 @@ padding=15
 
 # Text formatting
 markup=1
-word-wrap=1
-ellipsize=end
 
 # Critical notifications (system updates, errors)
 [urgency=critical]
