@@ -1,0 +1,715 @@
+#!/usr/bin/env python3
+"""
+ArchRiot Control Panel
+Centralized settings interface for ArchRiot components
+"""
+
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Gdk', '4.0')
+from gi.repository import Gtk, Gdk, GLib, Pango
+import os
+import sys
+from pathlib import Path
+
+# Import our configuration manager
+def import_config_module():
+    """Import the ArchRiot configuration system"""
+    # Get script directory, handle both __file__ and execution contexts
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+    except NameError:
+        # Fallback when __file__ is not defined (like in exec context)
+        script_dir = os.getcwd()
+
+    # Try from same directory first (development)
+    config_script = os.path.join(script_dir, 'archriot-config')
+
+    if os.path.exists(config_script):
+        # Execute the config script to get the ArchRiotConfig class
+        global_vars = {}
+        with open(config_script, 'r') as f:
+            exec(f.read(), global_vars)
+        return global_vars['ArchRiotConfig']
+    else:
+        # Try from installed location
+        home_bin = str(Path.home() / '.local' / 'bin' / 'archriot-config')
+        if os.path.exists(home_bin):
+            global_vars = {}
+            with open(home_bin, 'r') as f:
+                exec(f.read(), global_vars)
+            return global_vars['ArchRiotConfig']
+        else:
+            # Create a minimal fallback config class
+            class FallbackConfig:
+                def __init__(self):
+                    pass
+                def get_pomodoro_config(self):
+                    return {'enabled': True, 'duration': 25}
+                def get_bluelight_config(self):
+                    return {'enabled': True, 'temperature': 3500}
+                def get_mullvad_config(self):
+                    return {'enabled': False, 'account_number': '', 'auto_connect': False}
+                def set_pomodoro_config(self, enabled, duration):
+                    pass
+                def set_bluelight_config(self, enabled, temperature):
+                    pass
+                def set_mullvad_config(self, enabled, account_number='', auto_connect=False):
+                    pass
+                def backup_config(self, name=None):
+                    return "/tmp/fallback-backup"
+            return FallbackConfig
+
+ArchRiotConfig = import_config_module()
+
+class BaseControlWidget:
+    """Base class for control widgets with toggle and value control"""
+
+    def __init__(self, config, title, description, icon):
+        self.config = config
+        self.title = title
+        self.description = description
+        self.icon = icon
+        self.timeout_id = None
+
+        # Create main container
+        self.widget = self.create_section_frame()
+
+    def create_section_frame(self):
+        """Create the main frame for this widget"""
+        frame = Gtk.Frame()
+        frame.set_margin_bottom(5)
+
+        # Create main container
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        main_box.set_margin_start(15)
+        main_box.set_margin_end(15)
+        main_box.set_margin_top(15)
+        main_box.set_margin_bottom(15)
+
+        # Title row with toggle
+        self.title_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+
+        # Title
+        title_label = Gtk.Label()
+        title_label.set_markup(f'<span size="16000" weight="bold" foreground="#bb9af7">{self.icon} {self.title}</span>')
+        title_label.set_halign(Gtk.Align.START)
+        title_label.set_hexpand(True)
+        self.title_row.append(title_label)
+
+        main_box.append(self.title_row)
+
+        # Controls container
+        self.controls_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        main_box.append(self.controls_box)
+
+        frame.set_child(main_box)
+        return frame
+
+    def create_toggle(self, label_text, initial_state, callback):
+        """Create a toggle switch"""
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        label = Gtk.Label(label=label_text)
+        label.set_halign(Gtk.Align.START)
+        label.set_hexpand(True)
+
+        switch = Gtk.Switch()
+        switch.set_active(initial_state)
+        switch.connect("notify::active", callback)
+
+        row.append(label)
+        row.append(switch)
+        return row, switch
+
+    def create_slider(self, label_text, min_val, max_val, step, current_val, enabled, marks, callback):
+        """Create a slider with label"""
+        row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        label = Gtk.Label(label=label_text)
+        label.set_halign(Gtk.Align.START)
+
+        scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, min_val, max_val, step)
+        scale.set_value(current_val)
+        scale.set_draw_value(False)
+        scale.set_sensitive(enabled)
+        scale.connect("value-changed", callback)
+
+        # Add tick marks
+        for mark_val, mark_label in marks:
+            scale.add_mark(mark_val, Gtk.PositionType.BOTTOM, mark_label)
+
+        row.append(label)
+        row.append(scale)
+        return row, label, scale
+
+    def debounced_save(self, save_function, delay_ms=500):
+        """Debounce save operations"""
+        if self.timeout_id:
+            GLib.source_remove(self.timeout_id)
+        self.timeout_id = GLib.timeout_add(delay_ms, save_function)
+
+class PomodoroWidget(BaseControlWidget):
+    """Pomodoro timer control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Pomodoro Timer", "Control the built-in Waybar Pomodoro timer", "🍅")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup Pomodoro-specific controls"""
+        pomodoro_config = self.config.get_pomodoro_config()
+
+        # Duration label (add to title row)
+        self.duration_label = Gtk.Label()
+        self.duration_label.set_markup(f'<span size="11000" alpha="75%">Duration: {pomodoro_config["duration"]} minutes</span>')
+        self.duration_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.duration_label)
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(pomodoro_config['enabled'])
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+        # Duration slider (just the slider, no label)
+        duration_marks = [(i, f"{i}m") for i in range(5, 65, 5)]
+        slider_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        self.duration_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 5, 60, 1)
+        self.duration_scale.set_value(pomodoro_config['duration'])
+        self.duration_scale.set_draw_value(False)
+        self.duration_scale.set_sensitive(pomodoro_config['enabled'])
+        self.duration_scale.connect("value-changed", self.on_duration_changed)
+
+        # Add tick marks
+        for mark_val, mark_label in duration_marks:
+            self.duration_scale.add_mark(mark_val, Gtk.PositionType.BOTTOM, mark_label)
+
+        slider_box.append(self.duration_scale)
+        self.controls_box.append(slider_box)
+
+    def on_toggle(self, switch, param):
+        """Handle toggle switch"""
+        state = switch.get_active()
+        duration = int(self.duration_scale.get_value())
+
+        # Update slider sensitivity
+        self.duration_scale.set_sensitive(state)
+
+        # Save config
+        self.config.set_pomodoro_config(state, duration)
+
+    def on_duration_changed(self, scale):
+        """Handle duration change with debouncing"""
+        duration = int(scale.get_value())
+        self.duration_label.set_text(f"Duration: {duration} minutes")
+
+        def save_config():
+            enabled = self.switch.get_active()
+            self.config.set_pomodoro_config(enabled, duration)
+            self.timeout_id = None
+            return False
+
+        self.debounced_save(save_config)
+
+class BlueLightWidget(BaseControlWidget):
+    """Blue light filter control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Blue Light Filter", "Control hyprsunset blue light filtering", "💡")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup blue light filter controls"""
+        bluelight_config = self.config.get_bluelight_config()
+
+        # Temperature label (add to title row)
+        self.temp_label = Gtk.Label()
+        self.temp_label.set_markup(f'<span size="11000" alpha="75%">Temperature: {bluelight_config["temperature"]}K</span>')
+        self.temp_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.temp_label)
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(bluelight_config['enabled'])
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+        # Temperature slider (just the slider, no label)
+        temp_marks = [(i, f"{i}K") for i in range(2500, 5500, 500)]
+        slider_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        self.temp_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 2500, 5000, 100)
+        self.temp_scale.set_value(bluelight_config['temperature'])
+        self.temp_scale.set_draw_value(False)
+        self.temp_scale.set_sensitive(bluelight_config['enabled'])
+        self.temp_scale.connect("value-changed", self.on_temperature_changed)
+
+        # Add tick marks
+        for mark_val, mark_label in temp_marks:
+            self.temp_scale.add_mark(mark_val, Gtk.PositionType.BOTTOM, mark_label)
+
+        slider_box.append(self.temp_scale)
+        self.controls_box.append(slider_box)
+
+    def on_toggle(self, switch, param):
+        """Handle toggle switch"""
+        state = switch.get_active()
+        temperature = int(self.temp_scale.get_value())
+
+        # Update slider sensitivity
+        self.temp_scale.set_sensitive(state)
+
+        # Save config
+        self.config.set_bluelight_config(state, temperature)
+
+    def on_temperature_changed(self, scale):
+        """Handle temperature change with debouncing"""
+        temperature = int(scale.get_value())
+        self.temp_label.set_text(f"Temperature: {temperature}K")
+
+        def save_config():
+            enabled = self.switch.get_active()
+            self.config.set_bluelight_config(enabled, temperature)
+            self.timeout_id = None
+            return False
+
+        self.debounced_save(save_config)
+
+class MullvadWidget(BaseControlWidget):
+    """Mullvad VPN control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Mullvad VPN", "Manage VPN connection and account settings", "🔒")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup Mullvad VPN controls"""
+        mullvad_config = self.config.get_mullvad_config()
+
+        # Auto-connect label (add to title row)
+        self.auto_connect_label = Gtk.Label()
+        self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if mullvad_config["auto_connect"] else "Off"}</span>')
+        self.auto_connect_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.auto_connect_label)
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(mullvad_config['auto_connect'])
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+        # Account number entry
+        account_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        account_label = Gtk.Label(label="Account Number:")
+        account_label.set_halign(Gtk.Align.START)
+
+        self.account_entry = Gtk.Entry()
+        self.account_entry.set_placeholder_text("1234 5678 9012 3456")
+        self.account_entry.set_text(self.format_account_number(mullvad_config['account_number']))
+        self.account_entry.set_max_length(19)
+        self.account_entry.set_width_chars(25)
+        self.account_entry.connect("changed", self.on_account_changed)
+        self.account_entry.connect("activate", self.on_account_activate)
+
+        account_box.append(account_label)
+        account_box.append(self.account_entry)
+
+        # Spacer to push button right
+        spacer = Gtk.Box()
+        spacer.set_hexpand(True)
+        account_box.append(spacer)
+
+        # Get Mullvad VPN button (same line, right-justified)
+        link_button = Gtk.Button(label="Get Mullvad VPN")
+        link_button.connect("clicked", self.on_get_mullvad_clicked)
+        link_button.set_halign(Gtk.Align.END)
+        account_box.append(link_button)
+
+        self.controls_box.append(account_box)
+
+    def on_toggle(self, switch, param):
+        """Handle auto-connect toggle switch"""
+        state = switch.get_active()
+        account_number = self.account_entry.get_text()
+
+        # Update label
+        self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if state else "Off"}</span>')
+
+        # Save config (remove spaces for storage)
+        clean_account = account_number.replace(' ', '')
+        self.config.set_mullvad_config(state, clean_account, state)
+
+    def format_account_number(self, account_number):
+        """Format account number with spaces every 4 digits"""
+        # Remove any existing spaces
+        clean = account_number.replace(' ', '')
+        # Add spaces every 4 digits
+        formatted = ' '.join(clean[i:i+4] for i in range(0, len(clean), 4))
+        return formatted
+
+    def on_account_changed(self, entry):
+        """Handle account number input with auto-formatting"""
+        text = entry.get_text()
+        cursor_pos = entry.get_position()
+
+        # Only allow digits and spaces
+        filtered = ''.join(c for c in text if c.isdigit() or c == ' ')
+
+        # Remove all spaces and re-format
+        digits_only = ''.join(c for c in filtered if c.isdigit())
+
+        # Limit to 16 digits
+        if len(digits_only) > 16:
+            digits_only = digits_only[:16]
+
+        # Format with spaces
+        formatted = self.format_account_number(digits_only)
+
+        # Update field if changed
+        if formatted != text:
+            # Calculate new cursor position accounting for added spaces
+            digits_before_cursor = len(''.join(c for c in text[:cursor_pos] if c.isdigit()))
+            spaces_before_cursor = (digits_before_cursor - 1) // 4 if digits_before_cursor > 0 else 0
+            new_pos = digits_before_cursor + spaces_before_cursor
+
+            entry.set_text(formatted)
+            entry.set_position(min(new_pos, len(formatted)))
+
+    def on_account_activate(self, entry):
+        """Handle account number validation when user presses Enter"""
+        text = entry.get_text()
+        clean_text = text.replace(' ', '')
+
+        # Save config
+        auto_connect = self.switch.get_active()
+        self.config.set_mullvad_config(auto_connect, clean_text, auto_connect)
+
+    def on_get_mullvad_clicked(self, button):
+        """Open Mullvad VPN website"""
+        import subprocess
+        subprocess.Popen(['xdg-open', 'https://mullvad.net'])
+
+class AudioWidget(BaseControlWidget):
+    """Audio system control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Audio System", "PipeWire/PulseAudio configuration", "🔊")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup audio system controls"""
+        placeholder = Gtk.Label()
+        placeholder.set_markup('<span alpha="60%">Audio settings will be added here</span>')
+        placeholder.set_margin_top(10)
+        placeholder.set_margin_bottom(10)
+        self.controls_box.append(placeholder)
+
+class CameraWidget(BaseControlWidget):
+    """Camera system control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Camera System", "Enable/Disable Camera + Set resolution", "📷")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup camera system controls"""
+        placeholder = Gtk.Label()
+        placeholder.set_markup('<span alpha="60%">Camera settings will be added here</span>')
+        placeholder.set_margin_top(10)
+        placeholder.set_margin_bottom(10)
+        self.controls_box.append(placeholder)
+
+class DisplayWidget(BaseControlWidget):
+    """Display settings control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Display Settings", "Monitor configuration and scaling", "🖥️")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup display settings controls"""
+        placeholder = Gtk.Label()
+        placeholder.set_markup('<span alpha="60%">Display settings will be added here</span>')
+        placeholder.set_margin_top(10)
+        placeholder.set_margin_bottom(10)
+        self.controls_box.append(placeholder)
+
+class InputWidget(BaseControlWidget):
+    """Input devices control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Input Devices", "Keyboard/mouse/touchpad settings", "⌨️")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup input devices controls"""
+        placeholder = Gtk.Label()
+        placeholder.set_markup('<span alpha="60%">Input device settings will be added here</span>')
+        placeholder.set_margin_top(10)
+        placeholder.set_margin_bottom(10)
+        self.controls_box.append(placeholder)
+
+class PowerWidget(BaseControlWidget):
+    """Power management control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Power Management", "Battery and performance profiles", "🔋")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup power management controls"""
+        placeholder = Gtk.Label()
+        placeholder.set_markup('<span alpha="60%">Power management settings will be added here</span>')
+        placeholder.set_margin_top(10)
+        placeholder.set_margin_bottom(10)
+        self.controls_box.append(placeholder)
+
+class SecurityWidget(BaseControlWidget):
+    """Security control widget"""
+
+    def __init__(self, config):
+        super().__init__(config, "Security", "Firewall and security settings", "🛡️")
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup security controls"""
+        placeholder = Gtk.Label()
+        placeholder.set_markup('<span alpha="60%">Security settings will be added here</span>')
+        placeholder.set_margin_top(10)
+        placeholder.set_margin_bottom(10)
+        self.controls_box.append(placeholder)
+
+class ControlPanelWindow:
+    """Main control panel window that assembles all widgets"""
+
+    def __init__(self):
+        # Initialize configuration
+        self.config = ArchRiotConfig()
+
+        # Create main window
+        self.window = Gtk.Window()
+        self.window.set_title("ArchRiot Control Panel")
+        self.window.set_default_size(900, 700)
+        self.window.set_resizable(True)
+        self.window.set_modal(True)
+        self.window.add_css_class("archriot-control-panel")
+
+        # Create main layout
+        self.create_layout()
+
+        # Connect window events
+        self.window.connect("close-request", self.on_window_close)
+
+    def create_layout(self):
+        """Create the main window layout"""
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
+        main_box.set_margin_start(30)
+        main_box.set_margin_end(30)
+        main_box.set_margin_top(15)
+        main_box.set_margin_bottom(20)
+
+        # Header
+        self.add_header(main_box)
+
+        # Content area with widgets
+        self.add_content_area(main_box)
+
+        # Footer
+        self.add_footer(main_box)
+
+        self.window.set_child(main_box)
+
+    def add_header(self, container):
+        """Add header with title and version info"""
+        header_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+
+        # Main title
+        title_label = Gtk.Label()
+        title_label.set_markup('<span size="28000" weight="bold" foreground="#bb9af7">ArchRiot Control Panel</span>')
+        title_label.set_halign(Gtk.Align.CENTER)
+        header_box.append(title_label)
+
+        # Version and description
+        version = self.get_archriot_version()
+        subtitle_label = Gtk.Label()
+        subtitle_label.set_markup(f'<span size="12000" alpha="75%">ArchRiot v{version} • Centralized Settings Management</span>')
+        subtitle_label.set_halign(Gtk.Align.CENTER)
+        header_box.append(subtitle_label)
+
+        container.append(header_box)
+
+    def add_content_area(self, container):
+        """Add main content area with control widgets"""
+        # Create scrollable content
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_vexpand(True)
+
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        content_box.set_margin_start(20)
+        content_box.set_margin_end(20)
+        content_box.set_margin_top(20)
+        content_box.set_margin_bottom(20)
+
+        # Create and add widgets
+        self.pomodoro_widget = PomodoroWidget(self.config)
+        content_box.append(self.pomodoro_widget.widget)
+
+        self.bluelight_widget = BlueLightWidget(self.config)
+        content_box.append(self.bluelight_widget.widget)
+
+        self.mullvad_widget = MullvadWidget(self.config)
+        content_box.append(self.mullvad_widget.widget)
+
+        self.audio_widget = AudioWidget(self.config)
+        content_box.append(self.audio_widget.widget)
+
+        self.camera_widget = CameraWidget(self.config)
+        content_box.append(self.camera_widget.widget)
+
+        self.display_widget = DisplayWidget(self.config)
+        content_box.append(self.display_widget.widget)
+
+        self.input_widget = InputWidget(self.config)
+        content_box.append(self.input_widget.widget)
+
+        self.power_widget = PowerWidget(self.config)
+        content_box.append(self.power_widget.widget)
+
+        self.security_widget = SecurityWidget(self.config)
+        content_box.append(self.security_widget.widget)
+
+        scrolled_window.set_child(content_box)
+        container.append(scrolled_window)
+
+    def add_footer(self, container):
+        """Add footer with action buttons"""
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        button_box.set_halign(Gtk.Align.END)
+        button_box.set_margin_top(10)
+
+        # Close button
+        close_button = Gtk.Button(label="Close")
+        close_button.connect("clicked", self.on_close_clicked)
+        button_box.append(close_button)
+
+        container.append(button_box)
+
+    def on_close_clicked(self, button):
+        """Handle close button click"""
+        self.window.close()
+
+    def on_window_close(self, window):
+        """Handle window close request"""
+        if hasattr(self, 'app'):
+            self.app.quit()
+        return False
+
+    def get_archriot_version(self):
+        """Read ArchRiot version from VERSION file"""
+        home_dir = Path.home()
+        version_path = home_dir / '.local' / 'share' / 'archriot' / 'VERSION'
+
+        try:
+            with open(version_path, 'r') as f:
+                version = f.read().strip()
+                return version
+        except Exception:
+            return "unknown"
+
+class ControlPanelApplication(Gtk.Application):
+    """GTK Application wrapper"""
+
+    def __init__(self):
+        super().__init__(application_id="net.archriot.control-panel")
+
+    def do_activate(self):
+        """Activate the application"""
+        if not self.get_windows():
+            window = ControlPanelWindow()
+            window.app = self
+            self.add_window(window.window)
+
+        # Apply CSS styling
+        self.apply_css()
+
+        # Show the window
+        self.get_windows()[0].present()
+
+    def apply_css(self):
+        """Apply ArchRiot theming"""
+        css_provider = Gtk.CssProvider()
+        css_data = """
+        * {
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        window {
+            background: rgba(0, 0, 0, 0.7);
+            color: #cdd6f4;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        label {
+            color: #cdd6f4;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        frame {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(157, 123, 216, 0.3);
+            border-radius: 8px;
+        }
+
+        button {
+            background: rgba(75, 0, 130, 1.0);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-weight: bold;
+            min-height: 24px;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        button:hover {
+            background: rgba(102, 51, 153, 1.0);
+        }
+
+        entry {
+            background: rgba(20, 21, 31, 0.9);
+            color: #cdd6f4;
+            border: 1px solid rgba(157, 123, 216, 0.3);
+            border-radius: 6px;
+            min-height: 24px;
+            padding: 4px 8px;
+        }
+
+        entry:focus {
+            border: 1px solid rgba(187, 154, 247, 0.6);
+        }
+
+        scrolledwindow {
+            border: none;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        """
+
+        css_provider.load_from_data(css_data.encode())
+
+        # Apply CSS to default display
+        display = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_display(
+            display,
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_USER
+        )
+
+def main():
+    """Main entry point"""
+    app = ControlPanelApplication()
+    return app.run(sys.argv)
+
+if __name__ == "__main__":
+    exit_code = main()
+    sys.exit(exit_code)

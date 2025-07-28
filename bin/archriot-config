@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""
+ArchRiot Configuration Manager
+Centralized configuration parser and manager for ArchRiot settings
+"""
+
+import configparser
+import os
+import json
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+class ArchRiotConfig:
+    """ArchRiot configuration manager"""
+
+    def __init__(self):
+        self.config_dir = Path.home() / ".config" / "archriot"
+        self.config_file = self.config_dir / "archriot.conf"
+        self.config = configparser.ConfigParser()
+
+        # Ensure config directory exists
+        self.config_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load configuration
+        self.load_config()
+
+    def load_config(self):
+        """Load configuration from file, create defaults if not exists"""
+        if self.config_file.exists():
+            self.config.read(self.config_file)
+        else:
+            self.create_default_config()
+
+    def create_default_config(self):
+        """Create default configuration based on current system state"""
+        # Pomodoro timer settings
+        self.config.add_section('pomodoro')
+        self.config.set('pomodoro', 'enabled', 'true')
+        self.config.set('pomodoro', 'duration', '25')
+
+        # Blue light filter settings
+        self.config.add_section('bluelight')
+        self.config.set('bluelight', 'enabled', 'true')
+        self.config.set('bluelight', 'temperature', '3500')
+
+        # Mullvad VPN settings
+        self.config.add_section('mullvad')
+        self.config.set('mullvad', 'enabled', 'false')
+        self.config.set('mullvad', 'account_number', '')
+        self.config.set('mullvad', 'auto_connect', 'false')
+
+        self.save_config()
+
+    def save_config(self):
+        """Save configuration to file"""
+        with open(self.config_file, 'w') as f:
+            self.config.write(f)
+
+    def get(self, section: str, key: str, fallback: str = None) -> str:
+        """Get configuration value"""
+        return self.config.get(section, key, fallback=fallback)
+
+    def getboolean(self, section: str, key: str, fallback: bool = False) -> bool:
+        """Get boolean configuration value"""
+        return self.config.getboolean(section, key, fallback=fallback)
+
+    def getint(self, section: str, key: str, fallback: int = 0) -> int:
+        """Get integer configuration value"""
+        return self.config.getint(section, key, fallback=fallback)
+
+    def set(self, section: str, key: str, value: str):
+        """Set configuration value"""
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+        self.config.set(section, key, str(value))
+
+    def get_section(self, section: str) -> Dict[str, str]:
+        """Get entire section as dictionary"""
+        if self.config.has_section(section):
+            return dict(self.config.items(section))
+        return {}
+
+    def update_section(self, section: str, values: Dict[str, Any]):
+        """Update entire section with new values"""
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+
+        for key, value in values.items():
+            self.config.set(section, key, str(value))
+
+    # Convenience methods for specific components
+
+    def get_pomodoro_config(self) -> Dict[str, Any]:
+        """Get pomodoro timer configuration"""
+        return {
+            'enabled': self.getboolean('pomodoro', 'enabled', True),
+            'duration': self.getint('pomodoro', 'duration', 25)
+        }
+
+    def set_pomodoro_config(self, enabled: bool, duration: int):
+        """Set pomodoro timer configuration"""
+        self.set('pomodoro', 'enabled', str(enabled).lower())
+        self.set('pomodoro', 'duration', str(duration))
+        self.save_config()
+
+    def get_bluelight_config(self) -> Dict[str, Any]:
+        """Get blue light filter configuration"""
+        return {
+            'enabled': self.getboolean('bluelight', 'enabled', True),
+            'temperature': self.getint('bluelight', 'temperature', 3500)
+        }
+
+    def set_bluelight_config(self, enabled: bool, temperature: int):
+        """Set blue light filter configuration"""
+        self.set('bluelight', 'enabled', str(enabled).lower())
+        self.set('bluelight', 'temperature', str(temperature))
+        self.save_config()
+
+    def get_mullvad_config(self) -> Dict[str, Any]:
+        """Get Mullvad VPN configuration"""
+        return {
+            'enabled': self.getboolean('mullvad', 'enabled', False),
+            'account_number': self.get('mullvad', 'account_number', ''),
+            'auto_connect': self.getboolean('mullvad', 'auto_connect', False)
+        }
+
+    def set_mullvad_config(self, enabled: bool, account_number: str = '', auto_connect: bool = False):
+        """Set Mullvad VPN configuration"""
+        self.set('mullvad', 'enabled', str(enabled).lower())
+        self.set('mullvad', 'account_number', account_number)
+        self.set('mullvad', 'auto_connect', str(auto_connect).lower())
+        self.save_config()
+
+    def backup_config(self, backup_name: str = None) -> str:
+        """Create backup of current configuration"""
+        from datetime import datetime
+
+        if backup_name is None:
+            backup_name = f"archriot-backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}.conf"
+
+        backup_dir = self.config_dir / "backups"
+        backup_dir.mkdir(exist_ok=True)
+
+        backup_path = backup_dir / backup_name
+
+        if self.config_file.exists():
+            import shutil
+            shutil.copy2(self.config_file, backup_path)
+            return str(backup_path)
+
+        return ""
+
+    def export_config(self) -> Dict[str, Any]:
+        """Export configuration as dictionary"""
+        export = {}
+        for section_name in self.config.sections():
+            export[section_name] = dict(self.config.items(section_name))
+        return export
+
+    def import_config(self, config_data: Dict[str, Any]):
+        """Import configuration from dictionary"""
+        # Create backup first
+        self.backup_config()
+
+        # Clear existing config
+        for section in self.config.sections():
+            self.config.remove_section(section)
+
+        # Import new config
+        for section_name, section_data in config_data.items():
+            self.config.add_section(section_name)
+            for key, value in section_data.items():
+                self.config.set(section_name, key, str(value))
+
+        self.save_config()
+
+
+def main():
+    """Command line interface for configuration management"""
+    import sys
+
+    if len(sys.argv) < 2:
+        print("ArchRiot Configuration Manager")
+        print("Usage:")
+        print("  archriot-config get <section> <key>")
+        print("  archriot-config set <section> <key> <value>")
+        print("  archriot-config show [section]")
+        print("  archriot-config backup [name]")
+        print("  archriot-config export")
+        return
+
+    config = ArchRiotConfig()
+    command = sys.argv[1]
+
+    if command == "get" and len(sys.argv) >= 4:
+        section, key = sys.argv[2], sys.argv[3]
+        value = config.get(section, key)
+        if value is not None:
+            print(value)
+        else:
+            print(f"Key '{key}' not found in section '{section}'", file=sys.stderr)
+            sys.exit(1)
+
+    elif command == "set" and len(sys.argv) >= 5:
+        section, key, value = sys.argv[2], sys.argv[3], sys.argv[4]
+        config.set(section, key, value)
+        config.save_config()
+        print(f"Set {section}.{key} = {value}")
+
+    elif command == "show":
+        if len(sys.argv) >= 3:
+            section = sys.argv[2]
+            if config.config.has_section(section):
+                for key, value in config.config.items(section):
+                    print(f"{key} = {value}")
+            else:
+                print(f"Section '{section}' not found", file=sys.stderr)
+                sys.exit(1)
+        else:
+            # Show all sections
+            for section in config.config.sections():
+                print(f"[{section}]")
+                for key, value in config.config.items(section):
+                    print(f"{key} = {value}")
+                print()
+
+    elif command == "backup":
+        backup_name = sys.argv[2] if len(sys.argv) >= 3 else None
+        backup_path = config.backup_config(backup_name)
+        if backup_path:
+            print(f"Configuration backed up to: {backup_path}")
+        else:
+            print("No configuration file to backup", file=sys.stderr)
+
+    elif command == "export":
+        export_data = config.export_config()
+        print(json.dumps(export_data, indent=2))
+
+    else:
+        print(f"Unknown command: {command}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
