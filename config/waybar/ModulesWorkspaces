@@ -212,7 +212,7 @@
 		"class<slack>": "<span font='11'> </span>",
 
 		"class<mpv>": "<span font='11'> </span>",
-		"class<celluloid>": "<span font='11'> </span>",
+		"class<celluloid|Zoom>": "<span font='11'> </span>",
 		"class<Cider>": "<span font='11'>󰎆 </span>",
 		"title<.*Picture-in-Picture.*>": "<span font='11'> </span>",
 		"title<.*youtube.*>": "<span font='11'> </span>",
