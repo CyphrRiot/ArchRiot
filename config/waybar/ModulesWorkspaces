@@ -182,7 +182,7 @@
 		"class<feather>": "<span font='11'>󱟘 </span>",
 		"class<Exodus|exodus>": "<span font='11'>Ⓧ </span>",
 		"class<tor browser>": "<span font='11'> </span>",
-		"class<firefox-developer-edition>": "<span font='11'>🦊 </span>",
+		"class<firefox-developer-edition>": "<span font='11'>󰈹 </span>",
 
 		"class<konsole>": "<span font='11'> </span>",
 		"class<com.mitchellh.ghostty>": "<span font='11'>󰊠 </span>",
@@ -196,7 +196,7 @@
 		"class<org.gnome.Geary>": "<span font='11'>󰊫 </span>",
 		"title<.*gmail.*>": "<span font='11'>󰊫 </span>",
 
-		"class<[Tt]elegram-desktop|org.telegram.desktop|io.github.tdesktop_x64.TDesktop>": "<span font='11'>💬 </span>",
+		"class<[Tt]elegram-desktop|org.telegram.desktop|io.github.tdesktop_x64.TDesktop>": "<span font='11'>󰘦 </span>",
 		"class<discord|[Ww]ebcord|Vesktop>": "<span font='11'> </span>",
 		"title<.*whatsapp.*>": "<span font='11'> </span>",
     "title<.*zapzap.*>": "<span font='11'> </span>",
@@ -212,7 +212,8 @@
 		"class<slack>": "<span font='11'> </span>",
 
 		"class<mpv>": "<span font='11'> </span>",
-		"class<celluloid|Zoom>": "<span font='11'>󰕧 </span>",
+		"class<celluloid>": "<span font='11'> </span>",
+		"class<Zoom>": "<span font='11'>󰕧 </span>",
 		"class<Cider>": "<span font='11'>󰎆 </span>",
 		"title<.*Picture-in-Picture.*>": "<span font='11'> </span>",
 		"title<.*youtube.*>": "<span font='11'> </span>",
@@ -227,9 +228,9 @@
 
 		"class<virt-manager>": "<span font='11'> </span>",
 		"class<.virt-manager-wrapped>": "<span font='11'> </span>",
-		"class<virtualbox manager>": "<span font='11'>💽 </span>",
-		"title<virtualbox>": "<span font='11'>💽 </span>",
-		"class<remmina>": "<span font='11'>🖥️ </span>",
+		"class<virtualbox manager>": "<span font='11'>󰌗 </span>",
+		"title<virtualbox>": "<span font='11'>󰌗 </span>",
+		"class<remmina>": "<span font='11'>󰢹 </span>",
 
 "class<VSCode|code-url-handler|code-oss|codium|codium-url-handler|VSCodium>": "<span font='11'>󰨞 </span>",
 		// 10 alternative icon suggestions for Zed:
@@ -259,7 +260,7 @@
 		"class<thunar|nemo>": "<span font='11'>󰝰 </span>",
     "class<Gparted>":"<span font='11'> </span>",
 		"class<gimp>": "<span font='11'> </span>",
-		"class<emulator>": "<span font='11'>📱 </span>",
+		"class<emulator>": "<span font='11'>󰄭 </span>",
 		"class<android-studio>": "<span font='11'> </span>",
    	"class<org.pipewire.Helvum>": "<span font='11'>󰓃 </span>",
 
