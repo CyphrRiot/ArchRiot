@@ -398,11 +398,27 @@ class AudioWidget(BaseControlWidget):
 
     def setup_controls(self):
         """Setup audio system controls"""
-        placeholder = Gtk.Label()
-        placeholder.set_markup('<span alpha="60%">Audio settings will be added here</span>')
-        placeholder.set_margin_top(10)
-        placeholder.set_margin_bottom(10)
-        self.controls_box.append(placeholder)
+        # Audio enabled label (add to title row)
+        self.audio_label = Gtk.Label()
+        self.audio_label.set_markup('<span size="11000" alpha="75%">Audio: On</span>')
+        self.audio_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.audio_label)
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(True)  # Default audio on
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+    def on_toggle(self, switch, param):
+        """Handle audio system toggle switch"""
+        state = switch.get_active()
+
+        # Update label
+        self.audio_label.set_markup(f'<span size="11000" alpha="75%">Audio: {"On" if state else "Off"}</span>')
+
+        # TODO: Implement audio system control
+        # For now just update the label
 
 class CameraWidget(BaseControlWidget):
     """Camera system control widget"""
@@ -413,11 +429,27 @@ class CameraWidget(BaseControlWidget):
 
     def setup_controls(self):
         """Setup camera system controls"""
-        placeholder = Gtk.Label()
-        placeholder.set_markup('<span alpha="60%">Camera settings will be added here</span>')
-        placeholder.set_margin_top(10)
-        placeholder.set_margin_bottom(10)
-        self.controls_box.append(placeholder)
+        # Camera status label (add to title row)
+        self.camera_label = Gtk.Label()
+        self.camera_label.set_markup('<span size="11000" alpha="75%">Camera: Off</span>')
+        self.camera_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.camera_label)
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(False)  # Default camera off
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+    def on_toggle(self, switch, param):
+        """Handle camera toggle switch"""
+        state = switch.get_active()
+
+        # Update label
+        self.camera_label.set_markup(f'<span size="11000" alpha="75%">Camera: {"On" if state else "Off"}</span>')
+
+        # TODO: Implement camera system control
+        # For now just update the label
 
 class DisplayWidget(BaseControlWidget):
     """Display settings control widget"""
@@ -645,7 +677,7 @@ class ControlPanelApplication(Gtk.Application):
         }
 
         window {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 1.0);
             color: #cdd6f4;
             font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
         }
@@ -656,10 +688,11 @@ class ControlPanelApplication(Gtk.Application):
         }
 
         frame {
-            background: rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(157, 123, 216, 0.3);
             border-radius: 8px;
         }
+
+
 
         button {
             background: rgba(75, 0, 130, 1.0);

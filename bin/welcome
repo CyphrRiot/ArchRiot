@@ -268,7 +268,7 @@ def main():
     }
 
     window {
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 1.0);
         color: #cdd6f4;
         font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
@@ -279,14 +279,14 @@ def main():
     }
 
     textview {
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 1.0);
         color: #cdd6f4;
         border: none;
         font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
 
     textview text {
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 1.0);
         color: #cdd6f4;
         font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
     }
@@ -309,7 +309,7 @@ def main():
 
     scrolledwindow {
         border: none;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 1.0);
     }
     """
 

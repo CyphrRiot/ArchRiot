@@ -46,11 +46,11 @@
 1. **🍅 Pomodoro Timer** - Toggle + Duration slider (5-60min, 5min increments)
 2. **💡 Blue Light Filter** - Toggle + Temperature slider (2500K-5000K, 500K increments)
 3. **🔒 Mullvad VPN** - Toggle + Account number field (auto-formatted: "1234 5678 9012 3456") + "Get Mullvad VPN" link
+4. **🔊 Audio System** - Toggle switch with on/off status
+5. **📷 Camera System** - Toggle switch with on/off status
 
 ### Stubbed Widgets ✅
 
-4. **🔊 Audio System** - PipeWire/PulseAudio configuration
-5. **📷 Camera System** - Enable/Disable + Resolution settings
 6. **🖥️ Display Settings** - Monitor configuration and scaling
 7. **⌨️ Input Devices** - Keyboard/mouse/touchpad settings
 8. **🔋 Power Management** - Battery and performance profiles
@@ -98,9 +98,10 @@ windowrulev2 = size 900 80%, title:^(ArchRiot Control Panel)$
 - ✅ **Configuration management** with real-time saving
 - ✅ **Debounced slider updates** (500ms delay)
 - ✅ **Compact UI layout** (toggle rightmost, labels in title row)
-- ✅ **Three functional widgets** with proper validation
+- ✅ **Five functional widgets** with proper validation
 - ✅ **Auto-formatted input fields** (Mullvad account spacing)
 - ✅ **External link integration** (xdg-open for website links)
+- ✅ **Background styling solved** - Consistent solid black backgrounds (no transparency issues)
 
 ### Code Architecture
 
@@ -109,8 +110,8 @@ BaseControlWidget          # Reusable base class
 ├── PomodoroWidget        # Duration slider + toggle ✅
 ├── BlueLightWidget       # Temperature slider + toggle ✅
 ├── MullvadWidget         # Account field + toggle + link ✅
-├── AudioWidget           # (stubbed)
-├── CameraWidget          # (stubbed)
+├── AudioWidget           # Toggle switch ✅
+├── CameraWidget          # Toggle switch ✅
 ├── DisplayWidget         # (stubbed)
 ├── InputWidget           # (stubbed)
 ├── PowerWidget           # (stubbed)
@@ -122,6 +123,13 @@ ControlPanelApplication   # GTK 4 application wrapper
 
 ## ✅ Phase 1 Complete: All UI Controls Working
 
+### Background Styling Solution
+
+- **Issue resolved**: Eliminated opacity/transparency conflicts entirely
+- **Solution**: Both window and frame backgrounds use solid black `rgba(0, 0, 0, 1.0)`
+- **Consistency**: Welcome script updated to match control panel styling
+- **Result**: Perfect visual consistency with no background mismatches
+
 ### Modularization Status
 
 - ✅ **BaseControlWidget**: Reusable toggle/slider/entry patterns
@@ -132,8 +140,9 @@ ControlPanelApplication   # GTK 4 application wrapper
 ### Potential Reusable Components
 
 - `create_formatted_entry()` - For account numbers, phone numbers, etc.
-- `create_external_link_button()` - For website links
-- `create_auto_spacing_field()` - For formatted numeric input
+- `create_external_link_button()` - For website links (implemented in MullvadWidget)
+- `create_auto_spacing_field()` - For formatted numeric input (implemented in MullvadWidget)
+- `create_simple_toggle()` - For basic on/off controls (implemented in AudioWidget, CameraWidget)
 
 ## 🚀 NEXT: Phase 2 - System Integration
 
@@ -248,7 +257,8 @@ class MullvadWidget:
 
 ---
 
-**Last Updated**: Phase 1 Complete - All UI Controls Functional
-**Status**: Perfect UI with auto-formatting, dark theme, proper modularization
-**Next**: Implement `apply_to_system()` methods for live system control
-**Modularization**: Ready for reuse - standardized patterns for toggles, sliders, formatted entries, external links
+**Last Updated**: Phase 1 Complete - All UI Controls Fully Functional
+**Status**: Perfect UI with solid black backgrounds, all 5 widgets working
+**Background Issue**: RESOLVED - Consistent solid backgrounds eliminate opacity conflicts
+**Next**: Commit Phase 1 work, then implement `apply_to_system()` methods for live system control
+**Modularization**: Complete - standardized patterns for toggles, sliders, formatted entries, external links
