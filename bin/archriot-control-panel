@@ -50,11 +50,19 @@ def import_config_module():
                     return {'enabled': True, 'temperature': 3500}
                 def get_mullvad_config(self):
                     return {'enabled': False, 'account_number': '', 'auto_connect': False}
+                def get_display_config(self):
+                    return {'enabled': True, 'resolution': 1920, 'scaling': 100}
+                def get_power_config(self):
+                    return {'enabled': True, 'profile': 'balanced'}
                 def set_pomodoro_config(self, enabled, duration):
                     pass
                 def set_bluelight_config(self, enabled, temperature):
                     pass
                 def set_mullvad_config(self, enabled, account_number='', auto_connect=False):
+                    pass
+                def set_display_config(self, enabled, resolution, scaling):
+                    pass
+                def set_power_config(self, enabled, profile):
                     pass
                 def backup_config(self, name=None):
                     return "/tmp/fallback-backup"
@@ -454,17 +462,159 @@ class CameraWidget(BaseControlWidget):
 class DisplayWidget(BaseControlWidget):
     """Display settings control widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, window=None):
         super().__init__(config, "Display Settings", "Monitor configuration and scaling", "🖥️")
+        self.window = window
         self.setup_controls()
+
+    def get_available_resolutions(self):
+        """Get available monitor resolutions from hyprctl"""
+        try:
+            import subprocess
+            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True)
+            if result.returncode != 0:
+                return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
+
+            # Extract current resolution and available modes
+            current_resolution = 1920
+            widths = set()
+
+            for line in result.stdout.split('\n'):
+                # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
+                if '@' in line and 'x' in line and not 'availableModes:' in line:
+                    if line.strip() and line.startswith('\t') and ' at ' in line:
+                        try:
+                            resolution_part = line.strip().split('@')[0]
+                            if 'x' in resolution_part:
+                                current_resolution = int(resolution_part.split('x')[0])
+                        except (ValueError, IndexError):
+                            pass
+
+                # Get available modes
+                if 'availableModes:' in line:
+                    modes = line.split('availableModes:')[1].strip()
+                    for mode in modes.split():
+                        if 'x' in mode and '@' in mode:
+                            width = mode.split('x')[0]
+                            try:
+                                widths.add(int(width))
+                            except ValueError:
+                                continue
+
+            # Sort and take up to 5 largest resolutions
+            sorted_widths = sorted(widths, reverse=True)[:5]
+            available_widths = sorted_widths if sorted_widths else [1920, 1680, 1440, 1280, 1024]
+
+            return available_widths, current_resolution
+
+        except Exception:
+            return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
 
     def setup_controls(self):
         """Setup display settings controls"""
-        placeholder = Gtk.Label()
-        placeholder.set_markup('<span alpha="60%">Display settings will be added here</span>')
-        placeholder.set_margin_top(10)
-        placeholder.set_margin_bottom(10)
-        self.controls_box.append(placeholder)
+        display_config = self.config.get_display_config()
+
+        # Get available resolutions and current resolution
+        self.available_resolutions, current_resolution = self.get_available_resolutions()
+
+        # Always use actual current resolution, not stored config value
+        display_config['resolution'] = current_resolution
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(display_config['enabled'])
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+        # Resolution slider
+        resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        min_res = min(self.available_resolutions)
+        max_res = max(self.available_resolutions)
+
+        self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, min_res, max_res, 1)
+        self.resolution_scale.set_value(display_config['resolution'])
+        self.resolution_scale.set_draw_value(False)
+        self.resolution_scale.set_sensitive(display_config['enabled'])
+        self.resolution_scale.connect("value-changed", self.on_resolution_changed)
+
+        # Add resolution tick marks
+        for res in self.available_resolutions:
+            self.resolution_scale.add_mark(res, Gtk.PositionType.BOTTOM, str(res))
+
+        resolution_box.append(self.resolution_scale)
+        self.controls_box.append(resolution_box)
+
+        # Scaling slider (100%, 125%, 150%, 175%, 200%)
+        scaling_values = [100, 125, 150, 175, 200]
+        scaling_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        self.scaling_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 100, 200, 1)
+        self.scaling_scale.set_value(display_config['scaling'])
+        self.scaling_scale.set_draw_value(False)
+        self.scaling_scale.set_sensitive(display_config['enabled'])
+        self.scaling_scale.connect("value-changed", self.on_scaling_changed)
+
+        # Add scaling tick marks
+        for scaling in scaling_values:
+            self.scaling_scale.add_mark(scaling, Gtk.PositionType.BOTTOM, f"{scaling}%")
+
+        scaling_box.append(self.scaling_scale)
+        self.controls_box.append(scaling_box)
+
+    def snap_to_nearest(self, value, valid_values):
+        """Snap value to nearest valid option"""
+        return min(valid_values, key=lambda x: abs(x - value))
+
+    def on_toggle(self, switch, param):
+        """Handle toggle switch"""
+        state = switch.get_active()
+
+        # Update slider sensitivity
+        self.resolution_scale.set_sensitive(state)
+        self.scaling_scale.set_sensitive(state)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def on_resolution_changed(self, scale):
+        """Handle resolution change with snapping"""
+        value = scale.get_value()
+        snapped_value = self.snap_to_nearest(value, self.available_resolutions)
+
+        if abs(value - snapped_value) > 0.5:
+            scale.set_value(snapped_value)
+            return
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def on_scaling_changed(self, scale):
+        """Handle scaling change with snapping"""
+        value = scale.get_value()
+        snapped_value = self.snap_to_nearest(value, [100, 125, 150, 175, 200])
+
+        if abs(value - snapped_value) > 0.5:
+            scale.set_value(snapped_value)
+            return
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window and hasattr(self.window, 'apply_button'):
+            self.window.apply_button.set_sensitive(True)
+            self.window.apply_button.remove_css_class("apply-button-disabled")
+            self.window.apply_button.add_css_class("suggested-action")
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
+        enabled = self.switch.get_active()
+        resolution = self.snap_to_nearest(self.resolution_scale.get_value(), self.available_resolutions)
+        scaling = self.snap_to_nearest(self.scaling_scale.get_value(), [100, 125, 150, 175, 200])
+        self.config.set_display_config(enabled, resolution, scaling)
 
 class InputWidget(BaseControlWidget):
     """Input devices control widget"""
@@ -484,17 +634,110 @@ class InputWidget(BaseControlWidget):
 class PowerWidget(BaseControlWidget):
     """Power management control widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, window=None):
         super().__init__(config, "Power Management", "Battery and performance profiles", "🔋")
+        self.window = window
         self.setup_controls()
+
+    def get_available_profiles(self):
+        """Get available power profiles from powerprofilesctl"""
+        # Standard profiles only
+        standard_profiles = ['performance', 'balanced', 'power-saver']
+
+        try:
+            import subprocess
+            result = subprocess.run(['powerprofilesctl', 'get'], capture_output=True, text=True)
+            if result.returncode != 0:
+                return standard_profiles, 'balanced'  # fallback
+
+            current_profile = result.stdout.strip()
+
+            # Ensure current profile is in standard list
+            if current_profile not in standard_profiles:
+                current_profile = 'balanced'
+
+            return standard_profiles, current_profile
+
+        except Exception:
+            return standard_profiles, 'balanced'  # fallback
 
     def setup_controls(self):
         """Setup power management controls"""
-        placeholder = Gtk.Label()
-        placeholder.set_markup('<span alpha="60%">Power management settings will be added here</span>')
-        placeholder.set_margin_top(10)
-        placeholder.set_margin_bottom(10)
-        self.controls_box.append(placeholder)
+        power_config = self.config.get_power_config()
+
+        # Get available profiles and current profile
+        self.available_profiles, current_profile = self.get_available_profiles()
+
+        # Always use actual current profile, not stored config value
+        power_config['profile'] = current_profile
+
+        # Enable/Disable toggle (add to title row - RIGHTMOST)
+        self.switch = Gtk.Switch()
+        self.switch.set_active(power_config['enabled'])
+        self.switch.connect("notify::active", self.on_toggle)
+        self.title_row.append(self.switch)
+
+        # Power profile selection (dropdown)
+        profile_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        self.profile_dropdown = Gtk.DropDown()
+
+        # Create string list for dropdown options
+        profile_list = Gtk.StringList()
+        current_index = 0
+
+        for i, profile in enumerate(self.available_profiles):
+            profile_list.append(profile.title())  # Capitalize first letter
+            if profile == current_profile:
+                current_index = i
+
+        self.profile_dropdown.set_model(profile_list)
+        self.profile_dropdown.set_selected(current_index)
+        self.profile_dropdown.set_sensitive(power_config['enabled'])
+        self.profile_dropdown.connect("notify::selected", self.on_profile_changed)
+
+        profile_box.append(self.profile_dropdown)
+        self.controls_box.append(profile_box)
+
+    def on_toggle(self, switch, param):
+        """Handle toggle switch"""
+        state = switch.get_active()
+
+        # Update dropdown sensitivity
+        self.profile_dropdown.set_sensitive(state)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def on_profile_changed(self, dropdown, param):
+        """Handle profile change"""
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window and hasattr(self.window, 'apply_button'):
+            self.window.apply_button.set_sensitive(True)
+            self.window.apply_button.remove_css_class("apply-button-disabled")
+            self.window.apply_button.add_css_class("suggested-action")
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
+        enabled = self.switch.get_active()
+        selected_index = self.profile_dropdown.get_selected()
+        profile = self.available_profiles[selected_index] if selected_index < len(self.available_profiles) else 'balanced'
+
+        # Save to config
+        self.config.set_power_config(enabled, profile)
+
+        # Apply to system if enabled
+        if enabled:
+            try:
+                import subprocess
+                subprocess.run(['powerprofilesctl', 'set', profile], check=True)
+            except Exception:
+                pass  # Silently fail if powerprofilesctl is not available
 
 class SecurityWidget(BaseControlWidget):
     """Security control widget"""
@@ -517,6 +760,10 @@ class ControlPanelWindow:
     def __init__(self):
         # Initialize configuration
         self.config = ArchRiotConfig()
+
+        # Initialize state tracking
+        self.has_unsaved_changes = False
+        self.allow_close = False
 
         # Create main window
         self.window = Gtk.Window()
@@ -599,43 +846,132 @@ class ControlPanelWindow:
         self.camera_widget = CameraWidget(self.config)
         content_box.append(self.camera_widget.widget)
 
-        self.display_widget = DisplayWidget(self.config)
+        self.display_widget = DisplayWidget(self.config, self)
         content_box.append(self.display_widget.widget)
 
-        self.input_widget = InputWidget(self.config)
-        content_box.append(self.input_widget.widget)
+        # TODO: Re-enable these widgets later
+        # self.input_widget = InputWidget(self.config)
+        # content_box.append(self.input_widget.widget)
 
-        self.power_widget = PowerWidget(self.config)
+        self.power_widget = PowerWidget(self.config, self)
         content_box.append(self.power_widget.widget)
 
-        self.security_widget = SecurityWidget(self.config)
-        content_box.append(self.security_widget.widget)
+        # TODO: Re-enable these widgets later
+        # self.security_widget = SecurityWidget(self.config)
+        # content_box.append(self.security_widget.widget)
 
         scrolled_window.set_child(content_box)
         container.append(scrolled_window)
 
     def add_footer(self, container):
         """Add footer with action buttons"""
-        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        button_box.set_halign(Gtk.Align.END)
-        button_box.set_margin_top(10)
+        footer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        footer_box.set_margin_top(10)
 
-        # Close button
+        # Apply Changes button (left side)
+        self.apply_button = Gtk.Button(label="Apply Changes")
+        self.apply_button.connect("clicked", self.on_apply_clicked)
+        self.apply_button.set_sensitive(False)  # Initially disabled
+        self.apply_button.add_css_class("apply-button-disabled")  # Dark/muted when disabled
+        footer_box.append(self.apply_button)
+
+        # Spacer to push Close button to the right
+        spacer = Gtk.Box()
+        spacer.set_hexpand(True)
+        footer_box.append(spacer)
+
+        # Close button (right side)
         close_button = Gtk.Button(label="Close")
         close_button.connect("clicked", self.on_close_clicked)
-        button_box.append(close_button)
+        footer_box.append(close_button)
 
-        container.append(button_box)
+        container.append(footer_box)
+
+    def on_apply_clicked(self, button):
+        """Handle apply changes button click"""
+        # Apply all pending changes from all widgets
+        if hasattr(self, 'pomodoro_widget') and hasattr(self.pomodoro_widget, 'apply_changes'):
+            self.pomodoro_widget.apply_changes()
+        if hasattr(self, 'bluelight_widget') and hasattr(self.bluelight_widget, 'apply_changes'):
+            self.bluelight_widget.apply_changes()
+        if hasattr(self, 'mullvad_widget') and hasattr(self.mullvad_widget, 'apply_changes'):
+            self.mullvad_widget.apply_changes()
+        if hasattr(self, 'audio_widget') and hasattr(self.audio_widget, 'apply_changes'):
+            self.audio_widget.apply_changes()
+        if hasattr(self, 'camera_widget') and hasattr(self.camera_widget, 'apply_changes'):
+            self.camera_widget.apply_changes()
+        if hasattr(self, 'display_widget') and hasattr(self.display_widget, 'apply_changes'):
+            self.display_widget.apply_changes()
+        # TODO: Re-enable these widgets later
+        # if hasattr(self, 'input_widget') and hasattr(self.input_widget, 'apply_changes'):
+        #     self.input_widget.apply_changes()
+        if hasattr(self, 'power_widget') and hasattr(self.power_widget, 'apply_changes'):
+            self.power_widget.apply_changes()
+        # TODO: Re-enable these widgets later
+        # if hasattr(self, 'security_widget') and hasattr(self.security_widget, 'apply_changes'):
+        #     self.security_widget.apply_changes()
+
+        self.apply_button.set_sensitive(False)
+        self.apply_button.remove_css_class("suggested-action")
+        self.apply_button.add_css_class("apply-button-disabled")
+        self.has_unsaved_changes = False
+        print("All changes applied!")
 
     def on_close_clicked(self, button):
         """Handle close button click"""
-        self.window.close()
+        if hasattr(self, 'has_unsaved_changes') and (self.has_unsaved_changes or self.apply_button.get_sensitive()):
+            self.show_save_dialog()
+        else:
+            self.window.close()
 
     def on_window_close(self, window):
         """Handle window close request"""
+        if self.allow_close:
+            if hasattr(self, 'app'):
+                self.app.quit()
+            return False
+
+        if hasattr(self, 'has_unsaved_changes') and (self.has_unsaved_changes or self.apply_button.get_sensitive()):
+            self.show_save_dialog()
+            return True  # Prevent immediate close
+
         if hasattr(self, 'app'):
             self.app.quit()
         return False
+
+    def show_save_dialog(self):
+        """Show save changes confirmation dialog"""
+        dialog = Gtk.MessageDialog(
+            transient_for=self.window,
+            modal=True,
+            message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.NONE,
+            text="Save Changes?",
+            secondary_text="You have unsaved changes. Do you want to save them before closing?"
+        )
+
+        # Add custom buttons
+        dialog.add_button("No", Gtk.ResponseType.NO)
+        dialog.add_button("Yes", Gtk.ResponseType.YES)
+
+        # Make "Yes" the default/suggested button
+        dialog.set_default_response(Gtk.ResponseType.YES)
+
+        def on_dialog_response(dialog, response):
+            dialog.destroy()
+            if response == Gtk.ResponseType.YES:
+                self.on_apply_clicked(None)  # Apply changes
+                self.has_unsaved_changes = False
+                self.allow_close = True
+                self.window.close()
+            elif response == Gtk.ResponseType.NO:
+                self.has_unsaved_changes = False
+                self.allow_close = True
+                self.window.close()
+            # If dialog is cancelled, do nothing (stay open)
+
+        dialog.connect("response", on_dialog_response)
+        dialog.present()
 
     def get_archriot_version(self):
         """Read ArchRiot version from VERSION file"""
@@ -707,6 +1043,16 @@ class ControlPanelApplication(Gtk.Application):
 
         button:hover {
             background: rgba(102, 51, 153, 1.0);
+        }
+
+        button.apply-button-disabled {
+            background: rgba(40, 40, 40, 1.0);
+            color: rgba(157, 157, 157, 0.6);
+        }
+
+        button.apply-button-disabled:hover {
+            background: rgba(40, 40, 40, 1.0);
+            color: rgba(157, 157, 157, 0.6);
         }
 
         entry {

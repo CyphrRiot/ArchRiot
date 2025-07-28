@@ -49,6 +49,17 @@ class ArchRiotConfig:
         self.config.set('mullvad', 'account_number', '')
         self.config.set('mullvad', 'auto_connect', 'false')
 
+        # Display settings
+        self.config.add_section('display')
+        self.config.set('display', 'enabled', 'true')
+        self.config.set('display', 'resolution', '1920')
+        self.config.set('display', 'scaling', '100')
+
+        # Power management settings
+        self.config.add_section('power')
+        self.config.set('power', 'enabled', 'true')
+        self.config.set('power', 'profile', 'balanced')
+
         self.save_config()
 
     def save_config(self):
@@ -129,6 +140,34 @@ class ArchRiotConfig:
         self.set('mullvad', 'enabled', str(enabled).lower())
         self.set('mullvad', 'account_number', account_number)
         self.set('mullvad', 'auto_connect', str(auto_connect).lower())
+        self.save_config()
+
+    def get_display_config(self) -> Dict[str, Any]:
+        """Get display configuration"""
+        return {
+            'enabled': self.getboolean('display', 'enabled', True),
+            'resolution': self.getint('display', 'resolution', 1920),
+            'scaling': self.getint('display', 'scaling', 100)
+        }
+
+    def set_display_config(self, enabled: bool, resolution: int, scaling: int):
+        """Set display configuration"""
+        self.set('display', 'enabled', str(enabled).lower())
+        self.set('display', 'resolution', str(resolution))
+        self.set('display', 'scaling', str(scaling))
+        self.save_config()
+
+    def get_power_config(self) -> Dict[str, Any]:
+        """Get power management configuration"""
+        return {
+            'enabled': self.getboolean('power', 'enabled', True),
+            'profile': self.get('power', 'profile', 'balanced')
+        }
+
+    def set_power_config(self, enabled: bool, profile: str):
+        """Set power management configuration"""
+        self.set('power', 'enabled', str(enabled).lower())
+        self.set('power', 'profile', profile)
         self.save_config()
 
     def backup_config(self, backup_name: str = None) -> str:

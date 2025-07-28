@@ -3,24 +3,20 @@
 # ==============================================================================
 # ArchRiot Power Management Setup
 # ==============================================================================
-# Simple power management - basic monitoring tools only
+# Simple power management - install power-profiles-daemon and monitoring tools
 # Modern Linux power management is sufficient for most users
 # ==============================================================================
 
-# Install basic power monitoring tools
+# Install power management controls
+install_packages "power-profiles-daemon powertop" "essential"
+
+# Install battery monitoring for laptops
 if ls /sys/class/power_supply/BAT* &>/dev/null; then
-    # Laptop with battery - install monitoring tools
-    echo "🔋 Detected laptop - installing power monitoring tools..."
-    yay -S --noconfirm --needed \
-        powertop \
-        acpi
-    echo "✓ Power monitoring tools installed"
-else
-    # Desktop system - just powertop for monitoring
-    echo "🖥️  Desktop detected - installing power monitoring..."
-    yay -S --noconfirm --needed powertop
-    echo "✓ Power monitoring tools installed"
+    install_packages "acpi" "optional"
 fi
+
+# Enable power-profiles-daemon service
+sudo systemctl enable --now power-profiles-daemon.service
 
 echo "✅ Power management setup complete!"
 echo "ℹ️  Modern Linux power management is used (no TLP conflicts)"

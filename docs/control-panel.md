@@ -48,13 +48,13 @@
 3. **🔒 Mullvad VPN** - Toggle + Account number field (auto-formatted: "1234 5678 9012 3456") + "Get Mullvad VPN" link
 4. **🔊 Audio System** - Toggle switch with on/off status
 5. **📷 Camera System** - Toggle switch with on/off status
+6. **🖥️ Display Settings** - Real monitor resolution detection + discrete scaling (100%-200%)
+7. **🔋 Power Management** - Toggle + Profile dropdown (Performance/Balanced/Power-saver) + Real system integration
 
-### Stubbed Widgets ✅
+### Temporarily Removed (TODO: Re-implement Later)
 
-6. **🖥️ Display Settings** - Monitor configuration and scaling
-7. **⌨️ Input Devices** - Keyboard/mouse/touchpad settings
-8. **🔋 Power Management** - Battery and performance profiles
-9. **🛡️ Security** - Firewall and security settings
+**⌨️ Input Devices** - Keyboard/mouse/touchpad settings (commented out)
+**🛡️ Security** - Firewall and security settings (commented out)
 
 ## 📁 File Structure
 
@@ -95,13 +95,16 @@ windowrulev2 = size 900 80%, title:^(ArchRiot Control Panel)$
 
 - ✅ **GTK 4 Application** with ArchRiot theming + dark entry field styling
 - ✅ **Modular widget architecture** (BaseControlWidget pattern)
-- ✅ **Configuration management** with real-time saving
-- ✅ **Debounced slider updates** (500ms delay)
+- ✅ **Configuration management** with Apply Changes workflow
+- ✅ **Apply Changes button** with visual state indicators
+- ✅ **Unsaved changes dialog** - Modal popup when closing with pending changes
 - ✅ **Compact UI layout** (toggle rightmost, labels in title row)
-- ✅ **Five functional widgets** with proper validation
+- ✅ **Seven functional widgets** with proper validation
 - ✅ **Auto-formatted input fields** (Mullvad account spacing)
 - ✅ **External link integration** (xdg-open for website links)
 - ✅ **Background styling solved** - Consistent solid black backgrounds (no transparency issues)
+- ✅ **Real system integration** - Display settings detect actual monitor resolutions
+- ✅ **Discrete value sliders** - No interpolation, snap to valid tick marks only
 
 ### Code Architecture
 
@@ -112,37 +115,45 @@ BaseControlWidget          # Reusable base class
 ├── MullvadWidget         # Account field + toggle + link ✅
 ├── AudioWidget           # Toggle switch ✅
 ├── CameraWidget          # Toggle switch ✅
-├── DisplayWidget         # (stubbed)
-├── InputWidget           # (stubbed)
-├── PowerWidget           # (stubbed)
-└── SecurityWidget        # (stubbed)
+├── DisplayWidget         # Real resolution detection + discrete scaling ✅
+├── PowerWidget           # Profile dropdown + system integration ✅
+├── InputWidget           # (commented out - TODO)
+└── SecurityWidget        # (commented out - TODO)
 
-ControlPanelWindow        # Main window assembly
+ControlPanelWindow        # Main window assembly + Apply Changes workflow
 ControlPanelApplication   # GTK 4 application wrapper
 ```
 
-## ✅ Phase 1 Complete: All UI Controls Working
+## ✅ Phase 1 Complete: Core UI + Apply Changes Workflow
 
-### Background Styling Solution
+### New Apply Changes System
 
-- **Issue resolved**: Eliminated opacity/transparency conflicts entirely
-- **Solution**: Both window and frame backgrounds use solid black `rgba(0, 0, 0, 1.0)`
-- **Consistency**: Welcome script updated to match control panel styling
-- **Result**: Perfect visual consistency with no background mismatches
+- ✅ **No auto-save**: Changes only applied when "Apply Changes" button is clicked
+- ✅ **Visual state tracking**: Apply button disabled when no changes, highlighted when enabled
+- ✅ **Unsaved changes protection**: Modal dialog warns before closing with unsaved changes
+- ✅ **Change tracking**: Widgets notify window when modifications are made
+- ✅ **Batch application**: All widget changes applied together for consistency
 
-### Modularization Status
+### Display Settings Implementation
 
-- ✅ **BaseControlWidget**: Reusable toggle/slider/entry patterns
-- ✅ **Auto-formatting**: Could be extracted for other numeric inputs
-- ✅ **External links**: Reusable button pattern for website links
-- ✅ **Layout patterns**: Title row with right-aligned toggles standardized
+- ✅ **Real monitor detection**: Uses `hyprctl monitors` to get actual available resolutions
+- ✅ **Discrete resolution slider**: Up to 5 valid widths only, no interpolation
+- ✅ **Discrete scaling slider**: 100%, 125%, 150%, 175%, 200% only
+- ✅ **Snap-to-nearest**: Sliders automatically snap to valid tick marks
+- ✅ **Proper defaults**: Scaling defaults to 100% (not 125%)
 
-### Potential Reusable Components
+### Power Management Implementation
 
-- `create_formatted_entry()` - For account numbers, phone numbers, etc.
-- `create_external_link_button()` - For website links (implemented in MullvadWidget)
-- `create_auto_spacing_field()` - For formatted numeric input (implemented in MullvadWidget)
-- `create_simple_toggle()` - For basic on/off controls (implemented in AudioWidget, CameraWidget)
+- ✅ **Real power profile detection**: Uses `powerprofilesctl get` to detect current system profile
+- ✅ **Standard profile options**: Performance, Balanced, Power-saver (filtered from system output)
+- ✅ **System integration**: Actually sets power profiles via `powerprofilesctl set <profile>`
+- ✅ **Cross-platform support**: Works with both AMD and Intel systems
+- ✅ **Proper installation**: Added `power-profiles-daemon` to ArchRiot installer via `power.sh`
+
+### Widget Status
+
+- ✅ **7 widgets implemented**: Pomodoro, Blue Light, Mullvad, Audio, Camera, Display, Power
+- ✅ **All core widgets complete**: Full UI and system integration working
 
 ## 🚀 NEXT: Phase 2 - System Integration
 
