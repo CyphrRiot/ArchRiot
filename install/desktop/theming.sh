@@ -233,11 +233,23 @@ set_default_theme() {
 
     # Create symlink: ~/.config/archriot/current/theme -> selected theme directory
     # This allows other components (hyprlock, waybar, etc.) to source theme configs
+    # Set current theme link
     ln -snf "$theme_path" ~/.config/archriot/current/theme
     echo "✓ Active theme set to: $preferred_theme"
 
     # Initialize the background cycling system for this theme
-    setup_theme_backgrounds "$preferred_theme"
+    # Force error propagation when sourced
+    set -e
+    if setup_theme_backgrounds "$preferred_theme"; then
+        echo "✅ Background system setup completed successfully"
+        set +e
+    else
+        echo "🚨 CRITICAL: Background system setup FAILED!"
+        echo "🚨 Background cycling will not work!"
+        echo "🚨 Please check the installation logs above for details"
+        set +e
+        exit 1  # Force failure even when sourced
+    fi
 }
 
 # Setup background system for selected theme
@@ -247,64 +259,134 @@ setup_theme_backgrounds() {
     local theme_name="$1"
     echo "🖼️  Setting up backgrounds for theme: $theme_name"
 
-    # Central location for all background collections
+    # Ensure required directories exist
     export BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
     mkdir -p "$BACKGROUNDS_DIR/$theme_name"
+    mkdir -p "$HOME/.config/archriot/current"
 
     # Copy background files directly from repo
+    # Use absolute path resolution to work in any execution context
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local source_bg_dir="$script_dir/../../themes/$theme_name/backgrounds"
 
-    if [[ -d "$source_bg_dir" ]]; then
-        echo "📦 Installing backgrounds from: $source_bg_dir"
+    # Resolve the absolute path to avoid any relative path issues when sourced
+    local archriot_root="$(cd "$script_dir/../.." && pwd)"
+    local source_bg_dir="$archriot_root/themes/$theme_name/backgrounds"
 
-        # Clear existing numbered backgrounds
-        find "$BACKGROUNDS_DIR/$theme_name" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
+    echo "🔍 Checking source directory: $source_bg_dir"
+    echo "🔍 Script directory: $script_dir"
+    echo "🔍 ArchRiot root: $archriot_root"
+    echo "🔍 Current working directory: $(pwd)"
 
-        # Find all background files
-        mapfile -t bg_files < <(find "$source_bg_dir" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | sort)
-
-        if [[ ${#bg_files[@]} -gt 0 ]]; then
-            # Copy all backgrounds with numbered prefixes
-            local counter=1
-            for bg in "${bg_files[@]}"; do
-                filename=$(basename "$bg")
-                cp "$bg" "$BACKGROUNDS_DIR/$theme_name/$(printf "%02d" $counter)-$filename"
-                echo "✓ Installed: $(printf "%02d" $counter)-$filename"
-                ((counter++))
-            done
-            echo "✓ Installed $((counter-1)) backgrounds for $theme_name"
-        else
-            echo "⚠ No background files found in $source_bg_dir"
-        fi
-    else
-        echo "⚠ Source background directory not found: $source_bg_dir"
+    if [[ ! -d "$source_bg_dir" ]]; then
+        echo "🚨 CRITICAL: Source background directory not found: $source_bg_dir"
+        echo "🚨 This will cause background cycling to fail!"
+        return 1
     fi
 
+    echo "📦 Installing backgrounds from: $source_bg_dir"
+
+    # Clear existing numbered backgrounds
+    find "$BACKGROUNDS_DIR/$theme_name" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
+
+    # Find all background files
+    mapfile -t bg_files < <(find "$source_bg_dir" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | sort)
+
+    if [[ ${#bg_files[@]} -eq 0 ]]; then
+        echo "🚨 CRITICAL: No background files found in $source_bg_dir"
+        echo "🚨 This will cause background cycling to fail!"
+        return 1
+    fi
+
+    # Copy all backgrounds with numbered prefixes
+    local counter=1
+    local failed_copies=0
+    for bg in "${bg_files[@]}"; do
+        filename=$(basename "$bg")
+        local dest_file="$BACKGROUNDS_DIR/$theme_name/$(printf "%02d" $counter)-$filename"
+
+        if cp "$bg" "$dest_file"; then
+            echo "✓ Installed: $(printf "%02d" $counter)-$filename"
+        else
+            echo "❌ Failed to install: $filename"
+            ((failed_copies++))
+        fi
+        ((counter++))
+    done
+
+    if [[ $failed_copies -gt 0 ]]; then
+        echo "🚨 WARNING: $failed_copies background files failed to copy"
+    fi
+
+    local total_installed=$((counter-1))
+    echo "✓ Installed $total_installed backgrounds for $theme_name"
+
+    # Verify backgrounds were actually installed
+    local actual_count=$(find "$BACKGROUNDS_DIR/$theme_name" -name "[0-9][0-9]-*" -type f | wc -l)
+    if [[ $actual_count -eq 0 ]]; then
+        echo "🚨 CRITICAL: No backgrounds were successfully installed!"
+        echo "🚨 Background cycling will not work!"
+        return 1
+    fi
+
+    echo "✓ Verified: $actual_count background files in destination"
+
+    # Create directory structure and symlinks
+    echo "🔗 Setting up directory structure..."
+
     # Link background directory
-    local bg_dir="$BACKGROUNDS_DIR/$theme_name"
-    if [[ -d "$bg_dir" ]]; then
-        ln -snf "$bg_dir" ~/.config/archriot/current/backgrounds
+    if ln -snf "$BACKGROUNDS_DIR/$theme_name" ~/.config/archriot/current/backgrounds; then
+        echo "✓ Background directory linked"
+    else
+        echo "❌ Failed to link background directory"
+        return 1
+    fi
 
-        # Set default background (riot_01.jpg preferred, or first available)
-        # Try to find riot_01 first (numbered version)
-        local riot_01_bg=$(find "$bg_dir" -name "*riot_01*" | head -1)
+    # Set default background (riot_01.jpg preferred, or first available)
+    local riot_01_bg=$(find "$BACKGROUNDS_DIR/$theme_name" -name "*riot_01*" | head -1)
 
-        if [[ -n "$riot_01_bg" && -f "$riot_01_bg" ]]; then
-            ln -snf "$riot_01_bg" ~/.config/archriot/current/background
+    if [[ -n "$riot_01_bg" && -f "$riot_01_bg" ]]; then
+        if ln -snf "$riot_01_bg" ~/.config/archriot/current/background; then
             echo "✓ Default background set: $(basename "$riot_01_bg")"
         else
-            # Fallback to first numbered background (should be 01-)
-            local first_bg=$(find "$bg_dir" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
-            if [[ -n "$first_bg" ]]; then
-                ln -snf "$first_bg" ~/.config/archriot/current/background
-                echo "✓ Default background set: $(basename "$first_bg")"
-            else
-                echo "⚠ No background files found in $bg_dir"
-            fi
+            echo "❌ Failed to set default background"
+            return 1
         fi
     else
-        echo "⚠ Background directory not found for theme: $theme_name"
+        # Fallback to first numbered background (should be 01-)
+        local first_bg=$(find "$BACKGROUNDS_DIR/$theme_name" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
+        if [[ -n "$first_bg" ]]; then
+            if ln -snf "$first_bg" ~/.config/archriot/current/background; then
+                echo "✓ Default background set: $(basename "$first_bg")"
+            else
+                echo "❌ Failed to set default background"
+                return 1
+            fi
+        else
+            echo "🚨 CRITICAL: No background files found after installation"
+            return 1
+        fi
+    fi
+
+    # Final verification
+    echo "🧪 Verifying background setup..."
+    if [[ -L ~/.config/archriot/current/background && -L ~/.config/archriot/current/backgrounds ]]; then
+        local bg_target=$(readlink ~/.config/archriot/current/background)
+        local bg_dir_target=$(readlink ~/.config/archriot/current/backgrounds)
+
+        if [[ -f "$bg_target" && -d "$bg_dir_target" ]]; then
+            echo "✅ Background setup verification passed"
+            echo "   • Background: $(basename "$bg_target")"
+            echo "   • Directory: $actual_count files"
+            return 0
+        else
+            echo "🚨 CRITICAL: Background setup verification failed!"
+            echo "   • Background exists: $([[ -f "$bg_target" ]] && echo "YES" || echo "NO")"
+            echo "   • Directory exists: $([[ -d "$bg_dir_target" ]] && echo "YES" || echo "NO")"
+            return 1
+        fi
+    else
+        echo "🚨 CRITICAL: Required symlinks not created!"
+        return 1
     fi
 }
 
@@ -622,6 +704,9 @@ display_theming_summary() {
 
 # Main execution with comprehensive error handling
 main() {
+    # Force error propagation when sourced by installer
+    set -e
+
     echo "🚀 Starting desktop theming setup..."
 
     load_user_environment
@@ -629,7 +714,8 @@ main() {
     # Install theme components
     install_cursor_theme || {
         echo "❌ Failed to install cursor theme"
-        return 1
+        set +e
+        exit 1
     }
 
     install_icon_theme || {
@@ -675,7 +761,13 @@ main() {
 
     display_theming_summary
     echo "✅ Desktop theming setup completed!"
+    set +e  # Reset error handling
 }
 
-# Execute main function
-main "$@"
+# Execute main function only if not sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+else
+    # When sourced by installer, still run main but handle errors differently
+    main "$@" || exit 1
+fi
