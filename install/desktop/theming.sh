@@ -764,7 +764,8 @@ main() {
     set +e  # Reset error handling
 }
 
-# Execute main function when run directly OR when sourced by installer
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]] || [[ "$0" == *"install.sh"* ]]; then
+# Execute main function when sourced or run directly
+# Add safety guard to prevent issues when manually sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]] || [[ -z "${ARCHRIOT_MANUAL_SOURCE:-}" ]]; then
     main "$@"
 fi
