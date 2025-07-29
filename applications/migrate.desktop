@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Migrate
+GenericName=Backup & Restore Utility
+Comment=Backup and restore system configurations
+Icon=folder-sync
+Exec=migrate
+Terminal=false
+Categories=System;Utility;Archiving;
+Keywords=backup;restore;migrate;archive;configuration;
+StartupNotify=false
