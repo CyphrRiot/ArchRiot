@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.9.0-4c1d95)
+![Version](https://img.shields.io/badge/version-2.0.0-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -33,8 +33,8 @@ ArchRiot is a privacy-focused Arch Linux setup that delivers a complete, functio
 
 - **One-Command Install:** Complete setup in minutes
 - **Hyprland Tiling:** Efficient window management that enhances productivity
-- **Development Ready:** Preconfigured with Zed IDE, nvim, and themes
-- **Beautiful Aesthetics:** Custom themes with adaptive backgrounds for focused work
+- **Development Ready:** Preconfigured with Zed IDE, nvim, and CypherRiot theming
+- **Beautiful Aesthetics:** CypherRiot theme with adaptive backgrounds for focused work
 - **Privacy First:** No telemetry, no data collection, privacy-respecting applications
 - **Fully Customizable:** Modify, extend, or strip down to your exact needs
 
@@ -211,7 +211,7 @@ Access it via `SUPER+C` or by running `archriot-control-panel`.
 
 ### 🎨 **Technical Excellence**
 
-- **GTK4 Application** - Modern interface with ArchRiot Tokyo Night theming
+- **GTK4 Application** - Modern interface with ArchRiot CypherRiot theming
 - **Real-time Integration** - All changes apply immediately to running system
 - **Persistent Settings** - Configuration survives reboot and system changes
 - **Modular Architecture** - Clean, maintainable widget-based design
@@ -274,7 +274,7 @@ migrate                              # Launch interactive backup/restore interfa
 SUPER + H                            # Show HELP (SUPER Key Bindings)
 SUPER + D  or  SUPER + SPACE         # App launcher (fuzzel)
 SUPER + RETURN                       # Open terminal (Ghostty)
-SUPER + L                            # Lock screen (CypherRiot theme)
+SUPER + L                            # Lock screen (integrated CypherRiot styling)
 SUPER + ESCAPE                       # Power menu
 ```
 
@@ -322,12 +322,11 @@ SUPER + PRINT                        # Color picker
 Kooha                                # GUI screen recorder (launch from SUPER+D)
 ```
 
-### Theme & Appearance
+### Background Management
 
 ```bash
-theme-next                           # Switch to next theme
-SUPER + CTRL + SPACE                 # Cycle through backgrounds
-SUPER + CTRL + SHIFT + SPACE         # Switch themes (keybind)
+swaybg-next                          # Cycle through backgrounds
+SUPER + CTRL + SPACE                 # Cycle through backgrounds (keybind)
 ```
 
 ### System Management
@@ -368,7 +367,7 @@ Click network icon                  # Open network manager
 
 ```bash
 fix-thunar-thumbnails                # Fix thumbnail generation
-fix-background                       # Fix theme backgrounds
+fix-background                       # Fix background cycling
 ```
 
 ### 🔧 Troubleshooting
@@ -389,7 +388,7 @@ Quick fixes for common issues:
 - **Browser:** Brave (replaces Chromium) with native Wayland support
 - **File Manager:** Thunar (replaces Nautilus) with comprehensive dark theming
 - **Shell:** Fish as default (replaces Bash) with proper PATH configuration
-- **Theme:** CypherRiot as default (replaces Tokyo Night)
+- **Theme:** CypherRiot integrated as unified theme system (v2.0.0: eliminated theme override system)
 - **Code Editor:** Zed (Wayland) + Neovim with proper theme integration
 - **Applications:** All major apps now run native Wayland (no more XWayland issues)
 - **Migrate Backup Tool:** CyphrRiot's comprehensive system backup/restore solution (built-in)
@@ -484,7 +483,7 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 
 ### 🎨 **Document & Media Handling**
 
-- **Gnome Text Editor** - Default for text/markdown files (clean, modern text editing with Tokyo Night theme)
+- **Gnome Text Editor** - Default for text/markdown files (clean, modern text editing with CypherRiot theme)
 - **Papers** - Default PDF viewer (GNOME's modern document viewer)
 - **MPV** - Video playback with optimal performance
 - **Better waybar network** - nmtui instead of impala for reliable WiFi management
@@ -534,49 +533,45 @@ migrate
 
 **Integration Details:** ArchRiot automatically downloads and installs the latest version of Migrate from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate) during installation, ensuring you always have the most current backup capabilities without any manual setup.
 
-## 🎨 Themes & Customization
+## 🎨 CypherRiot Theme System
 
-### Available Themes
+### Unified Theme Integration
 
-ArchRiot includes two carefully curated themes, each with complete system integration:
+ArchRiot features a fully integrated CypherRiot theme system with complete consistency across all applications:
 
-#### **cypherriot** (Default Theme)
+**Visual Design:**
 
-- **Visual Style:** Custom Neo Tokyo Dark aesthetic with dark elegance
+- **Style:** Custom Neo Tokyo Dark aesthetic with dark elegance
 - **Color Palette:** Deep purples, electric blues, and charcoal backgrounds
-- **Waybar Integration:** Fully customized status bar with matching colors
-- **Applications:** Consistent theming across terminal, file manager, and editors
-- **Backgrounds:** 23 riot-themed wallpapers including `riot_zero.png` default
+- **Integration:** Complete system theming (waybar, hyprlock, fuzzel, terminals, applications)
+- **Backgrounds:** 23 riot-themed wallpapers for dynamic cycling
 
-#### **tokyo-night** (Alternative Theme)
+**System Integration:**
 
-- **Visual Style:** Vibrant city lights with modern cyberpunk vibes
-- **Color Palette:** Neon blues, electric purples, and deep blacks
-- **Inspiration:** Tokyo's neon-lit streets and cyberpunk aesthetics
-- **Applications:** Matching terminal and editor themes
-- **Backgrounds:** 6 night-themed wallpapers with urban/tech aesthetics
+- **Window Manager:** CypherRiot colors in Hyprland decorations and borders
+- **Status Bar:** Custom waybar with CypherRiot purple accents and consistent styling
+- **Lock Screen:** Beautiful hyprlock with CypherRiot theme and system status
+- **Applications:** Unified theming across GTK, terminal, and desktop applications
 
-### Theme Management & Customization
+### Background Management
 
-**Quick Theme Switching:**
-
-- **Switch themes:** `theme-next` command cycles between available themes
-- **Instant application:** Changes apply immediately to all running applications
-- **Persistent settings:** Theme choice survives reboots and updates
+- **Background cycling:** `swaybg-next` command cycles through available backgrounds
+- **Instant application:** Background changes apply immediately
+- **Persistent settings:** Background preferences survive reboots and updates
 
 **Background System:**
 
-- **Automatic matching:** Backgrounds automatically match your active theme
-- **Multiple variants:** Each theme includes 6 carefully selected wallpapers
-- **Easy cycling:** Use `SUPER + CTRL + SPACE` to cycle through theme backgrounds
-- **Time-based variants:** Optional time-of-day background switching
+- **CypherRiot collection:** 23 riot-themed wallpapers included
+- **Easy cycling:** Use `SUPER + CTRL + SPACE` to cycle through backgrounds
+- **Dynamic switching:** Script-based background rotation for variety
+- **High quality:** Curated wallpapers optimized for the CypherRiot aesthetic
 
 **Advanced Customization:**
 
-- **Theme location:** `~/.config/archriot/current/theme` (symlink to active theme)
-- **Custom themes:** Add your own themes to `~/.config/archriot/themes/`
-- **Background override:** Manually set backgrounds in `~/.config/archriot/current/background`
-- **Application integration:** Themes automatically apply to Waybar, terminal, editors, and GTK apps
+- **Background location:** `~/.config/archriot/backgrounds/` (consolidated directory)
+- **Custom backgrounds:** Add your own wallpapers to the backgrounds directory
+- **Script integration:** Background cycling integrates with waybar and system status
+- **Application consistency:** CypherRiot theme provides unified styling across all applications
 
 ## ⚡ Key Features & Performance
 
@@ -596,7 +591,7 @@ ArchRiot includes two carefully curated themes, each with complete system integr
 - **Code editors** - Zed (Wayland native), Neovim (power user), AbiWord (document editing)
 - **Container support** - Docker, development environments
 - **Wayland Native** - All development tools run with native Wayland for better performance
-- **Theme Integration** - Consistent dark theme across all editors and development tools
+- **CypherRiot Integration** - Consistent dark theme across all editors and development tools
 
 ### Privacy & Security Focus
 
