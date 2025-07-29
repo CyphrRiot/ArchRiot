@@ -18,7 +18,7 @@ install_cursor_theme() {
     echo "🎯 Installing cursor theme..."
 
     # Install Bibata Modern Ice cursor theme
-    if yay -S --noconfirm --needed bibata-cursor-theme; then
+    if timeout 120 yay -S --noconfirm --needed bibata-cursor-theme; then
         echo "✓ Bibata cursor theme installed"
     else
         echo "❌ Failed to install bibata-cursor-theme"
@@ -55,7 +55,7 @@ cleanup_old_icon_themes() {
     # Remove Obsidian icon themes if installed
     if pacman -Qi obsidian-icon-theme &>/dev/null; then
         echo "🗑️  Removing obsidian-icon-theme..."
-        yay -Rs --noconfirm obsidian-icon-theme 2>/dev/null || sudo pacman -Rs --noconfirm obsidian-icon-theme 2>/dev/null || true
+        timeout 60 yay -Rs --noconfirm obsidian-icon-theme 2>/dev/null || timeout 60 sudo pacman -Rs --noconfirm obsidian-icon-theme 2>/dev/null || true
     fi
 
     # Clean up any remaining Obsidian icon directories
@@ -74,13 +74,13 @@ install_icon_theme() {
     cleanup_old_icon_themes
 
     # Install Kora icon theme (required by Fuzzel config)
-    if yay -S --noconfirm --needed kora-icon-theme; then
+    if timeout 120 yay -S --noconfirm --needed kora-icon-theme; then
         echo "✓ Kora icon theme installed (Fuzzel dependency)"
     else
         echo "⚠ Failed to install kora-icon-theme"
     fi
 
-    if yay -S --noconfirm --needed tela-icon-theme-purple-git; then
+    if timeout 120 yay -S --noconfirm --needed tela-icon-theme-purple-git; then
         echo "✓ Tela purple icon theme installed"
 
         # Reset XDG user directories and icons
@@ -102,14 +102,14 @@ install_gtk_themes() {
     echo "🖼️  Installing GTK themes..."
 
     # Install base GTK themes
-    if sudo pacman -S --noconfirm gnome-themes-extra; then
+    if timeout 120 sudo pacman -S --noconfirm gnome-themes-extra; then
         echo "✓ GNOME themes installed"
     else
         echo "⚠ Failed to install GNOME themes"
     fi
 
     # Install Qt theming support
-    if sudo pacman -S --noconfirm kvantum-qt5; then
+    if timeout 120 sudo pacman -S --noconfirm kvantum-qt5; then
         echo "✓ Qt theming support installed"
     else
         echo "⚠ Failed to install Qt theming support"
@@ -764,5 +764,57 @@ main() {
     set +e  # Reset error handling
 }
 
-# Just run the goddamned theming setup - no clever bullshit
-main "$@"
+# Run full theming setup but skip services that need display session
+echo "🚀 Starting desktop theming setup..."
+
+load_user_environment
+
+# Install theme components
+install_cursor_theme || {
+    echo "❌ Failed to install cursor theme"
+    exit 1
+}
+
+install_icon_theme || {
+    echo "⚠ Icon theme installation had issues"
+}
+
+install_gtk_themes || {
+    echo "⚠ GTK theme installation had issues"
+}
+
+# Configure system settings
+configure_gtk_settings
+setup_cursor_links
+
+# Setup ArchRiot theme system
+setup_archriot_theme_system || {
+    echo "❌ Failed to setup ArchRiot theme system"
+    exit 1
+}
+
+set_default_theme || {
+    echo "❌ Failed to set default theme"
+    exit 1
+}
+
+# Link configurations
+link_theme_configs || {
+    echo "⚠ Some theme configurations failed to link"
+}
+
+# Setup fuzzel cache directory
+setup_fuzzel_cache || {
+    echo "⚠ Fuzzel cache setup had issues"
+}
+
+# Skip starting services during installation - will be done at end
+echo "⚠ Skipping theme services during installation (will start at end)"
+
+# Validate setup
+validate_theme_setup || {
+    echo "⚠ Theme validation had issues"
+}
+
+display_theming_summary
+echo "✅ Desktop theming setup completed!"
