@@ -78,6 +78,41 @@ confirm() {
     esac
 }
 
+# Plymouth theme backup and restore functions
+backup_plymouth_theme() {
+    if command -v plymouth-set-default-theme &> /dev/null; then
+        local current_theme=$(sudo plymouth-set-default-theme 2>/dev/null || echo "none")
+        if [[ "$current_theme" == "archriot" && -d "/usr/share/plymouth/themes/archriot" ]]; then
+            echo -e "${BLUE}Backing up ArchRiot Plymouth theme...${RESET}"
+            mkdir -p ~/.cache/archriot/upgrade-backup
+            sudo cp -r /usr/share/plymouth/themes/archriot ~/.cache/archriot/upgrade-backup/ 2>/dev/null || true
+            echo "$current_theme" > ~/.cache/archriot/upgrade-backup/plymouth_theme.txt
+            echo -e "${GREEN}✓ Plymouth theme backed up${RESET}"
+        fi
+    fi
+}
+
+restore_plymouth_theme() {
+    if [[ -d ~/.cache/archriot/upgrade-backup/archriot && -f ~/.cache/archriot/upgrade-backup/plymouth_theme.txt ]]; then
+        local backed_up_theme=$(cat ~/.cache/archriot/upgrade-backup/plymouth_theme.txt 2>/dev/null || echo "none")
+        if [[ "$backed_up_theme" == "archriot" ]]; then
+            echo -e "${BLUE}Restoring ArchRiot Plymouth theme...${RESET}"
+            sudo mkdir -p /usr/share/plymouth/themes/archriot
+            sudo cp -r ~/.cache/archriot/upgrade-backup/archriot/* /usr/share/plymouth/themes/archriot/ 2>/dev/null || true
+
+            # Restore theme setting and rebuild initramfs
+            if sudo plymouth-set-default-theme -R archriot &>/dev/null; then
+                echo -e "${GREEN}✓ ArchRiot Plymouth theme restored${RESET}"
+            else
+                echo -e "${YELLOW}⚠ Plymouth theme files restored but theme setting failed${RESET}"
+            fi
+
+            # Clean up backup
+            rm -rf ~/.cache/archriot/upgrade-backup/archriot ~/.cache/archriot/upgrade-backup/plymouth_theme.txt
+        fi
+    fi
+}
+
 # Start
 banner "${PURPLE}" "ARCHRIOT SYSTEM UPGRADE v2.0.0"
 
@@ -96,6 +131,9 @@ if [ "$BACKUP" = true ]; then
         echo "Package list saved"
     fi
 fi
+
+# Always backup Plymouth theme before upgrades
+backup_plymouth_theme
 
 # Step 1: Clean package caches
 banner "${BLUE}" "STEP 1: CLEAN PACKAGE CACHES"
@@ -197,6 +235,9 @@ if [ "$PACMAN_UPDATES" -gt 0 ] || [ "$AUR_UPDATES" -gt 0 ]; then
                 fi
 
                 echo -e "${GREEN}${BOLD}System upgrade completed!${RESET}"
+
+                # Restore Plymouth theme after upgrade
+                restore_plymouth_theme
                 ;;
         esac
     fi

@@ -160,6 +160,45 @@
 
 ## CRITICAL BUG FIXES
 
+### 🚨 URGENT: Plymouth Theme Wiped by System Upgrades
+
+**Status**: CRITICAL BUG FIXED - Plymouth themes lost during system upgrades
+**Problem**: `upgrade-system` script allows package updates to wipe custom Plymouth themes
+**Impact**: Hours of Plymouth/LUKS logo setup work lost with simple system upgrade
+**User Report**: "WTF!?! The upgrade wiped the Plymouth files??? We spent HOURS getting this to work!"
+
+**ROOT CAUSE IDENTIFIED**:
+
+- System upgrade updated `systemd` packages (July 29, 13:43)
+- Initramfs rebuild triggered Plymouth hook
+- Plymouth hook failed because local files were incomplete (`logo.png` missing)
+- Plymouth reset to default `bgrt` theme, wiping ArchRiot branding
+- **NO PROTECTION** in upgrade process for custom themes
+
+**CRITICAL FIXES APPLIED**:
+
+- ✅ **Fixed upgrade-system**: Added Plymouth backup/restore during upgrades
+- ✅ **Fixed missing logo.png**: Added logo.png to default/plymouth/ directory
+- ✅ **Added protection functions**: `backup_plymouth_theme()` and `restore_plymouth_theme()`
+- ✅ **Tested on affected system**: Plymouth theme successfully restored
+
+**Prevention Mechanism**:
+
+```bash
+# Before upgrade: backup_plymouth_theme()
+mkdir -p ~/.cache/archriot/upgrade-backup
+sudo cp -r /usr/share/plymouth/themes/archriot ~/.cache/archriot/upgrade-backup/
+
+# After upgrade: restore_plymouth_theme()
+sudo cp -r ~/.cache/archriot/upgrade-backup/archriot/* /usr/share/plymouth/themes/archriot/
+sudo plymouth-set-default-theme -R archriot
+```
+
+**Files Modified**:
+
+- `bin/upgrade-system` - Added Plymouth protection (35 lines added)
+- `default/plymouth/logo.png` - Fixed missing logo file (30KB)
+
 ### ✅ COMPLETED: Ivy Bridge Vulkan Support Issue
 
 **Status**: FIXED with Safe Optional Tool - Available in optional-tools/ivy-bridge-vulkan-fix/
@@ -276,6 +315,7 @@
 
 - ✅ Complete theme system consolidation (DONE in v2.0.1)
 - ✅ Fix Ivy Bridge Vulkan compatibility (DONE - Safe optional tool created)
+- ✅ Fix Plymouth upgrade protection (DONE - upgrade-system now preserves themes)
 - Fix fuzzel sudo integration
 - Restore clean installer with progress bars
 - Deploy v2.0.1 everywhere
