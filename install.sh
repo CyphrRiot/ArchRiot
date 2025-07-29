@@ -422,10 +422,18 @@ finalize_installation() {
         hyprctl reload 2>/dev/null || true
     fi
 
-    if pgrep -x "waybar" >/dev/null; then
-        pkill waybar 2>/dev/null || true
-        sleep 1
+    # Ensure waybar is running after installation (only in Wayland environment)
+    if [[ -n "$WAYLAND_DISPLAY" ]] || pgrep -x "Hyprland" >/dev/null; then
+        if pgrep -x "waybar" >/dev/null; then
+            log_message "INFO" "Restarting waybar..."
+            pkill waybar 2>/dev/null || true
+            sleep 1
+        else
+            log_message "INFO" "Starting waybar..."
+        fi
         nohup waybar &>/dev/null & disown
+    else
+        log_message "INFO" "Skipping waybar start (no Wayland environment detected)"
     fi
 
     # Update version file
