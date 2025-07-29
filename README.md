@@ -109,27 +109,6 @@ git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
 ~/.local/share/archriot/install.sh
 ```
 
-### Method 3: The Beta ISO for ArchRiot Linux
-
-> ## 🚀 **BETA ArchRiot Linux ISO Available!**
->
-> Skip the manual Arch installation entirely with our custom ArchRiot Linux ISO!
->
-> ### **Downloads**
->
-> - [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.iso)
-> - [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.sha256)
->
-> ### **SHA256 Checksum**
->
-> **Verify the Download**:
->
-> ```bash
-> sha256sum -c archriot_2025.sha256
-> ```
->
-> Boot and run `archriot-install` from the prompt!
-
 **Note:** Most users should use Method 1 above. This manual method is only for advanced users who need to customize the installation process.
 
 ## 🖥️ VM Installation Notes
@@ -206,7 +185,9 @@ This comprehensive test validates:
 
 ## Control Panel
 
-ArchRiot includes a comprehensive GTK4-based Control Panel for managing system settings through an intuitive graphical interface. Access it via `SUPER+C` or by running `archriot-control-panel`.
+ArchRiot includes a comprehensive GTK4-based Control Panel for managing system settings through an intuitive graphical interface.
+
+Access it via `SUPER+C` or by running `archriot-control-panel`.
 
 ![ArchRiot Control Panel Demo](images/control-panel.gif)
 
@@ -787,6 +768,31 @@ ArchRiot includes optional tools for advanced users who need additional function
 _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/){:target="\_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
+
+## 🧪 EXPERIMENTAL
+
+### ArchRiot Linux ISO (Beta)
+
+> ## 🚀 **BETA ArchRiot Linux ISO Available!**
+>
+> Skip the manual Arch installation entirely with our custom ArchRiot Linux ISO!
+>
+> ### **Downloads**
+>
+> - [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.iso)
+> - [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.sha256)
+>
+> ### **SHA256 Checksum**
+>
+> **Verify the Download**:
+>
+> ```bash
+> sha256sum -c archriot_2025.sha256
+> ```
+>
+> Boot and run `archriot-install` from the prompt!
+
+**⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
 
 ## 📄 License
 
