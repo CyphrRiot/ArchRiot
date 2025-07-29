@@ -764,57 +764,5 @@ main() {
     set +e  # Reset error handling
 }
 
-# Run full theming setup but skip services that need display session
-echo "🚀 Starting desktop theming setup..."
-
-load_user_environment
-
-# Install theme components
-install_cursor_theme || {
-    echo "❌ Failed to install cursor theme"
-    exit 1
-}
-
-install_icon_theme || {
-    echo "⚠ Icon theme installation had issues"
-}
-
-install_gtk_themes || {
-    echo "⚠ GTK theme installation had issues"
-}
-
-# Configure system settings
-configure_gtk_settings
-setup_cursor_links
-
-# Setup ArchRiot theme system
-setup_archriot_theme_system || {
-    echo "❌ Failed to setup ArchRiot theme system"
-    exit 1
-}
-
-set_default_theme || {
-    echo "❌ Failed to set default theme"
-    exit 1
-}
-
-# Link configurations
-link_theme_configs || {
-    echo "⚠ Some theme configurations failed to link"
-}
-
-# Setup fuzzel cache directory
-setup_fuzzel_cache || {
-    echo "⚠ Fuzzel cache setup had issues"
-}
-
-# Skip starting services during installation - will be done at end
-echo "⚠ Skipping theme services during installation (will start at end)"
-
-# Validate setup
-validate_theme_setup || {
-    echo "⚠ Theme validation had issues"
-}
-
-display_theming_summary
-echo "✅ Desktop theming setup completed!"
+# Execute main function
+main "$@"
