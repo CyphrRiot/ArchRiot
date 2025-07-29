@@ -1,488 +1,579 @@
 #!/bin/bash
 
-# ==============================================================================
-# ArchRiot Installation Validation Script
-# ==============================================================================
-# Comprehensive validation to ensure ArchRiot will install successfully
-# and deliver the expected CypherRiot Wayland + Hyprland experience
-# ==============================================================================
+# ================================================================================
+# ArchRiot Installation Verification Script
+# ================================================================================
+# Comprehensive verification of ArchRiot installation
+# Tests all critical components and reports status
+# ================================================================================
 
-set -e
+# Configuration
+readonly SCRIPT_NAME="ArchRiot Verification"
+readonly LOG_FILE="$HOME/.cache/archriot/verify.log"
+readonly CONFIG_DIR="$HOME/.config"
+readonly ARCHRIOT_DIR="$HOME/.local/share/archriot"
+
+# Test results tracking
+TOTAL_TESTS=0
+PASSED_TESTS=0
+FAILED_TESTS=0
+WARNING_TESTS=0
+declare -a FAILED_ITEMS=()
+declare -a WARNING_ITEMS=()
 
 # Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-NC='\033[0m' # No Color
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly WHITE='\033[1;37m'
+readonly GRAY='\033[0;37m'
+readonly NC='\033[0m' # No Color
 
-# Validation counters
-TESTS_PASSED=0
-TESTS_FAILED=0
-WARNINGS=0
+# ================================================================================
+# Utility Functions
+# ================================================================================
 
-# Print colored output
-print_status() {
-    local status="$1"
-    local message="$2"
+print_header() {
+    echo -e "${PURPLE}${WHITE}=================================="
+    echo -e "🔍 $SCRIPT_NAME"
+    echo -e "==================================${NC}"
+    echo ""
+}
+
+print_section() {
+    local section="$1"
+    echo -e "${CYAN}📋 Testing: $section${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+test_result() {
+    local test_name="$1"
+    local status="$2"
+    local details="$3"
+
+    ((TOTAL_TESTS++))
+
     case "$status" in
-        "PASS") echo -e "${GREEN}✓${NC} $message"; ((TESTS_PASSED++)) ;;
-        "FAIL") echo -e "${RED}❌${NC} $message"; ((TESTS_FAILED++)) ;;
-        "WARN") echo -e "${YELLOW}⚠${NC} $message"; ((WARNINGS++)) ;;
-        "INFO") echo -e "${BLUE}ℹ${NC} $message" ;;
-        "TEST") echo -e "${PURPLE}🧪${NC} $message" ;;
+        "PASS")
+            echo -e "  ${GREEN}✅ $test_name${NC}"
+            ((PASSED_TESTS++))
+            ;;
+        "FAIL")
+            echo -e "  ${RED}❌ $test_name${NC}"
+            if [[ -n "$details" ]]; then
+                echo -e "     ${GRAY}$details${NC}"
+            fi
+            FAILED_ITEMS+=("$test_name")
+            ((FAILED_TESTS++))
+            ;;
+        "WARN")
+            echo -e "  ${YELLOW}⚠️  $test_name${NC}"
+            if [[ -n "$details" ]]; then
+                echo -e "     ${GRAY}$details${NC}"
+            fi
+            WARNING_ITEMS+=("$test_name")
+            ((WARNING_TESTS++))
+            ;;
     esac
 }
 
-# Header
-print_header() {
-    # Read version
-    local version="unknown"
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    if [[ -f "$script_dir/VERSION" ]]; then
-        version=$(cat "$script_dir/VERSION" 2>/dev/null || echo "unknown")
-    elif [[ -f "$HOME/.local/share/archriot/VERSION" ]]; then
-        version=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
+# ================================================================================
+# Test Functions
+# ================================================================================
+
+test_essential_packages() {
+    print_section "Essential Packages"
+
+    # Test yay
+    if command -v yay &>/dev/null; then
+        test_result "yay AUR helper" "PASS"
+    else
+        test_result "yay AUR helper" "FAIL" "yay not found in PATH"
     fi
 
-    echo -e "${PURPLE}"
-    echo "============================================================"
-    echo "           ArchRiot Installation Validation"
-    echo "                     Version: $version"
-    echo "============================================================"
-    echo -e "${NC}"
-    echo "This script validates that ArchRiot will install successfully"
-    echo "and deliver the expected CypherRiot Wayland + Hyprland experience."
+    # Test git
+    if command -v git &>/dev/null; then
+        test_result "git version control" "PASS"
+    else
+        test_result "git version control" "FAIL" "git not found"
+    fi
+
+    # Test essential base-devel packages (individually installed)
+    local essential_devel_packages=("gcc" "make" "autoconf" "automake" "binutils" "fakeroot" "file" "findutils" "gawk" "gettext" "grep" "gzip" "libtool" "m4" "pacman" "patch" "pkgconf" "sed" "sudo" "texinfo" "which")
+    local missing_packages=0
+    local total_packages=${#essential_devel_packages[@]}
+
+    for package in "${essential_devel_packages[@]}"; do
+        if ! pacman -Q "$package" &>/dev/null; then
+            ((missing_packages++))
+        fi
+    done
+
+    if [[ $missing_packages -eq 0 ]]; then
+        test_result "base-devel packages ($total_packages/$(pacman -Qg base-devel 2>/dev/null | wc -l || echo $total_packages))" "PASS"
+    elif [[ $missing_packages -le 2 ]]; then
+        test_result "base-devel packages ($((total_packages - missing_packages))/$total_packages)" "WARN" "$missing_packages essential packages missing"
+    else
+        test_result "base-devel packages ($((total_packages - missing_packages))/$total_packages)" "FAIL" "$missing_packages essential packages missing"
+    fi
+
     echo ""
 }
 
-# Test basic system requirements
-test_system_requirements() {
-    print_status "TEST" "Testing system requirements..."
+test_desktop_environment() {
+    print_section "Desktop Environment"
 
-    # Check if running on Arch
-    if [[ -f /etc/arch-release ]]; then
-        print_status "PASS" "Running on Arch Linux"
+    # Test Hyprland
+    if command -v hyprland &>/dev/null; then
+        test_result "Hyprland compositor" "PASS"
     else
-        print_status "FAIL" "Not running on Arch Linux - ArchRiot requires Arch"
-        return 1
+        test_result "Hyprland compositor" "FAIL" "Hyprland not found"
     fi
 
-    # Check internet connectivity (using IPv4 and HTTPS)
-    if ping -c 1 -4 google.com &>/dev/null || curl -s --max-time 5 https://google.com >/dev/null 2>&1; then
-        print_status "PASS" "Internet connectivity available"
+    # Test Waybar
+    if command -v waybar &>/dev/null; then
+        test_result "Waybar status bar" "PASS"
     else
-        print_status "FAIL" "No internet connectivity - required for package downloads"
-        return 1
+        test_result "Waybar status bar" "FAIL" "Waybar not found"
     fi
 
-    # Check available disk space (need at least 5GB)
-    local available_gb=$(df / | awk 'NR==2 {printf "%.0f", $4/1024/1024}')
-    if [[ $available_gb -ge 5 ]]; then
-        print_status "PASS" "Sufficient disk space available: ${available_gb}GB"
+    # Test gum (UI component)
+    if command -v gum &>/dev/null; then
+        test_result "gum UI component" "PASS"
     else
-        print_status "FAIL" "Insufficient disk space: ${available_gb}GB (need 5GB+)"
-        return 1
+        test_result "gum UI component" "FAIL" "gum not found"
     fi
 
-    # Check if running in TTY (optimal for first install)
-    if [[ $(tty) == /dev/tty* ]]; then
-        print_status "PASS" "Running in TTY (optimal for installation)"
+    # Test fuzzel (app launcher)
+    if command -v fuzzel &>/dev/null; then
+        test_result "Fuzzel app launcher" "PASS"
     else
-        print_status "WARN" "Not running in TTY - installation will work but TTY is preferred"
+        test_result "Fuzzel app launcher" "WARN" "fuzzel not found"
     fi
+
+    # Test notification daemon
+    if command -v dunst &>/dev/null; then
+        test_result "Dunst notifications" "PASS"
+    elif command -v mako &>/dev/null; then
+        test_result "Mako notifications" "PASS"
+    else
+        test_result "Notification daemon" "WARN" "No notification daemon found"
+    fi
+
+    echo ""
 }
 
-# Test package manager availability
-test_package_manager() {
-    print_status "TEST" "Testing package manager..."
+test_theming_system() {
+    print_section "Theming System (CRITICAL)"
 
-    # Check pacman
-    if command -v pacman &>/dev/null; then
-        print_status "PASS" "Pacman available"
-    else
-        print_status "FAIL" "Pacman not available"
-        return 1
-    fi
+    # Test theme directory structure
+    if [[ -d "$CONFIG_DIR/archriot/current" ]]; then
+        test_result "Theme directory structure" "PASS"
 
-    # Check yay or ability to install it
-    if command -v yay &>/dev/null; then
-        print_status "PASS" "Yay AUR helper already available"
-    elif command -v git &>/dev/null && command -v base-devel &>/dev/null; then
-        print_status "PASS" "Git and base-devel available for yay installation"
-    else
-        print_status "WARN" "Yay not installed, git/base-devel may need to be installed first"
-    fi
-
-    # Test sudo access
-    if sudo -n true 2>/dev/null; then
-        print_status "PASS" "Sudo access available (passwordless)"
-    elif groups | grep -q wheel || id -nG | grep -q wheel; then
-        print_status "PASS" "User in wheel group - sudo access available (will prompt for password)"
-    elif sudo -v 2>/dev/null; then
-        print_status "PASS" "Sudo access confirmed (will prompt for password during install)"
-    else
-        print_status "FAIL" "No sudo access - required for package installation"
-        return 1
-    fi
-}
-
-# Test critical installation files
-test_installation_files() {
-    print_status "TEST" "Testing installation files..."
-
-    local install_dir="$HOME/.local/share/archriot"
-
-    # Test if we can clone/access the repo
-    if [[ -d "$install_dir" ]]; then
-        print_status "INFO" "ArchRiot already cloned"
-    else
-        print_status "INFO" "Testing repository clone..."
-        if git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git /tmp/archriot-test 2>/dev/null; then
-            print_status "PASS" "Repository accessible and cloneable"
-            rm -rf /tmp/archriot-test
-        else
-            print_status "FAIL" "Cannot clone ArchRiot repository"
-            return 1
-        fi
-    fi
-
-    # Check critical install scripts exist (using current directory if available)
-    local check_dir="."
-    if [[ ! -f "./install.sh" ]]; then
-        check_dir="$install_dir"
-    fi
-
-    local critical_files=(
-        "install.sh"
-        "install/core/01-base.sh"
-        "install/desktop/hyprland.sh"
-        "install/desktop/theming.sh"
-        "config/ghostty/config"
-        "config/fish/config.fish"
-        "themes/cypherriot/config"
-        "themes/cypherriot/backgrounds.sh"
-        "config/waybar/style.css"
-        "validate.sh"
-    )
-
-    for file in "${critical_files[@]}"; do
-        if [[ -f "$check_dir/$file" ]]; then
-            print_status "PASS" "Critical file exists: $file"
-        else
-            print_status "FAIL" "Missing critical file: $file"
-            return 1
-        fi
-    done
-}
-
-# Test CypherRiot theme integrity
-test_cypherriot_theme() {
-    print_status "TEST" "Testing CypherRiot theme integrity..."
-
-    local check_dir="."
-    if [[ ! -d "./themes/cypherriot" ]]; then
-        check_dir="$HOME/.local/share/archriot"
-    fi
-
-    local theme_dir="$check_dir/themes/cypherriot"
-
-    if [[ ! -d "$theme_dir" ]]; then
-        print_status "FAIL" "CypherRiot theme directory not found"
-        return 1
-    fi
-
-    # Check essential theme files
-    local theme_files=(
-        "config"
-        "hyprland.conf"
-        "hyprlock.conf"
-        "fuzzel.ini"
-        "neovim.lua"
-        "ghostty.conf"
-        "backgrounds/escape_velocity.jpg"
-        "backgrounds.sh"
-    )
-
-    for file in "${theme_files[@]}"; do
-        if [[ -f "$theme_dir/$file" ]]; then
-            print_status "PASS" "Theme file exists: $file"
-        else
-            print_status "FAIL" "Missing theme file: $file"
-            return 1
-        fi
-    done
-
-    # Check if waybar config has theme specifics
-    if grep -q "cypherriot\|CypherRiot\|Hack Nerd Font" "$theme_dir/config" 2>/dev/null; then
-        print_status "PASS" "CypherRiot waybar config contains theme-specific settings"
-    else
-        print_status "WARN" "CypherRiot waybar config may be generic"
-    fi
-}
-
-# Test Wayland/Hyprland compatibility
-test_wayland_compatibility() {
-    print_status "TEST" "Testing Wayland/Hyprland compatibility..."
-
-    # Check if we're already in Wayland (would indicate compatibility)
-    if [[ -n "$WAYLAND_DISPLAY" ]]; then
-        print_status "PASS" "Already running in Wayland session"
-    else
-        print_status "INFO" "Not currently in Wayland (expected for TTY install)"
-    fi
-
-    # Check graphics driver compatibility
-    if lspci | grep -i "vga\|3d\|display" | grep -qi "nvidia"; then
-        print_status "WARN" "NVIDIA GPU detected - may need additional driver setup"
-    elif lspci | grep -i "vga\|3d\|display" | grep -qi "amd\|radeon"; then
-        print_status "PASS" "AMD GPU detected - good Wayland compatibility"
-    elif lspci | grep -i "vga\|3d\|display" | grep -qi "intel"; then
-        print_status "PASS" "Intel GPU detected - excellent Wayland compatibility"
-    else
-        print_status "WARN" "Unknown GPU type - may need manual driver configuration"
-    fi
-
-    # Check kernel version (newer kernels have better Wayland support)
-    local kernel_version=$(uname -r | cut -d. -f1-2)
-    local major=$(echo $kernel_version | cut -d. -f1)
-    local minor=$(echo $kernel_version | cut -d. -f2)
-
-    if [[ $major -gt 5 ]] || [[ $major -eq 5 && $minor -ge 15 ]]; then
-        print_status "PASS" "Kernel version $kernel_version supports modern Wayland features"
-    else
-        print_status "WARN" "Kernel version $kernel_version may have limited Wayland support"
-    fi
-}
-
-# Test if user setup will work
-test_user_environment() {
-    print_status "TEST" "Testing user environment..."
-
-    # Check shell compatibility
-    if [[ "$SHELL" == */fish ]]; then
-        print_status "PASS" "Fish shell detected - optimal for ArchRiot"
-    elif [[ "$SHELL" == */bash ]]; then
-        print_status "PASS" "Bash shell detected - compatible with ArchRiot"
-    else
-        print_status "WARN" "Unusual shell detected: $SHELL - may need manual configuration"
-    fi
-
-    # Check home directory structure
-    if [[ -w "$HOME" ]]; then
-        print_status "PASS" "Home directory is writable"
-    else
-        print_status "FAIL" "Home directory is not writable"
-        return 1
-    fi
-
-    # Check if .config exists or can be created
-    if [[ -d "$HOME/.config" ]] || mkdir -p "$HOME/.config" 2>/dev/null; then
-        print_status "PASS" "Config directory accessible"
-    else
-        print_status "FAIL" "Cannot create config directory"
-        return 1
-    fi
-
-    # Test if we can create the archriot directories
-    if mkdir -p "$HOME/.config/archriot/test" 2>/dev/null; then
-        rmdir "$HOME/.config/archriot/test" 2>/dev/null
-        print_status "PASS" "Can create ArchRiot config directories"
-    else
-        print_status "FAIL" "Cannot create ArchRiot config directories"
-        return 1
-    fi
-}
-
-# Test package availability
-test_package_availability() {
-    print_status "TEST" "Testing critical package availability..."
-
-    local critical_packages=(
-        "hyprland"
-        "waybar"
-        "ghostty"
-        "fish"
-        "git"
-        "curl"
-        "gum"
-        "obsidian-icon-theme"
-    )
-
-    for package in "${critical_packages[@]}"; do
-        if pacman -Ss "^$package$" &>/dev/null; then
-            print_status "PASS" "Package available: $package"
-        else
-            print_status "FAIL" "Package not available: $package"
-            return 1
-        fi
-    done
-
-    # Test AUR packages (if yay is available)
-    if command -v yay &>/dev/null; then
-        local aur_packages=("bibata-cursor-theme" "ghostty-shell-integration")
-        for package in "${aur_packages[@]}"; do
-            if yay -Ss "^$package$" &>/dev/null; then
-                print_status "PASS" "AUR package available: $package"
-            else
-                print_status "WARN" "AUR package not found: $package"
+        # Check for theme symlinks
+        local theme_links=0
+        for link in "$CONFIG_DIR/archriot/current"/*; do
+            if [[ -L "$link" ]]; then
+                ((theme_links++))
             fi
         done
-    fi
-}
 
-# Simulate critical installation steps
-test_installation_simulation() {
-    print_status "TEST" "Simulating critical installation steps..."
-
-    # Test using local repo if available, otherwise clone from GitHub
-    local test_dir="/tmp/archriot-validation-$$"
-    local using_local=false
-
-    # Check if we're running from within the ArchRiot repo
-    if [[ -f "./config/ghostty/config" && -f "./config/fish/config.fish" && -f "./install.sh" ]]; then
-        print_status "PASS" "Using local ArchRiot repository for validation"
-        test_dir="."
-        using_local=true
-    elif git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git "$test_dir" 2>/dev/null; then
-        print_status "PASS" "Repository clone simulation successful"
+        if [[ $theme_links -gt 0 ]]; then
+            test_result "Theme symlinks ($theme_links found)" "PASS"
+        else
+            test_result "Theme symlinks" "FAIL" "No theme symlinks found"
+        fi
     else
-        print_status "FAIL" "Repository clone simulation failed"
-        return 1
+        test_result "Theme directory structure" "FAIL" "~/.config/archriot/current not found"
     fi
 
-    if [[ "$using_local" == "true" || -d "$test_dir" ]]; then
-
-        # Test if install.sh exists and is executable
-        if [[ -x "$test_dir/install.sh" ]]; then
-            print_status "PASS" "install.sh is executable"
-        else
-            print_status "WARN" "install.sh may not be executable"
+    # Test cursor theme
+    local cursor_theme_found=false
+    for cursor_dir in "/usr/share/icons/Bibata-Modern-Ice" "$HOME/.local/share/icons/Bibata-Modern-Ice" "$HOME/.icons/Bibata-Modern-Ice"; do
+        if [[ -d "$cursor_dir" ]]; then
+            cursor_theme_found=true
+            break
         fi
+    done
 
-        # Test theme files
-        if [[ -f "$test_dir/themes/cypherriot/config" ]]; then
-            print_status "PASS" "CypherRiot theme files present in clone"
-        else
-            print_status "FAIL" "CypherRiot theme files missing in clone"
-        fi
-
-        # Test Ghostty config
-        if [[ -f "$test_dir/config/ghostty/config" ]]; then
-            print_status "PASS" "Ghostty config present in clone"
-        else
-            print_status "FAIL" "Ghostty config missing in clone"
-        fi
-
-        # Test Fish config with fastfetch
-        if [[ -f "$test_dir/config/fish/config.fish" ]] && grep -q "fastfetch" "$test_dir/config/fish/config.fish"; then
-            print_status "PASS" "Fish config with fastfetch greeting present"
-        else
-            print_status "FAIL" "Fish config with fastfetch greeting missing"
-        fi
-
-        if [[ "$using_local" == "false" ]]; then
-            rm -rf "$test_dir"
-        fi
-    fi
-
-    # Test directory creation
-    local test_config="/tmp/archriot-config-test-$$"
-    if mkdir -p "$test_config"/{themes,current,backgrounds} 2>/dev/null; then
-        print_status "PASS" "Config directory structure creation works"
-        rm -rf "$test_config"
+    if [[ "$cursor_theme_found" == "true" ]]; then
+        test_result "Bibata cursor theme" "PASS"
     else
-        print_status "FAIL" "Cannot create config directory structure"
-        return 1
-    fi
-}
-
-# Test expected post-install state
-test_expected_outcome() {
-    print_status "TEST" "Testing expected post-installation outcome..."
-
-    print_status "INFO" "After successful installation, you should have:"
-    print_status "INFO" "  • Hyprland Wayland compositor"
-    print_status "INFO" "  • CypherRiot theme with purple/blue aesthetics"
-    print_status "INFO" "  • Waybar with custom modules and Hack Nerd Font consistency"
-    print_status "INFO" "  • Ghostty terminal with Fish shell and fastfetch greeting"
-    print_status "INFO" "  • Floating terminal support (SUPER+SHIFT+RETURN)"
-    print_status "INFO" "  • Multiple wallpapers including escape_velocity.jpg default"
-    print_status "INFO" "  • Auto-login to Hyprland from TTY1"
-    print_status "INFO" "  • Standardized font usage (Hack Nerd Font) across all components"
-
-    # Check if system is already configured
-    if [[ -f "$HOME/.config/hypr/hyprland.conf" ]]; then
-        print_status "INFO" " Hyprland config already exists - this may be a re-install"
+        test_result "Bibata cursor theme" "FAIL" "Bibata-Modern-Ice not found"
     fi
 
-    if [[ -L "$HOME/.config/archriot/current/theme" ]]; then
-        local current_theme=$(basename "$(readlink "$HOME/.config/archriot/current/theme")")
-        print_status "INFO" " Current theme already set: $current_theme"
-    fi
-}
-
-# Generate validation report
-generate_report() {
-    echo ""
-    echo -e "${PURPLE}============================================================${NC}"
-    echo -e "${PURPLE}                    VALIDATION REPORT${NC}"
-    echo -e "${PURPLE}============================================================${NC}"
-    echo ""
-
-    echo -e "${GREEN}Tests Passed: $TESTS_PASSED${NC}"
-    echo -e "${RED}Tests Failed: $TESTS_FAILED${NC}"
-    echo -e "${YELLOW}Warnings: $WARNINGS${NC}"
-    echo ""
-
-    if [[ $TESTS_FAILED -eq 0 ]]; then
-        echo -e "${GREEN}🎉 VALIDATION SUCCESSFUL!${NC}"
-        echo ""
-        echo -e "${GREEN}✓ ArchRiot should install successfully${NC}"
-        echo -e "${GREEN}✓ You should get a beautiful Wayland + Hyprland experience${NC}"
-        echo -e "${GREEN}✓ CypherRiot theme should work properly${NC}"
-        echo ""
-        echo -e "${BLUE}Ready to install? Run:${NC}"
-        echo -e "${BLUE}curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/setup.sh | bash${NC}"
-        echo ""
-
-        if [[ $WARNINGS -gt 0 ]]; then
-            echo -e "${YELLOW}Note: $WARNINGS warnings detected - installation should work but may need minor adjustments${NC}"
+    # Test icon theme
+    local icon_theme_found=false
+    for icon_dir in "/usr/share/icons/Tela-purple" "/usr/share/icons/Tela-purple-dark" "/usr/share/icons/kora"; do
+        if [[ -d "$icon_dir" ]]; then
+            icon_theme_found=true
+            break
         fi
+    done
 
-        return 0
+    if [[ "$icon_theme_found" == "true" ]]; then
+        test_result "Icon themes" "PASS"
     else
-        echo -e "${RED}❌ VALIDATION FAILED!${NC}"
-        echo ""
-        echo -e "${RED}Issues found that may prevent successful installation:${NC}"
-        echo -e "${RED}• $TESTS_FAILED critical tests failed${NC}"
-        echo -e "${RED}• Please resolve the failed tests before installing${NC}"
-        echo ""
-        return 1
+        test_result "Icon themes" "WARN" "No expected icon themes found"
     fi
+
+    # Test GTK theme configuration
+    if [[ -f "$CONFIG_DIR/gtk-3.0/settings.ini" ]]; then
+        test_result "GTK-3 theme config" "PASS"
+    else
+        test_result "GTK-3 theme config" "WARN" "GTK-3 settings.ini not found"
+    fi
+
+    echo ""
 }
 
-# Main execution
+test_configuration_files() {
+    print_section "Configuration Files"
+
+    # Test Hyprland config
+    if [[ -f "$CONFIG_DIR/hypr/hyprland.conf" ]]; then
+        test_result "Hyprland configuration" "PASS"
+    else
+        test_result "Hyprland configuration" "FAIL" "hyprland.conf not found"
+    fi
+
+    # Test Waybar config
+    if [[ -f "$CONFIG_DIR/waybar/config" ]]; then
+        test_result "Waybar configuration" "PASS"
+    else
+        test_result "Waybar configuration" "FAIL" "waybar config not found"
+    fi
+
+    # Test shell configuration
+    local shell_config_found=false
+    for shell_config in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
+        if [[ -f "$shell_config" ]]; then
+            shell_config_found=true
+            break
+        fi
+    done
+
+    if [[ "$shell_config_found" == "true" ]]; then
+        test_result "Shell configuration" "PASS"
+    else
+        test_result "Shell configuration" "WARN" "No shell config found"
+    fi
+
+    # Test ArchRiot user environment
+    if [[ -f "$CONFIG_DIR/archriot/user.env" ]]; then
+        test_result "ArchRiot user environment" "PASS"
+    else
+        test_result "ArchRiot user environment" "WARN" "user.env not found"
+    fi
+
+    echo ""
+}
+
+test_applications() {
+    print_section "Applications"
+
+    # Test terminal
+    local terminal_found=false
+    for terminal in "kitty" "alacritty" "wezterm" "foot"; do
+        if command -v "$terminal" &>/dev/null; then
+            test_result "Terminal ($terminal)" "PASS"
+            terminal_found=true
+            break
+        fi
+    done
+
+    if [[ "$terminal_found" == "false" ]]; then
+        test_result "Terminal" "FAIL" "No supported terminal found"
+    fi
+
+    # Test file manager
+    if command -v thunar &>/dev/null; then
+        test_result "File manager (Thunar)" "PASS"
+    elif command -v nautilus &>/dev/null; then
+        test_result "File manager (Nautilus)" "PASS"
+    else
+        test_result "File manager" "WARN" "No GUI file manager found"
+    fi
+
+    # Test text editor
+    if command -v nvim &>/dev/null; then
+        test_result "Text editor (Neovim)" "PASS"
+    elif command -v vim &>/dev/null; then
+        test_result "Text editor (Vim)" "PASS"
+    else
+        test_result "Text editor" "WARN" "No vim/nvim found"
+    fi
+
+    # Test browser
+    if command -v firefox &>/dev/null; then
+        test_result "Web browser (Firefox)" "PASS"
+    elif command -v chromium &>/dev/null; then
+        test_result "Web browser (Chromium)" "PASS"
+    else
+        test_result "Web browser" "WARN" "No browser found"
+    fi
+
+    echo ""
+}
+
+test_system_services() {
+    print_section "System Services"
+
+    # Test audio system
+    if command -v pulseaudio &>/dev/null || command -v pipewire &>/dev/null; then
+        test_result "Audio system" "PASS"
+    else
+        test_result "Audio system" "WARN" "No audio system found"
+    fi
+
+    # Test network management
+    if systemctl is-enabled NetworkManager &>/dev/null; then
+        test_result "NetworkManager" "PASS"
+    elif systemctl is-enabled systemd-networkd &>/dev/null; then
+        test_result "systemd-networkd" "PASS"
+    else
+        test_result "Network management" "WARN" "No network manager enabled"
+    fi
+
+    # Test bluetooth
+    if systemctl is-enabled bluetooth &>/dev/null; then
+        test_result "Bluetooth service" "PASS"
+    else
+        test_result "Bluetooth service" "WARN" "Bluetooth not enabled"
+    fi
+
+    echo ""
+}
+
+test_fonts() {
+    print_section "Fonts"
+
+    # Test font cache
+    if fc-list | grep -q .; then
+        test_result "Font cache" "PASS"
+    else
+        test_result "Font cache" "FAIL" "Font cache empty"
+    fi
+
+    # Test for specific font families
+    local fonts_found=0
+    for font in "Noto Sans" "JetBrains Mono" "Font Awesome"; do
+        if fc-list | grep -qi "$font"; then
+            ((fonts_found++))
+        fi
+    done
+
+    if [[ $fonts_found -gt 0 ]]; then
+        test_result "Essential fonts ($fonts_found/3 found)" "PASS"
+    else
+        test_result "Essential fonts" "WARN" "No essential fonts found"
+    fi
+
+    echo ""
+}
+
+test_installation_integrity() {
+    print_section "Installation Integrity"
+
+    # Test ArchRiot installation directory
+    if [[ -d "$ARCHRIOT_DIR" ]]; then
+        test_result "ArchRiot installation directory" "PASS"
+    else
+        test_result "ArchRiot installation directory" "FAIL" "~/.local/share/archriot not found"
+    fi
+
+    # Test version file
+    if [[ -f "$ARCHRIOT_DIR/VERSION" ]]; then
+        local version=$(cat "$ARCHRIOT_DIR/VERSION" 2>/dev/null)
+        test_result "ArchRiot version ($version)" "PASS"
+    else
+        test_result "ArchRiot version" "WARN" "VERSION file not found"
+    fi
+
+    # Test installation logs
+    if [[ -f "$HOME/.cache/archriot/install.log" ]]; then
+        test_result "Installation logs" "PASS"
+    else
+        test_result "Installation logs" "WARN" "No installation logs found"
+    fi
+
+    echo ""
+}
+
+# ================================================================================
+# Special Tests for Known Issues
+# ================================================================================
+
+test_known_issues() {
+    print_section "Known Issue Checks"
+
+    # Test the specific theming issue that was problematic
+    if [[ -f "$ARCHRIOT_DIR/install/desktop/theming.sh" ]]; then
+        test_result "Theming script exists" "PASS"
+
+        # Check if theming script can be executed
+        if bash -n "$ARCHRIOT_DIR/install/desktop/theming.sh" 2>/dev/null; then
+            test_result "Theming script syntax" "PASS"
+        else
+            test_result "Theming script syntax" "FAIL" "Syntax errors in theming.sh"
+        fi
+    else
+        test_result "Theming script exists" "FAIL" "theming.sh not found"
+    fi
+
+    # Test for lock screen functionality (Super+L issue)
+    if command -v hyprlock &>/dev/null; then
+        test_result "Lock screen (hyprlock)" "PASS"
+    elif command -v swaylock &>/dev/null; then
+        test_result "Lock screen (swaylock)" "PASS"
+    else
+        test_result "Lock screen" "FAIL" "No lock screen program found"
+    fi
+
+    # Test for mysterious directory creation issue
+    if [[ -d "$CONFIG_DIR/archriot" ]]; then
+        local dir_permissions=$(stat -c "%a" "$CONFIG_DIR/archriot" 2>/dev/null)
+        if [[ "$dir_permissions" == "755" ]] || [[ "$dir_permissions" == "700" ]]; then
+            test_result "ArchRiot config directory permissions" "PASS"
+        else
+            test_result "ArchRiot config directory permissions" "WARN" "Unusual permissions: $dir_permissions"
+        fi
+    fi
+
+    echo ""
+}
+
+# ================================================================================
+# Summary and Recommendations
+# ================================================================================
+
+print_summary() {
+    echo -e "${PURPLE}${WHITE}=================================="
+    echo -e "📊 Verification Summary"
+    echo -e "==================================${NC}"
+    echo ""
+
+    echo -e "${WHITE}Total Tests: $TOTAL_TESTS${NC}"
+    echo -e "${GREEN}✅ Passed: $PASSED_TESTS${NC}"
+    echo -e "${YELLOW}⚠️  Warnings: $WARNING_TESTS${NC}"
+    echo -e "${RED}❌ Failed: $FAILED_TESTS${NC}"
+    echo ""
+
+    # Calculate success rate
+    local success_rate=$((PASSED_TESTS * 100 / TOTAL_TESTS))
+
+    if [[ $FAILED_TESTS -eq 0 ]]; then
+        echo -e "${GREEN}🎉 All critical tests passed! ArchRiot installation is healthy.${NC}"
+    elif [[ $FAILED_TESTS -le 2 ]]; then
+        echo -e "${YELLOW}⚠️  Minor issues detected. System should be mostly functional.${NC}"
+    else
+        echo -e "${RED}🚨 Significant issues detected. ArchRiot may not function properly.${NC}"
+    fi
+
+    echo -e "${WHITE}Success Rate: $success_rate%${NC}"
+    echo ""
+
+    # Show failed items
+    if [[ ${#FAILED_ITEMS[@]} -gt 0 ]]; then
+        echo -e "${RED}Failed Tests:${NC}"
+        for item in "${FAILED_ITEMS[@]}"; do
+            echo -e "  ${RED}❌ $item${NC}"
+        done
+        echo ""
+    fi
+
+    # Show warnings
+    if [[ ${#WARNING_ITEMS[@]} -gt 0 ]]; then
+        echo -e "${YELLOW}Warnings:${NC}"
+        for item in "${WARNING_ITEMS[@]}"; do
+            echo -e "  ${YELLOW}⚠️  $item${NC}"
+        done
+        echo ""
+    fi
+
+    # Recommendations
+    echo -e "${CYAN}📋 Recommendations:${NC}"
+
+    if [[ $FAILED_TESTS -gt 0 ]]; then
+        echo -e "  ${WHITE}• Re-run installation to fix failed components:${NC}"
+        echo -e "    ${GRAY}source ~/.local/share/archriot/install.sh${NC}"
+        echo ""
+    fi
+
+    if [[ ${#FAILED_ITEMS[@]} -gt 0 ]]; then
+        for item in "${FAILED_ITEMS[@]}"; do
+            case "$item" in
+                *"Theme directory"*|*"theming"*)
+                    echo -e "  ${WHITE}• Fix theming system:${NC}"
+                    echo -e "    ${GRAY}bash ~/.local/share/archriot/install/desktop/theming.sh${NC}"
+                    ;;
+                *"yay"*)
+                    echo -e "  ${WHITE}• Install yay AUR helper manually${NC}"
+                    ;;
+                *"Hyprland"*)
+                    echo -e "  ${WHITE}• Install Hyprland: yay -S hyprland${NC}"
+                    ;;
+            esac
+        done
+        echo ""
+    fi
+
+    echo -e "${GRAY}Log saved to: $LOG_FILE${NC}"
+    echo ""
+}
+
+# ================================================================================
+# Main Execution
+# ================================================================================
+
 main() {
+    # Initialize logging
+    mkdir -p "$(dirname "$LOG_FILE")"
+
+    # Start verification
     print_header
 
-    # Run all validation tests
-    test_system_requirements || true
-    test_package_manager || true
-    test_installation_files || true
-    test_cypherriot_theme || true
-    test_wayland_compatibility || true
-    test_user_environment || true
-    test_package_availability || true
-    test_installation_simulation || true
-    test_expected_outcome || true
+    # Run all tests
+    test_essential_packages
+    test_desktop_environment
+    test_theming_system
+    test_configuration_files
+    test_applications
+    test_system_services
+    test_fonts
+    test_installation_integrity
+    test_known_issues
 
-    # Generate final report
-    generate_report
+    # Show summary
+    print_summary
+
+    # Save log
+    {
+        echo "ArchRiot Verification Results - $(date)"
+        echo "=========================================="
+        echo "Total: $TOTAL_TESTS, Passed: $PASSED_TESTS, Warnings: $WARNING_TESTS, Failed: $FAILED_TESTS"
+        echo ""
+        echo "Failed items:"
+        printf '%s\n' "${FAILED_ITEMS[@]}"
+        echo ""
+        echo "Warning items:"
+        printf '%s\n' "${WARNING_ITEMS[@]}"
+    } > "$LOG_FILE"
+
+    # Exit with appropriate code
+    if [[ $FAILED_TESTS -eq 0 ]]; then
+        exit 0
+    elif [[ $FAILED_TESTS -le 2 ]]; then
+        exit 1
+    else
+        exit 2
+    fi
 }
 
-# Execute if run directly
+# Execute main function if script is run directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

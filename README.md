@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-1.8.4-4c1d95)
+![Version](https://img.shields.io/badge/version-1.9.0-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -155,16 +155,16 @@ cd ~/.local/share/archriot
 bash install/plymouth.sh
 ```
 
-### Optional: Pre-Installation Validation
+### Installation Health Verification
 
-Want confidence before installing? Run the validation script to test compatibility:
+After installation, verify everything is working correctly with the comprehensive validation system:
 
 ```bash
-wget https://cyphrriot.github.io/ArchRiot/validate.sh
+# Run from ArchRiot directory
 bash validate.sh
 ```
 
-This comprehensive test validates:
+This comprehensive verification system tests:
 
 - System requirements (Arch Linux, internet, disk space)
 - Package availability (Hyprland, Waybar, etc.)
@@ -650,11 +650,53 @@ ArchRiot is a **heavily customized fork** with these key distinctions:
 
 ArchRiot transforms Omarchy from a general productivity setup into a specialized development and privacy-focused environment.
 
-## 🔍 Post-Installation Validation
+## 🔍 Installation Verification System
 
-After installation completes, verify everything is working correctly:
+ArchRiot includes a comprehensive verification system to ensure everything is working correctly:
 
-### Automatic Validation
+### Comprehensive Health Check
+
+```bash
+# Run the verification system
+bash validate.sh
+```
+
+**What it checks:**
+
+- Essential packages (yay, git, base-devel)
+- Desktop environment (Hyprland, Waybar, gum, Fuzzel)
+- **Theming system (CRITICAL)** - Theme directories, symlinks, cursor/icon themes
+- Configuration files (Hyprland, Waybar, shell configs)
+- Applications (terminal, file manager, browser, text editor)
+- System services (audio, network, bluetooth)
+- Fonts and font cache
+- Installation integrity and logs
+- **Known issue checks** - Including the infamous theming.sh problems
+
+**Results:**
+
+- **Total tests run** with pass/fail/warning counts
+- **Success rate percentage**
+- **Detailed failure analysis** with specific recommendations
+- **Fix suggestions** for failed components
+
+**Example output:**
+
+```
+==================================
+📊 Verification Summary
+==================================
+
+Total Tests: 33
+✅ Passed: 30
+⚠️  Warnings: 2
+❌ Failed: 1
+
+⚠️  Minor issues detected. System should be mostly functional.
+Success Rate: 90%
+```
+
+### Manual Verification
 
 The installer automatically runs a post-installation check. If you need to run it manually:
 
@@ -693,12 +735,14 @@ After fresh installation, you should see:
 
 ## 🧪 Validation & Testing
 
-### Pre-Installation Validation
+### System Health Validation
 
-Before installing, you can run a comprehensive validation script:
+The validation system helps diagnose installation issues and verify system health:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate.sh | bash
+# After installation, run comprehensive verification
+cd ~/.local/share/archriot
+bash validate.sh
 ```
 
 **What it tests:**
@@ -709,7 +753,7 @@ curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/validate.
 - Wayland/Hyprland compatibility
 - Theme files and expected installation outcome
 
-**Results**: Detailed pass/fail report with 30+ validation checks
+**Results**: Detailed pass/fail report with 33+ verification checks, success rate calculation, and specific fix recommendations for any failures
 
 ## 🛠️ Management Tools
 
