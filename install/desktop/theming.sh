@@ -249,40 +249,77 @@ setup_theme_backgrounds() {
 
     # Central location for all background collections
     export BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
-    mkdir -p "$BACKGROUNDS_DIR"
+    mkdir -p "$BACKGROUNDS_DIR/$theme_name"
 
-    # Skip global background functions - use theme-specific setup only
+    # FORCE background installation - copy files directly
+    local source_bg_dir="$HOME/.local/share/archriot/themes/$theme_name/backgrounds"
+    local dest_bg_dir="$BACKGROUNDS_DIR/$theme_name"
 
-    # Source background script if available
-    local bg_script="$HOME/.local/share/archriot/themes/$theme_name/backgrounds.sh"
-    if [[ -f "$bg_script" ]]; then
-        source "$bg_script" 2>/dev/null || echo "⚠ Background script failed to execute"
-    fi
+    if [[ -d "$source_bg_dir" ]]; then
+        echo "📦 Installing backgrounds from: $source_bg_dir"
 
-    # Link background directory
-    local bg_dir="$BACKGROUNDS_DIR/$theme_name"
-    if [[ -d "$bg_dir" ]]; then
-        ln -snf "$bg_dir" ~/.config/archriot/current/backgrounds
+        # Clear existing numbered backgrounds to prevent duplicates
+        find "$dest_bg_dir" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
 
-        # Set default background (riot_zero.png preferred, or first available)
-        # Try to find riot_zero first (any numbered version)
-        local riot_zero_bg=$(find "$bg_dir" -name "*riot_zero*" | head -1)
+        # Find all background files
+        mapfile -t bg_files < <(find "$source_bg_dir" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | sort)
 
-        if [[ -n "$riot_zero_bg" && -f "$riot_zero_bg" ]]; then
-            ln -snf "$riot_zero_bg" ~/.config/archriot/current/background
-            echo "✓ Default background set: $(basename "$riot_zero_bg")"
-        else
-            # Fallback to first numbered background (should be 01-)
-            local first_bg=$(find "$bg_dir" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
-            if [[ -n "$first_bg" ]]; then
-                ln -snf "$first_bg" ~/.config/archriot/current/background
-                echo "✓ Default background set: $(basename "$first_bg")"
-            else
-                echo "⚠ No background files found in $bg_dir"
+        if [[ ${#bg_files[@]} -gt 0 ]]; then
+            # Separate riot_zero.png for priority
+            local riot_zero=""
+            local other_bgs=()
+
+            for bg in "${bg_files[@]}"; do
+                filename=$(basename "$bg")
+                if [[ "$filename" == "riot_zero.png" ]]; then
+                    riot_zero="$bg"
+                else
+                    other_bgs+=("$bg")
+                fi
+            done
+
+            # Copy riot_zero as #1 if it exists
+            local counter=1
+            if [[ -n "$riot_zero" ]]; then
+                filename=$(basename "$riot_zero")
+                cp "$riot_zero" "$dest_bg_dir/$(printf "%02d" $counter)-$filename"
+                echo "✓ Installed: $(printf "%02d" $counter)-$filename"
+                ((counter++))
             fi
+
+            # Copy all other backgrounds
+            for bg in "${other_bgs[@]}"; do
+                filename=$(basename "$bg")
+                cp "$bg" "$dest_bg_dir/$(printf "%02d" $counter)-$filename"
+                echo "✓ Installed: $(printf "%02d" $counter)-$filename"
+                ((counter++))
+            done
+
+            echo "✓ Installed $((counter-1)) backgrounds for $theme_name"
+        else
+            echo "⚠ No background files found in $source_bg_dir"
         fi
     else
-        echo "⚠ Background directory not found for theme: $theme_name"
+        echo "⚠ Source background directory not found: $source_bg_dir"
+    fi
+
+    # Link background directory and set default
+    ln -snf "$dest_bg_dir" ~/.config/archriot/current/backgrounds
+
+    # Set default background (riot_zero preferred, or first available)
+    local riot_zero_bg=$(find "$dest_bg_dir" -name "*riot_zero*" | head -1)
+
+    if [[ -n "$riot_zero_bg" && -f "$riot_zero_bg" ]]; then
+        ln -snf "$riot_zero_bg" ~/.config/archriot/current/background
+        echo "✓ Default background set: $(basename "$riot_zero_bg")"
+    else
+        local first_bg=$(find "$dest_bg_dir" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
+        if [[ -n "$first_bg" ]]; then
+            ln -snf "$first_bg" ~/.config/archriot/current/background
+            echo "✓ Default background set: $(basename "$first_bg")"
+        else
+            echo "⚠ No background files found after installation"
+        fi
     fi
 }
 
