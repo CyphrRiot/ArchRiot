@@ -294,6 +294,26 @@ setup_scripts_and_env() {
         echo "Version check script not found" >> "$ARCHRIOT_LOG_FILE"
     fi
 
+    # Install Control Panel script
+    local control_panel_script="$HOME/.local/share/archriot/bin/archriot-control-panel"
+    if [[ -f "$control_panel_script" ]]; then
+        cp "$control_panel_script" "$script_dest/"
+        chmod +x "$script_dest/archriot-control-panel"
+        echo "Control Panel script installed" >> "$ARCHRIOT_LOG_FILE"
+    else
+        echo "Control Panel script not found" >> "$ARCHRIOT_LOG_FILE"
+    fi
+
+    # Install Config script
+    local config_script="$HOME/.local/share/archriot/bin/archriot-config"
+    if [[ -f "$config_script" ]]; then
+        cp "$config_script" "$script_dest/"
+        chmod +x "$script_dest/archriot-config"
+        echo "Config script installed" >> "$ARCHRIOT_LOG_FILE"
+    else
+        echo "Config script not found" >> "$ARCHRIOT_LOG_FILE"
+    fi
+
 
 
     # Install performance analysis tools
@@ -485,7 +505,7 @@ validate_installation() {
     fi
 
     # Check essential scripts
-    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py volume-osd welcome; do
+    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py volume-osd welcome archriot-control-panel archriot-config; do
         [[ -x "$HOME/.local/bin/$script" ]] || ((issues++))
     done
 

@@ -8,14 +8,16 @@ cd "$HOME"
 
 # Function to show power menu. The first characters are invisible sort keys.
 show_power_menu() {
-  local menu_options="\u200B Lock
+  local menu_options="\u200A🎛️ Control Panel
+\u200B Lock
 \u200C󰤄 Suspend
-\u200D Relaunch
+\u200D Relaunch
 \u2060󰜉 Restart
 \u2063󰐥 Shutdown"
-  local selection=$(echo -e "$menu_options" | env XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt "Power Options" --width 20 --lines 5)
+  local selection=$(echo -e "$menu_options" | env XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt "Power Options" --width 20 --lines 6)
 
   case "$selection" in
+  *Control*) $HOME/.local/bin/archriot-control-panel ;;
   *Lock*) swaylock ;;
   *Suspend*) systemctl suspend ;;
   *Relaunch*) hyprctl dispatch exit ;;
