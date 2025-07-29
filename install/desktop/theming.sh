@@ -764,8 +764,5 @@ main() {
     set +e  # Reset error handling
 }
 
-# Execute main function when sourced or run directly
-# Add safety guard to prevent issues when manually sourced
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]] || [[ -z "${ARCHRIOT_MANUAL_SOURCE:-}" ]]; then
-    main "$@"
-fi
+# Just run the goddamned theming setup - no clever bullshit
+main "$@"
