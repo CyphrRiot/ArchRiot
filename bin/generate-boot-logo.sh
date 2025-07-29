@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 # Configuration
 LOGO_WIDTH=650
 LOGO_HEIGHT=150
-BACKGROUND_COLOR='#1a1b26'  # Tokyo Night background
+BACKGROUND_COLOR='#191a25'  # Exact Plymouth background color
 TEXT_COLOR='#c0caf5'        # Tokyo Night foreground
 PLYMOUTH_THEME_DIR="/usr/share/plymouth/themes/archriot"
 TEMP_LOGO="/tmp/archriot_logo_temp.png"
@@ -175,9 +175,9 @@ fi
 
 # Update logo tracking checksums after successful generation
 echo "📝 Updating logo tracking files..."
-local script_hash=$(md5sum "$LOGO_SCRIPT_PATH" | cut -d' ' -f1)
-local source_hash=$(md5sum "$SOURCE_LOGO" | cut -d' ' -f1)
-local config_hash=$(echo "${LOGO_WIDTH}${LOGO_HEIGHT}${BACKGROUND_COLOR}${TEXT_COLOR}" | md5sum | cut -d' ' -f1)
+script_hash=$(md5sum "$LOGO_SCRIPT_PATH" | cut -d' ' -f1)
+source_hash=$(md5sum "$SOURCE_LOGO" | cut -d' ' -f1)
+config_hash=$(echo "${LOGO_WIDTH}${LOGO_HEIGHT}${BACKGROUND_COLOR}${TEXT_COLOR}" | md5sum | cut -d' ' -f1)
 
 echo "$script_hash script_hash" > "$LOGO_CHECKSUM_FILE"
 echo "$source_hash source_logo" >> "$LOGO_CHECKSUM_FILE"

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.0.0-4c1d95)
+![Version](https://img.shields.io/badge/version-2.0.2-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -833,6 +833,20 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 > Boot and run `archriot-install` from the prompt!
 
 **⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
+
+## 📋 Version History
+
+### v2.0.2 - Boot Logo Enhancement
+
+- **Fixed LUKS boot logo**: Replaced old "Ohmarchy" branding with proper "ArchRiot" logo
+- **Enhanced logo design**:
+    - Uses Hack Nerd Font Mono Bold for system consistency
+    - Larger, more readable fonts (100px + 34px)
+    - Perfect background color matching (#191a25)
+    - Transparent background for seamless integration
+- **Consolidated logo management**: Single source logo file eliminates duplicates
+- **Fixed background/lock screen issues**: Corrected theme consolidation path problems
+- **Improved boot logo script**: Removed syntax errors and optimized generation logic
 
 ## 📄 License
 
