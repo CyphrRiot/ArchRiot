@@ -19,10 +19,13 @@ display_list=$(echo "$windows" | cut -d'|' -f1)
 selected_display=$(echo "$display_list" | fuzzel --dmenu --prompt="Switch to: " --width=60 --lines=10)
 
 if [[ -n "$selected_display" ]]; then
-    # Find the corresponding address from the original list
-    address=$(echo "$windows" | grep -F "$selected_display" | cut -d'|' -f5)
+    # Find the corresponding address and workspace from the original list
+    window_info=$(echo "$windows" | grep -F "$selected_display")
+    address=$(echo "$window_info" | cut -d'|' -f5)
+    workspace=$(echo "$window_info" | grep -o '\[.*\]' | tr -d '[]')
 
-    # Focus the selected window and bring it to current workspace if needed
+    # Switch to the workspace first, then focus the window
+    hyprctl dispatch workspace "$workspace"
     hyprctl dispatch focuswindow "address:$address"
 
     # If it's a floating window, make sure it's visible
