@@ -340,6 +340,62 @@ class PomodoroWidget(BaseControlWidget):
 
     def on_learn_more_clicked(self, button):
         """Handle Learn More button click"""
+        self.show_pomodoro_dialog()
+
+    def show_pomodoro_dialog(self):
+        """Show enhanced Pomodoro dialog with image"""
+        dialog = Gtk.Window()
+        dialog.set_title("🍅 Pomodoro Technique")
+        dialog.set_default_size(800, 700)
+        dialog.set_resizable(True)
+        dialog.set_modal(True)
+        dialog.add_css_class("archriot-control-panel")
+
+        if self.window:
+            dialog.set_transient_for(self.window.window)
+
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
+        main_box.set_margin_start(30)
+        main_box.set_margin_end(30)
+        main_box.set_margin_top(15)
+        main_box.set_margin_bottom(20)
+
+        # Title
+        title_label = Gtk.Label()
+        title_label.set_markup('<span size="28000" weight="bold" foreground="#bb9af7" font_family="Hack Nerd Font Mono">🍅 Pomodoro Technique</span>')
+        title_label.set_halign(Gtk.Align.CENTER)
+        main_box.append(title_label)
+
+        # Content frame
+        content_frame = Gtk.Frame()
+        content_frame.set_margin_top(10)
+        content_frame.add_css_class("archriot-control-panel")
+
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        content_box.set_margin_start(20)
+        content_box.set_margin_end(20)
+        content_box.set_margin_top(20)
+        content_box.set_margin_bottom(20)
+
+        # Add pomodoro image
+        try:
+            import os
+            # In final install: ~/.local/share/archriot/bin/archriot-control-panel
+            # Images are at: ~/.local/share/archriot/images/pomodoro.png
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            archriot_dir = os.path.dirname(script_dir)  # Go up from bin/ to archriot/
+            image_path = os.path.join(archriot_dir, "images", "pomodoro.png")
+
+            if os.path.exists(image_path):
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(image_path, 400, 300, True)
+                image = Gtk.Image.new_from_pixbuf(pixbuf)
+                image.set_halign(Gtk.Align.CENTER)
+                image.set_margin_bottom(15)
+                content_box.append(image)
+        except Exception as e:
+            print(f"Could not load pomodoro image: {e}")
+
+        # Content text
         content = """The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
 
 <b>How it works:</b>
@@ -363,12 +419,24 @@ The technique is named after the tomato-shaped kitchen timer that Cirillo used a
 
 ArchRiot's built-in Pomodoro timer integrates directly with your Waybar, making it easy to stay focused while working in your Hyprland environment."""
 
-        dialog = ArchRiotDialog(
-            "🍅 Pomodoro Technique",
-            content,
-            self.window.window if self.window else None
-        )
-        dialog.show()
+        content_label = Gtk.Label()
+        content_label.set_markup(f'<span size="12000" font_family="Hack Nerd Font Mono">{content}</span>')
+        content_label.set_wrap(True)
+        content_label.set_halign(Gtk.Align.START)
+        content_box.append(content_label)
+
+        content_frame.set_child(content_box)
+        main_box.append(content_frame)
+
+        # Close button
+        close_button = Gtk.Button(label="Close")
+        close_button.set_halign(Gtk.Align.CENTER)
+        close_button.connect("clicked", lambda x: dialog.close())
+        close_button.get_child().set_markup('<span font_family="Hack Nerd Font Mono">Close</span>')
+        main_box.append(close_button)
+
+        dialog.set_child(main_box)
+        dialog.present()
 class BlueLightWidget(BaseControlWidget):
     """Blue light filter control widget"""
 

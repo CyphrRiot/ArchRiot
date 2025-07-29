@@ -764,10 +764,7 @@ main() {
     set +e  # Reset error handling
 }
 
-# Execute main function only if not sourced
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+# Execute main function when run directly OR when sourced by installer
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]] || [[ "$0" == *"install.sh"* ]]; then
     main "$@"
-else
-    # When sourced by installer, still run main but handle errors differently
-    main "$@" || exit 1
 fi
