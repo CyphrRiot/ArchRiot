@@ -8,12 +8,12 @@ cd "$HOME"
 
 # Function to show power menu. The first characters are invisible sort keys.
 show_power_menu() {
-  local menu_options="\u200A Control Panel
-\u200B Lock
-\u200C󰤄 Suspend
-\u200D Relaunch
-\u2060󰜉 Restart
-\u2063󰐥 Shutdown"
+  local menu_options="⚙ Control Panel
+󰌾 Lock
+󰤄 Suspend
+󰞐 Relaunch
+󰜉 Restart
+󰐥 Shutdown"
   local selection=$(echo -e "$menu_options" | env XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt "Power Options" --width 20 --lines 6)
 
   case "$selection" in

@@ -313,6 +313,15 @@ setup_scripts_and_env() {
         echo "Config script not found in repository bin" >> "$ARCHRIOT_LOG_FILE"
     fi
 
+    # Install Power Menu script
+    if [[ -f "$script_dir/../../bin/power-menu" ]]; then
+        cp "$script_dir/../../bin/power-menu" ~/.local/bin/
+        chmod +x ~/.local/bin/power-menu
+        echo "Power Menu script installed" >> "$ARCHRIOT_LOG_FILE"
+    else
+        echo "Power Menu script not found in repository bin" >> "$ARCHRIOT_LOG_FILE"
+    fi
+
 
 
     # Install performance analysis tools
@@ -504,7 +513,7 @@ validate_installation() {
     fi
 
     # Check essential scripts
-    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py volume-osd welcome archriot-control-panel archriot-config; do
+    for script in waybar-tomato-timer.py waybar-cpu-aggregate.py waybar-memory-accurate.py waybar-mic-status.py volume-osd welcome archriot-control-panel archriot-config power-menu; do
         [[ -x "$HOME/.local/bin/$script" ]] || ((issues++))
     done
 
