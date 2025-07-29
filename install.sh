@@ -474,6 +474,14 @@ update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
 # Reload shell configuration
 echo "🐚 Shell configuration will apply to new terminals"
 
+# TEMPORARY FIX: Force run theming.sh until we fix module processing
+echo "🎨 Ensuring theme system is configured..."
+if [[ -f "$HOME/.local/share/archriot/install/desktop/theming.sh" ]]; then
+    source "$HOME/.local/share/archriot/install/desktop/theming.sh" || {
+        echo "⚠️  Theme setup had issues but continuing..."
+    }
+fi
+
 # Check for installation failures and report them (ignore yay "up to date" warnings)
 if [[ -f "$ARCHRIOT_LOG_FILE" ]] && grep -q "FAILURE:\|CRITICAL:\|❌" "$ARCHRIOT_LOG_FILE" 2>/dev/null; then
     # Double-check: exclude harmless "up to date" and "warning:" messages
