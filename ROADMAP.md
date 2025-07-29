@@ -1,86 +1,16 @@
 # ArchRiot Development Roadmap
 
-## Current Status: v2.0.1
+## Current Status: v2.0.5
 
 - Installation system reliability: ✅ Complete
 - Theme config nightmare: ✅ ELIMINATED
 - Critical installation failures: ✅ FIXED
-- Waybar update notifications: ✅ Simplified and working
-- Upgrade path compatibility: ✅ Fixed for v2.0.0+ transition
+- Plymouth upgrade protection: ✅ FIXED
+- Ivy Bridge Vulkan compatibility: ✅ FIXED
 
 ## IMMEDIATE PRIORITIES
 
-### 1. ✅ COMPLETED: Theme Config Nightmare ELIMINATED
-
-**Status**: COMPLETED in v2.0.0-2.0.1 - Theme system completely redesigned
-**Problem**: Theme configs completely override main config instead of extending it
-**Impact**: Every new feature must be manually added to every theme config or it disappears
-
-**COMPLETED WORK**:
-
-#### Phase 1: Analysis ✅ COMPLETE
-
-- ✅ Mapped all files being overridden by theme system
-- ✅ Identified scope of theme config replacements
-
-#### Phase 2: File Consolidation ✅ COMPLETE
-
-- ✅ Copied CypherRiot configs to replace main configs (waybar, fuzzel, mako, btop)
-- ✅ Moved CypherRiot backgrounds to main backgrounds directory
-- ✅ Moved CypherRiot ghostty.conf to main config
-- ✅ Merged CypherRiot hyprland.conf styling into main config
-- ✅ Moved CypherRiot text-editor themes to main config
-
-#### Phase 3: Theme System Removal ✅ COMPLETE
-
-- ✅ Removed tokyo-night theme directory completely
-- ✅ Removed cypherriot theme directory
-- ✅ Removed theme linking logic from `install/desktop/theming.sh`
-- ✅ Removed theme symlink creation (`~/.config/archriot/current/theme`)
-- ✅ Updated hyprlock.conf to use direct CypherRiot config
-
-#### Phase 4: Installer Updates ✅ COMPLETE
-
-- ✅ Removed `setup_archriot_theme_system()` function
-- ✅ Removed `set_default_theme()` function
-- ✅ Removed `link_theme_configs()` function
-- ✅ Removed `link_waybar_config()` function
-- ✅ Simplified theming.sh to only handle cursors, icons, GTK themes
-- ✅ Tested installation with simplified theme system
-
-#### Phase 5: Documentation & Testing ✅ COMPLETE
-
-- ✅ Updated README.md to remove theme selection instructions
-- ✅ Updated INSTALLER.md to remove theme system warnings
-- ✅ Tested all applications work with consolidated configs
-- ✅ Verified waybar update notifications work
-- ✅ Tested lock screen functionality
-- ✅ Tested fuzzel launcher functionality
-
-#### v2.0.1 Upgrade Path Fixes ✅ COMPLETE
-
-- ✅ Added missing backgrounds directory to repository
-- ✅ Fixed hyprlock.conf upgrade detection and automatic replacement
-- ✅ Fixed background service startup after upgrade
-- ✅ Verified upgrade path works for v1.9.x → v2.0.1
-
-### 2. ✅ COMPLETED: Critical Installation Failures FIXED
-
-**Status**: COMPLETED in v2.0.0-2.0.1 - All critical failures resolved
-**Problem**: Multiple critical installation failures discovered during testing
-**Impact**: Users cannot complete installation due to broken components
-
-**FIXED ISSUES**:
-
-- ✅ **Migrate tool download**: Fixed "text file busy" error with temp file approach and process killing
-- ✅ **PipeWire audio system**: Fixed dependency conflicts with proper conflict detection and removal
-- ✅ **Local variable errors**: Fixed all `local` declarations outside functions
-- ✅ **Audio system**: Complete audio stack now installs properly (pavucontrol, pamixer, playerctl)
-- ✅ **Waybar update notifications**: Eliminated complex caching system, direct version comparison works
-- ✅ **Background system**: Fixed upgrade path, backgrounds install and display correctly
-- ✅ **Lock screen**: Fixed hyprlock.conf transition from theme sourcing to consolidated config
-
-### 3. 🔧 Fix Fuzzel Sudo Integration
+### 1. 🔧 Fix Fuzzel Sudo Integration
 
 **Status**: High Priority - Affects core user experience
 **Problem**: Migrate command works in terminal but fails in Fuzzel launcher
@@ -94,7 +24,7 @@
 - [ ] Test fuzzel integration with sudo commands
 - [ ] Verify migrate tool launches from application menu
 
-### 4. 📊 Implement Modern Progress Bar System
+### 2. 📊 Implement Modern Progress Bar System
 
 **Status**: FUTURE ENHANCEMENT - Clean installer experience
 **Problem**: Current installer output is verbose and overwhelming
@@ -126,113 +56,28 @@
 - Progress bar shows actual completion percentage
 - User can see what's happening without noise
 
-### 5. 🚀 System-wide v2.0.1 Deployment
+### 3. 🚀 System-wide v2.0.5 Deployment
 
 **Status**: Medium Priority - Production rollout
 **Problem**: Ensure all systems get latest fixes and improvements
-**Impact**: Users need v2.0.1 fixes for proper upgrade path
+**Impact**: Users need v2.0.5 fixes for Plymouth protection and Ivy Bridge support
 
 **Actions**:
 
-- [ ] Deploy v2.0.1 to all production systems
-- [ ] Verify upgrade path works properly (v1.9.x → v2.0.1)
+- [ ] Deploy v2.0.5 to all production systems
+- [ ] Verify upgrade path works properly (v1.9.x → v2.0.5)
 - [ ] Monitor for edge cases or regressions
 - [ ] Collect user feedback on theme consolidation
 - [ ] Verify background and lock screen functionality after upgrades
 - [ ] Document any deployment issues
 
-### 6. ✅ COMPLETED: Theme System Verification
+## COMPLETED MAJOR FIXES (v2.0.5)
 
-**Status**: COMPLETED in v2.0.1 - Quality assurance passed
-**Problem**: Need to verify theme consolidation doesn't break functionality
-**Impact**: Ensure simplified theme system maintains all features
-
-**COMPLETED VERIFICATION**:
-
-- ✅ Tested waybar theming with unified config
-- ✅ Verified lock screen themes work correctly
-- ✅ Checked desktop theming elements
-- ✅ Validated all color schemes and styling
-- ✅ Updated theme documentation
-- ✅ Tested upgrade path from v1.9.x systems
-- ✅ Verified background system works after upgrade
-- ✅ Confirmed update notifications appear properly
-
-## CRITICAL BUG FIXES
-
-### 🚨 URGENT: Plymouth Theme Wiped by System Upgrades
-
-**Status**: CRITICAL BUG FIXED - Plymouth themes lost during system upgrades
-**Problem**: `upgrade-system` script allows package updates to wipe custom Plymouth themes
-**Impact**: Hours of Plymouth/LUKS logo setup work lost with simple system upgrade
-**User Report**: "WTF!?! The upgrade wiped the Plymouth files??? We spent HOURS getting this to work!"
-
-**ROOT CAUSE IDENTIFIED**:
-
-- System upgrade updated `systemd` packages (July 29, 13:43)
-- Initramfs rebuild triggered Plymouth hook
-- Plymouth hook failed because local files were incomplete (`logo.png` missing)
-- Plymouth reset to default `bgrt` theme, wiping ArchRiot branding
-- **NO PROTECTION** in upgrade process for custom themes
-
-**CRITICAL FIXES APPLIED**:
-
-- ✅ **Fixed upgrade-system**: Added Plymouth backup/restore during upgrades
-- ✅ **Fixed missing logo.png**: Added logo.png to default/plymouth/ directory
-- ✅ **Added protection functions**: `backup_plymouth_theme()` and `restore_plymouth_theme()`
-- ✅ **Tested on affected system**: Plymouth theme successfully restored
-
-**Prevention Mechanism**:
-
-```bash
-# Before upgrade: backup_plymouth_theme()
-mkdir -p ~/.cache/archriot/upgrade-backup
-sudo cp -r /usr/share/plymouth/themes/archriot ~/.cache/archriot/upgrade-backup/
-
-# After upgrade: restore_plymouth_theme()
-sudo cp -r ~/.cache/archriot/upgrade-backup/archriot/* /usr/share/plymouth/themes/archriot/
-sudo plymouth-set-default-theme -R archriot
-```
-
-**Files Modified**:
-
-- `bin/upgrade-system` - Added Plymouth protection (35 lines added)
-- `default/plymouth/logo.png` - Fixed missing logo file (30KB)
-
-### ✅ COMPLETED: Ivy Bridge Vulkan Support Issue
-
-**Status**: FIXED with Safe Optional Tool - Available in optional-tools/ivy-bridge-vulkan-fix/
-**Problem**: Intel HD Graphics 4000 (Ivy Bridge) has incomplete Vulkan support causing Zed editor failures
-**Impact**: ThinkPad X230, T430 and similar systems now have working Zed editor
-**User Report**: "I have to get vulkan working for zed but that's like one of the few things that didn't work" - RESOLVED
-
-**SAFE SOLUTION IMPLEMENTED**:
-
-- ✅ **Safe Fix Created**: `optional-tools/ivy-bridge-vulkan-fix/fix-ivy-bridge-vulkan.sh`
-- ✅ **No System Changes**: Does NOT modify core ArchRiot files or hardware.sh
-- ✅ **User-Specific Configs**: Creates only user-specific configuration overlays
-- ✅ **Zed Compatibility**: Provides OpenGL fallback launcher and configuration
-- ✅ **Easy Testing**: Completely reversible, testable solution
-- ✅ **Available in Launcher**: Integrated into optional-tools launcher menu
-
-**What the Fix Provides**:
-
-```bash
-# Safe launcher wrapper
-~/.local/bin/zed-ivy-bridge
-
-# Configuration overlay (manual merge required)
-~/.config/zed/ivy-bridge-overlay.json
-
-# Detailed logs
-~/.cache/archriot/ivy-bridge-fix.log
-```
-
-**Installation**:
-
-- Run: `optional-tools/ivy-bridge-vulkan-fix/fix-ivy-bridge-vulkan.sh`
-- Or: Use optional-tools launcher menu option 2
-- Result: Working Zed editor on Ivy Bridge systems without breaking other installations
+- ✅ **Plymouth Theme Protection** - upgrade-system now preserves custom themes during package updates
+- ✅ **Ivy Bridge Vulkan Support** - Safe optional tool for ThinkPad X230 and similar systems
+- ✅ **Theme System Consolidation** - Eliminated config override nightmare (v2.0.0-2.0.1)
+- ✅ **Critical Installation Failures** - All major installer bugs resolved (v2.0.0-2.0.1)
+- ✅ **Missing Plymouth Files** - Fixed logo.png and installer detection issues
 
 ## SYSTEMATIC CODE OPTIMIZATION & BUG FIXES
 
@@ -313,17 +158,14 @@ sudo plymouth-set-default-theme -R archriot
 
 ### Short-term Goals (Next 2 weeks)
 
-- ✅ Complete theme system consolidation (DONE in v2.0.1)
-- ✅ Fix Ivy Bridge Vulkan compatibility (DONE - Safe optional tool created)
-- ✅ Fix Plymouth upgrade protection (DONE - upgrade-system now preserves themes)
 - Fix fuzzel sudo integration
 - Restore clean installer with progress bars
-- Deploy v2.0.1 everywhere
+- Deploy v2.0.5 everywhere
+- Complete systematic file optimization initiative
 
 ### Medium-term Goals (Next month)
 
 - Enhanced verification system
-- Performance optimization
 - Better error recovery tools
 - Improved user onboarding
 - Cross-platform installer testing
@@ -337,20 +179,14 @@ sudo plymouth-set-default-theme -R archriot
 
 ## SUCCESS METRICS
 
-### Theme System Success ✅ ACHIEVED
+### Current Success Metrics
 
-- ✅ Single unified theme config (no more overrides)
-- ✅ No feature loss when adding new capabilities
-- ✅ All theming functionality preserved (CypherRiot integrated)
-- ✅ Massive maintenance overhead reduction (eliminated 1000+ lines of theme code)
-- ✅ Upgrade path works correctly
-- ✅ Background and lock screen function properly
-
-### Installation Experience Success ✅ PARTIALLY ACHIEVED
+### Installation Experience Success ⚠️ PARTIALLY ACHIEVED
 
 - ⚠️ Progress bars need restoration (currently verbose output)
 - ✅ All errors immediately visible (no more silent failures)
 - ✅ Critical installation failures resolved
+- ✅ Plymouth themes protected during upgrades
 - ✅ User feedback positive for reliability improvements
 
 ### Integration Success ⚠️ PARTIALLY ACHIEVED
@@ -359,6 +195,7 @@ sudo plymouth-set-default-theme -R archriot
 - ✅ Desktop integration is seamless
 - ✅ Update notifications work reliably
 - ✅ Background cycling and management works
+- ✅ Ivy Bridge systems have working Zed editor
 
 ## NOTES
 
