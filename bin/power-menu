@@ -17,7 +17,7 @@ show_power_menu() {
   local selection=$(echo -e "$menu_options" | env XDG_CACHE_HOME=$HOME/.cache fuzzel --dmenu --prompt "Power Options" --width 20 --lines 6)
 
   case "$selection" in
-  *Control*) $HOME/.local/bin/archriot-control-panel ;;
+  *Control*) notify-send -t 2000 "Opening Control Panel..." && $HOME/.local/bin/archriot-control-panel ;;
   *Lock*) swaylock ;;
   *Suspend*) systemctl suspend ;;
   *Relaunch*) hyprctl dispatch exit ;;

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.0.2-4c1d95)
+![Version](https://img.shields.io/badge/version-2.0.3-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -835,6 +835,18 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 **⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
 
 ## 📋 Version History
+
+### v2.0.3 - Window Border & UX Fixes
+
+- **Restored beautiful window borders**: Fixed borders broken during v2.0.0 theme consolidation
+    - Restored original light blue gradient active borders `rgba(89b4fa88) 45deg`
+    - Restored subtle dark inactive borders `rgba(1a1a1a60)`
+    - Corrected border size back to 1 pixel for elegant appearance
+- **Enhanced upgrade notifications**:
+    - Added immediate "Launching Upgrade..." feedback for waybar upgrade button
+    - Added consistent Control Panel launch notifications from Power Menu
+    - Reduced notification timeout to 2 seconds for better UX
+- **Fixed user experience inconsistencies**: Unified feedback across all launcher methods
 
 ### v2.0.2 - Boot Logo Enhancement
 
