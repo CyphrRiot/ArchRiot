@@ -10,7 +10,9 @@
 # Load user environment
 load_user_environment() {
     local env_file="$HOME/.config/archriot/user.env"
-    [[ -f "$env_file" ]] && source "$env_file"
+    if [[ -f "$env_file" ]]; then
+        source "$env_file"
+    fi
 }
 
 # Install cursor and icon themes
