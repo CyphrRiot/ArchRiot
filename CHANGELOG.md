@@ -5,6 +5,264 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2] - 2025-07-28
+
+### 🔧 Critical Fixes
+
+- **Theming Installation Order**: Renamed theming.sh to 1-theming.sh to fix execution order
+- **Installation Reliability**: Fixed theming component loading during setup process
+
+---
+
+## [1.8.1] - 2025-07-28
+
+### 🔧 Critical Fixes
+
+- **Theming System**: Fixed theming system installation permanently
+- **Component Loading**: Resolved theming component initialization issues
+
+---
+
+## [1.7.9] - 2025-07-28
+
+### ✨ Enhancements
+
+- **Theming Installation**: Fixed theming installation process
+- **Control Panel**: Added pomodoro timer image for enhanced UI
+- **Visual Improvements**: Enhanced Control Panel theming components
+
+---
+
+## [1.7.8] - 2025-07-28
+
+### 🔧 Critical Fixes
+
+- **Theming System**: Fixed theming system reliability issues
+- **Control Panel Enhancement**: Improved Control Panel functionality and integration
+
+---
+
+## [1.7.7] - 2025-07-28
+
+### 🚨 CRITICAL FIX
+
+- **Control Panel Universal Support**: Fixed Control Panel to work on all systems including laptops
+- **Cross-Platform Compatibility**: Resolved system-specific Control Panel launch issues
+
+---
+
+## [1.7.6] - 2025-07-28
+
+### 🚨 CRITICAL FIX
+
+- **Background Installation**: Fixed background installation to finally work on fresh installs
+- **Installation Reliability**: Resolved background system setup failures
+
+---
+
+## [1.7.5] - 2025-07-28
+
+### 🔧 Critical Fixes
+
+- **Power Menu**: Fixed Power Menu functionality and integration
+- **Script Consistency**: Improved script location consistency across components
+
+---
+
+## [1.7.4] - 2025-07-28
+
+### 🚨 CRITICAL FIX
+
+- **Background Installation**: Fixed background installation system
+- **Control Panel Integration**: Enhanced Control Panel functionality and reliability
+
+---
+
+## [1.7.2] - 2025-07-28
+
+### ✨ Major Enhancement
+
+- **Control Panel Integration**: Complete Control Panel integration per specification
+- **System Management**: Enhanced system configuration management interface
+
+---
+
+## [1.7.1] - 2025-07-28
+
+### 🚨 CRITICAL FIX
+
+- **Background Installation**: Force background installation during theming setup
+- **Theming Reliability**: Ensured background system works on all installations
+
+---
+
+## [1.6.5] - 2025-07-28
+
+### ✨ New Features
+
+- **Intelligent Window Switcher**: Added smart window switcher for lost floating windows
+- **Window Management**: Enhanced window recovery and navigation system
+
+---
+
+## [1.6.4] - 2025-07-28
+
+### 🔧 Bug Fixes
+
+- **Brightness Control**: Fixed brightness increments to proper 5% steps
+- **System Controls**: Improved brightness adjustment precision
+
+---
+
+## [1.6.3] - 2025-07-28
+
+### 🚨 CRITICAL FIX
+
+- **Mako Configuration**: Removed invalid Mako config options breaking notifications
+- **Notification System**: Fixed notification daemon configuration issues
+
+---
+
+## [1.6.2] - 2025-07-28
+
+### 🔧 Critical Fixes
+
+- **Waybar Stability**: Fixed waybar disappearing when exiting installer
+- **Installation Process**: Improved installer exit handling
+
+---
+
+## [1.6.1] - 2025-07-28
+
+### 🎯 Major Improvements
+
+- **Package Installation**: Major package installation standardization
+- **Plymouth Fixes**: Fixed Plymouth crash issues during installation
+- **System Stability**: Enhanced installation reliability
+
+---
+
+## [1.6.0] - 2025-07-28
+
+### 🎯 MAJOR: Installation System Overhaul
+
+- **Installation Output**: Major cleanup of installation output and messaging
+- **Session Stability**: Enhanced session stability during installation process
+- **User Experience**: Dramatically improved installation feedback and reliability
+
+---
+
+## [1.5.5] - 2025-07-28
+
+### 🔧 Critical Fixes
+
+- **Package Cleanup**: Removed deprecated neofetch causing installation failures
+- **Installation Reliability**: Fixed package-related installation issues
+
+---
+
+## [1.5.4] - 2025-07-28
+
+### 🚨 CRITICAL FIX
+
+- **Waybar Validation**: Removed invalid waybar --dry-run that broke upgrades
+- **Upgrade System**: Fixed upgrade process validation issues
+
+---
+
+## [1.5.3] - 2025-07-28
+
+### 🚨 CRITICAL HOTFIX
+
+- **Upgrade Dialog**: Fixed broken Install button in upgrade dialog
+- **User Interface**: Restored upgrade dialog functionality
+
+---
+
+## [1.5.2] - 2025-07-28
+
+### ✨ Enhancements
+
+- **Brightness Notifications**: Added brightness change notifications
+- **Notification System**: Fixed notification stacking issues
+
+---
+
+## [1.5.0] - 2025-07-28
+
+### 🎯 MAJOR: Installation System Improvements
+
+- **Installation Reliability**: Major installation system improvements
+- **Critical Fixes**: Multiple critical installation fixes
+- **System Stability**: Enhanced overall system installation process
+
+---
+
+## [1.1.78] - 2025-07-21
+
+### 🔧 Bug Fixes
+
+- **Editor Aliases**: Fixed vi/vim editor aliases for system commands
+- **Command Line**: Improved editor command integration
+
+---
+
+## [2.0.3] - 2025-07-29
+
+### 🔧 Critical Fixes
+
+- **Restored beautiful window borders**: Fixed borders broken during v2.0.0 theme consolidation
+    - Restored original light blue gradient active borders `rgba(89b4fa88) 45deg`
+    - Restored subtle dark inactive borders `rgba(1a1a1a60)`
+    - Corrected border size back to 1 pixel for elegant appearance
+- **Enhanced upgrade notifications**:
+    - Added immediate "Launching Upgrade..." feedback for waybar upgrade button
+    - Added consistent Control Panel launch notifications from Power Menu
+    - Reduced notification timeout to 2 seconds for better UX
+- **Fixed user experience inconsistencies**: Unified feedback across all launcher methods
+
+---
+
+## [2.0.2] - 2025-07-29
+
+### 🎨 Boot Logo Enhancement
+
+- **Fixed LUKS boot logo**: Replaced old "Ohmarchy" branding with proper "ArchRiot" logo
+- **Enhanced logo design**:
+    - Uses Hack Nerd Font Mono Bold for system consistency
+    - Larger, more readable fonts (100px + 34px)
+    - Perfect background color matching (#191a25)
+    - Transparent background for seamless integration
+- **Consolidated logo management**: Single source logo file eliminates duplicates
+- **Fixed background/lock screen issues**: Corrected theme consolidation path problems
+- **Improved boot logo script**: Removed syntax errors and optimized generation logic
+
+---
+
+## [2.0.1] - 2025-07-29
+
+### 🚨 CRITICAL HOTFIX
+
+- **Fixed migrate tool download**: Resolved "text file busy" errors during installation
+- **Resolved PipeWire conflicts**: Fixed audio system installation issues
+- **Fixed theme consolidation**: Corrected upgrade paths from v2.0.0
+- **Background system repair**: Fixed missing backgrounds and lock screen issues
+- **Simplified update notifications**: Removed problematic caching system
+
+---
+
+## [2.0.0] - 2025-07-29
+
+### 🎯 MAJOR: Unified Theme System
+
+- **Eliminated theme override system**: Removed maintenance-heavy theme switching
+- **Consolidated CypherRiot theme**: Integrated directly into main configurations
+- **Removed tokyo-night theme**: Simplified to single, beautiful theme
+- **Fixed installation paths**: Streamlined upgrade and installation processes
+- **Enhanced system reliability**: Eliminated theme-related conflicts and issues
+
+---
+
 ## [1.2.3] - 2025-07-21
 
 ### 🔍 Installation Reliability Improvements

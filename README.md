@@ -834,32 +834,6 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 **⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
 
-## 📋 Version History
-
-### v2.0.3 - Window Border & UX Fixes
-
-- **Restored beautiful window borders**: Fixed borders broken during v2.0.0 theme consolidation
-    - Restored original light blue gradient active borders `rgba(89b4fa88) 45deg`
-    - Restored subtle dark inactive borders `rgba(1a1a1a60)`
-    - Corrected border size back to 1 pixel for elegant appearance
-- **Enhanced upgrade notifications**:
-    - Added immediate "Launching Upgrade..." feedback for waybar upgrade button
-    - Added consistent Control Panel launch notifications from Power Menu
-    - Reduced notification timeout to 2 seconds for better UX
-- **Fixed user experience inconsistencies**: Unified feedback across all launcher methods
-
-### v2.0.2 - Boot Logo Enhancement
-
-- **Fixed LUKS boot logo**: Replaced old "Ohmarchy" branding with proper "ArchRiot" logo
-- **Enhanced logo design**:
-    - Uses Hack Nerd Font Mono Bold for system consistency
-    - Larger, more readable fonts (100px + 34px)
-    - Perfect background color matching (#191a25)
-    - Transparent background for seamless integration
-- **Consolidated logo management**: Single source logo file eliminates duplicates
-- **Fixed background/lock screen issues**: Corrected theme consolidation path problems
-- **Improved boot logo script**: Removed syntax errors and optimized generation logic
-
 ## 📄 License
 
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
