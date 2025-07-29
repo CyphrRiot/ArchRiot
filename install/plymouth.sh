@@ -21,28 +21,42 @@ needs_reinstall() {
         return 0
     fi
 
-    # Check 2: Version changed (manual trigger)
-    local stored_version=$(cat "$VERSION_FILE" 2>/dev/null || echo "0.0")
-    if [[ "$stored_version" != "$PLYMOUTH_VERSION" ]]; then
-        echo "Plymouth version updated ($stored_version → $PLYMOUTH_VERSION) - reinstall needed"
-        return 0
-    fi
-
-    # Check 3: ArchRiot theme missing or broken
+    # Check 2: ArchRiot theme missing or broken
     local current_theme=$(sudo plymouth-set-default-theme 2>/dev/null || echo "none")
     if [[ "$current_theme" != "archriot" ]] || [[ ! -f "/usr/share/plymouth/themes/archriot/archriot.plymouth" ]]; then
         echo "ArchRiot Plymouth theme missing - reinstall needed"
         return 0
     fi
 
+    # Check 3: LUKS header content comparison (most important check)
+    echo "🔍 Checking if LUKS header content changed..."
+    local new_logo="$HOME/.local/share/archriot/default/plymouth/logo.png"
+    local current_logo="/usr/share/plymouth/themes/archriot/logo.png"
+
+    if [[ -f "$new_logo" && -f "$current_logo" ]]; then
+        if ! cmp -s "$new_logo" "$current_logo"; then
+            echo "LUKS header logo content changed - reinstall needed"
+            return 0
+        else
+            echo "✓ LUKS header logo unchanged - skipping reinstall"
+        fi
+    fi
+
+    # Check 4: Version changed (manual trigger - only after content check)
+    local stored_version=$(cat "$VERSION_FILE" 2>/dev/null || echo "0.0")
+    if [[ "$stored_version" != "$PLYMOUTH_VERSION" ]]; then
+        echo "Plymouth version updated ($stored_version → $PLYMOUTH_VERSION) but content unchanged - updating version file only"
+        echo "$PLYMOUTH_VERSION" > "$VERSION_FILE"
+    fi
+
     echo "Plymouth v$PLYMOUTH_VERSION already installed - skipping"
-    return 1
+    exit 0
 }
 
 # Check if reinstall needed
 if ! needs_reinstall; then
     echo "✅ Plymouth/LUKS v$PLYMOUTH_VERSION already configured"
-    return 0
+    exit 0
 fi
 
 echo "🔄 Installing Plymouth v$PLYMOUTH_VERSION..."
@@ -248,16 +262,8 @@ fi
 
 echo "✅ Plymouth theme verified: $CURRENT_THEME"
 
-# Generate fresh ASCII logo for LUKS screen
-echo "🎨 Generating ArchRiot ASCII logo for LUKS screen..."
-if [ -f "$HOME/.local/share/archriot/bin/generate-boot-logo.sh" ]; then
-    echo "✓ Running ASCII logo generator..."
-    cd "$HOME/.local/share/archriot"
-    ./bin/generate-boot-logo.sh
-    echo "✓ ArchRiot ASCII logo generated and installed"
-else
-    echo "⚠ Logo generator not found, using default logo"
-fi
+# Use existing logo directly (no ASCII generation needed)
+echo "✓ Using existing Plymouth logo - no regeneration needed"
 
 # Record successful installation
 echo "$PLYMOUTH_VERSION" > "$VERSION_FILE"

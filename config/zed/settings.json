@@ -99,7 +99,7 @@
     "tabs": {
         "file_icons": true
     },
-    "theme": "Ayu Dark",
+    "theme": "One Dark",
     "experimental.theme_overrides": {
         "editor.gutter.background": "#000000",
         "panel.background": "#000000",

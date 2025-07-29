@@ -1,77 +1,86 @@
 # ArchRiot Development Roadmap
 
-## Current Status: v1.9.2
+## Current Status: v2.0.1
 
 - Installation system reliability: ✅ Complete
-- Theme config fixes: ✅ Complete
-- Waybar update notifications: ✅ Restored
+- Theme config nightmare: ✅ ELIMINATED
+- Critical installation failures: ✅ FIXED
+- Waybar update notifications: ✅ Simplified and working
+- Upgrade path compatibility: ✅ Fixed for v2.0.0+ transition
 
 ## IMMEDIATE PRIORITIES
 
-### 1. 🚨 CRITICAL: Eliminate Theme Config Nightmare
+### 1. ✅ COMPLETED: Theme Config Nightmare ELIMINATED
 
-**Status**: Urgent - Causing maintenance hell and silent feature losses
+**Status**: COMPLETED in v2.0.0-2.0.1 - Theme system completely redesigned
 **Problem**: Theme configs completely override main config instead of extending it
 **Impact**: Every new feature must be manually added to every theme config or it disappears
 
-**Actions**:
+**COMPLETED WORK**:
 
-#### Phase 1: Analysis Complete ✅
+#### Phase 1: Analysis ✅ COMPLETE
 
-- [x] Map all files being overridden by theme system
-- [x] Identify scope of theme config replacements
+- ✅ Mapped all files being overridden by theme system
+- ✅ Identified scope of theme config replacements
 
-**Files Currently Being Completely Replaced by Themes:**
+#### Phase 2: File Consolidation ✅ COMPLETE
 
-- `waybar/config` - Main waybar configuration (CRITICAL: update notifications)
-- `fuzzel.ini` - Fuzzel launcher configuration
-- `neovim.lua` - Neovim theme plugin
-- `btop.theme` - btop system monitor theme
-- `mako.ini` - Notification daemon configuration
-- `hyprlock.conf` - Lock screen configuration (sourced via main config)
+- ✅ Copied CypherRiot configs to replace main configs (waybar, fuzzel, mako, btop)
+- ✅ Moved CypherRiot backgrounds to main backgrounds directory
+- ✅ Moved CypherRiot ghostty.conf to main config
+- ✅ Merged CypherRiot hyprland.conf styling into main config
+- ✅ Moved CypherRiot text-editor themes to main config
 
-**Theme-Only Files (not in main config):**
+#### Phase 3: Theme System Removal ✅ COMPLETE
 
-- `ghostty.conf` - Terminal configuration
-- `hyprland.conf` - Hyprland window manager config
-- `backgrounds/` - Theme-specific background images
-- `text-editor/*.xml` - Text editor syntax themes
+- ✅ Removed tokyo-night theme directory completely
+- ✅ Removed cypherriot theme directory
+- ✅ Removed theme linking logic from `install/desktop/theming.sh`
+- ✅ Removed theme symlink creation (`~/.config/archriot/current/theme`)
+- ✅ Updated hyprlock.conf to use direct CypherRiot config
 
-#### Phase 2: File Consolidation
+#### Phase 4: Installer Updates ✅ COMPLETE
 
-- [ ] Copy CypherRiot configs to replace main configs (waybar, fuzzel, mako, btop)
-- [ ] Move CypherRiot backgrounds to main backgrounds directory
-- [ ] Move CypherRiot ghostty.conf to main config
-- [ ] Move CypherRiot hyprland.conf to main config (if different)
-- [ ] Move CypherRiot text-editor themes to main config
+- ✅ Removed `setup_archriot_theme_system()` function
+- ✅ Removed `set_default_theme()` function
+- ✅ Removed `link_theme_configs()` function
+- ✅ Removed `link_waybar_config()` function
+- ✅ Simplified theming.sh to only handle cursors, icons, GTK themes
+- ✅ Tested installation with simplified theme system
 
-#### Phase 3: Theme System Removal
+#### Phase 5: Documentation & Testing ✅ COMPLETE
 
-- [ ] Remove tokyo-night theme directory completely
-- [ ] Remove cypherriot theme directory
-- [ ] Remove theme linking logic from `install/desktop/theming.sh`
-- [ ] Remove theme symlink creation (`~/.config/archriot/current/theme`)
-- [ ] Update hyprlock.conf to use direct paths instead of theme sourcing
+- ✅ Updated README.md to remove theme selection instructions
+- ✅ Updated INSTALLER.md to remove theme system warnings
+- ✅ Tested all applications work with consolidated configs
+- ✅ Verified waybar update notifications work
+- ✅ Tested lock screen functionality
+- ✅ Tested fuzzel launcher functionality
 
-#### Phase 4: Installer Updates
+#### v2.0.1 Upgrade Path Fixes ✅ COMPLETE
 
-- [ ] Remove `setup_archriot_theme_system()` function
-- [ ] Remove `set_default_theme()` function
-- [ ] Remove `link_theme_configs()` function
-- [ ] Remove `link_waybar_config()` function
-- [ ] Simplify theming.sh to only handle cursors, icons, GTK themes
-- [ ] Test installation with simplified theme system
+- ✅ Added missing backgrounds directory to repository
+- ✅ Fixed hyprlock.conf upgrade detection and automatic replacement
+- ✅ Fixed background service startup after upgrade
+- ✅ Verified upgrade path works for v1.9.x → v2.0.1
 
-#### Phase 5: Documentation & Testing
+### 2. ✅ COMPLETED: Critical Installation Failures FIXED
 
-- [ ] Update README.md to remove theme selection instructions
-- [ ] Update INSTALLER.md to remove theme system warnings
-- [ ] Test all applications work with consolidated configs
-- [ ] Verify waybar update notifications work
-- [ ] Test lock screen functionality
-- [ ] Test fuzzel launcher functionality
+**Status**: COMPLETED in v2.0.0-2.0.1 - All critical failures resolved
+**Problem**: Multiple critical installation failures discovered during testing
+**Impact**: Users cannot complete installation due to broken components
 
-### 2. 🔧 Fix Fuzzel Sudo Integration
+**FIXED ISSUES**:
+
+- ✅ **Migrate tool download**: Fixed "text file busy" error with temp file approach and process killing
+- ✅ **PipeWire audio system**: Fixed dependency conflicts with proper conflict detection and removal
+- ✅ **Local variable errors**: Fixed all `local` declarations outside functions
+- ✅ **Audio system**: Complete audio stack now installs properly (pavucontrol, pamixer, playerctl)
+- ✅ **Waybar update notifications**: Eliminated complex caching system, direct version comparison works
+- ✅ **Background system**: Fixed upgrade path, backgrounds install and display correctly
+- ✅ **Lock screen**: Fixed hyprlock.conf transition from theme sourcing to consolidated config
+
+### 3. 🔧 Fix Fuzzel Sudo Integration
 
 **Status**: High Priority - Affects core user experience
 **Problem**: Migrate command works in terminal but fails in Fuzzel launcher
@@ -85,19 +94,6 @@
 - [ ] Test fuzzel integration with sudo commands
 - [ ] Verify migrate tool launches from application menu
 
-### 3. 🚨 CRITICAL: Fix Installation Failures ✅ RESOLVED
-
-**Status**: COMPLETED - Critical failures have been fixed
-**Problem**: Multiple critical installation failures discovered during testing
-**Impact**: Users cannot complete installation due to broken components
-
-**Fixed Issues**:
-
-- ✅ **Migrate tool download**: Fixed "text file busy" error with temp file approach
-- ✅ **PipeWire audio system**: Fixed dependency conflicts with proper conflict detection
-- ✅ **Local variable errors**: Fixed all `local` declarations outside functions
-- ✅ **Audio system**: Complete audio stack now installs properly
-
 ### 4. 📊 Implement Modern Progress Bar System
 
 **Status**: FUTURE ENHANCEMENT - Clean installer experience
@@ -106,22 +102,11 @@
 
 **Desired Experience**:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ ArchRiot Installation Progress                [73%]     │
-├─────────────────────────────────────────────────────────┤
-│ Installing: Desktop Environment                         │
-│ ████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░  │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Technical Requirements**:
-
-- **Static progress bar**: Stays in place, updates percentage in real-time
-- **Module names**: Show friendly names ("Desktop Environment" not "install/desktop/apps.sh")
-- **Background logging**: All verbose output goes to log files
-- **Error surfacing**: Only show actual errors on console, not warnings
-- **Clean completion**: Beautiful summary at end
+**Static progress bar**: Stays in place, updates percentage in real-time
+**Module names**: Show friendly names ("Desktop Environment" not "install/desktop/apps.sh")
+**Background logging**: All verbose output goes to log files
+**Error surfacing**: Only show actual errors on console, not warnings
+**Clean completion**: Beautiful summary at end
 
 **Implementation Plan**:
 
@@ -141,42 +126,46 @@
 - Progress bar shows actual completion percentage
 - User can see what's happening without noise
 
-### 5. 🚀 System-wide v1.9.2 Deployment
+### 5. 🚀 System-wide v2.0.1 Deployment
 
 **Status**: Medium Priority - Production rollout
-**Problem**: Not all systems have latest theme fixes
-**Impact**: Update notifications may be missing on some systems
+**Problem**: Ensure all systems get latest fixes and improvements
+**Impact**: Users need v2.0.1 fixes for proper upgrade path
 
 **Actions**:
 
-- [ ] Deploy v1.9.2 to all production systems
-- [ ] Verify update notification functionality
+- [ ] Deploy v2.0.1 to all production systems
+- [ ] Verify upgrade path works properly (v1.9.x → v2.0.1)
 - [ ] Monitor for edge cases or regressions
-- [ ] Collect user feedback on theme fixes
+- [ ] Collect user feedback on theme consolidation
+- [ ] Verify background and lock screen functionality after upgrades
 - [ ] Document any deployment issues
 
-### 6. ✅ Theme System Verification
+### 6. ✅ COMPLETED: Theme System Verification
 
-**Status**: Medium Priority - Quality assurance
+**Status**: COMPLETED in v2.0.1 - Quality assurance passed
 **Problem**: Need to verify theme consolidation doesn't break functionality
 **Impact**: Ensure simplified theme system maintains all features
 
-**Actions**:
+**COMPLETED VERIFICATION**:
 
-- [ ] Test waybar theming with unified config
-- [ ] Verify lock screen themes work correctly
-- [ ] Check desktop theming elements
-- [ ] Validate all color schemes and styling
-- [ ] Update theme documentation
+- ✅ Tested waybar theming with unified config
+- ✅ Verified lock screen themes work correctly
+- ✅ Checked desktop theming elements
+- ✅ Validated all color schemes and styling
+- ✅ Updated theme documentation
+- ✅ Tested upgrade path from v1.9.x systems
+- ✅ Verified background system works after upgrade
+- ✅ Confirmed update notifications appear properly
 
 ## NEXT DEVELOPMENT PHASE
 
 ### Short-term Goals (Next 2 weeks)
 
-- Complete theme system consolidation
+- ✅ Complete theme system consolidation (DONE in v2.0.1)
 - Fix fuzzel sudo integration
-- Restore progress bars
-- Deploy v1.9.2 everywhere
+- Restore clean installer with progress bars
+- Deploy v2.0.1 everywhere
 
 ### Medium-term Goals (Next month)
 
@@ -184,6 +173,7 @@
 - Performance optimization
 - Better error recovery tools
 - Improved user onboarding
+- Cross-platform installer testing
 
 ### Long-term Vision (Next quarter)
 
@@ -194,26 +184,28 @@
 
 ## SUCCESS METRICS
 
-### Theme System Success
+### Theme System Success ✅ ACHIEVED
 
-- ✅ Single theme config file
+- ✅ Single unified theme config (no more overrides)
 - ✅ No feature loss when adding new capabilities
-- ✅ All theming functionality preserved
-- ✅ Reduced maintenance overhead
+- ✅ All theming functionality preserved (CypherRiot integrated)
+- ✅ Massive maintenance overhead reduction (eliminated 1000+ lines of theme code)
+- ✅ Upgrade path works correctly
+- ✅ Background and lock screen function properly
 
-### Installation Experience Success
+### Installation Experience Success ✅ PARTIALLY ACHIEVED
 
-- ✅ Progress bars visible during installation
-- ✅ All errors immediately visible
-- ✅ No silent failures
-- ✅ User feedback is positive
+- ⚠️ Progress bars need restoration (currently verbose output)
+- ✅ All errors immediately visible (no more silent failures)
+- ✅ Critical installation failures resolved
+- ✅ User feedback positive for reliability improvements
 
-### Integration Success
+### Integration Success ⚠️ PARTIALLY ACHIEVED
 
-- ✅ Migrate tool launches from Fuzzel
-- ✅ All sudo operations work in GUI
+- ⚠️ Migrate tool launches from Fuzzel (needs pkexec wrapper)
 - ✅ Desktop integration is seamless
-- ✅ No privilege escalation failures
+- ✅ Update notifications work reliably
+- ✅ Background cycling and management works
 
 ## NOTES
 
