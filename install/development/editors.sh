@@ -31,7 +31,7 @@ echo "🎯 Installing Zed desktop integration..."
 mkdir -p ~/.local/share/applications ~/.local/bin
 
 # Install Wayland launcher script
-local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ -f "$script_dir/../../bin/zed-wayland" ]]; then
     cp "$script_dir/../../bin/zed-wayland" ~/.local/bin/

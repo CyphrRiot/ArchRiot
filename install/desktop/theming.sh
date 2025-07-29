@@ -183,87 +183,41 @@ EOF
     fi
 }
 
-# Setup ArchRiot theme system
-setup_archriot_theme_system() {
-    echo "🎨 Setting up ArchRiot theme system..."
+# Theme system removed - using consolidated configs
 
-    # Create theme directories
-    mkdir -p ~/.config/archriot/{themes,current,backgrounds}
+# Fix upgrade path - update hyprlock.conf if still using old theme sourcing
+fix_hyprlock_upgrade() {
+    echo "🔧 Checking hyprlock configuration for upgrade compatibility..."
 
-    # Link available themes
-    local themes_source="$HOME/.local/share/archriot/themes"
-    if [[ -d "$themes_source" ]]; then
-        for theme_dir in "$themes_source"/*; do
-            if [[ -d "$theme_dir" ]]; then
-                local theme_name=$(basename "$theme_dir")
-                ln -sf "$theme_dir" ~/.config/archriot/themes/
-                echo "✓ Linked theme: $theme_name"
-            fi
-        done
-    else
-        echo "⚠ ArchRiot themes directory not found at: $themes_source"
-        return 1
-    fi
+    local hyprlock_config="$HOME/.config/hypr/hyprlock.conf"
+    if [[ -f "$hyprlock_config" ]] && grep -q "source.*theme.*hyprlock.conf" "$hyprlock_config"; then
+        echo "🔄 Updating hyprlock.conf from theme sourcing to consolidated config"
 
-    echo "✓ ArchRiot theme system initialized"
-}
+        # Backup old config
+        cp "$hyprlock_config" "$hyprlock_config.backup-$(date +%s)"
 
-# Set default theme (CypherRiot or first available)
-# The theme system works by creating symlinks in ~/.config/archriot/current/
-# that point to the active theme's configuration files
-set_default_theme() {
-    echo "🎯 Setting default theme..."
-
-    # CypherRiot is the flagship theme for ArchRiot
-    local preferred_theme="cypherriot"
-    local theme_path="$HOME/.config/archriot/themes/$preferred_theme"
-
-    # Check if preferred theme exists and is properly structured
-    if [[ -d "$theme_path" ]]; then
-        echo "✓ Using preferred theme: $preferred_theme"
-    else
-        # Find first available theme
-        local first_theme=$(find ~/.config/archriot/themes -maxdepth 1 -type d -not -name themes | head -1)
-        if [[ -n "$first_theme" ]]; then
-            preferred_theme=$(basename "$first_theme")
-            theme_path="$first_theme"
-            echo "✓ Using fallback theme: $preferred_theme"
+        # Copy new consolidated config
+        local new_config="$HOME/.local/share/archriot/config/hypr/hyprlock.conf"
+        if [[ -f "$new_config" ]]; then
+            cp "$new_config" "$hyprlock_config"
+            echo "✓ Hyprlock configuration updated for v2.0.0+"
         else
-            echo "❌ No themes available"
+            echo "❌ New hyprlock config not found"
             return 1
         fi
-    fi
-
-    # Create symlink: ~/.config/archriot/current/theme -> selected theme directory
-    # This allows other components (hyprlock, waybar, etc.) to source theme configs
-    # Set current theme link
-    ln -snf "$theme_path" ~/.config/archriot/current/theme
-    echo "✓ Active theme set to: $preferred_theme"
-
-    # Initialize the background cycling system for this theme
-    # Force error propagation when sourced
-    if setup_theme_backgrounds "$preferred_theme"; then
-        echo "✅ Background system setup completed successfully"
     else
-        echo "🚨 CRITICAL: Background system setup FAILED!"
-        echo "🚨 Background cycling will not work!"
-        echo "🚨 Please check the installation logs above for details"
-        set +e
-        exit 1  # Force failure even when sourced
+        echo "✓ Hyprlock configuration already up to date"
     fi
 }
 
-# Setup background system for selected theme
-# Each theme can have its own collection of background images
-# The system creates numbered copies for easy cycling (01-name.png, 02-name.png, etc.)
-setup_theme_backgrounds() {
-    local theme_name="$1"
-    echo "🖼️  Setting up backgrounds for theme: $theme_name"
+# Setup background system for consolidated backgrounds
+# Uses the unified backgrounds directory created during theme consolidation
+setup_backgrounds() {
+    echo "🖼️  Setting up consolidated backgrounds..."
 
     # Ensure required directories exist
     export BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
-    mkdir -p "$BACKGROUNDS_DIR/$theme_name"
-    mkdir -p "$HOME/.config/archriot/current"
+    mkdir -p "$BACKGROUNDS_DIR"
 
     # Copy background files directly from repo
     # Use absolute path resolution to work in any execution context
@@ -271,12 +225,9 @@ setup_theme_backgrounds() {
 
     # Resolve the absolute path to avoid any relative path issues when sourced
     local archriot_root="$(cd "$script_dir/../.." && pwd)"
-    local source_bg_dir="$archriot_root/themes/$theme_name/backgrounds"
+    local source_bg_dir="$archriot_root/backgrounds"
 
     echo "🔍 Checking source directory: $source_bg_dir"
-    echo "🔍 Script directory: $script_dir"
-    echo "🔍 ArchRiot root: $archriot_root"
-    echo "🔍 Current working directory: $(pwd)"
 
     if [[ ! -d "$source_bg_dir" ]]; then
         echo "🚨 CRITICAL: Source background directory not found: $source_bg_dir"
@@ -286,123 +237,55 @@ setup_theme_backgrounds() {
 
     echo "📦 Installing backgrounds from: $source_bg_dir"
 
-    # Clear existing numbered backgrounds
-    find "$BACKGROUNDS_DIR/$theme_name" -name "[0-9][0-9]-*" -type f -delete 2>/dev/null || true
-
-    # Find all background files
-    mapfile -t bg_files < <(find "$source_bg_dir" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | sort)
-
-    if [[ ${#bg_files[@]} -eq 0 ]]; then
-        echo "🚨 CRITICAL: No background files found in $source_bg_dir"
-        echo "🚨 This will cause background cycling to fail!"
-        return 1
-    fi
-
-    # Copy all backgrounds with numbered prefixes
-    local counter=1
+    # Copy backgrounds directly (no numbered prefixes needed)
     local failed_copies=0
-    for bg in "${bg_files[@]}"; do
-        filename=$(basename "$bg")
-        local dest_file="$BACKGROUNDS_DIR/$theme_name/$(printf "%02d" $counter)-$filename"
+    local copied_count=0
 
-        if cp "$bg" "$dest_file"; then
-            echo "✓ Installed: $(printf "%02d" $counter)-$filename"
+    for bg_file in "$source_bg_dir"/*.{jpg,jpeg,png,webp}; do
+        [[ -f "$bg_file" ]] || continue
+
+        local filename=$(basename "$bg_file")
+        if cp "$bg_file" "$BACKGROUNDS_DIR/$filename"; then
+            echo "✓ Installed: $filename"
+            ((copied_count++))
         else
             echo "❌ Failed to install: $filename"
             ((failed_copies++))
         fi
-        ((counter++))
     done
 
-    if [[ $failed_copies -gt 0 ]]; then
-        echo "🚨 WARNING: $failed_copies background files failed to copy"
-    fi
-
-    local total_installed=$((counter-1))
-    echo "✓ Installed $total_installed backgrounds for $theme_name"
-
-    # Verify backgrounds were actually installed
-    local actual_count=$(find "$BACKGROUNDS_DIR/$theme_name" -name "[0-9][0-9]-*" -type f | wc -l)
-    if [[ $actual_count -eq 0 ]]; then
-        echo "🚨 CRITICAL: No backgrounds were successfully installed!"
-        echo "🚨 Background cycling will not work!"
+    if [[ $copied_count -eq 0 ]]; then
+        echo "🚨 CRITICAL: No background files were successfully installed!"
         return 1
     fi
 
-    echo "✓ Verified: $actual_count background files in destination"
+    echo "✓ Installed $copied_count backgrounds"
 
-    # Create directory structure and symlinks
-    echo "🔗 Setting up directory structure..."
-
-    # Link background directory
-    if ln -snf "$BACKGROUNDS_DIR/$theme_name" ~/.config/archriot/current/backgrounds; then
-        echo "✓ Background directory linked"
+    # Start background service with riot_01.jpg
+    local riot_01_bg="$BACKGROUNDS_DIR/riot_01.jpg"
+    if [[ -f "$riot_01_bg" ]]; then
+        pkill swaybg 2>/dev/null || true
+        sleep 1
+        swaybg -i "$riot_01_bg" -m fill >/dev/null 2>&1 &
+        echo "✓ Background service started with riot_01.jpg"
     else
-        echo "❌ Failed to link background directory"
-        return 1
-    fi
-
-    # Set default background (riot_01.jpg preferred, or first available)
-    local riot_01_bg=$(find "$BACKGROUNDS_DIR/$theme_name" -name "*riot_01*" | head -1)
-
-    if [[ -n "$riot_01_bg" && -f "$riot_01_bg" ]]; then
-        if ln -snf "$riot_01_bg" ~/.config/archriot/current/background; then
-            echo "✓ Default background set: $(basename "$riot_01_bg")"
-        else
-            echo "❌ Failed to set default background"
-            return 1
-        fi
-    else
-        # Fallback to first numbered background (should be 01-)
-        local first_bg=$(find "$BACKGROUNDS_DIR/$theme_name" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
+        # Fallback to first available background
+        local first_bg=$(find "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
         if [[ -n "$first_bg" ]]; then
-            if ln -snf "$first_bg" ~/.config/archriot/current/background; then
-                echo "✓ Default background set: $(basename "$first_bg")"
-            else
-                echo "❌ Failed to set default background"
-                return 1
-            fi
-        else
-            echo "🚨 CRITICAL: No background files found after installation"
-            return 1
+            pkill swaybg 2>/dev/null || true
+            sleep 1
+            swaybg -i "$first_bg" -m fill >/dev/null 2>&1 &
+            echo "✓ Background service started with: $(basename "$first_bg")"
         fi
     fi
 
-    # Final verification
-    echo "🧪 Verifying background setup..."
-    if [[ -L ~/.config/archriot/current/background && -L ~/.config/archriot/current/backgrounds ]]; then
-        local bg_target=$(readlink ~/.config/archriot/current/background)
-        local bg_dir_target=$(readlink ~/.config/archriot/current/backgrounds)
-
-        if [[ -f "$bg_target" && -d "$bg_dir_target" ]]; then
-            echo "✅ Background setup verification passed"
-            echo "   • Background: $(basename "$bg_target")"
-            echo "   • Directory: $actual_count files"
-            return 0
-        else
-            echo "🚨 CRITICAL: Background setup verification failed!"
-            echo "   • Background exists: $([[ -f "$bg_target" ]] && echo "YES" || echo "NO")"
-            echo "   • Directory exists: $([[ -d "$bg_dir_target" ]] && echo "YES" || echo "NO")"
-            return 1
-        fi
-    else
-        echo "🚨 CRITICAL: Required symlinks not created!"
-        return 1
-    fi
+    echo "✅ Background setup completed successfully"
+    return 0
 }
 
 # Link theme configurations to application configs
-link_theme_configs() {
-    echo "🔗 Linking theme configurations..."
-
-    local theme_dir="$HOME/.config/archriot/current/theme"
-    if [[ ! -d "$theme_dir" ]]; then
-        echo "❌ No active theme found"
-        return 1
-    fi
-
-    # Backup existing configs
-    backup_existing_configs
+link_main_configs() {
+    echo "🔗 Linking main configurations..."
 
     # Copy GTK CSS for Thunar dark theme
     if [[ -f "$HOME/.local/share/archriot/config/gtk-3.0/gtk.css" ]]; then
@@ -424,45 +307,7 @@ link_theme_configs() {
         echo "✓ GTK-4.0 settings applied (recent files disabled)"
     fi
 
-    # Handle hyprlock config specially (link main config that sources theme)
-    local main_hyprlock="$HOME/.local/share/archriot/config/hypr/hyprlock.conf"
-    local target_hyprlock="$HOME/.config/hypr/hyprlock.conf"
-
-    if [[ -f "$main_hyprlock" ]]; then
-        mkdir -p "$HOME/.config/hypr"
-
-        # Remove existing file/symlink to prevent "same file" errors
-        [[ -e "$target_hyprlock" ]] && rm -f "$target_hyprlock"
-
-        ln -snf "$main_hyprlock" "$target_hyprlock"
-        echo "✓ Linked: hyprlock.conf (sources theme)"
-    else
-        echo "⚠ Main hyprlock config not found"
-    fi
-
-    # Link other application configs
-    local config_links=(
-        "fuzzel.ini:$HOME/.config/fuzzel/fuzzel.ini"
-        "neovim.lua:$HOME/.config/nvim/lua/plugins/theme.lua"
-        "btop.theme:$HOME/.config/btop/themes/current.theme"
-        "mako.ini:$HOME/.config/mako/config"
-    )
-
-    for link_info in "${config_links[@]}"; do
-        IFS=':' read -r source_file target_path <<< "$link_info"
-        local source_path="$theme_dir/$source_file"
-
-        if [[ -f "$source_path" ]]; then
-            mkdir -p "$(dirname "$target_path")"
-            ln -snf "$source_path" "$target_path"
-            echo "✓ Linked: $(basename "$source_file")"
-        else
-            echo "⚠ Theme file not found: $source_file"
-        fi
-    done
-
-    # Handle waybar config specially (with backup)
-    link_waybar_config
+    echo "✓ Main configurations linked"
 }
 
 # Setup fuzzel cache directory to prevent ~/yes file creation
@@ -542,58 +387,27 @@ backup_existing_configs() {
 }
 
 # Link waybar configuration with special handling
-link_waybar_config() {
-    echo "📊 Configuring waybar theme..."
-
-    local theme_config="$HOME/.config/archriot/current/theme/config"
-    local waybar_config="$HOME/.config/waybar/config"
-    local default_config="$HOME/.config/waybar/config.default"
-
-    # Create default backup if it doesn't exist
-    if [[ -f "$waybar_config" && ! -f "$default_config" && ! -L "$waybar_config" ]]; then
-        cp "$waybar_config" "$default_config"
-        echo "✓ Created waybar default backup"
-    fi
-
-    # Link theme config or restore default
-    if [[ -f "$theme_config" ]]; then
-        ln -snf "$theme_config" "$waybar_config"
-        echo "✓ Waybar theme config linked"
-    elif [[ -f "$default_config" ]]; then
-        ln -snf "$default_config" "$waybar_config"
-        echo "✓ Waybar default config restored"
-    else
-        echo "⚠ No waybar config available"
-    fi
-}
+# Waybar config linking removed - using consolidated config directly
 
 # Start theme-related services safely
-start_theme_services() {
-    echo "🚀 Starting theme services..."
+start_background_service() {
+    echo "🚀 Starting background service..."
 
-    # Services will be restarted at end of installation
-
-    # Start background service
-    local bg_file="$HOME/.config/archriot/current/background"
-    if [[ -f "$bg_file" ]] || [[ -L "$bg_file" ]]; then
-        # Resolve symlink if needed
-        local actual_bg=$(readlink -f "$bg_file" 2>/dev/null || echo "$bg_file")
-        if [[ -f "$actual_bg" ]]; then
-            swaybg -i "$actual_bg" -m fill >/dev/null 2>&1 &
-            echo "✓ Background service started with: $(basename "$actual_bg")"
-        else
-            echo "⚠ Background file not found: $actual_bg"
-        fi
-    else
-        echo "⚠ No background configured"
+    # Find first available background from consolidated directory
+    local bg_file=$(find "$HOME/.config/archriot/backgrounds" -name "*riot_01*" | head -1)
+    if [[ -z "$bg_file" ]]; then
+        bg_file=$(find "$HOME/.config/archriot/backgrounds" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
     fi
 
-    # Waybar will be started at the end of installation
-    echo "✓ Waybar configuration ready"
+    if [[ -f "$bg_file" ]]; then
+        swaybg -i "$bg_file" -m fill >/dev/null 2>&1 &
+        echo "✓ Background service started with: $(basename "$bg_file")"
+    else
+        echo "⚠ No background files found in ~/.config/archriot/backgrounds"
+    fi
 
-    # Start blue light filter by default (no user prompt)
+    # Start blue light filter by default
     start_blue_light_filter
-    echo "✓ Blue light filter enabled by default (hyprsunset configured in base hyprland.conf)"
 }
 
 # Stop theme-related services safely
@@ -648,20 +462,11 @@ validate_theme_setup() {
         ((validation_errors++))
     fi
 
-    # Check active theme
-    if [[ -L ~/.config/archriot/current/theme ]]; then
-        local active_theme=$(basename "$(readlink ~/.config/archriot/current/theme)")
-        echo "✓ Active theme: $active_theme"
+    # Check consolidated backgrounds
+    if [[ -d ~/.config/archriot/backgrounds ]] && [[ $(find ~/.config/archriot/backgrounds -type f | wc -l) -gt 0 ]]; then
+        echo "✓ Backgrounds configured"
     else
-        echo "❌ No active theme set"
-        ((validation_errors++))
-    fi
-
-    # Check background
-    if [[ -f ~/.config/archriot/current/background ]]; then
-        echo "✓ Background configured"
-    else
-        echo "⚠ Background not configured"
+        echo "⚠ Backgrounds not configured"
     fi
 
     # Check waybar
@@ -689,7 +494,7 @@ display_theming_summary() {
     echo "  • Cursor: Bibata Modern Ice"
     echo "  • Icons: Tela-purple-dark"
     echo "  • GTK: Adwaita Dark"
-    echo "  • ArchRiot: $(basename "$(readlink ~/.config/archriot/current/theme 2>/dev/null)" 2>/dev/null || echo "Not set")"
+    echo "  • ArchRiot: CypherRiot (consolidated)"
     echo ""
     echo "🎯 Active features:"
     echo "  • Dark mode preference"
@@ -697,10 +502,10 @@ display_theming_summary() {
     echo "  • Dynamic wallpapers"
     echo "  • Consistent theming across applications"
     echo ""
-    echo "🔧 Theme management:"
-    echo "  • Use theme-next to cycle themes"
-    echo "  • Themes located in ~/.config/archriot/themes/"
-    echo "  • Current theme: ~/.config/archriot/current/theme"
+    echo "🔧 Background management:"
+    echo "  • Use swaybg-next to cycle backgrounds"
+    echo "  • Backgrounds located in ~/.config/archriot/backgrounds/"
+    echo "  • CypherRiot theme integrated into main configs"
 }
 
 # Main execution with comprehensive error handling
@@ -728,20 +533,20 @@ main() {
     configure_gtk_settings
     setup_cursor_links
 
-    # Setup ArchRiot theme system
-    setup_archriot_theme_system || {
-        echo "❌ Failed to setup ArchRiot theme system"
+    # Fix upgrade path for v2.0.0+ transition
+    fix_hyprlock_upgrade || {
+        echo "⚠ Hyprlock upgrade had issues"
+    }
+
+    # Setup consolidated backgrounds
+    setup_backgrounds || {
+        echo "❌ Failed to setup backgrounds"
         return 1
     }
 
-    set_default_theme || {
-        echo "❌ Failed to set default theme"
-        return 1
-    }
-
-    # Link configurations
-    link_theme_configs || {
-        echo "⚠ Some theme configurations failed to link"
+    # Link main configurations
+    link_main_configs || {
+        echo "⚠ Some configuration linking had issues"
     }
 
     # Setup fuzzel cache directory
@@ -750,7 +555,7 @@ main() {
     }
 
     # Start services
-    start_theme_services
+    start_background_service
 
     # Validate setup
     validate_theme_setup || {

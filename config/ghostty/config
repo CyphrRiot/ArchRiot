@@ -1,7 +1,7 @@
-# ArchRiot Ghostty Terminal Configuration
-# Integrates with ArchRiot theme system for consistent styling
+# CypherRiot theme for Ghostty terminal
+# Semi-transparent Tokyo Night inspired colors with purple/blue accents
 
-# CypherRiot theme colors (dark background)
+# Basic colors
 background = 0a0b10
 foreground = c0caf5
 selection-background = 33467c
@@ -47,23 +47,3 @@ palette = 15=#c0caf5
 # Extended colors for better compatibility
 palette = 16=#ff9e64
 palette = 17=#db4b4b
-
-# Font configuration
-font-family = "Hack Nerd Font"
-font-size = 12
-
-# Window settings
-window-padding-x = 10
-window-padding-y = 10
-window-decoration = false
-gtk-single-instance = false
-gtk-adwaita = false
-window-width = 120
-
-# Terminal behavior
-command = /usr/bin/fish
-cursor-style = block
-cursor-style-blink = true
-scrollback-limit = 10000
-mouse-hide-while-typing = true
-copy-on-select = false

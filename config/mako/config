@@ -1,7 +1,6 @@
-# ArchRiot Mako Notification Configuration
-# CypherRiot Theme - Purple/Dark Aesthetic
+# CypherRiot theme for Mako notifications
+# Based on your current setup but with CypherRiot colors
 
-# Basic appearance
 max-visible=10
 layer=top
 font=Hack Nerd Font 10
@@ -15,32 +14,14 @@ default-timeout=10000
 anchor=top-right
 margin=20
 
-# Positioning and spacing
-width=350
-height=100
-outer-margin=10
-padding=15
-
-# Text formatting
-markup=1
-
-# Critical notifications (system updates, errors)
+# Critical notifications
 [urgency=critical]
 border-color=#ff7a93
 background-color=#1a1b26dd
 text-color=#ffffff
-default-timeout=0
 
-# High priority notifications
+# High priority
 [urgency=high]
 border-color=#ff9e64
 background-color=#222436dd
 text-color=#ffffff
-default-timeout=15000
-
-# Low priority notifications
-[urgency=low]
-border-color=#7aa2f7
-background-color=#222436dd
-text-color=#c0caf5
-default-timeout=5000

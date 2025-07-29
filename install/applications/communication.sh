@@ -19,7 +19,7 @@ source ~/.local/share/archriot/default/bash/functions
 echo "🌐 Installing essential web applications..."
 
 # Copy desktop files for web apps
-local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "$script_dir/../../applications/Proton Mail.desktop" ]]; then
     cp "$script_dir/../../applications/Proton Mail.desktop" ~/.local/share/applications/
     echo "✓ Proton Mail desktop file installed"

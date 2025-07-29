@@ -23,19 +23,13 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     mkdir -p "$HOME/.local/share/gtksourceview-5/styles"
 
     # Install all available text editor themes
-    local themes_installed=0
-    for theme_dir in "$HOME/.local/share/archriot/themes"/*; do
-        if [[ -d "$theme_dir/text-editor" ]]; then
-            theme_name=$(basename "$theme_dir")
-            for theme_file in "$theme_dir/text-editor"/*.xml; do
-                if [[ -f "$theme_file" ]]; then
-                    cp "$theme_file" "$HOME/.local/share/gtksourceview-5/styles/"
-                    echo "✓ Installed $(basename "$theme_file") theme"
-                    ((themes_installed++))
-                fi
-            done
-        fi
-    done
+    themes_installed=0
+    # Use consolidated text editor themes
+    if [[ -f "$HOME/.local/share/archriot/config/text-editor/cypherriot.xml" ]]; then
+        cp "$HOME/.local/share/archriot/config/text-editor/cypherriot.xml" "$HOME/.local/share/gtksourceview-5/styles/"
+        echo "✓ Installed text editor theme: cypherriot.xml"
+        themes_installed=1
+    fi
 
     if [[ $themes_installed -gt 0 ]]; then
         echo "✓ $themes_installed text editor theme(s) installed"
@@ -52,10 +46,7 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     gsettings set org.gnome.TextEditor use-system-font false
 
     # Set default theme (prefer Tokyo Night, fallback to first available)
-    if [[ -f "$HOME/.local/share/gtksourceview-5/styles/tokyo-night.xml" ]]; then
-        gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'
-        echo "✓ Gnome Text Editor configured with Tokyo Night theme"
-    elif [[ -f "$HOME/.local/share/gtksourceview-5/styles/cypherriot.xml" ]]; then
+    if [[ -f "$HOME/.local/share/gtksourceview-5/styles/cypherriot.xml" ]]; then
         gsettings set org.gnome.TextEditor style-scheme 'cypherriot'
         echo "✓ Gnome Text Editor configured with CypherRiot theme"
     else
@@ -65,7 +56,7 @@ fi
 
 # Install Zed editor configuration and launcher
 echo "🖥️ Installing Zed editor configuration..."
-local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Install Zed Wayland launcher
 if [[ -f "$script_dir/../../bin/zed-wayland" ]]; then
