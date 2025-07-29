@@ -51,6 +51,7 @@ _Created by a long-time Linux user, experienced developer, and privacy advocate 
 - [Installation](#-installation)
 - [VM Installation Notes](#️-vm-installation-notes)
 - [Installation Features](#installation-features)
+- [Control Panel](#control-panel)
 - [What's New](#-whats-new)
 - [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
 - [Essential Commands](#️-essential-commands)
