@@ -158,11 +158,124 @@
 - ✅ Verified background system works after upgrade
 - ✅ Confirmed update notifications appear properly
 
+## CRITICAL BUG FIXES
+
+### ✅ COMPLETED: Ivy Bridge Vulkan Support Issue
+
+**Status**: FIXED with Safe Optional Tool - Available in optional-tools/ivy-bridge-vulkan-fix/
+**Problem**: Intel HD Graphics 4000 (Ivy Bridge) has incomplete Vulkan support causing Zed editor failures
+**Impact**: ThinkPad X230, T430 and similar systems now have working Zed editor
+**User Report**: "I have to get vulkan working for zed but that's like one of the few things that didn't work" - RESOLVED
+
+**SAFE SOLUTION IMPLEMENTED**:
+
+- ✅ **Safe Fix Created**: `optional-tools/ivy-bridge-vulkan-fix/fix-ivy-bridge-vulkan.sh`
+- ✅ **No System Changes**: Does NOT modify core ArchRiot files or hardware.sh
+- ✅ **User-Specific Configs**: Creates only user-specific configuration overlays
+- ✅ **Zed Compatibility**: Provides OpenGL fallback launcher and configuration
+- ✅ **Easy Testing**: Completely reversible, testable solution
+- ✅ **Available in Launcher**: Integrated into optional-tools launcher menu
+
+**What the Fix Provides**:
+
+```bash
+# Safe launcher wrapper
+~/.local/bin/zed-ivy-bridge
+
+# Configuration overlay (manual merge required)
+~/.config/zed/ivy-bridge-overlay.json
+
+# Detailed logs
+~/.cache/archriot/ivy-bridge-fix.log
+```
+
+**Installation**:
+
+- Run: `optional-tools/ivy-bridge-vulkan-fix/fix-ivy-bridge-vulkan.sh`
+- Or: Use optional-tools launcher menu option 2
+- Result: Working Zed editor on Ivy Bridge systems without breaking other installations
+
+## SYSTEMATIC CODE OPTIMIZATION & BUG FIXES
+
+### 7. 🔧 File-by-File Optimization Initiative
+
+**Status**: NEW PRIORITY - Systematic codebase improvement
+**Problem**: Need comprehensive analysis of every file for optimization opportunities and bug fixes
+**Impact**: Improve installer performance, reliability, and maintainability
+
+**Approach**: Go through every single file, one at a time, proposing focused optimizations and bug fixes
+
+#### Current Focus: install.sh Optimizations
+
+**File**: `install.sh` (615 lines)
+**Status**: ANALYSIS COMPLETE - Multiple optimization opportunities identified
+
+**Identified Issues**:
+
+1. **🔧 READY: Eliminate Redundant Temp File Operations**
+    - **Problem**: `execute_module()` function creates temp files for every module execution
+    - **Impact**: Unnecessary I/O overhead, temp file cleanup, multiple read/write operations
+    - **Location**: Lines 213-230 in `execute_module()` function
+    - **Fix**: Replace `mktemp` + `tee` + `cat` + `rm` with direct process substitution
+    - **Benefit**: Faster module execution, cleaner I/O, reduced disk operations
+
+2. **🔍 IDENTIFIED: Inefficient Multiple Tee Operations**
+    - **Problem**: `log_message()` function uses multiple `tee` calls for each log level
+    - **Impact**: Multiple process spawns for simple logging operations
+    - **Location**: Lines 100-118 in `log_message()` function
+    - **Fix**: Consolidate logging with single output redirection approach
+
+3. **🔍 IDENTIFIED: Complex Module Discovery Logic**
+    - **Problem**: `get_installation_modules()` has nested loops and complex path handling
+    - **Impact**: Slower startup, harder to maintain module ordering
+    - **Location**: Lines 40-55 in `get_installation_modules()` function
+    - **Fix**: Simplify with direct array population and cleaner sorting
+
+4. **🔍 IDENTIFIED: Hardcoded Path Redundancy**
+    - **Problem**: Multiple hardcoded paths repeated throughout script
+    - **Impact**: Maintenance overhead, potential for inconsistencies
+    - **Location**: Throughout script (LOG_FILE, ERROR_LOG, INSTALL_DIR paths)
+    - **Fix**: Centralize path management in configuration section
+
+5. **🔍 IDENTIFIED: Missing Error Handling in Critical Paths**
+    - **Problem**: Some operations lack proper error handling
+    - **Impact**: Silent failures, unclear error states
+    - **Location**: Font cache updates, icon cache updates (lines 410-415)
+    - **Fix**: Add explicit error checking and logging for all critical operations
+
+**Next Files for Analysis**:
+
+- [ ] **PRIORITY 1**: `install/applications/productivity.sh` - Zed installation and config (77 lines)
+- [ ] **PRIORITY 2**: `install/system/hardware.sh` - GPU driver installation (29 lines)
+- [ ] **PRIORITY 3**: `setup.sh` - Secondary installer entry point
+- [ ] `validate.sh` - System validation script
+- [ ] `install/core/*.sh` - Core installation modules
+- [ ] `install/system/*.sh` - System configuration modules
+- [ ] `install/desktop/*.sh` - Desktop environment modules
+- [ ] `install/applications/*.sh` - Application installation modules
+
+**Optimization Principles**:
+
+- One focused fix per interaction
+- Measure performance impact before/after
+- Maintain all existing functionality
+- Improve error handling and logging
+- Reduce I/O operations where possible
+- Simplify complex logic without losing capability
+
+#### Next Proposed Fix: productivity.sh Zed Configuration
+
+**File**: `install/applications/productivity.sh`
+**Issue**: Lines 55-85 contain redundant Zed setup operations
+**Problem**: Multiple file operations and path checks that could be consolidated
+**Fix**: Combine file operations, eliminate redundant path resolution, simplify config installation
+
 ## NEXT DEVELOPMENT PHASE
 
 ### Short-term Goals (Next 2 weeks)
 
 - ✅ Complete theme system consolidation (DONE in v2.0.1)
+- ✅ Fix Ivy Bridge Vulkan compatibility (DONE - Safe optional tool created)
 - Fix fuzzel sudo integration
 - Restore clean installer with progress bars
 - Deploy v2.0.1 everywhere

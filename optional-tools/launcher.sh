@@ -98,8 +98,22 @@ show_tool_info() {
     fi
     echo
 
+    # Ivy Bridge Vulkan Fix
+    echo -e "${GREEN}2. Ivy Bridge Vulkan Compatibility Fix${NC}"
+    echo "   Purpose: Fix Zed editor and Vulkan apps on Intel HD Graphics 4000 (Ivy Bridge)"
+    echo "   Risk Level: ✅ SAFE - No system files modified, user configs only"
+    echo "   Compatibility: ThinkPad X230, T430, and other Ivy Bridge systems (2012-2013)"
+    echo "   Requirements: Intel HD Graphics 4000/3000/2000"
+
+    if check_tool_availability "$SCRIPT_DIR/ivy-bridge-vulkan-fix/fix-ivy-bridge-vulkan.sh" "Ivy Bridge Fix" >/dev/null 2>&1; then
+        echo -e "   Status: ${GREEN}✓ Available${NC}"
+    else
+        echo -e "   Status: ${RED}✗ Not Available${NC}"
+    fi
+    echo
+
     # Secure Boot Setup
-    echo -e "${GREEN}2. Secure Boot Setup${NC}"
+    echo -e "${GREEN}3. Secure Boot Setup${NC}"
     echo "   Purpose: Implement UEFI Secure Boot using standard Arch methods"
     echo "   Risk Level: ⚠️  MODERATE - Uses tested Arch packages"
     echo "   Compatibility: AMD, Intel, Any UEFI system"
@@ -113,9 +127,23 @@ show_tool_info() {
     echo
 
     # Future tools can be added here
-    echo -e "${BLUE}3. More tools coming soon...${NC}"
+    echo -e "${BLUE}4. More tools coming soon...${NC}"
     echo "   Additional optional tools will be added in future releases"
     echo
+}
+
+run_ivy_bridge_fix() {
+    local tool_path="$SCRIPT_DIR/ivy-bridge-vulkan-fix/fix-ivy-bridge-vulkan.sh"
+
+    if check_tool_availability "$tool_path" "Ivy Bridge Fix"; then
+        echo
+        print_info "Starting Ivy Bridge Vulkan Compatibility Fix..."
+        echo
+        exec "$tool_path"
+    else
+        print_error "Ivy Bridge Fix tool is not available"
+        return 1
+    fi
 }
 
 run_dell_sleep_fix() {
@@ -153,12 +181,13 @@ show_main_menu() {
 
         echo -e "${CYAN}Options:${NC}"
         echo "1. Launch Dell XPS Sleep Crash Fix"
-        echo "2. Launch Secure Boot Setup"
-        echo "3. View Documentation"
-        echo "4. Check System Requirements"
-        echo "5. Exit"
+        echo "2. Launch Ivy Bridge Vulkan Fix"
+        echo "3. Launch Secure Boot Setup"
+        echo "4. View Documentation"
+        echo "5. Check System Requirements"
+        echo "6. Exit"
         echo
-        echo -n "Enter choice [1-5]: "
+        echo -n "Enter choice [1-6]: "
         read -r choice
 
         case $choice in
@@ -167,16 +196,20 @@ show_main_menu() {
                 break
                 ;;
             2)
-                run_secure_boot_setup
+                run_ivy_bridge_fix
                 break
                 ;;
             3)
-                show_documentation
+                run_secure_boot_setup
+                break
                 ;;
             4)
-                check_system_requirements
+                show_documentation
                 ;;
             5)
+                check_system_requirements
+                ;;
+            6)
                 echo "Goodbye!"
                 exit 0
                 ;;
