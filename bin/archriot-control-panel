@@ -355,10 +355,10 @@ class PomodoroWidget(BaseControlWidget):
             dialog.set_transient_for(self.window.window)
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
-        main_box.set_margin_start(30)
-        main_box.set_margin_end(30)
-        main_box.set_margin_top(15)
-        main_box.set_margin_bottom(20)
+        main_box.set_margin_start(10)  # Reduced margins
+        main_box.set_margin_end(10)
+        main_box.set_margin_top(10)
+        main_box.set_margin_bottom(10)
 
         # Title
         title_label = Gtk.Label()
@@ -369,28 +369,59 @@ class PomodoroWidget(BaseControlWidget):
         # Content frame
         content_frame = Gtk.Frame()
         content_frame.set_margin_top(10)
-        content_frame.add_css_class("archriot-control-panel")
 
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
-        content_box.set_margin_start(20)
-        content_box.set_margin_end(20)
-        content_box.set_margin_top(20)
-        content_box.set_margin_bottom(20)
+        content_box.set_margin_start(10)  # Reduced margins
+        content_box.set_margin_end(10)
+        content_box.set_margin_top(10)
+        content_box.set_margin_bottom(10)
 
         # Add pomodoro image
         try:
             import os
-            # In final install: ~/.local/share/archriot/bin/archriot-control-panel
-            # Images are at: ~/.local/share/archriot/images/pomodoro.png
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            archriot_dir = os.path.dirname(script_dir)  # Go up from bin/ to archriot/
+            import sys
+            script_file = sys.argv[0] if sys.argv and sys.argv[0] else os.path.expanduser("~/.local/share/archriot/bin/archriot-control-panel")
+            script_dir = os.path.dirname(os.path.abspath(script_file))
+            archriot_dir = os.path.dirname(script_dir)
             image_path = os.path.join(archriot_dir, "images", "pomodoro.png")
 
             if os.path.exists(image_path):
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(image_path, 400, 300, True)
-                image = Gtk.Image.new_from_pixbuf(pixbuf)
-                image.set_halign(Gtk.Align.CENTER)
-                image.set_margin_bottom(15)
+                # Load the original pixbuf
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(image_path)
+
+                # Create an image widget
+                image = Gtk.Image()
+                image.set_halign(Gtk.Align.FILL)
+                image.set_hexpand(True)  # Allow image to expand horizontally
+                image.set_margin_bottom(10)
+
+                # Function to scale pixbuf based on dialog width
+                def scale_pixbuf(widget, pixbuf):
+                    # Get the dialog's current width, accounting for margins
+                    dialog_width = widget.get_allocated_width() - main_box.get_margin_start() - main_box.get_margin_end() - content_box.get_margin_start() - content_box.get_margin_end() - content_frame.get_margin_start() - content_frame.get_margin_end()
+                    if dialog_width <= 0:
+                        dialog_width = 800  # Fallback to default width
+
+                    # Get original dimensions
+                    orig_width = pixbuf.get_width()
+                    orig_height = pixbuf.get_height()
+
+                    # Calculate scaled height to maintain aspect ratio
+                    scale_factor = dialog_width / orig_width
+                    new_height = int(orig_height * scale_factor)
+
+                    # Scale the pixbuf
+                    scaled_pixbuf = pixbuf.scale_simple(dialog_width, new_height, GdkPixbuf.InterpType.BILINEAR)
+                    image.set_from_pixbuf(scaled_pixbuf)
+
+                # Initial scaling
+                scale_pixbuf(dialog, pixbuf)
+
+                # Connect to size-allocate to update image on resize
+                def on_size_allocate(widget, allocation):
+                    scale_pixbuf(widget, pixbuf)
+
+                dialog.connect("size-allocate", on_size_allocate)
                 content_box.append(image)
         except Exception as e:
             print(f"Could not load pomodoro image: {e}")
@@ -398,26 +429,26 @@ class PomodoroWidget(BaseControlWidget):
         # Content text
         content = """The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
 
-<b>How it works:</b>
+    <b>How it works:</b>
 
-1. Choose a task to work on
-2. Set the timer for 25 minutes (or your preferred duration)
-3. Work on the task until the timer rings
-4. Take a short 5-minute break
-5. After 4 pomodoros, take a longer 15-30 minute break
+    1. Choose a task to work on
+    2. Set the timer for 25 minutes (or your preferred duration)
+    3. Work on the task until the timer rings
+    4. Take a short 5-minute break
+    5. After 4 pomodoros, take a longer 15-30 minute break
 
-<b>Benefits:</b>
+    <b>Benefits:</b>
 
-• Improves focus and concentration
-• Reduces mental fatigue
-• Increases productivity
-• Helps overcome procrastination
-• Makes time tracking easier
-• Reduces burnout
+    • Improves focus and concentration
+    • Reduces mental fatigue
+    • Increases productivity
+    • Helps overcome procrastination
+    • Makes time tracking easier
+    • Reduces burnout
 
-The technique is named after the tomato-shaped kitchen timer that Cirillo used as a university student.
+    The technique is named after the tomato-shaped kitchen timer that Cirillo used as a university student.
 
-ArchRiot's built-in Pomodoro timer integrates directly with your Waybar, making it easy to stay focused while working in your Hyprland environment."""
+    ArchRiot's built-in Pomodoro timer integrates directly with your Waybar, making it easy to stay focused while working in your Hyprland environment."""
 
         content_label = Gtk.Label()
         content_label.set_markup(f'<span size="12000" font_family="Hack Nerd Font Mono">{content}</span>')
@@ -437,6 +468,7 @@ ArchRiot's built-in Pomodoro timer integrates directly with your Waybar, making 
 
         dialog.set_child(main_box)
         dialog.present()
+
 class BlueLightWidget(BaseControlWidget):
     """Blue light filter control widget"""
 
@@ -1187,21 +1219,16 @@ class DisplayWidget(BaseControlWidget):
 
     def get_available_resolutions(self):
         """Get available monitor resolutions from hyprctl"""
-        print("🔍 DEBUG: Getting available resolutions...")
         try:
             import subprocess
             result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
-            print(f"🔍 DEBUG: hyprctl monitors returncode: {result.returncode}")
             if result.returncode != 0:
-                print(f"🔍 DEBUG: hyprctl failed, using fallback resolutions")
                 return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
 
             # Extract current resolution and available modes
             current_resolution = 1920
             widths = set()
 
-            print(f"🔍 DEBUG: hyprctl output length: {len(result.stdout)} chars")
-            print(f"🔍 DEBUG: First 200 chars: {result.stdout[:200]}")
 
             for line in result.stdout.split('\n'):
                 # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
@@ -1229,15 +1256,9 @@ class DisplayWidget(BaseControlWidget):
             sorted_widths = sorted(widths, reverse=True)[:5]
             available_widths = sorted_widths if sorted_widths else [1920, 1680, 1440, 1280, 1024]
 
-            print(f"🔍 DEBUG: Found {len(widths)} unique widths: {sorted(widths)}")
-            print(f"🔍 DEBUG: Available widths: {available_widths}")
-            print(f"🔍 DEBUG: Current resolution: {current_resolution}")
-
             return available_widths, current_resolution
 
         except Exception as e:
-            print(f"🚨 DEBUG: Exception in get_available_resolutions: {e}")
-            print(f"🚨 DEBUG: Exception type: {type(e)}")
             return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
 
     def setup_controls(self):
@@ -1245,12 +1266,9 @@ class DisplayWidget(BaseControlWidget):
         display_config = self.config.get_display_config()
 
         # Get available resolutions and current resolution
-        print("🔍 DEBUG: Starting DisplayWidget setup_controls...")
         try:
             self.available_resolutions, current_resolution = self.get_available_resolutions()
-            print(f"🔍 DEBUG: Got resolutions: {self.available_resolutions}, current: {current_resolution}")
         except Exception as e:
-            print(f"🚨 DEBUG: Failed to get resolutions: {e}")
             self.available_resolutions, current_resolution = [1920, 1680, 1440, 1280, 1024], 1920
 
         # Always use actual current resolution, not stored config value
@@ -1263,66 +1281,55 @@ class DisplayWidget(BaseControlWidget):
         self.title_row.append(self.switch)
 
         # Resolution slider
-        print("🔍 DEBUG: Creating resolution_box...")
         resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        print("✓ DEBUG: resolution_box created successfully")
+
 
         # Create evenly spaced resolution scale (0 to 4 positions)
-        print(f"🔍 DEBUG: Creating resolution scale with range 0 to {len(self.available_resolutions)-1}")
-        print(f"🔍 DEBUG: Available resolutions count: {len(self.available_resolutions)}")
-        print(f"🔍 DEBUG: Available resolutions: {self.available_resolutions}")
 
         # Ensure we have at least 2 resolutions for a valid slider range
         if len(self.available_resolutions) < 2:
-            print(f"🚨 DEBUG: Not enough resolutions ({len(self.available_resolutions)}), using fallback")
             self.available_resolutions = [1920, 1680, 1440, 1280, 1024]
             current_resolution = 1920
             display_config['resolution'] = current_resolution
 
         max_range = max(1, len(self.available_resolutions)-1)  # Ensure max is at least 1
-        print(f"🔍 DEBUG: Using slider range 0 to {max_range}")
 
         try:
             self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, max_range, 1)
-            print("✓ DEBUG: resolution_scale created successfully")
         except Exception as e:
-            print(f"🚨 DEBUG: Failed to create resolution_scale: {e}")
-            print(f"🚨 DEBUG: Exception type: {type(e)}")
+            print(f"Failed to create resolution_scale: {e}")
             raise
 
         # Set to current resolution index
-        print(f"🔍 DEBUG: Finding current resolution index for {display_config['resolution']}")
         current_index = 0
         for i, res in enumerate(self.available_resolutions):
             if res == display_config['resolution']:
                 current_index = i
                 break
-        print(f"🔍 DEBUG: Current resolution index: {current_index}")
+
 
         try:
             self.resolution_scale.set_value(current_index)
-            print("✓ DEBUG: resolution_scale value set successfully")
         except Exception as e:
-            print(f"🚨 DEBUG: Failed to set resolution_scale value: {e}")
+            print(f"Failed to set resolution_scale value: {e}")
             raise
-        print("🔍 DEBUG: Setting resolution_scale properties...")
+
         try:
             self.resolution_scale.set_draw_value(False)
-            print("✓ DEBUG: set_draw_value(False) successful")
+
 
             self.resolution_scale.set_sensitive(display_config['enabled'])
-            print("✓ DEBUG: set_sensitive successful")
+
 
             self.resolution_scale.set_margin_start(50)
-            print("✓ DEBUG: set_margin_start successful")
+
 
             self.resolution_scale.set_margin_end(50)
-            print("✓ DEBUG: set_margin_end successful")
+
 
             self.resolution_scale.connect("value-changed", self.on_resolution_changed)
-            print("✓ DEBUG: connect signal successful")
+
         except Exception as e:
-            print(f"🚨 DEBUG: Failed to set resolution_scale properties: {e}")
             raise
 
         # Add evenly spaced tick marks with full resolution labels
