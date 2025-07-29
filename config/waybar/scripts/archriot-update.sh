@@ -7,9 +7,9 @@ remote_version=$(timeout 10 curl -s https://ArchRiot.org/VERSION 2>/dev/null || 
 
 # Handle click events
 if [[ "$1" == "--click" ]]; then
-    # Show update dialog when clicked
+    # Show update dialog when clicked (using the correct command)
     if [[ "$remote_version" != "unknown" && "$local_version" != "unknown" && "$remote_version" != "$local_version" ]]; then
-        ~/.local/bin/archriot-control-panel --update-check 2>/dev/null &
+        ~/.local/bin/version-check --gui 2>/dev/null &
     fi
     exit 0
 fi
