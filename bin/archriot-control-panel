@@ -1119,15 +1119,21 @@ class DisplayWidget(BaseControlWidget):
 
     def get_available_resolutions(self):
         """Get available monitor resolutions from hyprctl"""
+        print("🔍 DEBUG: Getting available resolutions...")
         try:
             import subprocess
-            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True)
+            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
+            print(f"🔍 DEBUG: hyprctl monitors returncode: {result.returncode}")
             if result.returncode != 0:
+                print(f"🔍 DEBUG: hyprctl failed, using fallback resolutions")
                 return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
 
             # Extract current resolution and available modes
             current_resolution = 1920
             widths = set()
+
+            print(f"🔍 DEBUG: hyprctl output length: {len(result.stdout)} chars")
+            print(f"🔍 DEBUG: First 200 chars: {result.stdout[:200]}")
 
             for line in result.stdout.split('\n'):
                 # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
@@ -1155,9 +1161,15 @@ class DisplayWidget(BaseControlWidget):
             sorted_widths = sorted(widths, reverse=True)[:5]
             available_widths = sorted_widths if sorted_widths else [1920, 1680, 1440, 1280, 1024]
 
+            print(f"🔍 DEBUG: Found {len(widths)} unique widths: {sorted(widths)}")
+            print(f"🔍 DEBUG: Available widths: {available_widths}")
+            print(f"🔍 DEBUG: Current resolution: {current_resolution}")
+
             return available_widths, current_resolution
 
-        except Exception:
+        except Exception as e:
+            print(f"🚨 DEBUG: Exception in get_available_resolutions: {e}")
+            print(f"🚨 DEBUG: Exception type: {type(e)}")
             return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
 
     def setup_controls(self):
@@ -1165,7 +1177,13 @@ class DisplayWidget(BaseControlWidget):
         display_config = self.config.get_display_config()
 
         # Get available resolutions and current resolution
-        self.available_resolutions, current_resolution = self.get_available_resolutions()
+        print("🔍 DEBUG: Starting DisplayWidget setup_controls...")
+        try:
+            self.available_resolutions, current_resolution = self.get_available_resolutions()
+            print(f"🔍 DEBUG: Got resolutions: {self.available_resolutions}, current: {current_resolution}")
+        except Exception as e:
+            print(f"🚨 DEBUG: Failed to get resolutions: {e}")
+            self.available_resolutions, current_resolution = [1920, 1680, 1440, 1280, 1024], 1920
 
         # Always use actual current resolution, not stored config value
         display_config['resolution'] = current_resolution
@@ -1177,24 +1195,67 @@ class DisplayWidget(BaseControlWidget):
         self.title_row.append(self.switch)
 
         # Resolution slider
+        print("🔍 DEBUG: Creating resolution_box...")
         resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        print("✓ DEBUG: resolution_box created successfully")
 
         # Create evenly spaced resolution scale (0 to 4 positions)
-        self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, len(self.available_resolutions)-1, 1)
+        print(f"🔍 DEBUG: Creating resolution scale with range 0 to {len(self.available_resolutions)-1}")
+        print(f"🔍 DEBUG: Available resolutions count: {len(self.available_resolutions)}")
+        print(f"🔍 DEBUG: Available resolutions: {self.available_resolutions}")
+
+        # Ensure we have at least 2 resolutions for a valid slider range
+        if len(self.available_resolutions) < 2:
+            print(f"🚨 DEBUG: Not enough resolutions ({len(self.available_resolutions)}), using fallback")
+            self.available_resolutions = [1920, 1680, 1440, 1280, 1024]
+            current_resolution = 1920
+            display_config['resolution'] = current_resolution
+
+        max_range = max(1, len(self.available_resolutions)-1)  # Ensure max is at least 1
+        print(f"🔍 DEBUG: Using slider range 0 to {max_range}")
+
+        try:
+            self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, max_range, 1)
+            print("✓ DEBUG: resolution_scale created successfully")
+        except Exception as e:
+            print(f"🚨 DEBUG: Failed to create resolution_scale: {e}")
+            print(f"🚨 DEBUG: Exception type: {type(e)}")
+            raise
 
         # Set to current resolution index
+        print(f"🔍 DEBUG: Finding current resolution index for {display_config['resolution']}")
         current_index = 0
         for i, res in enumerate(self.available_resolutions):
             if res == display_config['resolution']:
                 current_index = i
                 break
+        print(f"🔍 DEBUG: Current resolution index: {current_index}")
 
-        self.resolution_scale.set_value(current_index)
-        self.resolution_scale.set_draw_value(False)
-        self.resolution_scale.set_sensitive(display_config['enabled'])
-        self.resolution_scale.set_margin_start(60)
-        self.resolution_scale.set_margin_end(60)
-        self.resolution_scale.connect("value-changed", self.on_resolution_changed)
+        try:
+            self.resolution_scale.set_value(current_index)
+            print("✓ DEBUG: resolution_scale value set successfully")
+        except Exception as e:
+            print(f"🚨 DEBUG: Failed to set resolution_scale value: {e}")
+            raise
+        print("🔍 DEBUG: Setting resolution_scale properties...")
+        try:
+            self.resolution_scale.set_draw_value(False)
+            print("✓ DEBUG: set_draw_value(False) successful")
+
+            self.resolution_scale.set_sensitive(display_config['enabled'])
+            print("✓ DEBUG: set_sensitive successful")
+
+            self.resolution_scale.set_margin_start(50)
+            print("✓ DEBUG: set_margin_start successful")
+
+            self.resolution_scale.set_margin_end(50)
+            print("✓ DEBUG: set_margin_end successful")
+
+            self.resolution_scale.connect("value-changed", self.on_resolution_changed)
+            print("✓ DEBUG: connect signal successful")
+        except Exception as e:
+            print(f"🚨 DEBUG: Failed to set resolution_scale properties: {e}")
+            raise
 
         # Add evenly spaced tick marks with full resolution labels
         resolution_labels = ["2560×1440", "1920×1080", "1680×1050", "1600×1200", "1440×900"]
