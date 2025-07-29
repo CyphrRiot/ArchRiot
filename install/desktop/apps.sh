@@ -115,6 +115,12 @@ install_file_management() {
         fi
     done
 
+    # Configure thumbnails properly (disable PDF thumbnails)
+    echo "🔧 Configuring thumbnail settings..."
+    if [[ -f "$HOME/.local/share/archriot/bin/fix-thunar-thumbnails" ]]; then
+        bash "$HOME/.local/share/archriot/bin/fix-thunar-thumbnails"
+    fi
+
     echo "✓ File management applications installed"
 }
 

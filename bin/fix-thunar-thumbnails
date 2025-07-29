@@ -128,6 +128,8 @@ if command -v update-mime-database >/dev/null; then
     echo "  ✓ MIME database updated"
 fi
 
+
+
 # Disable PDF thumbnails comprehensively
 echo "📄 Disabling PDF thumbnails to show proper icons..."
 
@@ -150,8 +152,15 @@ fi
 
 # Disable papers thumbnailer (GNOME Papers PDF viewer)
 if [[ -f /usr/share/thumbnailers/papers.thumbnailer ]]; then
-    sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true
-    echo "  ✓ Papers PDF thumbnails disabled"
+    echo "  🔧 Disabling papers.thumbnailer..."
+    if sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled; then
+        echo "  ✓ Papers PDF thumbnails disabled"
+    else
+        echo "  ❌ Failed to disable papers thumbnailer"
+        return 1
+    fi
+else
+    echo "  ✓ Papers PDF thumbnails already disabled"
 fi
 
 # Disable any PDF-related thumbnailers
@@ -161,6 +170,17 @@ for thumbnailer in /usr/share/thumbnailers/*pdf* /usr/share/thumbnailers/*PDF*; 
         echo "  ✓ Disabled $(basename "$thumbnailer")"
     fi
 done
+
+# Clear existing PDF thumbnail cache AFTER disabling thumbnailers
+echo "🧹 Clearing existing PDF thumbnail cache..."
+if [[ -d "$HOME/.cache/thumbnails" ]]; then
+    find "$HOME/.cache/thumbnails" -name "*pdf*" -type f -delete 2>/dev/null || true
+    find "$HOME/.cache/thumbnails" -name "*PDF*" -type f -delete 2>/dev/null || true
+    find "$HOME/.cache/thumbnails" -name "*application-pdf*" -type f -delete 2>/dev/null || true
+    echo "  ✓ PDF thumbnail cache cleared"
+else
+    echo "  ✓ No thumbnail cache found"
+fi
 
 # Update tumbler config to explicitly disable PDF thumbnails
 echo "⚙️  Updating tumbler configuration to disable PDF thumbnails..."
@@ -186,6 +206,16 @@ EOF
 if command -v update-desktop-database >/dev/null; then
     update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 fi
+
+# Restart tumbler service to apply changes
+echo "🔄 Restarting thumbnail service to apply changes..."
+pkill -f tumbler 2>/dev/null || true
+sleep 1
+
+# Kill any running Thunar instances to force refresh
+echo "🔄 Restarting Thunar to apply changes..."
+pkill -f thunar 2>/dev/null || true
+sleep 1
 
 echo "  ✓ PDF thumbnails comprehensively disabled"
 
