@@ -8,7 +8,7 @@ cd "$HOME"
 
 # Function to show power menu. The first characters are invisible sort keys.
 show_power_menu() {
-  local menu_options="\u200A🎛️ Control Panel
+  local menu_options="\u200A Control Panel
 \u200B Lock
 \u200C󰤄 Suspend
 \u200D Relaunch

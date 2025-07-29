@@ -294,24 +294,23 @@ setup_scripts_and_env() {
         echo "Version check script not found" >> "$ARCHRIOT_LOG_FILE"
     fi
 
-    # Install Control Panel script
-    local control_panel_script="$HOME/.local/share/archriot/bin/archriot-control-panel"
-    if [[ -f "$control_panel_script" ]]; then
-        cp "$control_panel_script" "$script_dest/"
-        chmod +x "$script_dest/archriot-control-panel"
+    # Install Control Panel script using working pattern
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [[ -f "$script_dir/../../bin/archriot-control-panel" ]]; then
+        cp "$script_dir/../../bin/archriot-control-panel" ~/.local/bin/
+        chmod +x ~/.local/bin/archriot-control-panel
         echo "Control Panel script installed" >> "$ARCHRIOT_LOG_FILE"
     else
-        echo "Control Panel script not found" >> "$ARCHRIOT_LOG_FILE"
+        echo "Control Panel script not found in repository bin" >> "$ARCHRIOT_LOG_FILE"
     fi
 
     # Install Config script
-    local config_script="$HOME/.local/share/archriot/bin/archriot-config"
-    if [[ -f "$config_script" ]]; then
-        cp "$config_script" "$script_dest/"
-        chmod +x "$script_dest/archriot-config"
+    if [[ -f "$script_dir/../../bin/archriot-config" ]]; then
+        cp "$script_dir/../../bin/archriot-config" ~/.local/bin/
+        chmod +x ~/.local/bin/archriot-config
         echo "Config script installed" >> "$ARCHRIOT_LOG_FILE"
     else
-        echo "Config script not found" >> "$ARCHRIOT_LOG_FILE"
+        echo "Config script not found in repository bin" >> "$ARCHRIOT_LOG_FILE"
     fi
 
 
