@@ -5,6 +5,17 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2025-07-29
+
+### 📚 Documentation Improvements
+
+- **Added CHANGELOG links**: Added prominent changelog badge and table of contents link to README
+- **Improved navigation**: Users can now easily find version history in proper location
+- **Clean separation**: README stays focused, version history properly organized in CHANGELOG.md
+- **Open source best practices**: Follows standard project documentation structure
+
+---
+
 ## [1.8.2] - 2025-07-28
 
 ### 🔧 Critical Fixes

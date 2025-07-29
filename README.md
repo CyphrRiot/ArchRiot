@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.0.3-4c1d95)
+![Version](https://img.shields.io/badge/version-2.0.4-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -22,6 +22,7 @@
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
+[![Changelog](https://img.shields.io/badge/📋_Changelog-View_Releases-4c1d95?style=for-the-badge)](CHANGELOG.md)
 
 </div>
 
@@ -58,6 +59,7 @@ _Created by a long-time Linux user, experienced developer, and privacy advocate 
 - [Key Customizations](#-key-customizations)
 - [Optional Advanced Tools](#-optional-advanced-tools)
 - [Secure Boot Setup](#️-secure-boot-setup)
+- [Changelog](CHANGELOG.md)
 
 ## 🚀 Installation
 
