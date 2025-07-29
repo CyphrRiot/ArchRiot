@@ -7,10 +7,77 @@ Centralized settings interface for ArchRiot components
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Gdk', '4.0')
-from gi.repository import Gtk, Gdk, GLib, Pango
+gi.require_version('GdkPixbuf', '2.0')
+from gi.repository import Gtk, Gdk, GLib, Pango, GdkPixbuf
 import os
 import sys
+import time
 from pathlib import Path
+
+class ArchRiotDialog:
+    """Reusable ArchRiot-themed dialog with proper background"""
+
+    def __init__(self, title, content, parent_window=None):
+        self.dialog = Gtk.Window()
+        self.dialog.set_title(title)
+        self.dialog.set_default_size(700, 600)
+        self.dialog.set_resizable(True)
+        self.dialog.set_modal(True)
+        self.dialog.add_css_class("archriot-control-panel")
+
+        if parent_window:
+            self.dialog.set_transient_for(parent_window)
+
+        self.create_layout(title, content)
+
+    def create_layout(self, title, content):
+        """Create the dialog layout using proven main window approach"""
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
+        main_box.set_margin_start(30)
+        main_box.set_margin_end(30)
+        main_box.set_margin_top(15)
+        main_box.set_margin_bottom(20)
+
+        # Title
+        title_label = Gtk.Label()
+        title_label.set_markup(f'<span size="28000" weight="bold" foreground="#bb9af7" font_family="Hack Nerd Font Mono">{title}</span>')
+        title_label.set_halign(Gtk.Align.CENTER)
+        main_box.append(title_label)
+
+        # Content frame - same as main window
+        content_frame = Gtk.Frame()
+        content_frame.set_margin_top(10)
+        content_frame.add_css_class("archriot-control-panel")
+
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        content_box.set_margin_start(20)
+        content_box.set_margin_end(20)
+        content_box.set_margin_top(20)
+        content_box.set_margin_bottom(20)
+
+        # Content text
+        content_label = Gtk.Label()
+        content_label.set_markup(f'<span size="12000" font_family="Hack Nerd Font Mono">{content}</span>')
+        content_label.set_wrap(True)
+        content_label.set_halign(Gtk.Align.START)
+        content_box.append(content_label)
+
+        content_frame.set_child(content_box)
+        main_box.append(content_frame)
+
+        # Close button
+        close_button = Gtk.Button(label="Close")
+        close_button.set_halign(Gtk.Align.CENTER)
+        close_button.connect("clicked", lambda x: self.dialog.close())
+        # Apply Hack Nerd Font to button
+        close_button.get_child().set_markup('<span font_family="Hack Nerd Font Mono">Close</span>')
+        main_box.append(close_button)
+
+        self.dialog.set_child(main_box)
+
+    def show(self):
+        """Show the dialog"""
+        self.dialog.present()
 
 # Import our configuration manager
 def import_config_module():
@@ -86,14 +153,14 @@ class BaseControlWidget:
     def create_section_frame(self):
         """Create the main frame for this widget"""
         frame = Gtk.Frame()
-        frame.set_margin_bottom(5)
+        frame.set_margin_bottom(3)
 
         # Create main container
-        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        main_box.set_margin_start(15)
-        main_box.set_margin_end(15)
-        main_box.set_margin_top(15)
-        main_box.set_margin_bottom(15)
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        main_box.set_margin_start(10)
+        main_box.set_margin_end(10)
+        main_box.set_margin_top(8)
+        main_box.set_margin_bottom(8)
 
         # Title row with toggle
         self.title_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
@@ -108,7 +175,7 @@ class BaseControlWidget:
         main_box.append(self.title_row)
 
         # Controls container
-        self.controls_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        self.controls_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         main_box.append(self.controls_box)
 
         frame.set_child(main_box)
@@ -158,8 +225,9 @@ class BaseControlWidget:
 class PomodoroWidget(BaseControlWidget):
     """Pomodoro timer control widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, window=None):
         super().__init__(config, "Pomodoro Timer", "Control the built-in Waybar Pomodoro timer", "🍅")
+        self.window = window
         self.setup_controls()
 
     def setup_controls(self):
@@ -171,6 +239,12 @@ class PomodoroWidget(BaseControlWidget):
         self.duration_label.set_markup(f'<span size="11000" alpha="75%">Duration: {pomodoro_config["duration"]} minutes</span>')
         self.duration_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.duration_label)
+
+        # Learn More link (add to title row)
+        learn_link = Gtk.Button(label="Learn More")
+        learn_link.connect("clicked", self.on_learn_more_clicked)
+        learn_link.set_halign(Gtk.Align.END)
+        self.title_row.append(learn_link)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
@@ -203,27 +277,104 @@ class PomodoroWidget(BaseControlWidget):
         # Update slider sensitivity
         self.duration_scale.set_sensitive(state)
 
-        # Save config
-        self.config.set_pomodoro_config(state, duration)
+        # Apply toggle change immediately to waybar
+        self.apply_toggle_change(state, duration)
+
+        # Mark changes pending
+        self.mark_changes_pending()
 
     def on_duration_changed(self, scale):
-        """Handle duration change with debouncing"""
-        duration = int(scale.get_value())
-        self.duration_label.set_text(f"Duration: {duration} minutes")
+        """Handle duration change with snapping"""
+        value = scale.get_value()
+        # Snap to nearest 5-minute increment (5, 10, 15, 20, 25, etc.)
+        snapped_value = round(value / 5) * 5
 
-        def save_config():
-            enabled = self.switch.get_active()
+        if abs(value - snapped_value) > 0.5:
+            scale.set_value(snapped_value)
+            return
+
+        duration = int(snapped_value)
+        self.duration_label.set_markup(f'<span size="11000" alpha="75%">Duration: {duration} minutes</span>')
+
+        # Apply duration change immediately to waybar
+        self.apply_duration_change(duration)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def apply_toggle_change(self, enabled, duration):
+        """Apply toggle change immediately to waybar"""
+        try:
+            import subprocess
+            # Save config immediately so waybar script can read it
             self.config.set_pomodoro_config(enabled, duration)
-            self.timeout_id = None
-            return False
+            # Refresh waybar pomodoro module
+            subprocess.run(['pkill', '-RTMIN+8', 'waybar'], check=False)
+        except Exception as e:
+            print(f"Pomodoro waybar update error: {e}")
 
-        self.debounced_save(save_config)
+    def apply_duration_change(self, duration):
+        """Apply duration change immediately to waybar"""
+        try:
+            import subprocess
+            enabled = self.switch.get_active()
+            # Save config immediately so waybar script can read it
+            self.config.set_pomodoro_config(enabled, duration)
+            # Refresh waybar pomodoro module
+            subprocess.run(['pkill', '-RTMIN+8', 'waybar'], check=False)
+        except Exception as e:
+            print(f"Pomodoro waybar update error: {e}")
 
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window:
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
+        enabled = self.switch.get_active()
+        duration = int(self.duration_scale.get_value())
+
+        # Save to config (system changes already applied in real-time)
+        self.config.set_pomodoro_config(enabled, duration)
+
+    def on_learn_more_clicked(self, button):
+        """Handle Learn More button click"""
+        content = """The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
+
+<b>How it works:</b>
+
+1. Choose a task to work on
+2. Set the timer for 25 minutes (or your preferred duration)
+3. Work on the task until the timer rings
+4. Take a short 5-minute break
+5. After 4 pomodoros, take a longer 15-30 minute break
+
+<b>Benefits:</b>
+
+• Improves focus and concentration
+• Reduces mental fatigue
+• Increases productivity
+• Helps overcome procrastination
+• Makes time tracking easier
+• Reduces burnout
+
+The technique is named after the tomato-shaped kitchen timer that Cirillo used as a university student.
+
+ArchRiot's built-in Pomodoro timer integrates directly with your Waybar, making it easy to stay focused while working in your Hyprland environment."""
+
+        dialog = ArchRiotDialog(
+            "🍅 Pomodoro Technique",
+            content,
+            self.window.window if self.window else None
+        )
+        dialog.show()
 class BlueLightWidget(BaseControlWidget):
     """Blue light filter control widget"""
 
-    def __init__(self, config):
-        super().__init__(config, "Blue Light Filter", "Control hyprsunset blue light filtering", "💡")
+    def __init__(self, config, window=None):
+        super().__init__(config, "Blue Light Filter", "Control the built-in hyprsunset blue light filter", "💡")
+        self.window = window
         self.setup_controls()
 
     def setup_controls(self):
@@ -267,42 +418,129 @@ class BlueLightWidget(BaseControlWidget):
         # Update slider sensitivity
         self.temp_scale.set_sensitive(state)
 
-        # Save config
-        self.config.set_bluelight_config(state, temperature)
+        # Apply change immediately
+        if state:
+            self.apply_temperature_change(temperature)
+        else:
+            self.disable_blue_light_filter()
+
+        # Mark changes pending
+        self.mark_changes_pending()
 
     def on_temperature_changed(self, scale):
-        """Handle temperature change with debouncing"""
-        temperature = int(scale.get_value())
-        self.temp_label.set_text(f"Temperature: {temperature}K")
+        """Handle temperature change with snapping"""
+        value = scale.get_value()
+        # Snap to nearest 500K increment
+        snapped_value = round(value / 500) * 500
 
-        def save_config():
-            enabled = self.switch.get_active()
-            self.config.set_bluelight_config(enabled, temperature)
-            self.timeout_id = None
-            return False
+        if abs(value - snapped_value) > 50:
+            scale.set_value(snapped_value)
+            return
 
-        self.debounced_save(save_config)
+        temperature = int(snapped_value)
+        self.temp_label.set_markup(f'<span size="11000" alpha="75%">Temperature: {temperature}K</span>')
+
+        # Apply temperature change immediately
+        if self.switch.get_active():
+            self.apply_temperature_change(temperature)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def apply_temperature_change(self, temperature):
+        """Apply temperature change immediately to system and update config"""
+        try:
+            import subprocess
+            import re
+            from pathlib import Path
+
+            # Kill any existing hyprsunset processes (ensure only one instance)
+            subprocess.run(['pkill', '-f', 'hyprsunset'], check=False)
+            # Wait a moment for processes to fully terminate
+            time.sleep(0.1)
+            # Start hyprsunset with new temperature as detached process
+            subprocess.Popen(['hyprsunset', '-t', str(temperature)],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           preexec_fn=os.setsid)
+
+            # Update Hyprland config to make change persistent
+            hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+            if hyprland_config.exists():
+                content = hyprland_config.read_text()
+                # Replace hyprsunset line with new temperature
+                content = re.sub(r'exec-once = hyprsunset -t \d+',
+                               f'exec-once = hyprsunset -t {temperature}', content)
+                hyprland_config.write_text(content)
+        except Exception as e:
+            print(f"Blue light filter error: {e}")  # Debug output
+
+    def disable_blue_light_filter(self):
+        """Disable blue light filter immediately and update config"""
+        try:
+            import subprocess
+            import re
+            from pathlib import Path
+
+            # Kill any existing hyprsunset processes (ensure complete shutdown)
+            subprocess.run(['pkill', '-f', 'hyprsunset'], check=False)
+            # Wait a moment for processes to fully terminate
+            time.sleep(0.1)
+
+            # Comment out hyprsunset line in Hyprland config
+            hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+            if hyprland_config.exists():
+                content = hyprland_config.read_text()
+                # Comment out the hyprsunset line
+                content = re.sub(r'exec-once = hyprsunset -t \d+',
+                               '# exec-once = hyprsunset -t 3500  # Disabled via Control Panel', content)
+                hyprland_config.write_text(content)
+        except Exception as e:
+            print(f"Blue light filter disable error: {e}")  # Debug output
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window:
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
+        enabled = self.switch.get_active()
+        temperature = int(self.temp_scale.get_value())
+
+        # Save to config (system changes already applied in real-time)
+        self.config.set_bluelight_config(enabled, temperature)
 
 class MullvadWidget(BaseControlWidget):
     """Mullvad VPN control widget"""
 
-    def __init__(self, config):
-        super().__init__(config, "Mullvad VPN", "Manage VPN connection and account settings", "🔒")
+    def __init__(self, config, window=None):
+        super().__init__(config, "Mullvad VPN", "Manage VPN connection and account settings", "🛡️")
+        self.window = window
         self.setup_controls()
 
     def setup_controls(self):
         """Setup Mullvad VPN controls"""
         mullvad_config = self.config.get_mullvad_config()
 
+        # Get current account and auto-connect status from Mullvad
+        current_account = self.get_current_mullvad_account()
+        current_auto_connect = self.get_current_auto_connect_status()
+
+        if current_account and not mullvad_config['account_number']:
+            mullvad_config['account_number'] = current_account
+
+        # Use actual system auto-connect status, not config
+        actual_auto_connect = current_auto_connect if current_auto_connect is not None else mullvad_config['auto_connect']
+
         # Auto-connect label (add to title row)
         self.auto_connect_label = Gtk.Label()
-        self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if mullvad_config["auto_connect"] else "Off"}</span>')
+        self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if actual_auto_connect else "Off"}</span>')
         self.auto_connect_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.auto_connect_label)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(mullvad_config['auto_connect'])
+        self.switch.set_active(actual_auto_connect)
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
@@ -313,7 +551,17 @@ class MullvadWidget(BaseControlWidget):
 
         self.account_entry = Gtk.Entry()
         self.account_entry.set_placeholder_text("1234 5678 9012 3456")
-        self.account_entry.set_text(self.format_account_number(mullvad_config['account_number']))
+
+        # Show account number privately (hidden by default)
+        account_number = mullvad_config['account_number'] or current_account or ""
+        if account_number:
+            self.account_entry.set_visibility(False)  # Hide by default
+            self.account_entry.set_text(self.format_account_number(account_number))
+            self.is_account_visible = False
+        else:
+            self.account_entry.set_text("")
+            self.is_account_visible = True
+
         self.account_entry.set_max_length(19)
         self.account_entry.set_width_chars(25)
         self.account_entry.connect("changed", self.on_account_changed)
@@ -321,6 +569,14 @@ class MullvadWidget(BaseControlWidget):
 
         account_box.append(account_label)
         account_box.append(self.account_entry)
+
+        # Eye toggle button for show/hide
+        self.eye_button = Gtk.Button()
+        self.eye_button.set_size_request(40, -1)  # Set minimum width
+        self.eye_button.set_halign(Gtk.Align.CENTER)
+        self.update_eye_button()
+        self.eye_button.connect("clicked", self.on_eye_toggle)
+        account_box.append(self.eye_button)
 
         # Spacer to push button right
         spacer = Gtk.Box()
@@ -343,9 +599,11 @@ class MullvadWidget(BaseControlWidget):
         # Update label
         self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if state else "Off"}</span>')
 
-        # Save config (remove spaces for storage)
-        clean_account = account_number.replace(' ', '')
-        self.config.set_mullvad_config(state, clean_account, state)
+        # Apply changes immediately to system
+        self.apply_toggle_change(state, account_number)
+
+        # Mark changes pending
+        self.mark_changes_pending()
 
     def format_account_number(self, account_number):
         """Format account number with spaces every 4 digits"""
@@ -388,9 +646,102 @@ class MullvadWidget(BaseControlWidget):
         text = entry.get_text()
         clean_text = text.replace(' ', '')
 
-        # Save config
+        # Apply account change immediately
+        self.apply_account_change(clean_text)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def get_current_mullvad_account(self):
+        """Get current Mullvad account number from system"""
+        try:
+            import subprocess
+            result = subprocess.run(['mullvad', 'account', 'get'], capture_output=True, text=True)
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if 'Mullvad account:' in line:
+                        account = line.split(':')[1].strip()
+                        return account
+        except Exception:
+            pass
+        return None
+
+    def get_current_auto_connect_status(self):
+        """Get current auto-connect status from Mullvad"""
+        try:
+            import subprocess
+            result = subprocess.run(['mullvad', 'auto-connect', 'get'], capture_output=True, text=True)
+            if result.returncode == 0:
+                return 'on' in result.stdout.lower()
+        except Exception:
+            pass
+        return None
+
+    def update_eye_button(self):
+        """Update eye button appearance based on visibility state"""
+        if hasattr(self, 'is_account_visible') and self.is_account_visible:
+            self.eye_button.set_label("👁️")  # Open eye = visible
+        else:
+            self.eye_button.set_label("🔒")  # Lock = hidden
+
+    def on_eye_toggle(self, button):
+        """Toggle account number visibility"""
+        self.is_account_visible = not self.is_account_visible
+        self.account_entry.set_visibility(self.is_account_visible)
+        self.update_eye_button()
+
+    def apply_toggle_change(self, enabled, account_number):
+        """Apply auto-connect toggle change immediately"""
+        try:
+            import subprocess
+            from pathlib import Path
+
+            # Set auto-connect
+            if enabled:
+                subprocess.run(['mullvad', 'auto-connect', 'set', 'on'], check=False)
+
+                # Update Hyprland config to start Mullvad GUI
+                hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+                if hyprland_config.exists():
+                    content = hyprland_config.read_text()
+                    if 'exec-once = mullvad-vpn' not in content:
+                        # Add Mullvad GUI to exec-once
+                        content += '\nexec-once = mullvad-vpn\n'
+                        hyprland_config.write_text(content)
+            else:
+                subprocess.run(['mullvad', 'auto-connect', 'set', 'off'], check=False)
+
+                # Remove Mullvad GUI from Hyprland config
+                hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+                if hyprland_config.exists():
+                    content = hyprland_config.read_text()
+                    content = content.replace('exec-once = mullvad-vpn\n', '')
+                    content = content.replace('\nexec-once = mullvad-vpn', '')
+                    hyprland_config.write_text(content)
+        except Exception as e:
+            print(f"Mullvad toggle error: {e}")
+
+    def apply_account_change(self, account_number):
+        """Apply account login immediately"""
+        try:
+            import subprocess
+            if account_number and len(account_number) >= 10:
+                subprocess.run(['mullvad', 'account', 'login', account_number], check=False)
+        except Exception as e:
+            print(f"Mullvad account error: {e}")
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window:
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
         auto_connect = self.switch.get_active()
-        self.config.set_mullvad_config(auto_connect, clean_text, auto_connect)
+        account_number = self.account_entry.get_text().replace(' ', '')
+
+        # Save to config (system changes already applied in real-time)
+        self.config.set_mullvad_config(auto_connect, account_number, auto_connect)
 
     def on_get_mullvad_clicked(self, button):
         """Open Mullvad VPN website"""
@@ -400,21 +751,25 @@ class MullvadWidget(BaseControlWidget):
 class AudioWidget(BaseControlWidget):
     """Audio system control widget"""
 
-    def __init__(self, config):
-        super().__init__(config, "Audio System", "PipeWire/PulseAudio configuration", "🔊")
+    def __init__(self, config, window=None):
+        super().__init__(config, "Audio", "PipeWire/PulseAudio configuration", "🔊")
+        self.window = window
         self.setup_controls()
 
     def setup_controls(self):
         """Setup audio system controls"""
+        # Get current audio system status
+        current_status = self.get_audio_status()
+
         # Audio enabled label (add to title row)
         self.audio_label = Gtk.Label()
-        self.audio_label.set_markup('<span size="11000" alpha="75%">Audio: On</span>')
+        self.audio_label.set_markup(f'<span size="11000" alpha="75%">Audio: {"On" if current_status else "Off"}</span>')
         self.audio_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.audio_label)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(True)  # Default audio on
+        self.switch.set_active(current_status)
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
@@ -425,39 +780,334 @@ class AudioWidget(BaseControlWidget):
         # Update label
         self.audio_label.set_markup(f'<span size="11000" alpha="75%">Audio: {"On" if state else "Off"}</span>')
 
-        # TODO: Implement audio system control
-        # For now just update the label
+        # Apply audio system change immediately
+        self.apply_audio_change(state)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def get_audio_status(self):
+        """Get current audio mute status"""
+        try:
+            import subprocess
+            # Check if audio is muted using pactl
+            result = subprocess.run(['pactl', 'get-sink-mute', '@DEFAULT_SINK@'],
+                                  capture_output=True, text=True)
+            if result.returncode == 0:
+                return 'no' in result.stdout.lower()  # 'no' means not muted = audio on
+            return True  # Default to on if we can't detect
+        except Exception:
+            return True  # Default to on if we can't detect
+
+    def apply_audio_change(self, enabled):
+        """Apply audio mute/unmute change immediately"""
+        try:
+            import subprocess
+            if enabled:
+                # Unmute audio
+                subprocess.run(['pactl', 'set-sink-mute', '@DEFAULT_SINK@', '0'], check=False)
+            else:
+                # Mute audio
+                subprocess.run(['pactl', 'set-sink-mute', '@DEFAULT_SINK@', '1'], check=False)
+        except Exception as e:
+            print(f"Audio mute error: {e}")
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window:
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
+        # Audio changes are already applied in real-time
+        pass
 
 class CameraWidget(BaseControlWidget):
     """Camera system control widget"""
 
-    def __init__(self, config):
-        super().__init__(config, "Camera System", "Enable/Disable Camera + Set resolution", "📷")
+    def __init__(self, config, window=None):
+        super().__init__(config, "Camera", "Camera control and resolution settings", "📷")
+        self.window = window
         self.setup_controls()
 
     def setup_controls(self):
-        """Setup camera system controls"""
-        # Camera status label (add to title row)
-        self.camera_label = Gtk.Label()
-        self.camera_label.set_markup('<span size="11000" alpha="75%">Camera: Off</span>')
-        self.camera_label.set_halign(Gtk.Align.END)
-        self.title_row.append(self.camera_label)
+        """Setup camera controls"""
+        # Get current camera status and resolution
+        current_status = self.get_camera_status()
+        current_resolution = self.get_camera_resolution()
+
+        # Resolution label (add to title row)
+        self.resolution_label = Gtk.Label()
+        self.resolution_label.set_markup(f'<span size="11000" alpha="75%">Resolution: {current_resolution}</span>')
+        self.resolution_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.resolution_label)
+
+        # Test Camera button (add to title row)
+        test_button = Gtk.Button(label="Test Camera")
+        test_button.connect("clicked", self.on_test_camera)
+        test_button.set_sensitive(current_status)
+        self.test_button = test_button
+        self.title_row.append(test_button)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(False)  # Default camera off
+        self.switch.set_active(current_status)
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
+
+        # Resolution slider
+        self.available_resolutions = ["640x480", "960x540", "960x720", "1280x720", "1920x1080"]
+        resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, len(self.available_resolutions)-1, 1)
+
+        # Set to current resolution
+        current_index = 0
+        for i, res in enumerate(self.available_resolutions):
+            if res == current_resolution:
+                current_index = i
+                break
+
+        self.resolution_scale.set_value(current_index)
+        self.resolution_scale.set_draw_value(False)
+        self.resolution_scale.set_sensitive(current_status)
+        self.resolution_scale.connect("value-changed", self.on_resolution_changed)
+
+        # Add margins to prevent text cutoff
+        self.resolution_scale.set_margin_start(40)
+        self.resolution_scale.set_margin_end(40)
+
+        # Add tick marks
+        for i, res in enumerate(self.available_resolutions):
+            self.resolution_scale.add_mark(i, Gtk.PositionType.BOTTOM, res)
+
+        resolution_box.append(self.resolution_scale)
+        self.controls_box.append(resolution_box)
 
     def on_toggle(self, switch, param):
         """Handle camera toggle switch"""
         state = switch.get_active()
 
-        # Update label
-        self.camera_label.set_markup(f'<span size="11000" alpha="75%">Camera: {"On" if state else "Off"}</span>')
+        # Update slider and test button sensitivity
+        self.resolution_scale.set_sensitive(state)
+        self.test_button.set_sensitive(state)
 
-        # TODO: Implement camera system control
-        # For now just update the label
+        # Apply camera change immediately
+        self.apply_camera_change(state)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def on_resolution_changed(self, scale):
+        """Handle resolution change with snapping"""
+        value = scale.get_value()
+        # Snap to nearest resolution index
+        snapped_value = round(value)
+
+        if abs(value - snapped_value) > 0.1:
+            scale.set_value(snapped_value)
+            return
+
+        # Apply resolution change immediately
+        index = int(snapped_value)
+        if 0 <= index < len(self.available_resolutions):
+            resolution = self.available_resolutions[index]
+            self.resolution_label.set_markup(f'<span size="11000" alpha="75%">Resolution: {resolution}</span>')
+            self.apply_resolution_change(resolution)
+
+        # Mark changes pending
+        self.mark_changes_pending()
+
+    def on_test_camera(self, button):
+        """Handle test camera button click"""
+        self.show_camera_preview()
+
+    def get_camera_status(self):
+        """Get current camera device status"""
+        try:
+            import os
+            # Check if camera devices exist and are accessible
+            camera_devices = ['/dev/video0', '/dev/video1']
+            for device in camera_devices:
+                if os.path.exists(device) and os.access(device, os.R_OK):
+                    return True
+            return False
+        except Exception:
+            return False
+
+    def get_camera_resolution(self):
+        """Get current camera resolution"""
+        try:
+            import subprocess
+            result = subprocess.run(['v4l2-ctl', '--get-fmt-video', '-d', '/dev/video0'], capture_output=True, text=True)
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if 'Width/Height' in line:
+                        # Extract resolution from "Width/Height      : 960/720"
+                        parts = line.split(':')[1].strip().split('/')
+                        if len(parts) == 2:
+                            width = parts[0].strip()
+                            height = parts[1].strip()
+                            return f"{width}x{height}"
+            return "960x720"  # Default to current actual resolution
+        except Exception:
+            return "960x720"  # Default to current actual resolution
+
+    def apply_camera_change(self, enabled):
+        """Apply camera access change immediately"""
+        try:
+            import subprocess
+            import os
+
+            camera_devices = ['/dev/video0', '/dev/video1']
+
+            if enabled:
+                # Enable camera access by setting proper permissions
+                for device in camera_devices:
+                    if os.path.exists(device):
+                        subprocess.run(['sudo', 'chmod', '666', device], check=False)
+            else:
+                # Disable camera access by removing permissions
+                for device in camera_devices:
+                    if os.path.exists(device):
+                        subprocess.run(['sudo', 'chmod', '000', device], check=False)
+        except Exception as e:
+            print(f"Camera access error: {e}")
+
+    def apply_resolution_change(self, resolution):
+        """Apply camera resolution change immediately"""
+        try:
+            import subprocess
+            width, height = resolution.split('x')
+            # Set camera resolution using v4l2-ctl
+            subprocess.run(['v4l2-ctl', '-d', '/dev/video0', '--set-fmt-video=width={},height={},pixelformat=MJPG'.format(width, height)], check=False)
+        except Exception as e:
+            print(f"Camera resolution error: {e}")
+
+    def show_camera_preview(self):
+        """Show simple GTK camera preview dialog"""
+        try:
+            import cv2
+            import threading
+            import time
+            from gi.repository import GLib
+            import numpy as np
+
+            # Create camera preview dialog
+            dialog = Gtk.Window()
+            dialog.set_default_size(700, 600)
+            dialog.set_modal(True)
+            dialog.set_transient_for(self.window.window if self.window else None)
+            dialog.add_css_class("archriot-control-panel")
+
+            main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
+            main_box.set_margin_start(30)
+            main_box.set_margin_end(30)
+            main_box.set_margin_top(15)
+            main_box.set_margin_bottom(20)
+
+            # Header
+            title_label = Gtk.Label()
+            title_label.set_markup('<span size="28000" weight="bold" foreground="#bb9af7">📷 Camera Video Test</span>')
+            title_label.set_halign(Gtk.Align.CENTER)
+            main_box.append(title_label)
+
+            # Content frame
+            content_frame = Gtk.Frame()
+            content_frame.set_margin_top(10)
+            content_frame.add_css_class("archriot-control-panel")
+            content_frame.set_vexpand(True)
+
+            # Video display - fill the content frame completely
+            self.camera_image = Gtk.Image()
+            self.camera_image.set_hexpand(True)
+            self.camera_image.set_vexpand(True)
+            self.camera_image.set_halign(Gtk.Align.FILL)
+            self.camera_image.set_valign(Gtk.Align.FILL)
+
+            content_frame.set_child(self.camera_image)
+            main_box.append(content_frame)
+
+            # Close button
+            close_button = Gtk.Button(label="Close")
+            close_button.set_halign(Gtk.Align.CENTER)
+            close_button.connect("clicked", lambda x: self.stop_camera_and_close(dialog))
+            main_box.append(close_button)
+
+            dialog.set_child(main_box)
+            dialog.present()
+
+            # Start camera feed
+            self.camera_running = True
+            self.camera_thread = threading.Thread(target=self.camera_feed_loop)
+            self.camera_thread.daemon = True
+            self.camera_thread.start()
+
+        except ImportError:
+            # Fallback if OpenCV not available
+            content = "Camera preview requires OpenCV (python-opencv). Please install it:\n\nsudo pacman -S python-opencv"
+            fallback_dialog = ArchRiotDialog("📷 Camera Preview", content, self.window.window if self.window else None)
+            fallback_dialog.show()
+        except Exception as e:
+            print(f"Camera preview error: {e}")
+
+    def stop_camera_and_close(self, dialog):
+        """Stop camera and close dialog"""
+        self.camera_running = False
+        if hasattr(self, 'cap'):
+            self.cap.release()
+        dialog.close()
+
+    def camera_feed_loop(self):
+        """Camera feed loop running in background thread"""
+        try:
+            import cv2
+            self.cap = cv2.VideoCapture(0)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+            while self.camera_running:
+                ret, frame = self.cap.read()
+                if ret:
+                    # Convert BGR to RGB
+                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                    # Convert to GdkPixbuf
+                    height, width, channels = frame_rgb.shape
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_data(
+                        frame_rgb.tobytes(),
+                        GdkPixbuf.Colorspace.RGB,
+                        False,
+                        8,
+                        width,
+                        height,
+                        width * channels
+                    )
+
+                    # Update image on main thread
+                    GLib.idle_add(self.update_camera_image, pixbuf)
+
+                time.sleep(1/30)  # 30 FPS
+
+            self.cap.release()
+        except Exception as e:
+            print(f"Camera feed error: {e}")
+
+    def update_camera_image(self, pixbuf):
+        """Update camera image on main thread"""
+        if hasattr(self, 'camera_image'):
+            self.camera_image.set_from_pixbuf(pixbuf)
+        return False
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        if self.window:
+            self.window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply all pending changes"""
+        # Camera changes are already applied in real-time
+        pass
 
 class DisplayWidget(BaseControlWidget):
     """Display settings control widget"""
@@ -529,18 +1179,27 @@ class DisplayWidget(BaseControlWidget):
         # Resolution slider
         resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        min_res = min(self.available_resolutions)
-        max_res = max(self.available_resolutions)
+        # Create evenly spaced resolution scale (0 to 4 positions)
+        self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, len(self.available_resolutions)-1, 1)
 
-        self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, min_res, max_res, 1)
-        self.resolution_scale.set_value(display_config['resolution'])
+        # Set to current resolution index
+        current_index = 0
+        for i, res in enumerate(self.available_resolutions):
+            if res == display_config['resolution']:
+                current_index = i
+                break
+
+        self.resolution_scale.set_value(current_index)
         self.resolution_scale.set_draw_value(False)
         self.resolution_scale.set_sensitive(display_config['enabled'])
+        self.resolution_scale.set_margin_start(60)
+        self.resolution_scale.set_margin_end(60)
         self.resolution_scale.connect("value-changed", self.on_resolution_changed)
 
-        # Add resolution tick marks
-        for res in self.available_resolutions:
-            self.resolution_scale.add_mark(res, Gtk.PositionType.BOTTOM, str(res))
+        # Add evenly spaced tick marks with full resolution labels
+        resolution_labels = ["2560×1440", "1920×1080", "1680×1050", "1600×1200", "1440×900"]
+        for i, label in enumerate(resolution_labels):
+            self.resolution_scale.add_mark(i, Gtk.PositionType.BOTTOM, label)
 
         resolution_box.append(self.resolution_scale)
         self.controls_box.append(resolution_box)
@@ -580,11 +1239,18 @@ class DisplayWidget(BaseControlWidget):
     def on_resolution_changed(self, scale):
         """Handle resolution change with snapping"""
         value = scale.get_value()
-        snapped_value = self.snap_to_nearest(value, self.available_resolutions)
+        # Snap to nearest resolution index
+        snapped_value = round(value)
 
         if abs(value - snapped_value) > 0.5:
             scale.set_value(snapped_value)
             return
+
+        # Apply resolution change immediately
+        index = int(snapped_value)
+        if 0 <= index < len(self.available_resolutions):
+            resolution = self.available_resolutions[index]
+            self.apply_resolution_change(resolution)
 
         # Mark changes pending
         self.mark_changes_pending()
@@ -598,15 +1264,54 @@ class DisplayWidget(BaseControlWidget):
             scale.set_value(snapped_value)
             return
 
+        # Apply scaling change immediately
+        self.apply_scaling_change(int(snapped_value))
+
         # Mark changes pending
         self.mark_changes_pending()
 
+    def apply_resolution_change(self, resolution):
+        """Apply resolution change immediately to system"""
+        try:
+            import subprocess
+            # Find current monitor - get the first active monitor
+            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True)
+            if result.returncode == 0:
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if line.startswith('Monitor ') and '(ID' in line:
+                        monitor_name = line.split(' ')[1]
+                        # Set resolution on this monitor
+                        subprocess.run(['hyprctl', 'keyword', 'monitor', f'{monitor_name},{resolution}x1440,0x0,1'], check=False)
+                        break
+        except Exception:
+            pass  # Silently fail if hyprctl is not available
+
+    def apply_scaling_change(self, scaling):
+        """Apply scaling change immediately to system"""
+        try:
+            import subprocess
+            scale_factor = scaling / 100.0
+            # Find current monitor and apply scaling
+            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True)
+            if result.returncode == 0:
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if line.startswith('Monitor ') and '(ID' in line:
+                        monitor_name = line.split(' ')[1]
+                        # Get current resolution from the monitor output
+                        for monitor_line in lines:
+                            if monitor_line.strip().startswith('2560x') or monitor_line.strip().startswith('1920x'):
+                                current_res = monitor_line.strip().split('@')[0]
+                                subprocess.run(['hyprctl', 'keyword', 'monitor', f'{monitor_name},{current_res},0x0,{scale_factor}'], check=False)
+                                break
+                        break
+        except Exception:
+            pass  # Silently fail if hyprctl is not available
+
     def mark_changes_pending(self):
         """Mark that changes are pending"""
-        if self.window and hasattr(self.window, 'apply_button'):
-            self.window.apply_button.set_sensitive(True)
-            self.window.apply_button.remove_css_class("apply-button-disabled")
-            self.window.apply_button.add_css_class("suggested-action")
+        if self.window:
             self.window.has_unsaved_changes = True
 
     def apply_changes(self):
@@ -614,6 +1319,8 @@ class DisplayWidget(BaseControlWidget):
         enabled = self.switch.get_active()
         resolution = self.snap_to_nearest(self.resolution_scale.get_value(), self.available_resolutions)
         scaling = self.snap_to_nearest(self.scaling_scale.get_value(), [100, 125, 150, 175, 200])
+
+        # Save to config
         self.config.set_display_config(enabled, resolution, scaling)
 
 class InputWidget(BaseControlWidget):
@@ -642,22 +1349,18 @@ class PowerWidget(BaseControlWidget):
     def get_available_profiles(self):
         """Get available power profiles from powerprofilesctl"""
         # Standard profiles only
-        standard_profiles = ['performance', 'balanced', 'power-saver']
+        standard_profiles = ['power-saver', 'balanced', 'performance']
 
         try:
             import subprocess
             result = subprocess.run(['powerprofilesctl', 'get'], capture_output=True, text=True)
-            if result.returncode != 0:
-                return standard_profiles, 'balanced'  # fallback
-
-            current_profile = result.stdout.strip()
-
-            # Ensure current profile is in standard list
-            if current_profile not in standard_profiles:
-                current_profile = 'balanced'
-
-            return standard_profiles, current_profile
-
+            if result.returncode == 0:
+                current_profile = result.stdout.strip()
+                # Ensure current profile is in standard list
+                if current_profile not in standard_profiles:
+                    current_profile = 'balanced'
+                return standard_profiles, current_profile
+            return standard_profiles, 'balanced'  # fallback
         except Exception:
             return standard_profiles, 'balanced'  # fallback
 
@@ -668,8 +1371,21 @@ class PowerWidget(BaseControlWidget):
         # Get available profiles and current profile
         self.available_profiles, current_profile = self.get_available_profiles()
 
-        # Always use actual current profile, not stored config value
-        power_config['profile'] = current_profile
+        # Use actual system profile, not config
+        if current_profile in self.available_profiles:
+            power_config['profile'] = current_profile
+
+        # Profile label (add to title row)
+        profile_names = ["Power Saver", "Balanced", "Performance"]
+        current_index = 0
+        for i, profile in enumerate(self.available_profiles):
+            if profile == current_profile:
+                current_index = i
+                break
+        self.profile_label = Gtk.Label()
+        self.profile_label.set_markup(f'<span size="11000" alpha="75%">Profile: {profile_names[current_index]}</span>')
+        self.profile_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.profile_label)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
@@ -677,55 +1393,79 @@ class PowerWidget(BaseControlWidget):
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
-        # Power profile selection (dropdown)
-        profile_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        # Power profile slider with icons
+        self.available_profiles = ["power-saver", "balanced", "performance"]
+        power_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        self.profile_dropdown = Gtk.DropDown()
+        self.profile_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, len(self.available_profiles)-1, 1)
 
-        # Create string list for dropdown options
-        profile_list = Gtk.StringList()
+        # Set to current profile
         current_index = 0
-
         for i, profile in enumerate(self.available_profiles):
-            profile_list.append(profile.title())  # Capitalize first letter
             if profile == current_profile:
                 current_index = i
+                break
 
-        self.profile_dropdown.set_model(profile_list)
-        self.profile_dropdown.set_selected(current_index)
-        self.profile_dropdown.set_sensitive(power_config['enabled'])
-        self.profile_dropdown.connect("notify::selected", self.on_profile_changed)
+        self.profile_scale.set_value(current_index)
+        self.profile_scale.set_draw_value(False)
+        self.profile_scale.set_sensitive(power_config['enabled'])
+        self.profile_scale.set_margin_start(100)
+        self.profile_scale.set_margin_end(100)
+        self.profile_scale.connect("value-changed", self.on_profile_changed)
 
-        profile_box.append(self.profile_dropdown)
-        self.controls_box.append(profile_box)
+        # Add tick marks with correct icons
+        self.profile_scale.add_mark(0, Gtk.PositionType.BOTTOM, "🐢 Power Saver")
+        self.profile_scale.add_mark(1, Gtk.PositionType.BOTTOM, "⚖️ Balanced")
+        self.profile_scale.add_mark(2, Gtk.PositionType.BOTTOM, "⚡ Performance")
+
+        power_box.append(self.profile_scale)
+        self.controls_box.append(power_box)
 
     def on_toggle(self, switch, param):
         """Handle toggle switch"""
         state = switch.get_active()
 
-        # Update dropdown sensitivity
-        self.profile_dropdown.set_sensitive(state)
+        # Update slider sensitivity
+        self.profile_scale.set_sensitive(state)
 
         # Mark changes pending
         self.mark_changes_pending()
 
-    def on_profile_changed(self, dropdown, param):
-        """Handle profile change"""
+    def on_profile_changed(self, scale):
+        """Handle profile change with snapping"""
+        value = scale.get_value()
+        # Snap to nearest profile index
+        snapped_value = round(value)
+
+        if abs(value - snapped_value) > 0.1:
+            scale.set_value(snapped_value)
+            return
+
+        # Apply profile change immediately
+        index = int(snapped_value)
+        if 0 <= index < len(self.available_profiles):
+            profile_names = ["Power Saver", "Balanced", "Performance"]
+            self.profile_label.set_markup(f'<span size="11000" alpha="75%">Profile: {profile_names[index]}</span>')
+
+            profile = self.available_profiles[index]
+            try:
+                import subprocess
+                subprocess.run(['powerprofilesctl', 'set', profile], check=False)
+            except Exception:
+                pass
+
         # Mark changes pending
         self.mark_changes_pending()
 
     def mark_changes_pending(self):
         """Mark that changes are pending"""
-        if self.window and hasattr(self.window, 'apply_button'):
-            self.window.apply_button.set_sensitive(True)
-            self.window.apply_button.remove_css_class("apply-button-disabled")
-            self.window.apply_button.add_css_class("suggested-action")
+        if self.window:
             self.window.has_unsaved_changes = True
 
     def apply_changes(self):
         """Apply all pending changes"""
         enabled = self.switch.get_active()
-        selected_index = self.profile_dropdown.get_selected()
+        selected_index = int(self.profile_scale.get_value())
         profile = self.available_profiles[selected_index] if selected_index < len(self.available_profiles) else 'balanced'
 
         # Save to config
@@ -763,7 +1503,9 @@ class ControlPanelWindow:
 
         # Initialize state tracking
         self.has_unsaved_changes = False
-        self.allow_close = False
+
+        # Store original config for "Exit without Saving"
+        self.original_config = self.backup_current_config()
 
         # Create main window
         self.window = Gtk.Window()
@@ -780,12 +1522,12 @@ class ControlPanelWindow:
         self.window.connect("close-request", self.on_window_close)
 
     def create_layout(self):
-        """Create the main window layout"""
-        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
-        main_box.set_margin_start(30)
-        main_box.set_margin_end(30)
-        main_box.set_margin_top(15)
-        main_box.set_margin_bottom(20)
+        # Create the main window layout
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        main_box.set_margin_start(15)
+        main_box.set_margin_end(15)
+        main_box.set_margin_top(10)
+        main_box.set_margin_bottom(2)
 
         # Header
         self.add_header(main_box)
@@ -800,11 +1542,11 @@ class ControlPanelWindow:
 
     def add_header(self, container):
         """Add header with title and version info"""
-        header_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        header_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
         # Main title
         title_label = Gtk.Label()
-        title_label.set_markup('<span size="28000" weight="bold" foreground="#bb9af7">ArchRiot Control Panel</span>')
+        title_label.set_markup('<span size="24000" weight="bold" foreground="#bb9af7">ArchRiot Control Panel</span>')
         title_label.set_halign(Gtk.Align.CENTER)
         header_box.append(title_label)
 
@@ -824,26 +1566,26 @@ class ControlPanelWindow:
         scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scrolled_window.set_vexpand(True)
 
-        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         content_box.set_margin_start(20)
         content_box.set_margin_end(20)
-        content_box.set_margin_top(20)
-        content_box.set_margin_bottom(20)
+        content_box.set_margin_top(10)
+        content_box.set_margin_bottom(2)
 
         # Create and add widgets
-        self.pomodoro_widget = PomodoroWidget(self.config)
+        self.pomodoro_widget = PomodoroWidget(self.config, self)
         content_box.append(self.pomodoro_widget.widget)
 
-        self.bluelight_widget = BlueLightWidget(self.config)
+        self.bluelight_widget = BlueLightWidget(self.config, self)
         content_box.append(self.bluelight_widget.widget)
 
-        self.mullvad_widget = MullvadWidget(self.config)
+        self.mullvad_widget = MullvadWidget(self.config, self)
         content_box.append(self.mullvad_widget.widget)
 
-        self.audio_widget = AudioWidget(self.config)
+        self.audio_widget = AudioWidget(self.config, self)
         content_box.append(self.audio_widget.widget)
 
-        self.camera_widget = CameraWidget(self.config)
+        self.camera_widget = CameraWidget(self.config, self)
         content_box.append(self.camera_widget.widget)
 
         self.display_widget = DisplayWidget(self.config, self)
@@ -866,30 +1608,29 @@ class ControlPanelWindow:
     def add_footer(self, container):
         """Add footer with action buttons"""
         footer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        footer_box.set_margin_top(10)
+        footer_box.set_margin_top(5)
+        footer_box.set_margin_bottom(8)
 
-        # Apply Changes button (left side)
-        self.apply_button = Gtk.Button(label="Apply Changes")
-        self.apply_button.connect("clicked", self.on_apply_clicked)
-        self.apply_button.set_sensitive(False)  # Initially disabled
-        self.apply_button.add_css_class("apply-button-disabled")  # Dark/muted when disabled
-        footer_box.append(self.apply_button)
+        # Exit without Saving button (left side)
+        exit_button = Gtk.Button(label="Exit (No Save)")
+        exit_button.connect("clicked", self.on_exit_without_saving)
+        footer_box.append(exit_button)
 
-        # Spacer to push Close button to the right
+        # Spacer to push Save button to the right
         spacer = Gtk.Box()
         spacer.set_hexpand(True)
         footer_box.append(spacer)
 
-        # Close button (right side)
-        close_button = Gtk.Button(label="Close")
-        close_button.connect("clicked", self.on_close_clicked)
-        footer_box.append(close_button)
+        # Save and Exit button (right side)
+        save_button = Gtk.Button(label="Save and Exit")
+        save_button.connect("clicked", self.on_save_and_exit)
+        save_button.add_css_class("suggested-action")  # Purple/highlighted
+        footer_box.append(save_button)
 
         container.append(footer_box)
 
-    def on_apply_clicked(self, button):
-        """Handle apply changes button click"""
-        # Apply all pending changes from all widgets
+    def apply_all_changes(self):
+        """Apply all pending changes from all widgets"""
         if hasattr(self, 'pomodoro_widget') and hasattr(self.pomodoro_widget, 'apply_changes'):
             self.pomodoro_widget.apply_changes()
         if hasattr(self, 'bluelight_widget') and hasattr(self.bluelight_widget, 'apply_changes'):
@@ -911,67 +1652,59 @@ class ControlPanelWindow:
         # if hasattr(self, 'security_widget') and hasattr(self.security_widget, 'apply_changes'):
         #     self.security_widget.apply_changes()
 
-        self.apply_button.set_sensitive(False)
-        self.apply_button.remove_css_class("suggested-action")
-        self.apply_button.add_css_class("apply-button-disabled")
         self.has_unsaved_changes = False
         print("All changes applied!")
 
-    def on_close_clicked(self, button):
-        """Handle close button click"""
-        if hasattr(self, 'has_unsaved_changes') and (self.has_unsaved_changes or self.apply_button.get_sensitive()):
-            self.show_save_dialog()
-        else:
-            self.window.close()
+    def on_exit_without_saving(self, button):
+        """Handle exit without saving button click - restore original config"""
+        self.restore_original_config()
+        self.window.close()
+
+    def on_save_and_exit(self, button):
+        """Handle save and exit button click"""
+        self.apply_all_changes()
+        self.window.close()
 
     def on_window_close(self, window):
         """Handle window close request"""
-        if self.allow_close:
-            if hasattr(self, 'app'):
-                self.app.quit()
-            return False
-
-        if hasattr(self, 'has_unsaved_changes') and (self.has_unsaved_changes or self.apply_button.get_sensitive()):
-            self.show_save_dialog()
-            return True  # Prevent immediate close
-
         if hasattr(self, 'app'):
             self.app.quit()
         return False
 
-    def show_save_dialog(self):
-        """Show save changes confirmation dialog"""
-        dialog = Gtk.MessageDialog(
-            transient_for=self.window,
-            modal=True,
-            message_type=Gtk.MessageType.QUESTION,
-            buttons=Gtk.ButtonsType.NONE,
-            text="Save Changes?",
-            secondary_text="You have unsaved changes. Do you want to save them before closing?"
-        )
+    def backup_current_config(self):
+        """Backup current config state for restoration"""
+        try:
+            return {
+                'pomodoro': self.config.get_pomodoro_config(),
+                'bluelight': self.config.get_bluelight_config(),
+                'mullvad': self.config.get_mullvad_config(),
+                'display': self.config.get_display_config(),
+                'power': self.config.get_power_config()
+            }
+        except:
+            return {}
 
-        # Add custom buttons
-        dialog.add_button("No", Gtk.ResponseType.NO)
-        dialog.add_button("Yes", Gtk.ResponseType.YES)
-
-        # Make "Yes" the default/suggested button
-        dialog.set_default_response(Gtk.ResponseType.YES)
-
-        def on_dialog_response(dialog, response):
-            dialog.destroy()
-            if response == Gtk.ResponseType.YES:
-                self.on_apply_clicked(None)  # Apply changes
-                self.has_unsaved_changes = False
-                self.allow_close = True
-                self.window.close()
-            elif response == Gtk.ResponseType.NO:
-                self.has_unsaved_changes = False
-                self.allow_close = True
-                self.window.close()
-            # If dialog is cancelled, do nothing (stay open)
-
-        dialog.connect("response", on_dialog_response)
-        dialog.present()
+    def restore_original_config(self):
+        """Restore config to original state"""
+        try:
+            if hasattr(self, 'original_config') and self.original_config:
+                if 'pomodoro' in self.original_config:
+                    p = self.original_config['pomodoro']
+                    self.config.set_pomodoro_config(p['enabled'], p['duration'])
+                if 'bluelight' in self.original_config:
+                    b = self.original_config['bluelight']
+                    self.config.set_bluelight_config(b['enabled'], b['temperature'])
+                if 'mullvad' in self.original_config:
+                    m = self.original_config['mullvad']
+                    self.config.set_mullvad_config(m['enabled'], m['account_number'], m['auto_connect'])
+                if 'display' in self.original_config:
+                    d = self.original_config['display']
+                    self.config.set_display_config(d['enabled'], d['resolution'], d['scaling'])
+                if 'power' in self.original_config:
+                    pw = self.original_config['power']
+                    self.config.set_power_config(pw['enabled'], pw['profile'])
+        except Exception as e:
+            print(f"Config restore error: {e}")
 
     def get_archriot_version(self):
         """Read ArchRiot version from VERSION file"""
@@ -1045,15 +1778,7 @@ class ControlPanelApplication(Gtk.Application):
             background: rgba(102, 51, 153, 1.0);
         }
 
-        button.apply-button-disabled {
-            background: rgba(40, 40, 40, 1.0);
-            color: rgba(157, 157, 157, 0.6);
-        }
 
-        button.apply-button-disabled:hover {
-            background: rgba(40, 40, 40, 1.0);
-            color: rgba(157, 157, 157, 0.6);
-        }
 
         entry {
             background: rgba(20, 21, 31, 0.9);

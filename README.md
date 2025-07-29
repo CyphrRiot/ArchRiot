@@ -204,6 +204,36 @@ This comprehensive test validates:
 
 ![ArchRiot Installation Demo](images/archriot-install.gif)
 
+## Control Panel
+
+ArchRiot includes a comprehensive GTK4-based Control Panel for managing system settings through an intuitive graphical interface. Access it via `SUPER+C` or by running `archriot-control-panel`.
+
+![ArchRiot Control Panel Demo](images/control-panel.gif)
+
+### 🎛️ **Features**
+
+- **🍅 Pomodoro Timer** - Waybar-integrated productivity timer with 5-60 minute intervals
+- **💡 Blue Light Filter** - Real-time screen temperature control (2500K-5000K) via hyprsunset
+- **🛡️ Mullvad VPN** - Account management with privacy controls and auto-connect
+- **🔊 Audio System** - Safe mute/unmute controls without breaking services
+- **📷 Camera Control** - Device permissions, resolution settings, and live preview testing
+- **🖥️ Display Settings** - Monitor resolution and scaling with live preview
+- **🔋 Power Management** - Battery profiles (Power Saver, Balanced, Performance)
+
+### 🛡️ **Privacy & Safety**
+
+- **Account Privacy** - Sensitive information hidden by default with show/hide toggle
+- **Safe Controls** - Mute instead of killing services, permissions instead of breaking devices
+- **Live Preview** - Real-time system changes with "Exit without Saving" option
+- **Educational Content** - "Learn More" dialogs with comprehensive feature explanations
+
+### 🎨 **Technical Excellence**
+
+- **GTK4 Application** - Modern interface with ArchRiot Tokyo Night theming
+- **Real-time Integration** - All changes apply immediately to running system
+- **Persistent Settings** - Configuration survives reboot and system changes
+- **Modular Architecture** - Clean, maintainable widget-based design
+
 ## 🆕 **What's New**
 
 **Critical Installer Fixes (v1.1.57)**
