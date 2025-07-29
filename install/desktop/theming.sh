@@ -87,7 +87,8 @@ install_icon_theme() {
 
         # Reset XDG user directories and icons
         xdg-user-dirs-update
-        xdg-user-dirs-gtk-update
+        # Only run gtk update if available (not always installed)
+        command -v xdg-user-dirs-gtk-update &>/dev/null && xdg-user-dirs-gtk-update || true
 
         # Force refresh folder icons
         gtk-update-icon-cache -f -t ~/.local/share/icons/ 2>/dev/null || true
@@ -241,10 +242,8 @@ set_default_theme() {
 
     # Initialize the background cycling system for this theme
     # Force error propagation when sourced
-    set -e
     if setup_theme_backgrounds "$preferred_theme"; then
         echo "✅ Background system setup completed successfully"
-        set +e
     else
         echo "🚨 CRITICAL: Background system setup FAILED!"
         echo "🚨 Background cycling will not work!"
@@ -706,9 +705,6 @@ display_theming_summary() {
 
 # Main execution with comprehensive error handling
 main() {
-    # Force error propagation when sourced by installer
-    set -e
-
     echo "🚀 Starting desktop theming setup..."
 
     load_user_environment
@@ -763,7 +759,6 @@ main() {
 
     display_theming_summary
     echo "✅ Desktop theming setup completed!"
-    set +e  # Reset error handling
 }
 
 # Execute main function
