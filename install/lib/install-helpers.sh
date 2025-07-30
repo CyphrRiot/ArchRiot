@@ -285,5 +285,5 @@ install_aur_nocheck() {
 # Export all functions for use in other scripts
 export -f init_installer install_packages install_essential install_optional
 export -f install_aur_nocheck validate_packages cleanup_install_files show_install_summary
-export -f handle_critical_failure handle_optional_failure
+export -f print_status handle_critical_failure handle_optional_failure
 export -f log_failure_details show_troubleshooting
