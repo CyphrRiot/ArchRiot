@@ -7,38 +7,38 @@ install_gum() {
     yay -S --noconfirm --needed gum || return 1
 }
 
-# Simplified input function with optional support
+# Simplified input function with gum support
 get_input() {
     local prompt="$1" placeholder="$2" validation="$3" optional="$4"
     local value
 
-    while true; do
-        # Always use standard read to avoid terminal artifacts with gum input in loops
+    if command -v gum &>/dev/null; then
         if [[ "$optional" == "true" ]]; then
-            echo -n "$prompt ($placeholder - optional, press Enter to skip)> "
+            value=$(gum input --placeholder "$placeholder (optional - press Enter to skip)" --prompt "$prompt> " || echo "")
         else
-            echo -n "$prompt ($placeholder)> "
+            value=$(gum input --placeholder "$placeholder" --prompt "$prompt> " || echo "")
         fi
-        read -r value
-
-        # If optional and empty, return empty
-        if [[ "$optional" == "true" && -z "$value" ]]; then
-            echo ""
-            return
-        fi
-
-        # If not empty, validate
-        if [[ -n "$value" && $value =~ $validation ]]; then
-            echo "$value"
-            return
-        fi
-
-        if [[ -z "$value" ]]; then
-            echo "❌ This field is required, please enter a value"
+    else
+        if [[ "$optional" == "true" ]]; then
+            echo -n "$prompt ($placeholder - optional, press Enter to skip)> " >&2
         else
-            echo "❌ Invalid input format, please try again"
+            echo -n "$prompt ($placeholder)> " >&2
         fi
-    done
+        read -r value || echo ""
+    fi
+
+    # If optional and empty, return empty
+    if [[ "$optional" == "true" && -z "$value" ]]; then
+        echo ""
+        return
+    fi
+
+    # Basic validation - if it fails, just return what we got rather than loop
+    if [[ -n "$value" && ! $value =~ $validation ]]; then
+        echo "⚠ Warning: $value may not be a valid format" >&2
+    fi
+
+    echo "$value"
 }
 
 # Get user identity with validation and smart credential detection
@@ -56,13 +56,13 @@ get_user_identity() {
         echo ""
 
         # Calculate box width and format entries properly
-        local box_width=59
+        local box_width=60
         local name_display="${existing_name:-"(not set)"}"
         local email_display="${existing_email:-"(not set)"}"
 
         # Format lines with proper spacing
-        local name_line=$(printf "│ Username: %-*s │" $((box_width-14)) "$name_display")
-        local email_line=$(printf "│ Email:    %-*s │" $((box_width-14)) "$email_display")
+        local name_line=$(printf "│ Username: %-*s │" $((box_width-15)) "$name_display")
+        local email_line=$(printf "│ Email:    %-*s │" $((box_width-15)) "$email_display")
 
         echo "┌─────────────────────────────────────────────────────────┐"
         echo "│                 📋 Current Git Config                   │"
@@ -72,33 +72,38 @@ get_user_identity() {
         echo "└─────────────────────────────────────────────────────────┘"
         echo ""
 
-        echo ""
-        echo -n "Would you like to use these credentials? [Y/n] (auto-yes in 10s): "
-
-        # Use timeout to prevent hanging - default to YES
-        if read -t 10 -r response </dev/tty 2>/dev/null; then
-            echo ""  # Move to next line after user input
-        else
-            response="y"  # Default to yes on timeout
-            echo "y"      # Show the default choice
-            echo ""
-        fi
-
-        case "$response" in
-            [nN][oO]|[nN])
-                echo ""
-                echo "💬 No problem! Let's set up new credentials..."
-                echo ""
-                ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "true")
-                ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "true")
-                ;;
-            *)
-                echo ""
+        # Use gum confirm if available, otherwise fallback
+        if command -v gum &>/dev/null; then
+            if gum confirm "Would you like to use these credentials?"; then
                 echo "✅ Using existing credentials!"
                 ARCHRIOT_USER_NAME="$existing_name"
                 ARCHRIOT_USER_EMAIL="$existing_email"
-                ;;
-        esac
+            else
+                echo ""
+                echo "💬 No problem! Let's set up new credentials..."
+                echo ""
+                ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "false")
+                ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "false")
+            fi
+        else
+            echo -n "Would you like to use these credentials? [Y/n]: "
+            read -r response
+            case "$response" in
+                [nN][oO]|[nN])
+                    echo ""
+                    echo "💬 No problem! Let's set up new credentials..."
+                    echo ""
+                    ARCHRIOT_USER_NAME=$(get_input "Name" "Your full name for Git commits" "^[a-zA-Z].*" "false")
+                    ARCHRIOT_USER_EMAIL=$(get_input "Email" "Your email for Git commits" "^[^@]+@[^@]+\.[^@]+$" "false")
+                    ;;
+                *)
+                    echo ""
+                    echo "✅ Using existing credentials!"
+                    ARCHRIOT_USER_NAME="$existing_name"
+                    ARCHRIOT_USER_EMAIL="$existing_email"
+                    ;;
+            esac
+        fi
     else
         echo "Configure Git with your name and email for commits and development."
         echo "This is optional - you can skip by pressing Enter or configure later with:"
