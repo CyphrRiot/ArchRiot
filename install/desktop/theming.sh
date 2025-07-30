@@ -15,13 +15,51 @@ load_user_environment() {
     fi
 }
 
+# Installation state management
+STATE_FILE="$HOME/.config/archriot/.install-state"
+
+init_state_tracking() {
+    mkdir -p "$(dirname "$STATE_FILE")"
+    touch "$STATE_FILE"
+}
+
+is_component_installed() {
+    local component="$1"
+    grep -q "^${component}=completed$" "$STATE_FILE" 2>/dev/null
+}
+
+mark_component_completed() {
+    local component="$1"
+    init_state_tracking
+    # Remove any existing entry for this component
+    sed -i "/^${component}=/d" "$STATE_FILE" 2>/dev/null || true
+    echo "${component}=completed" >> "$STATE_FILE"
+    echo "✓ Marked $component as completed"
+}
+
+check_component_status() {
+    local component="$1"
+    if is_component_installed "$component"; then
+        echo "✓ $component already completed, skipping"
+        return 0
+    else
+        echo "🔄 Installing $component..."
+        return 1
+    fi
+}
+
 # Install cursor and icon themes
 install_cursor_theme() {
+    if check_component_status "cursor_theme"; then
+        return 0
+    fi
+
     echo "🎯 Installing cursor theme..."
 
     # Install Bibata Modern Ice cursor theme
     if timeout 120 yay -S --noconfirm --needed bibata-cursor-theme; then
         echo "✓ Bibata cursor theme installed"
+        mark_component_completed "cursor_theme"
     else
         echo "❌ Failed to install bibata-cursor-theme"
         return 1
@@ -60,16 +98,35 @@ cleanup_old_icon_themes() {
         timeout 60 yay -Rs --noconfirm obsidian-icon-theme 2>/dev/null || timeout 60 sudo pacman -Rs --noconfirm obsidian-icon-theme 2>/dev/null || true
     fi
 
+
+
     # Clean up any remaining Obsidian icon directories
     if [ -d "/usr/share/icons/Obsidian" ] || [ -d "/usr/share/icons/Obsidian-Purple" ]; then
         echo "🗑️  Removing leftover Obsidian icon directories..."
         sudo rm -rf /usr/share/icons/Obsidian* 2>/dev/null || true
     fi
 
+    # Remove unwanted desktop entries that clutter Fuzzel
+    echo "🧹 Cleaning up unwanted desktop entries..."
+    local unwanted_desktop_entries=(
+        "/usr/share/applications/lstopo.desktop"  # Hardware Locality utility
+    )
+
+    for entry in "${unwanted_desktop_entries[@]}"; do
+        if [[ -f "$entry" ]]; then
+            echo "🗑️  Removing $(basename "$entry")..."
+            sudo rm -f "$entry" 2>/dev/null || true
+        fi
+    done
+
     echo "✓ Old icon themes cleaned up"
 }
 
 install_icon_theme() {
+    if check_component_status "icon_theme"; then
+        return 0
+    fi
+
     echo "🎨 Installing icon theme..."
 
     # Clean up old themes first
@@ -95,6 +152,7 @@ install_icon_theme() {
         gtk-update-icon-cache -f -t /usr/share/icons/ 2>/dev/null || true
 
         echo "✓ Icon theme configuration complete"
+        mark_component_completed "icon_theme"
     else
         echo "⚠ Failed to install tela-icon-theme-purple-git (using fallback)"
         return 1
@@ -102,6 +160,10 @@ install_icon_theme() {
 }
 
 install_gtk_themes() {
+    if check_component_status "gtk_themes"; then
+        return 0
+    fi
+
     echo "🖼️  Installing GTK themes..."
 
     # Install base GTK themes
@@ -114,6 +176,7 @@ install_gtk_themes() {
     # Install Qt theming support
     if timeout 120 sudo pacman -S --noconfirm kvantum-qt5; then
         echo "✓ Qt theming support installed"
+        mark_component_completed "gtk_themes"
     else
         echo "⚠ Failed to install Qt theming support"
     fi
@@ -213,6 +276,10 @@ fix_hyprlock_upgrade() {
 # Setup background system for consolidated backgrounds
 # Uses the unified backgrounds directory created during theme consolidation
 setup_backgrounds() {
+    if check_component_status "backgrounds"; then
+        return 0
+    fi
+
     echo "🖼️  Setting up consolidated backgrounds..."
 
     # Ensure required directories exist
@@ -261,6 +328,7 @@ setup_backgrounds() {
 
     echo "✓ Installed $copied_count backgrounds"
 
+    mark_component_completed "backgrounds"
     echo "✅ Background setup completed successfully"
     return 0
 }
@@ -287,6 +355,13 @@ link_main_configs() {
         mkdir -p "$HOME/.config/gtk-4.0"
         cp "$HOME/.local/share/archriot/config/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
         echo "✓ GTK-4.0 settings applied (recent files disabled)"
+    fi
+
+    # Copy Fuzzel configuration (includes Kora icon theme)
+    if [[ -f "$HOME/.local/share/archriot/config/fuzzel/fuzzel.ini" ]]; then
+        mkdir -p "$HOME/.config/fuzzel"
+        cp "$HOME/.local/share/archriot/config/fuzzel/fuzzel.ini" "$HOME/.config/fuzzel/fuzzel.ini"
+        echo "✓ Fuzzel configuration applied (Kora icons)"
     fi
 
     echo "✓ Main configurations linked"
@@ -495,6 +570,7 @@ main() {
     echo "🚀 Starting desktop theming setup..."
 
     load_user_environment
+    init_state_tracking
 
     # Install theme components
     install_cursor_theme || {

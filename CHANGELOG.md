@@ -5,6 +5,32 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.17] - 2025-07-30
+
+### 🎯 Fuzzel Application Launcher Improvements
+
+#### Icon Theme Optimization & Desktop Entry Cleanup
+
+- **Maintained Kora icon theme for Fuzzel** - Kora provides superior application icon coverage compared to Tela-purple-dark
+- **Added automatic desktop entry cleanup** - Removes unwanted/low-level system utilities from application launcher
+- **Removed Hardware Locality (lstopo) entry** - Eliminates confusing "Hardware Locality..." item with missing icon
+- **Improved user experience** - Clean application launcher with only useful, properly-themed applications
+- **Future-proofed cleanup system** - Expandable array for removing additional unwanted desktop entries
+
+#### Technical Implementation
+
+- **Smart icon theme strategy** - Kora for comprehensive application icons, Tela-purple-dark for GTK/system theming
+- **Automated cleanup during installation** - Unwanted desktop entries removed automatically in theming.sh
+- **Preserved icon functionality** - All application icons display correctly in Fuzzel launcher
+- **State-aware installation** - Installation state management prevents redundant operations
+
+#### User Experience Improvements
+
+- **Clean application launcher** - No more mysterious entries without icons
+- **Consistent theming** - Proper icon display across all applications
+- **Reduced confusion** - Only user-relevant applications appear in launcher
+- **Maintained performance** - Fast icon loading and application discovery
+
 ## [2.0.16] - 2025-07-30
 
 ### 🎨 Major Theme System Optimization

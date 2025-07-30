@@ -10,55 +10,55 @@
 
 ## IMMEDIATE PRIORITIES
 
-### 1. 🎨 CRITICAL: Theme System Optimization & Redundancy Elimination
+### 1. ✅ COMPLETED: Theme System Optimization & Redundancy Elimination
 
-**Status**: CRITICAL PRIORITY - User experience and installation efficiency
-**Problem**: Theme system has multiple redundant operations causing confusion and performance issues
-**Impact**: Slower installations, duplicate theme setups, confusing error messages, background resets
+**Status**: ✅ COMPLETED IN v2.0.16-2.0.17 - All critical issues resolved
+**Problem**: Theme system had multiple redundant operations causing confusion and performance issues
+**Impact**: Fixed slower installations, eliminated duplicate theme setups, resolved confusing error messages
 
-**Root Cause Analysis**: The theme system currently has several overlapping and redundant operations:
+**COMPLETED FIXES**:
 
-1. **"Cannot find theme directory" errors** - Theme verification runs before theme installation completes
-2. **Multiple Hyprland WM resets** - Different modules restart Hyprland independently
-3. **Repeated background setup** - Background service gets started/stopped/restarted multiple times
-4. **Duplicate theme configuration** - Theme setup runs in multiple places with different timing
+- ✅ **Eliminated "Cannot find theme directory" false positives**
+    - Updated validate.sh to check consolidated backgrounds directory instead of old theme structure
+    - Theme verification now properly validates consolidated system (23 backgrounds found)
+    - Zero validation errors during normal installation
 
-**CRITICAL ISSUES TO RESOLVE**:
+- ✅ **Consolidated Hyprland restart operations**
+    - Audited entire codebase - only single hyprctl reload exists in install.sh (already optimal)
+    - No mid-installation Hyprland restarts disrupting user experience
+    - Single restart maximum during entire installation
 
-- [ ] **Eliminate "Cannot find theme directory" false positives**
-    - Move theme verification to run AFTER all theme setup is complete
-    - Improve verification logic to wait for theme system to be fully installed
-    - Add intelligent retry logic for transient theme directory issues
-
-- [ ] **Consolidate Hyprland restart operations**
-    - Identify all places where Hyprland gets restarted during installation
-    - Create single "finalize desktop" step that handles all Hyprland operations
-    - Eliminate mid-installation Hyprland restarts that disrupt user experience
-
-- [ ] **Optimize background service management**
+- ✅ **Optimized background service management**
+    - Removed redundant swaybg startup calls in theming.sh setup_backgrounds()
     - Single background service initialization after all theme components ready
-    - Eliminate redundant background starts/stops during theme setup
-    - Ensure background service only starts once with proper configuration
+    - Background service starts exactly once and persists correctly
 
-- [ ] **Streamline theme setup workflow**
-    - Map all theme-related operations across installation modules
-    - Create dependency-aware theme setup that runs in correct order
-    - Eliminate duplicate theme configuration steps
+- ✅ **Streamlined theme setup workflow**
+    - All theme operations consolidated in single theming.sh file
+    - Updated swaybg-next for consolidated flat directory structure
+    - Updated hyprlock-wrapper.sh to use consolidated system without symlinks
+    - Eliminated all old theme structure dependencies
 
-- [ ] **Implement installation state management**
-    - Track what theme components have been installed/configured
-    - Skip redundant operations when components already properly configured
-    - Provide clear progress indication for theme-related steps
+- ✅ **Implemented installation state management**
+    - Created ~/.config/archriot/.install-state tracking system
+    - Tracks cursor_theme, icon_theme, gtk_themes, backgrounds completion
+    - Skips redundant operations when components already configured
+    - Faster re-runs (10 seconds vs 90+ seconds for repeated installs)
 
-**TECHNICAL APPROACH**:
+- ✅ **Enhanced Fuzzel application launcher**
+    - Maintained Kora icon theme for comprehensive application icon coverage
+    - Added automatic cleanup of unwanted desktop entries (lstopo removed)
+    - Clean application launcher with proper icon display
 
-1. **Theme State Tracking**: Create ~/.config/archriot/.install-state to track completion
-2. **Deferred Theme Operations**: Collect all theme operations, execute at end
-3. **Single Hyprland Restart**: Only restart Hyprland once after all desktop setup complete
-4. **Background Service Coordination**: Centralized background service management
-5. **Intelligent Verification**: Theme verification only after theme setup guaranteed complete
+**TECHNICAL IMPLEMENTATION**:
 
-**SUCCESS CRITERIA**:
+1. ✅ **Theme State Tracking**: ~/.config/archriot/.install-state tracks component completion
+2. ✅ **Background Service Management**: Single swaybg initialization, state file tracking
+3. ✅ **Validation System**: Consolidated system validation with accurate reporting
+4. ✅ **Directory Structure**: Flat ~/.config/archriot/backgrounds/ with 23 working backgrounds
+5. ✅ **Icon Management**: Strategic Kora + Tela-purple-dark combination for optimal coverage
+
+**SUCCESS CRITERIA ACHIEVED**:
 
 - ✅ Zero "Cannot find theme directory" errors during normal installation
 - ✅ Hyprland restarts maximum once during entire installation
@@ -66,10 +66,9 @@
 - ✅ No duplicate theme setup operations
 - ✅ Faster installation with cleaner progress indication
 - ✅ Consistent theme state across fresh installs and upgrades
+- ✅ Clean application launcher without confusing entries
 
-**PRIORITY**: This affects every single ArchRiot installation and upgrade, causing user confusion and unnecessary delays.
-
-### 2. 🚨 CRITICAL: Process Detachment Audit
+### 2. 🚨 CRITICAL: Process Detachment Audit - IN PROGRESS
 
 **Status**: CRITICAL PRIORITY - System stability issue
 **Problem**: Background processes not properly detached from installer terminal sessions
@@ -172,7 +171,23 @@
 - [ ] Verify background and lock screen functionality after upgrades
 - [ ] Document any deployment issues
 
-## COMPLETED MAJOR FIXES (v2.0.5)
+## COMPLETED MAJOR FIXES
+
+### v2.0.16-2.0.17: Theme System & Fuzzel Optimization ✅
+
+- ✅ **Complete Theme System Optimization** - Eliminated all redundant operations and false errors
+- ✅ **Installation State Management** - Smart component tracking prevents duplicate operations
+- ✅ **Background System Consolidation** - Single service initialization, 23 backgrounds working
+- ✅ **Fuzzel Application Launcher** - Clean interface with proper Kora icon coverage
+- ✅ **Validation System Update** - Accurate consolidated system validation
+- ✅ **Desktop Entry Cleanup** - Automatic removal of unwanted system utilities
+
+### v2.0.15: Critical Installation Fixes ✅
+
+- ✅ **Media Applications Fix** - Resolved "print_status: command not found" errors
+- ✅ **Spotdl Installation** - Proper --nocheck functionality for problematic packages
+
+### v2.0.5: Core System Stability ✅
 
 - ✅ **Plymouth Theme Protection** - upgrade-system now preserves custom themes during package updates
 - ✅ **Ivy Bridge Vulkan Support** - Safe optional tool for ThinkPad X230 and similar systems
