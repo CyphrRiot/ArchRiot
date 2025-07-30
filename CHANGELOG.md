@@ -18,7 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Added print_status to exported functions** for scripts that do source helpers
 - **Maintained spotdl --nocheck functionality** with proper availability
 
-This critical fix ensures media applications install correctly without function availability errors.
+### ⚡ Performance Improvements
+
+#### Installation Speed Optimization
+
+- **Eliminated excessive temp file operations** during module execution
+- **Root cause**: Every module created/wrote/deleted temp files unnecessarily
+- **Solution**: Direct logging via `tee -a` instead of temp file + cat + rm operations
+- **Impact**: Significantly faster installations, especially for already-installed packages
+- **Reduced I/O operations** from 4 file operations to 1 per module
+- **Maintains all functionality** (output visibility, error handling, complete logging)
+
+This optimization resolves slow package installations (e.g., brave-bin taking 30+ seconds when already installed).
 
 ---
 
