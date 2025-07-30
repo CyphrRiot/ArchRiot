@@ -137,17 +137,6 @@
 	"tooltip": true
 },
 
-// Microphone Toggle
-"custom/mic": {
-	"format": "{}",
-	"return-type": "json",
-	"interval": 2,
-	"exec": "$HOME/.local/bin/waybar-mic-status.py",
-	"on-click": "$HOME/.config/hypr/scripts/Volume.sh --toggle-mic",
-	"tooltip": true,
-	"tooltip-format": "Toggle Microphone"
-},
-
 // Custom CPU meter showing aggregate usage across all cores (Python version)
 "custom/cpu-aggregate": {
 	"format": "{}",

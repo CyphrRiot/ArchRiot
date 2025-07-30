@@ -1,12 +1,54 @@
 # ArchRiot Development Roadmap
 
-## Current Status: v2.0.5
+## Current Status: v2.0.17
 
 - Installation system reliability: ✅ Complete
 - Theme config nightmare: ✅ ELIMINATED
 - Critical installation failures: ✅ FIXED
 - Plymouth upgrade protection: ✅ FIXED
 - Ivy Bridge Vulkan compatibility: ✅ FIXED
+
+## COMPLETED ARCHITECTURAL OVERHAULS
+
+### ✅ COMPLETED: Control Panel Architecture Overhaul
+
+**Status**: ✅ COMPLETED IN v2.0.18 - All fundamental issues resolved
+**Problem**: Control Panel used redundant config system that conflicted with system configs
+**Impact**: Fixed settings persistence, eliminated config conflicts, improved user experience
+
+**COMPLETED IMPLEMENTATION**:
+
+**✅ New Architecture Implemented**:
+
+- **Eliminated** redundant `archriot-config` dependencies for system components
+- **Direct system config management**: Control Panel reads/writes actual system files
+- **Single source of truth**: Each setting has ONE authoritative location
+- **Preserved config system**: For ArchRiot-specific functionality (Pomodoro timer)
+
+**COMPLETED CONVERSIONS**:
+
+1. **BlueLightWidget**: Direct hyprland.conf management - reads/writes actual temperature settings
+2. **DisplayWidget**: Direct hyprctl integration with smart aspect ratio resolution detection
+3. **MullvadWidget**: Direct mullvad CLI integration - account numbers from actual VPN service
+4. **PowerWidget**: Direct powerprofilesctl management (tested: balanced ↔ power-saver)
+5. **AudioWidget**: Already using direct pactl system management (verified)
+6. **CameraWidget**: Already using direct v4l2/device system management (verified)
+7. **PomodoroWidget**: Preserved config system for ArchRiot-specific functionality
+
+**SMART RESOLUTION DETECTION**:
+
+- Intelligent aspect ratio detection prevents display distortion
+- Supports 16:9, 16:10, 4:3, 21:9 ultrawide, 32:9 super ultrawide
+- Eliminates nonsensical resolutions like 1920x1440
+
+**SUCCESS CRITERIA ACHIEVED**:
+
+- ✅ Control Panel changes persist across sessions/reboots
+- ✅ No config conflicts between Control Panel and system
+- ✅ User settings preserved during ArchRiot updates
+- ✅ Simplified architecture with single source of truth per setting
+- ✅ Smart resolution detection prevents display distortion
+- ✅ Real-time system integration working perfectly
 
 ## IMMEDIATE PRIORITIES
 

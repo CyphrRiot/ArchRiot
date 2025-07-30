@@ -5,6 +5,58 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.18] - 2025-07-30
+
+### 🏗️ Major Control Panel Architecture Overhaul
+
+#### Control Panel System Integration Revolution
+
+- **Eliminated redundant config system** - Removed conflicting dual source of truth between Control Panel config and actual system configs
+- **Direct system management implementation** - All widgets now read/write directly to system services and config files
+- **Single source of truth architecture** - Each setting has one authoritative location (system configs, not Control Panel config)
+- **Real-time system integration** - Changes apply immediately to actual system state without config conflicts
+
+#### Component-by-Component Conversion
+
+- **BlueLightWidget**: Direct hyprland.conf management - reads/writes actual temperature settings
+- **DisplayWidget**: Direct hyprctl integration with smart aspect ratio resolution detection
+- **MullvadWidget**: Direct mullvad CLI integration - account numbers and auto-connect from actual VPN service
+- **PowerWidget**: Direct powerprofilesctl management - tested balanced ↔ power-saver transitions
+- **AudioWidget**: Already using direct pactl system management (verified working)
+- **CameraWidget**: Already using direct v4l2/device system management (verified working)
+- **PomodoroWidget**: Preserved config system for ArchRiot-specific functionality
+
+#### Smart Resolution Detection
+
+- **Intelligent aspect ratio detection** - Automatically detects display's native aspect ratio
+- **Maintains proper ratios** - Only offers resolutions that prevent image distortion
+- **Comprehensive ratio support**: 16:9, 16:10, 4:3, 21:9 ultrawide, 32:9 super ultrawide
+- **Eliminates nonsensical options** - No more weird resolutions like 1920x1440
+- **Filtered by capability** - Only shows resolutions ≤ current display maximum
+
+#### User Experience Improvements
+
+- **No more config conflicts** - Blue light filter showing 3500K in Control Panel while hyprland.conf had 3000K (FIXED)
+- **Settings persistence** - Control Panel changes now persist correctly across sessions
+- **Immediate application** - Changes apply to system in real-time without restart required
+- **Accurate status display** - Control Panel shows actual current system state, not stale config values
+
+#### Technical Architecture
+
+- **Future-proofed design** - Preserved config system for ArchRiot-specific features like Pomodoro timer
+- **Reduced complexity** - Eliminated unnecessary abstraction layer that caused conflicts
+- **Improved reliability** - System state is always authoritative, preventing drift and inconsistencies
+- **Better maintainability** - Single code path for each setting, easier to debug and extend
+
+#### Success Criteria Achieved
+
+- ✅ Control Panel changes persist across sessions/reboots
+- ✅ No config conflicts between Control Panel and system
+- ✅ User settings preserved during ArchRiot updates
+- ✅ Simplified architecture with single source of truth per setting
+- ✅ Smart resolution detection prevents display distortion
+- ✅ All system integrations work in real-time
+
 ## [2.0.17] - 2025-07-30
 
 ### 🎯 Fuzzel Application Launcher Improvements

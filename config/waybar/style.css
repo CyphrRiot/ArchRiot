@@ -565,54 +565,6 @@ label:focus {
     font-size: 95%; /* Slightly smaller font for window titles */
 }
 
-/* Microphone button styling */
-#custom-mic {
-    color: #9ece6a; /* Green when active */
-    font-size: 100%;
-    margin: 0 5px;
-    padding: 0 8px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-#custom-mic.muted {
-    color: #7aa2f7; /* Dark blue when muted (like tray parentheses) */
-    background: transparent;
-    background-color: transparent;
-}
-
-#custom-mic:hover {
-    background: rgba(158, 206, 106, 0.2);
-    background-color: rgba(158, 206, 106, 0.2);
-}
-
-#custom-mic.muted:hover {
-    background: rgba(122, 162, 247, 0.2);
-    background-color: rgba(122, 162, 247, 0.2);
-}
-
-/* Additional specific selectors to override any inherited styles */
-.modules-right #custom-mic {
-    background: transparent;
-    background-color: transparent;
-}
-
-.modules-right #custom-mic.muted {
-    background: transparent;
-    background-color: transparent;
-}
-
-/* Override any widget-level background inheritance */
-widget > #custom-mic {
-    background: transparent;
-    background-color: transparent;
-}
-
-widget > #custom-mic.muted {
-    background: transparent;
-    background-color: transparent;
-}
-
 /* Arch logo styling */
 #custom-arch {
     color: @accent5; /* Same cyan color as battery and other menu items */

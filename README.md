@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.0.17-4c1d95)
+![Version](https://img.shields.io/badge/version-2.0.18-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -361,8 +361,7 @@ XF86AudioPlay/Pause                  # Media play/pause (hardware buttons)
 ```bash
 Click tomato timer                   # Start/pause Pomodoro timer
 Double-click tomato timer            # Reset timer to 25:00
-Click microphone icon               # Toggle microphone mute
-Click network icon                  # Open network manager
+Click network icon                   # Open network manager
 ```
 
 ### Fix Scripts (If Needed)

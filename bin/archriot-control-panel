@@ -114,7 +114,26 @@ def import_config_module():
                 def get_pomodoro_config(self):
                     return {'enabled': True, 'duration': 25}
                 def get_bluelight_config(self):
-                    return {'enabled': True, 'temperature': 3500}
+                    import re
+                    from pathlib import Path
+
+                    # Read current settings from hyprland.conf
+                    hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+                    enabled = True
+                    temperature = 3500  # fallback
+
+                    if hyprland_config.exists():
+                        content = hyprland_config.read_text()
+                        # Check if hyprsunset line is commented out (disabled)
+                        if re.search(r'^\s*#.*hyprsunset', content, re.MULTILINE):
+                            enabled = False
+                        # Extract temperature from active hyprsunset line
+                        match = re.search(r'exec-once = hyprsunset -t (\d+)', content)
+                        if match:
+                            temperature = int(match.group(1))
+                            enabled = True
+
+                    return {'enabled': enabled, 'temperature': temperature}
                 def get_mullvad_config(self):
                     return {'enabled': False, 'account_number': '', 'auto_connect': False}
                 def get_display_config(self):
@@ -124,6 +143,8 @@ def import_config_module():
                 def set_pomodoro_config(self, enabled, duration):
                     pass
                 def set_bluelight_config(self, enabled, temperature):
+                    # This is handled by the BlueLightWidget directly updating hyprland.conf
+                    # No separate config file needed since hyprland.conf is the source of truth
                     pass
                 def set_mullvad_config(self, enabled, account_number='', auto_connect=False):
                     pass
@@ -477,9 +498,31 @@ class BlueLightWidget(BaseControlWidget):
         self.window = window
         self.setup_controls()
 
+    def _read_bluelight_from_hyprland(self):
+        """Read current blue light settings directly from hyprland.conf"""
+        import re
+        from pathlib import Path
+
+        hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+        enabled = True
+        temperature = 3500  # fallback
+
+        if hyprland_config.exists():
+            content = hyprland_config.read_text()
+            # Check if hyprsunset line is commented out (disabled)
+            if re.search(r'^\s*#.*hyprsunset', content, re.MULTILINE):
+                enabled = False
+            # Extract temperature from active hyprsunset line
+            match = re.search(r'exec-once = hyprsunset -t (\d+)', content)
+            if match:
+                temperature = int(match.group(1))
+                enabled = True
+
+        return {'enabled': enabled, 'temperature': temperature}
+
     def setup_controls(self):
         """Setup blue light filter controls"""
-        bluelight_config = self.config.get_bluelight_config()
+        bluelight_config = self._read_bluelight_from_hyprland()
 
         # Temperature label (add to title row)
         self.temp_label = Gtk.Label()
@@ -604,11 +647,9 @@ class BlueLightWidget(BaseControlWidget):
 
     def apply_changes(self):
         """Apply all pending changes"""
-        enabled = self.switch.get_active()
-        temperature = int(self.temp_scale.get_value())
-
-        # Save to config (system changes already applied in real-time)
-        self.config.set_bluelight_config(enabled, temperature)
+        # All changes are already applied in real-time to system configs
+        # No separate config file needed
+        pass
 
 class MullvadWidget(BaseControlWidget):
     """Mullvad VPN control widget"""
@@ -620,17 +661,13 @@ class MullvadWidget(BaseControlWidget):
 
     def setup_controls(self):
         """Setup Mullvad VPN controls"""
-        mullvad_config = self.config.get_mullvad_config()
-
-        # Get current account and auto-connect status from Mullvad
+        # Read directly from system - no config dependency
         current_account = self.get_current_mullvad_account()
         current_auto_connect = self.get_current_auto_connect_status()
 
-        if current_account and not mullvad_config['account_number']:
-            mullvad_config['account_number'] = current_account
-
-        # Use actual system auto-connect status, not config
-        actual_auto_connect = current_auto_connect if current_auto_connect is not None else mullvad_config['auto_connect']
+        # Use actual system values
+        account_number = current_account or ""
+        actual_auto_connect = current_auto_connect if current_auto_connect is not None else False
 
         # Auto-connect label (add to title row)
         self.auto_connect_label = Gtk.Label()
@@ -653,7 +690,6 @@ class MullvadWidget(BaseControlWidget):
         self.account_entry.set_placeholder_text("1234 5678 9012 3456")
 
         # Show account number privately (hidden by default)
-        account_number = mullvad_config['account_number'] or current_account or ""
         if account_number:
             self.account_entry.set_visibility(False)  # Hide by default
             self.account_entry.set_text(self.format_account_number(account_number))
@@ -837,11 +873,9 @@ class MullvadWidget(BaseControlWidget):
 
     def apply_changes(self):
         """Apply all pending changes"""
-        auto_connect = self.switch.get_active()
-        account_number = self.account_entry.get_text().replace(' ', '')
-
-        # Save to config (system changes already applied in real-time)
-        self.config.set_mullvad_config(auto_connect, account_number, auto_connect)
+        # All changes are already applied in real-time to mullvad system
+        # No separate config file needed - mullvad service is the source of truth
+        pass
 
     def on_get_mullvad_clicked(self, button):
         """Open Mullvad VPN website"""
@@ -1218,17 +1252,17 @@ class DisplayWidget(BaseControlWidget):
         self.setup_controls()
 
     def get_available_resolutions(self):
-        """Get available monitor resolutions from system"""
+        """Get available monitor resolutions with smart aspect ratio logic"""
         try:
             import subprocess
             import os
+            from fractions import Fraction
 
             # Try hyprctl first
             result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
-            if result.returncode == 0:
-                current_resolution = "1920x1080"
-                available_resolutions = set()
+            current_resolution = "1920x1080"
 
+            if result.returncode == 0:
                 for line in result.stdout.split('\n'):
                     # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
                     if '@' in line and 'x' in line and not 'availableModes:' in line:
@@ -1240,45 +1274,58 @@ class DisplayWidget(BaseControlWidget):
                             except (ValueError, IndexError):
                                 pass
 
-                    # Get available modes
-                    if 'availableModes:' in line:
-                        modes = line.split('availableModes:')[1].strip()
-                        for mode in modes.split():
-                            if 'x' in mode and '@' in mode:
-                                resolution = mode.split('@')[0]
-                                if 'x' in resolution:
-                                    available_resolutions.add(resolution)
+            # Generate smart resolutions based on current resolution's aspect ratio
+            try:
+                width, height = map(int, current_resolution.split('x'))
+                aspect_ratio = Fraction(width, height)
 
-                if available_resolutions:
-                    sorted_resolutions = sorted(list(available_resolutions),
-                                              key=lambda x: int(x.split('x')[0]) * int(x.split('x')[1]),
-                                              reverse=True)[:5]
-                    return sorted_resolutions, current_resolution
+                # Common resolution sets by aspect ratio
+                resolution_sets = {
+                    Fraction(16, 9): ["3840x2160", "2560x1440", "1920x1080", "1600x900", "1366x768", "1280x720"],
+                    Fraction(16, 10): ["3840x2400", "2560x1600", "1920x1200", "1680x1050", "1440x900", "1280x800"],
+                    Fraction(4, 3): ["2048x1536", "1600x1200", "1400x1050", "1024x768", "800x600"],
+                    Fraction(21, 9): ["3440x1440", "2560x1080"],  # Ultrawide
+                    Fraction(32, 9): ["3840x1080"],  # Super ultrawide
+                }
 
-            # Fallback: try to get from /sys/class/drm
-            drm_modes = []
-            for drm_path in os.listdir('/sys/class/drm/'):
-                if drm_path.startswith('card0-') and not drm_path.endswith('-status'):
-                    modes_file = f'/sys/class/drm/{drm_path}/modes'
-                    if os.path.exists(modes_file):
-                        with open(modes_file, 'r') as f:
-                            for mode in f.read().strip().split('\n'):
-                                if mode and 'x' in mode:
-                                    drm_modes.append(mode)
+                # Find the closest matching aspect ratio
+                best_match = min(resolution_sets.keys(),
+                               key=lambda ratio: abs(float(ratio) - float(aspect_ratio)))
 
-            if drm_modes:
-                # Remove duplicates and sort by pixel count
-                unique_modes = list(set(drm_modes))
-                sorted_modes = sorted(unique_modes,
-                                    key=lambda x: int(x.split('x')[0]) * int(x.split('x')[1]),
-                                    reverse=True)[:5]
-                return sorted_modes, sorted_modes[0] if sorted_modes else "1920x1080"
+                # Get resolutions for this aspect ratio
+                smart_resolutions = resolution_sets[best_match]
 
-            # Final fallback - mixed aspect ratios
-            return ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"], "1920x1080"
+                # Filter to only include resolutions <= current resolution
+                max_pixels = width * height
+                filtered_resolutions = []
+                for res in smart_resolutions:
+                    res_width, res_height = map(int, res.split('x'))
+                    if res_width * res_height <= max_pixels:
+                        filtered_resolutions.append(res)
+
+                # Ensure current resolution is included
+                if current_resolution not in filtered_resolutions:
+                    filtered_resolutions.insert(0, current_resolution)
+
+                # Remove duplicates and limit to 5 options
+                seen = set()
+                unique_resolutions = []
+                for res in filtered_resolutions:
+                    if res not in seen:
+                        seen.add(res)
+                        unique_resolutions.append(res)
+
+                return unique_resolutions[:5], current_resolution
+
+            except (ValueError, IndexError):
+                # Fallback if aspect ratio calculation fails
+                pass
+
+            # Final fallback - 16:9 resolutions
+            return ["2560x1440", "1920x1080", "1600x900", "1366x768", "1280x720"], current_resolution
 
         except Exception as e:
-            return ["1920x1080", "1680x1050", "1440x900", "1280x720", "1024x768"], "1920x1080"
+            return ["1920x1080", "1600x900", "1366x768", "1280x720", "1024x768"], "1920x1080"
 
     def get_current_scaling(self):
         """Get current monitor scaling from hyprctl"""
@@ -1299,7 +1346,10 @@ class DisplayWidget(BaseControlWidget):
 
     def setup_controls(self):
         """Setup display settings controls"""
-        display_config = self.config.get_display_config()
+        # Read directly from system - no config dependency
+        current_resolution = "1920x1080"
+        current_scaling = 100
+        enabled = True  # Display is always enabled if system is running
 
         # Get available resolutions and current resolution
         try:
@@ -1307,13 +1357,12 @@ class DisplayWidget(BaseControlWidget):
         except Exception as e:
             self.available_resolutions, current_resolution = ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"], "1920x1080"
 
-        # Always use actual current resolution and scaling, not stored config values
-        display_config['resolution'] = current_resolution
-        display_config['scaling'] = self.get_current_scaling()
+        # Get actual current scaling from system
+        current_scaling = self.get_current_scaling()
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(display_config['enabled'])
+        self.switch.set_active(enabled)
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
@@ -1327,7 +1376,6 @@ class DisplayWidget(BaseControlWidget):
         if len(self.available_resolutions) < 2:
             self.available_resolutions = ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"]
             current_resolution = "1920x1080"
-            display_config['resolution'] = current_resolution
 
         max_range = max(1, len(self.available_resolutions)-1)  # Ensure max is at least 1
 
@@ -1340,7 +1388,7 @@ class DisplayWidget(BaseControlWidget):
         # Set to current resolution index
         current_index = 0
         for i, res in enumerate(self.available_resolutions):
-            if res == display_config['resolution']:
+            if res == current_resolution:
                 current_index = i
                 break
 
@@ -1355,7 +1403,7 @@ class DisplayWidget(BaseControlWidget):
             self.resolution_scale.set_draw_value(False)
 
 
-            self.resolution_scale.set_sensitive(display_config['enabled'])
+            self.resolution_scale.set_sensitive(enabled)
 
 
             self.resolution_scale.set_margin_start(50)
@@ -1383,9 +1431,9 @@ class DisplayWidget(BaseControlWidget):
         scaling_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
         self.scaling_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 100, 200, 1)
-        self.scaling_scale.set_value(display_config['scaling'])
+        self.scaling_scale.set_value(current_scaling)
         self.scaling_scale.set_draw_value(False)
-        self.scaling_scale.set_sensitive(display_config['enabled'])
+        self.scaling_scale.set_sensitive(enabled)
         self.scaling_scale.connect("value-changed", self.on_scaling_changed)
 
         # Add scaling tick marks with proper labels
@@ -1491,12 +1539,9 @@ class DisplayWidget(BaseControlWidget):
 
     def apply_changes(self):
         """Apply all pending changes"""
-        enabled = self.switch.get_active()
-        resolution = self.snap_to_nearest(self.resolution_scale.get_value(), self.available_resolutions)
-        scaling = self.snap_to_nearest(self.scaling_scale.get_value(), [100, 107, 120, 125, 150, 175, 200])
-
-        # Save to config
-        self.config.set_display_config(enabled, resolution, scaling)
+        # All changes are already applied in real-time to system via hyprctl
+        # No separate config file needed - system state is the source of truth
+        pass
 
 class InputWidget(BaseControlWidget):
     """Input devices control widget"""
