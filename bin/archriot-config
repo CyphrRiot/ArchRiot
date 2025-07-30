@@ -38,10 +38,11 @@ class ArchRiotConfig:
         self.config.set('pomodoro', 'enabled', 'true')
         self.config.set('pomodoro', 'duration', '25')
 
-        # Blue light filter settings
+        # Blue light filter settings - read from hyprland.conf
+        bluelight_config = self._read_bluelight_from_hyprland()
         self.config.add_section('bluelight')
-        self.config.set('bluelight', 'enabled', 'true')
-        self.config.set('bluelight', 'temperature', '3500')
+        self.config.set('bluelight', 'enabled', str(bluelight_config['enabled']).lower())
+        self.config.set('bluelight', 'temperature', str(bluelight_config['temperature']))
 
         # Mullvad VPN settings
         self.config.add_section('mullvad')
@@ -113,6 +114,27 @@ class ArchRiotConfig:
         self.set('pomodoro', 'enabled', str(enabled).lower())
         self.set('pomodoro', 'duration', str(duration))
         self.save_config()
+
+    def _read_bluelight_from_hyprland(self) -> Dict[str, Any]:
+        """Read current blue light settings from hyprland.conf"""
+        import re
+
+        hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+        enabled = True
+        temperature = 3500  # fallback
+
+        if hyprland_config.exists():
+            content = hyprland_config.read_text()
+            # Check if hyprsunset line is commented out (disabled)
+            if re.search(r'^\s*#.*hyprsunset', content, re.MULTILINE):
+                enabled = False
+            # Extract temperature from active hyprsunset line
+            match = re.search(r'exec-once = hyprsunset -t (\d+)', content)
+            if match:
+                temperature = int(match.group(1))
+                enabled = True
+
+        return {'enabled': enabled, 'temperature': temperature}
 
     def get_bluelight_config(self) -> Dict[str, Any]:
         """Get blue light filter configuration"""

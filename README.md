@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.0.19-4c1d95)
+![Version](https://img.shields.io/badge/version-2.1.0-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -100,6 +100,8 @@ Once Arch has been installed, pick reboot, login with the user you just setup, a
 ```bash
 curl -fsSL https://archriot.org/setup.sh | bash
 ```
+
+![ArchRiot Upgrade Demo](images/upgrade.gif)
 
 **Note: Upgrading is exactly the same command! Simple!**
 

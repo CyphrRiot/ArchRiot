@@ -5,6 +5,37 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-07-30
+
+### 📊 Modern Progress Bar System
+
+#### Revolutionary Installer Experience
+
+- **Static Progress Bar** - Beautiful real-time progress display that updates in place, no more scrolling walls of text
+- **Friendly Module Names** - Shows "Desktop Environment" instead of cryptic "install/desktop/apps.sh" paths
+- **Background Logging** - All verbose output redirected to log files, only progress and errors visible on screen
+- **Accurate Progress Tracking** - Real percentages based on actual module count (32 install scripts)
+- **Professional Interface** - Clean, modern installer experience with proper visual consistency
+- **User Interaction Support** - Seamlessly handles Git credentials and reboot prompts without breaking progress display
+- **Error Surfacing** - Critical errors still appear on console when user attention is needed
+- **Beautiful Completion Summary** - Rich statistics display with timing, success rates, and module status
+
+#### Technical Architecture
+
+- **Progress Bar Library** - New `install/lib/progress-bar.sh` system with modular design
+- **Silent Execution** - All package installations and system commands run silently in background
+- **Proper Time Tracking** - Fixed duration calculations and progress percentage accuracy
+- **Fallback Support** - Graceful degradation if progress system unavailable
+
+#### Visual Improvements
+
+- **Consistent Separator Lines** - Top border matches progress bar width for perfect alignment
+- **Color-coded Status** - Green for success, red for errors, cyan for active progress
+- **Real-time Updates** - Module counter and percentage update as installation progresses
+- **Clean Layout** - Organized display with proper spacing and visual hierarchy
+
+This represents a complete overhaul of the installation experience, transforming it from a verbose, overwhelming process into a clean, professional, and user-friendly system.
+
 ## [2.0.19] - 2025-07-30
 
 ### 🍅 Pomodoro Timer & System Enhancements

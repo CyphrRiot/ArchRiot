@@ -65,14 +65,27 @@ declare -a STANDALONE_INSTALLERS=(
 )
 
 # Performance tracking
-INSTALL_START_TIME=$(date +%s)
-INSTALL_START_DATE=$(date)
+declare -g INSTALL_START_TIME=$(date +%s)
+declare -g INSTALL_START_DATE=$(date)
 FAILED_MODULES=()
 SKIPPED_MODULES=()
 
 # ================================================================================
 # Logging and Output Functions
 # ================================================================================
+
+# Load progress bar system
+if [[ -f "$INSTALL_DIR/lib/progress-bar.sh" ]]; then
+    source "$INSTALL_DIR/lib/progress-bar.sh"
+else
+    # Fallback if progress system not available
+    init_progress_system() { echo "🚀 ArchRiot Installation v$ARCHRIOT_VERSION"; }
+    progress_module_start() { echo "Starting: $(basename "$1" .sh)"; }
+    progress_module_complete() { echo "Completed: $(basename "$1" .sh)"; }
+    progress_pause_for_input() { echo ""; }
+    progress_resume_after_input() { echo ""; }
+    progress_show_completion() { echo "Installation complete!"; }
+fi
 
 # Initialize comprehensive logging
 init_logging() {
@@ -83,14 +96,8 @@ init_logging() {
     echo "=== ArchRiot Installation v$ARCHRIOT_VERSION - $(date) ===" > "$LOG_FILE"
     echo "=== ArchRiot Installation Errors v$ARCHRIOT_VERSION - $(date) ===" > "$ERROR_LOG"
 
-    echo ""
-    echo "🚀 ArchRiot Installation System v2.0"
-    echo "====================================="
-    echo "Version: $ARCHRIOT_VERSION"
-    echo "Start time: $INSTALL_START_DATE"
-    echo "📝 Installation log: $LOG_FILE"
-    echo "❌ Error log: $ERROR_LOG"
-    echo ""
+    # Initialize modern progress bar system
+    init_progress_system
 }
 
 # Log function with both display and file output
@@ -123,28 +130,29 @@ log_message() {
 # ================================================================================
 
 # Install essential tools immediately
+# Install base development tools and yay AUR helper
 install_essential_tools() {
-    log_message "INFO" "Installing essential tools..."
+    echo "Installing essential tools..." >> "$LOG_FILE" 2>&1
 
-    # Install base development tools
-    if ! sudo pacman -Sy --noconfirm --needed base-devel git rsync bc; then
-        log_message "CRITICAL" "Failed to install base development tools"
+    # Install base development tools (silent)
+    if ! sudo pacman -Sy --noconfirm --needed base-devel git rsync bc >> "$LOG_FILE" 2>&1; then
+        echo "CRITICAL: Failed to install base development tools" >> "$LOG_FILE" 2>&1
         return 1
     fi
 
-    # Install yay if not present
+    # Install yay if not present (silent)
     if ! command -v yay &>/dev/null; then
-        log_message "INFO" "Installing yay AUR helper..."
+        echo "Installing yay AUR helper..." >> "$LOG_FILE" 2>&1
 
         cd /tmp || return 1
-        if ! git clone https://aur.archlinux.org/yay-bin.git; then
-            log_message "CRITICAL" "Failed to clone yay-bin repository"
+        if ! git clone https://aur.archlinux.org/yay-bin.git >> "$LOG_FILE" 2>&1; then
+            echo "CRITICAL: Failed to clone yay-bin repository" >> "$LOG_FILE" 2>&1
             return 1
         fi
 
         cd yay-bin || return 1
-        if ! makepkg -si --noconfirm; then
-            log_message "CRITICAL" "yay installation failed"
+        if ! makepkg -si --noconfirm >> "$LOG_FILE" 2>&1; then
+            echo "CRITICAL: yay installation failed" >> "$LOG_FILE" 2>&1
             return 1
         fi
 
@@ -153,13 +161,13 @@ install_essential_tools() {
 
         # Verify yay installation
         if ! command -v yay &>/dev/null; then
-            log_message "CRITICAL" "yay not available after installation"
+            echo "CRITICAL: yay not available after installation" >> "$LOG_FILE" 2>&1
             return 1
         fi
 
-        log_message "SUCCESS" "yay AUR helper installed"
+        echo "SUCCESS: yay AUR helper installed" >> "$LOG_FILE" 2>&1
     else
-        log_message "SUCCESS" "yay AUR helper already available"
+        echo "SUCCESS: yay AUR helper already available" >> "$LOG_FILE" 2>&1
     fi
 
     return 0
@@ -167,33 +175,33 @@ install_essential_tools() {
 
 # Setup sudo configuration
 setup_sudo() {
-    log_message "INFO" "Setting up sudo configuration..."
+    echo "INFO: Setting up sudo configuration..." >> "$LOG_FILE" 2>&1
 
     if [ -f "$INSTALL_DIR/lib/sudo-helper.sh" ]; then
         source "$INSTALL_DIR/lib/sudo-helper.sh"
 
         if setup_passwordless_sudo; then
             if validate_passwordless_sudo; then
-                log_message "SUCCESS" "Passwordless sudo configured"
+                echo "SUCCESS: Passwordless sudo configured" >> "$LOG_FILE" 2>&1
                 return 0
             else
-                log_message "WARNING" "Passwordless sudo validation failed"
+                echo "WARNING: Passwordless sudo validation failed" >> "$LOG_FILE" 2>&1
             fi
         else
-            log_message "WARNING" "Failed to setup passwordless sudo"
+            echo "WARNING: Failed to setup passwordless sudo" >> "$LOG_FILE" 2>&1
         fi
     else
-        log_message "WARNING" "Sudo helper not found"
+        echo "WARNING: Sudo helper not found" >> "$LOG_FILE" 2>&1
     fi
 
-    log_message "INFO" "Installation will prompt for passwords when needed"
+    echo "INFO: Installation will prompt for passwords when needed" >> "$LOG_FILE" 2>&1
     return 0
 }
 
 # Handle Git credentials with gum (before module processing)
 handle_git_credentials() {
-    echo ""
-    echo "🔍 Git Configuration (Optional)"
+    # Pause progress display for user interaction
+    progress_pause_for_input "🔍 Git Configuration (Optional)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 
@@ -301,31 +309,39 @@ execute_module() {
     local start_time=$(date +%s)
 
     if [[ ! -f "$module_path" ]]; then
-        log_message "ERROR" "Module not found: $module_path"
+        echo "ERROR: Module not found: $module_path" >> "$LOG_FILE" 2>&1
         FAILED_MODULES+=("$module_name (not found)")
         return 1
     fi
 
-    log_message "INFO" "🔄 Executing module: $module_name"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # Update progress display
+    progress_module_start "$module_path"
 
-    # Execute module with optimized logging (direct to log file, no temp files)
-    if bash "$module_path" 2>&1 | tee -a "$LOG_FILE"; then
+    # Log to file only (verbose output hidden from console)
+    echo "INFO: 🚀 Starting module: $module_name" >> "$LOG_FILE" 2>&1
+
+    # Execute module with all output redirected to log file (silent execution)
+    if bash "$module_path" >> "$LOG_FILE" 2>&1; then
         local end_time=$(date +%s)
         local duration=$((end_time - start_time))
-        log_message "SUCCESS" "$module_name completed (${duration}s)"
-        echo ""
+        echo "SUCCESS: $module_name completed in ${duration}s" >> "$LOG_FILE" 2>&1
+
+        # Update progress display
+        progress_module_complete "$module_path" "true"
         return 0
     else
         local exit_code=$?
 
-        # For failures, the output is already in LOG_FILE, just copy to ERROR_LOG
-        echo "Module: $module_name (exit code: $exit_code)" >> "$ERROR_LOG"
-        echo "See main log for details: $LOG_FILE" >> "$ERROR_LOG"
+        # Log failure details
+        echo "Module: $module_name (exit code: $exit_code)" >> "$ERROR_LOG" 2>&1
+        echo "See main log for details: $LOG_FILE" >> "$ERROR_LOG" 2>&1
+        echo "ERROR: $module_name failed (exit code: $exit_code)" >> "$LOG_FILE" 2>&1
 
-        log_message "ERROR" "$module_name failed (exit code: $exit_code)"
+        # Update progress display and show error
+        progress_module_complete "$module_path" "false"
+        progress_show_error "Installation failed (exit code: $exit_code)" "$(get_friendly_name "$module_path")"
+
         FAILED_MODULES+=("$module_name")
-        echo ""
 
         # For critical modules, ask user how to proceed
         if [[ "$module_name" == *"identity"* ]] || [[ "$module_name" == *"hyprland"* ]] || [[ "$module_name" == *"theming"* ]]; then
@@ -341,15 +357,15 @@ execute_module() {
             read -p "Choose [1/2/3]: " choice
             case "$choice" in
                 2)
-                    log_message "INFO" "Retrying $module_name..."
+                    echo "INFO: Retrying $module_name..." >> "$LOG_FILE" 2>&1
                     return $(execute_module "$module_path")
                     ;;
                 3)
-                    log_message "CRITICAL" "Installation aborted by user"
+                    echo "CRITICAL: Installation aborted by user" >> "$LOG_FILE" 2>&1
                     exit 1
                     ;;
                 *)
-                    log_message "WARNING" "Continuing despite critical module failure"
+                    echo "WARNING: Continuing despite critical module failure" >> "$LOG_FILE" 2>&1
                     ;;
             esac
         fi
@@ -364,12 +380,14 @@ execute_module_directory() {
     local directory_name="$(basename "$module_dir")"
 
     if [[ ! -d "$module_dir" ]]; then
-        log_message "WARNING" "Module directory not found: $module_dir"
+        echo "WARNING: Module directory not found: $module_dir" >> "$LOG_FILE" 2>&1
         SKIPPED_MODULES+=("$directory_name (directory not found)")
         return 0
     fi
 
-    log_message "INFO" "📁 Processing module directory: $directory_name"
+    # Update progress display
+    progress_module_start "$module_dir"
+    echo "INFO: 📁 Processing module directory: $directory_name" >> "$LOG_FILE" 2>&1
 
     local module_count=0
     local failed_count=0
@@ -385,12 +403,15 @@ execute_module_directory() {
     done
 
     if [[ $module_count -eq 0 ]]; then
-        log_message "WARNING" "No modules found in directory: $directory_name"
+        echo "WARNING: No modules found in directory: $directory_name" >> "$LOG_FILE" 2>&1
         SKIPPED_MODULES+=("$directory_name (no modules)")
+        progress_module_complete "$module_dir" "false"
     elif [[ $failed_count -eq 0 ]]; then
-        log_message "SUCCESS" "All modules in $directory_name completed successfully"
+        echo "SUCCESS: All modules in $directory_name completed successfully" >> "$LOG_FILE" 2>&1
+        progress_module_complete "$module_dir" "true"
     else
-        log_message "WARNING" "$failed_count of $module_count modules failed in $directory_name"
+        echo "WARNING: $failed_count of $module_count modules failed in $directory_name" >> "$LOG_FILE" 2>&1
+        progress_module_complete "$module_dir" "false"
     fi
 
     return 0
@@ -398,7 +419,7 @@ execute_module_directory() {
 
 # Process all installation modules
 process_installation_modules() {
-    log_message "INFO" "🚀 Starting module processing..."
+    echo "INFO: 🚀 Starting module processing..." >> "$LOG_FILE" 2>&1
 
     for module in "${INSTALL_MODULES[@]}"; do
         if [[ "$module" == *".sh" ]]; then
@@ -418,7 +439,7 @@ process_installation_modules() {
         if [[ -f "$standalone_path" ]]; then
             execute_module "$standalone_path"
         else
-            log_message "WARNING" "Standalone installer not found: $standalone"
+            echo "WARNING: Standalone installer not found: $standalone" >> "$LOG_FILE" 2>&1
             SKIPPED_MODULES+=("$standalone")
         fi
     done
@@ -430,7 +451,7 @@ process_installation_modules() {
 
 # Verify critical installations
 verify_installation() {
-    log_message "INFO" "🔍 Verifying critical installations..."
+    echo "INFO: 🔍 Verifying critical installations..." >> "$LOG_FILE" 2>&1
 
     # Small delay to ensure all file operations complete during upgrades
     sleep 2
@@ -439,83 +460,83 @@ verify_installation() {
 
     # Verify yay
     if ! command -v yay &>/dev/null; then
-        log_message "ERROR" "yay AUR helper not found"
+        echo "ERROR: yay AUR helper not found" >> "$LOG_FILE" 2>&1
         ((failures++))
     fi
 
     # Verify Hyprland
     if ! command -v hyprland &>/dev/null; then
-        log_message "ERROR" "Hyprland not installed"
+        echo "ERROR: Hyprland not installed" >> "$LOG_FILE" 2>&1
         ((failures++))
     fi
 
     # Verify theme system (consolidated structure) with detailed logging
-    log_message "INFO" "Checking theme system configuration..."
+    echo "INFO: Checking theme system configuration..." >> "$LOG_FILE" 2>&1
     local theme_issues=0
 
     # Check archriot.conf
     if [[ ! -f "$HOME/.config/archriot/archriot.conf" ]]; then
-        log_message "ERROR" "Missing: ~/.config/archriot/archriot.conf"
+        echo "ERROR: Missing: ~/.config/archriot/archriot.conf" >> "$LOG_FILE" 2>&1
         ((theme_issues++))
     else
-        log_message "INFO" "✓ archriot.conf found"
+        echo "INFO: ✓ archriot.conf found" >> "$LOG_FILE" 2>&1
     fi
 
     # Check backgrounds directory
     if [[ ! -d "$HOME/.config/archriot/backgrounds" ]]; then
-        log_message "ERROR" "Missing: ~/.config/archriot/backgrounds/"
+        echo "ERROR: Missing: ~/.config/archriot/backgrounds/" >> "$LOG_FILE" 2>&1
         ((theme_issues++))
     else
         local bg_count=$(find "$HOME/.config/archriot/backgrounds" -type f \( -name "*.jpg" -o -name "*.png" \) 2>/dev/null | wc -l)
         if [[ $bg_count -gt 0 ]]; then
-            log_message "INFO" "✓ backgrounds directory found ($bg_count files)"
+            echo "INFO: ✓ backgrounds directory found ($bg_count files)" >> "$LOG_FILE" 2>&1
         else
-            log_message "ERROR" "backgrounds directory exists but contains no image files"
+            echo "ERROR: backgrounds directory exists but contains no image files" >> "$LOG_FILE" 2>&1
             ((theme_issues++))
         fi
     fi
 
     # Only attempt fix if there are actual issues
     if [[ $theme_issues -gt 0 ]]; then
-        log_message "ERROR" "Theme system has $theme_issues issue(s)"
+        echo "ERROR: Theme system has $theme_issues issue(s)" >> "$LOG_FILE" 2>&1
         ((failures++))
 
         # Attempt to fix theme system
-        log_message "INFO" "Attempting to fix theme system..."
+        echo "INFO: Attempting to fix theme system..." >> "$LOG_FILE" 2>&1
         local theming_script="$INSTALL_DIR/desktop/theming.sh"
         if [[ -f "$theming_script" ]]; then
-            if bash "$theming_script" 2>&1 | tee -a "$LOG_FILE"; then
-                log_message "SUCCESS" "Theme system fixed"
+            if bash "$theming_script" >> "$LOG_FILE" 2>&1; then
+                echo "SUCCESS: Theme system fixed" >> "$LOG_FILE" 2>&1
                 ((failures--))
             else
-                log_message "ERROR" "Failed to fix theme system"
+                echo "ERROR: Failed to fix theme system" >> "$LOG_FILE" 2>&1
             fi
         fi
     else
-        log_message "INFO" "✓ Theme system properly configured"
+        echo "INFO: ✓ Theme system properly configured" >> "$LOG_FILE" 2>&1
     fi
 
     # Verify gum (required for UI)
     if ! command -v gum &>/dev/null; then
-        log_message "WARNING" "gum not found, installing..."
-        if yay -S --noconfirm --needed gum; then
-            log_message "SUCCESS" "gum installed"
+        echo "WARNING: gum not found, installing..." >> "$LOG_FILE" 2>&1
+        if yay -S --noconfirm --needed gum >> "$LOG_FILE" 2>&1; then
+            echo "SUCCESS: gum installed" >> "$LOG_FILE" 2>&1
         else
-            log_message "ERROR" "Failed to install gum"
+            echo "ERROR: Failed to install gum" >> "$LOG_FILE" 2>&1
             ((failures++))
         fi
     fi
 
     # Verify waybar
     if ! command -v waybar &>/dev/null; then
-        log_message "WARNING" "waybar not found"
+        echo "WARNING: waybar not found" >> "$LOG_FILE" 2>&1
     fi
 
     if [[ $failures -eq 0 ]]; then
-        log_message "SUCCESS" "All critical components verified"
+        echo "SUCCESS: All critical components verified" >> "$LOG_FILE" 2>&1
         return 0
     else
-        log_message "WARNING" "$failures critical verification failures detected"
+        echo "WARNING: $failures critical verification failures detected" >> "$LOG_FILE" 2>&1
         return 1
     fi
 }
@@ -526,51 +547,51 @@ verify_installation() {
 
 # System updates and cleanup
 finalize_installation() {
-    log_message "INFO" "🔧 Finalizing installation..."
+    echo "INFO: 🔧 Finalizing installation..." >> "$LOG_FILE" 2>&1
 
     # Update locate database
-    log_message "INFO" "Updating locate database..."
-    sudo updatedb || log_message "WARNING" "Failed to update locate database"
+    echo "INFO: Updating locate database..." >> "$LOG_FILE" 2>&1
+    sudo updatedb >> "$LOG_FILE" 2>&1 || echo "WARNING: Failed to update locate database" >> "$LOG_FILE" 2>&1
 
     # Update font cache
-    log_message "INFO" "Updating font cache..."
-    fc-cache -fv >/dev/null 2>&1 || log_message "WARNING" "Failed to update font cache"
+    echo "INFO: Updating font cache..." >> "$LOG_FILE" 2>&1
+    fc-cache -fv >> "$LOG_FILE" 2>&1 || echo "WARNING: Failed to update font cache" >> "$LOG_FILE" 2>&1
 
     # Update icon cache
-    log_message "INFO" "Updating icon cache..."
+    echo "INFO: Updating icon cache..." >> "$LOG_FILE" 2>&1
     gtk-update-icon-cache -f ~/.local/share/icons/hicolor/ 2>/dev/null || true
     update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
 
     # Reload running services
-    log_message "INFO" "Reloading system services..."
+    echo "INFO: Reloading system services..." >> "$LOG_FILE" 2>&1
     if pgrep -x "Hyprland" >/dev/null; then
         hyprctl reload 2>/dev/null || true
     fi
 
     # Configure thumbnails (disable PDF thumbnails while keeping others)
-    log_message "INFO" "Configuring thumbnails (disable PDF thumbnails)..."
+    echo "INFO: Configuring thumbnails (disable PDF thumbnails)..." >> "$LOG_FILE" 2>&1
     if [[ -f "$INSTALL_DIR/bin/fix-thunar-thumbnails" ]]; then
-        if bash "$INSTALL_DIR/bin/fix-thunar-thumbnails" 2>&1 | tee -a "$LOG_FILE"; then
-            log_message "SUCCESS" "Thumbnail configuration completed"
+        if bash "$INSTALL_DIR/bin/fix-thunar-thumbnails" >> "$LOG_FILE" 2>&1; then
+            echo "SUCCESS: Thumbnail configuration completed" >> "$LOG_FILE" 2>&1
         else
-            log_message "WARNING" "Thumbnail configuration had issues but continuing"
+            echo "WARNING: Thumbnail configuration had issues but continuing" >> "$LOG_FILE" 2>&1
         fi
     else
-        log_message "WARNING" "Thumbnail fix script not found"
+        echo "WARNING: Thumbnail fix script not found" >> "$LOG_FILE" 2>&1
     fi
 
     # Ensure waybar is running after installation (only in Wayland environment)
     if [[ -n "$WAYLAND_DISPLAY" ]] || pgrep -x "Hyprland" >/dev/null; then
         if pgrep -x "waybar" >/dev/null; then
-            log_message "INFO" "Restarting waybar..."
+            echo "INFO: Restarting waybar..." >> "$LOG_FILE" 2>&1
             pkill waybar 2>/dev/null || true
             sleep 1
         else
-            log_message "INFO" "Starting waybar..."
+            echo "INFO: Starting waybar..." >> "$LOG_FILE" 2>&1
         fi
         nohup waybar &>/dev/null & disown
     else
-        log_message "INFO" "Skipping waybar start (no Wayland environment detected)"
+        echo "INFO: Skipping waybar start (no Wayland environment detected)" >> "$LOG_FILE" 2>&1
     fi
 
     # Update version file
@@ -593,40 +614,14 @@ cleanup_sudo() {
     fi
 }
 
-# Show installation summary
+# Show installation summary (now handled by progress system)
 show_installation_summary() {
-    local end_time=$(date +%s)
-    local duration=$((end_time - INSTALL_START_TIME))
-    local duration_min=$((duration / 60))
-    local duration_sec=$((duration % 60))
+    # Use the beautiful progress system completion summary
+    progress_show_completion
+}
 
-    echo ""
-    echo "==============================================="
-    echo "🎉 ArchRiot v$ARCHRIOT_VERSION Installation Complete!"
-    echo "==============================================="
-    echo "⏱️  Total time: ${duration_min}m ${duration_sec}s"
-    echo "📁 Installation log: $LOG_FILE"
-
-    if [[ ${#FAILED_MODULES[@]} -gt 0 ]]; then
-        echo ""
-        echo "⚠️  Failed modules (${#FAILED_MODULES[@]}):"
-        for module in "${FAILED_MODULES[@]}"; do
-            echo "   ❌ $module"
-        done
-        echo ""
-        echo "📝 Check error log for details: $ERROR_LOG"
-        echo "🔄 To retry failed modules: source ~/.local/share/archriot/install.sh"
-    fi
-
-    if [[ ${#SKIPPED_MODULES[@]} -gt 0 ]]; then
-        echo ""
-        echo "ℹ️  Skipped modules (${#SKIPPED_MODULES[@]}):"
-        for module in "${SKIPPED_MODULES[@]}"; do
-            echo "   ⏭️  $module"
-        done
-    fi
-
-    echo ""
+# Show final tips and commands
+show_final_tips() {
     echo "🎯 Quick Commands:"
     echo "  • Launch Apps: Super + D"
     echo "  • Backgrounds: Super + Ctrl + Space"
@@ -643,8 +638,8 @@ show_installation_summary() {
 
 # Error handler for cleanup
 handle_installation_error() {
-    log_message "CRITICAL" "Installation failed unexpectedly!"
-    log_message "INFO" "Performing cleanup..."
+    echo "CRITICAL: Installation failed unexpectedly!" >> "$LOG_FILE" 2>&1
+    echo "INFO: Performing cleanup..." >> "$LOG_FILE" 2>&1
 
     cleanup_sudo
 
@@ -672,9 +667,9 @@ main() {
     init_logging
 
     # Essential system preparation
-    log_message "INFO" "🔧 Preparing system..."
+    echo "INFO: 🔧 Preparing system..." >> "$LOG_FILE" 2>&1
     install_essential_tools || {
-        log_message "CRITICAL" "Failed to install essential tools"
+        echo "CRITICAL: Failed to install essential tools" >> "$LOG_FILE" 2>&1
         exit 1
     }
 
@@ -693,6 +688,9 @@ main() {
     # Handle Git credentials (before modules so gum works properly)
     handle_git_credentials
 
+    # Resume progress display after user interaction
+    progress_resume_after_input
+
     # Process all installation modules
     process_installation_modules
 
@@ -707,10 +705,11 @@ main() {
 
     # Show summary
     show_installation_summary
+    show_final_tips
 
     # Final check for major failures
     if [[ ${#FAILED_MODULES[@]} -gt 0 ]]; then
-        log_message "WARNING" "Installation completed with some failures"
+        echo "WARNING: Installation completed with some failures" >> "$LOG_FILE" 2>&1
 
         # Check if any critical modules failed
         local critical_failed=false
@@ -736,6 +735,9 @@ main() {
 
     echo "✅ System ready! New terminals will have updated configs."
     echo ""
+
+    # Pause progress for reboot prompt
+    progress_pause_for_input "🔄 System Reboot"
 
     # Optional reboot prompt
     if command -v gum &>/dev/null; then

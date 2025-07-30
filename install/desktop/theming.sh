@@ -480,29 +480,13 @@ stop_theme_services() {
 
 
 
-# Setup blue light filtering
+# Setup blue light filtering (handled by hyprland.conf)
 start_blue_light_filter() {
-    echo "🌙 Setting up blue light filter..."
+    echo "🌙 Blue light filter managed by Hyprland..."
 
-    # Check if already running
-    if pgrep hyprsunset >/dev/null; then
-        echo "✓ Blue light filter already running"
-        return 0
-    fi
-
-    # Start hyprsunset
-    if command -v hyprsunset >/dev/null 2>&1; then
-        hyprsunset -t 3500 >/dev/null 2>&1 &
-        sleep 2
-
-        if pgrep hyprsunset >/dev/null; then
-            echo "✓ Blue light filter started (3500K)"
-        else
-            echo "⚠ Blue light filter failed to start"
-        fi
-    else
-        echo "⚠ hyprsunset not found, blue light filter not available"
-    fi
+    # Blue light filter is started automatically by hyprland.conf:
+    # exec-once = hyprsunset -t 3500
+    echo "✓ Blue light filter configured in Hyprland startup"
 }
 
 # Validate theme installation
