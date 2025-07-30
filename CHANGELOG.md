@@ -5,6 +5,23 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.15] - 2025-07-30
+
+### 🚨 Critical Bug Fix
+
+#### Media Applications Installation Error
+
+- **Fixed "print_status: command not found" error** in media.sh during installation
+- **Root cause**: Added function calls to script that doesn't source helper libraries
+- **Solution**: Replaced unavailable functions with direct commands and echo statements
+- **Impact**: Prevents installation failure at media applications step
+- **Added print_status to exported functions** for scripts that do source helpers
+- **Maintained spotdl --nocheck functionality** with proper availability
+
+This critical fix ensures media applications install correctly without function availability errors.
+
+---
+
 ## [2.0.14] - 2025-07-30
 
 ### 🚀 Major Application Improvements
