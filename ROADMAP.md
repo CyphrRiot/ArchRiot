@@ -10,7 +10,49 @@
 
 ## IMMEDIATE PRIORITIES
 
-### 1. 🔧 Fix Fuzzel Sudo Integration
+### 1. 🚨 CRITICAL: Process Detachment Audit
+
+**Status**: CRITICAL PRIORITY - System stability issue
+**Problem**: Background processes not properly detached from installer terminal sessions
+**Impact**: Services disappear when installer GUI terminal closes, breaking user experience
+
+**Root Cause Discovered**: Today we found swaybg (background service) was never properly detached with `nohup` and `disown`. Only waybar was fixed in v1.6.2. This suggests there may be OTHER services with the same issue.
+
+**URGENT ACTIONS**:
+
+- [ ] **AUDIT EVERY SINGLE FILE** in the installation process for background process starts
+- [ ] **Search for ALL instances** of `&` without proper `nohup` and `disown`
+- [ ] **Identify ALL services** that should persist after installer terminal closes
+- [ ] **Fix ALL process detachment issues** found during audit
+- [ ] **Test ALL background services** survive terminal closure
+- [ ] **Document proper patterns** for future background service starts
+
+**Files to Audit** (MUST check every single one):
+
+- [ ] `install.sh` - Main installer
+- [ ] `setup.sh` - Secondary installer
+- [ ] `install/core/*.sh` - Core system setup
+- [ ] `install/system/*.sh` - System configuration
+- [ ] `install/desktop/*.sh` - Desktop environment (theming.sh FIXED)
+- [ ] `install/applications/*.sh` - Application installation
+- [ ] `bin/*` - All utility scripts (swaybg-next FIXED)
+- [ ] Any other scripts that start background processes
+
+**Search Patterns to Find**:
+
+- `.*&$` - Lines ending with & (background processes)
+- `systemctl.*start` - Service starts that may need detachment
+- `pkill.*sleep.*command.*&` - Kill/restart patterns
+- Any daemon or service startup commands
+
+**Success Criteria**:
+
+- ALL background services properly detached with `nohup` and `disown`
+- NO services disappear when installer terminal closes
+- Comprehensive documentation of proper background process patterns
+- Zero process orphaning or service loss during installation
+
+### 2. 🔧 Fix Fuzzel Sudo Integration
 
 **Status**: High Priority - Affects core user experience
 **Problem**: Migrate command works in terminal but fails in Fuzzel launcher
