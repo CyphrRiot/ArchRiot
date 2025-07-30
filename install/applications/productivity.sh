@@ -46,7 +46,7 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     gsettings set org.gnome.TextEditor use-system-font false
 
     # Set default theme to Tokyo Night Dark
-    gsettings set org.gnome.TextEditor style-scheme 'tokyonight-night'
+    gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'
     echo "✓ Tokyo Night Dark theme set for text editor"
 fi
 

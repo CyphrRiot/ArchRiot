@@ -523,15 +523,6 @@ finalize_installation() {
         hyprctl reload 2>/dev/null || true
     fi
 
-    # Ensure waybar is running after installation
-    log_message "INFO" "Starting waybar..."
-    if pgrep -x "waybar" >/dev/null; then
-        log_message "INFO" "Restarting waybar..."
-        pkill waybar 2>/dev/null || true
-        sleep 1
-    fi
-    nohup waybar &>/dev/null & disown 2>/dev/null || true
-
     # Configure thumbnails (disable PDF thumbnails while keeping others)
     log_message "INFO" "Configuring thumbnails (disable PDF thumbnails)..."
     if [[ -f "$INSTALL_DIR/bin/fix-thunar-thumbnails" ]]; then
@@ -542,6 +533,20 @@ finalize_installation() {
         fi
     else
         log_message "WARNING" "Thumbnail fix script not found"
+    fi
+
+    # Ensure waybar is running after installation (only in Wayland environment)
+    if [[ -n "$WAYLAND_DISPLAY" ]] || pgrep -x "Hyprland" >/dev/null; then
+        if pgrep -x "waybar" >/dev/null; then
+            log_message "INFO" "Restarting waybar..."
+            pkill waybar 2>/dev/null || true
+            sleep 1
+        else
+            log_message "INFO" "Starting waybar..."
+        fi
+        nohup waybar &>/dev/null & disown
+    else
+        log_message "INFO" "Skipping waybar start (no Wayland environment detected)"
     fi
 
     # Update version file
