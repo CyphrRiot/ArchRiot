@@ -190,6 +190,106 @@ setup_sudo() {
     return 0
 }
 
+# Handle Git credentials with gum (before module processing)
+handle_git_credentials() {
+    echo ""
+    echo "🔍 Git Configuration (Optional)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    # Check for existing git credentials
+    local existing_name=$(git config --global user.name 2>/dev/null || echo "")
+    local existing_email=$(git config --global user.email 2>/dev/null || echo "")
+
+    if [[ -n "$existing_name" || -n "$existing_email" ]]; then
+        echo "🎉 GitHub credentials found!"
+        echo ""
+
+        # Calculate box width and format entries properly
+        local box_width=60
+        local name_display="${existing_name:-"(not set)"}"
+        local email_display="${existing_email:-"(not set)"}"
+
+        # Format lines with proper spacing
+        local name_line=$(printf "│ Username: %-*s │" $((box_width-15)) "$name_display")
+        local email_line=$(printf "│ Email:    %-*s │" $((box_width-15)) "$email_display")
+
+        echo "┌─────────────────────────────────────────────────────────┐"
+        echo "│                 📋 Current Git Config                   │"
+        echo "├─────────────────────────────────────────────────────────┤"
+        echo "$name_line"
+        echo "$email_line"
+        echo "└─────────────────────────────────────────────────────────┘"
+        echo ""
+
+        # Use gum confirm (works here since not piped)
+        if command -v gum &>/dev/null; then
+            if gum confirm "Would you like to use these credentials?"; then
+                echo "✅ Using existing credentials!"
+                export ARCHRIOT_USER_NAME="$existing_name"
+                export ARCHRIOT_USER_EMAIL="$existing_email"
+            else
+                echo ""
+                echo "💬 No problem! Let's set up new credentials..."
+                echo ""
+                export ARCHRIOT_USER_NAME=$(gum input --placeholder "Your full name for Git commits" --prompt "Name: ")
+                export ARCHRIOT_USER_EMAIL=$(gum input --placeholder "Your email for Git commits" --prompt "Email: ")
+            fi
+        else
+            echo -n "Would you like to use these credentials? [Y/n]: "
+            read -r response
+            case "$response" in
+                [nN][oO]|[nN])
+                    echo ""
+                    echo "💬 No problem! Let's set up new credentials..."
+                    echo ""
+                    echo -n "Name (Your full name for Git commits): "
+                    read -r ARCHRIOT_USER_NAME
+                    echo -n "Email (Your email for Git commits): "
+                    read -r ARCHRIOT_USER_EMAIL
+                    export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
+                    ;;
+                *)
+                    echo ""
+                    echo "✅ Using existing credentials!"
+                    export ARCHRIOT_USER_NAME="$existing_name"
+                    export ARCHRIOT_USER_EMAIL="$existing_email"
+                    ;;
+            esac
+        fi
+    else
+        echo "Configure Git with your name and email for commits and development."
+        echo "This is optional - you can skip by pressing Enter or configure later."
+        echo ""
+
+        if command -v gum &>/dev/null; then
+            export ARCHRIOT_USER_NAME=$(gum input --placeholder "Your full name for Git commits (optional)" --prompt "Name: ")
+            export ARCHRIOT_USER_EMAIL=$(gum input --placeholder "Your email for Git commits (optional)" --prompt "Email: ")
+        else
+            echo -n "Name (optional): "
+            read -r ARCHRIOT_USER_NAME
+            echo -n "Email (optional): "
+            read -r ARCHRIOT_USER_EMAIL
+            export ARCHRIOT_USER_NAME ARCHRIOT_USER_EMAIL
+        fi
+    fi
+
+    # Persist for modules to use
+    local env_file="$HOME/.config/archriot/user.env"
+    mkdir -p "$(dirname "$env_file")"
+    {
+        echo "ARCHRIOT_USER_NAME='$ARCHRIOT_USER_NAME'"
+        echo "ARCHRIOT_USER_EMAIL='$ARCHRIOT_USER_EMAIL'"
+    } > "$env_file"
+
+    if [[ -n "$ARCHRIOT_USER_NAME" || -n "$ARCHRIOT_USER_EMAIL" ]]; then
+        echo "✓ Git identity configured: ${ARCHRIOT_USER_NAME:-"(no name)"} <${ARCHRIOT_USER_EMAIL:-"(no email)"}>"
+    else
+        echo "⚠ Git identity skipped - you can configure later if needed"
+    fi
+    echo ""
+}
+
 # ================================================================================
 # Module Execution Functions
 # ================================================================================
@@ -548,6 +648,9 @@ main() {
             }
         fi
     done
+
+    # Handle Git credentials (before modules so gum works properly)
+    handle_git_credentials
 
     # Process all installation modules
     process_installation_modules
