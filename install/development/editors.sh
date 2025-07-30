@@ -26,6 +26,14 @@ yay -S --noconfirm --needed \
 # This preserves the ArchRiot dark theme setup and prevents overwriting user configs
 echo "✓ Neovim will be configured with ArchRiot TokyoNight theme via main config installer"
 
+# Create vi symlink to nvim for system tools (visudo, etc.)
+echo "🔗 Creating vi -> nvim symlink for system compatibility..."
+if sudo ln -sf /usr/bin/nvim /usr/bin/vi; then
+    echo "✓ vi symlink created (system tools will use nvim)"
+else
+    echo "⚠ Failed to create vi symlink"
+fi
+
 # Install Zed desktop file and Wayland launcher
 echo "🎯 Installing Zed desktop integration..."
 mkdir -p ~/.local/share/applications ~/.local/bin
