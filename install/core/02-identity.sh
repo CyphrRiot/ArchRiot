@@ -13,20 +13,13 @@ get_input() {
     local value
 
     while true; do
-        if command -v gum &>/dev/null; then
-            if [[ "$optional" == "true" ]]; then
-                value=$(gum input --placeholder "$placeholder (optional - press Enter to skip)" --prompt "$prompt> ")
-            else
-                value=$(gum input --placeholder "$placeholder" --prompt "$prompt> ")
-            fi
+        # Always use standard read to avoid terminal artifacts with gum input in loops
+        if [[ "$optional" == "true" ]]; then
+            echo -n "$prompt ($placeholder - optional, press Enter to skip)> "
         else
-            if [[ "$optional" == "true" ]]; then
-                echo -n "$prompt (optional - press Enter to skip)> "
-            else
-                echo -n "$prompt> "
-            fi
-            read -r value
+            echo -n "$prompt ($placeholder)> "
         fi
+        read -r value
 
         # If optional and empty, return empty
         if [[ "$optional" == "true" && -z "$value" ]]; then
