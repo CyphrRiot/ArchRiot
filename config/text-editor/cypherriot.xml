@@ -9,7 +9,7 @@
   <_description>CypherRiot theme with deep dark background and purple accents</_description>
 
   <!-- CypherRiot Color Palette -->
-  <color name="bg"         value="#1a1b26"/>  <!-- Primary background -->
+  <color name="bg"         value="#0a0b10"/>  <!-- Primary background (matches Ghostty) -->
   <color name="bg-dark"    value="#16161e"/>  <!-- Darker background -->
   <color name="bg-float"   value="#222436"/>  <!-- Floating background -->
   <color name="fg"         value="#ffffff"/>  <!-- Foreground text -->

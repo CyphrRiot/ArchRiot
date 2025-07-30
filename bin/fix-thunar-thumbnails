@@ -133,13 +133,28 @@ fi
 # Disable PDF thumbnails comprehensively
 echo "📄 Disabling PDF thumbnails to show proper icons..."
 
+# Disable tumbler poppler plugin (THE REAL CULPRIT)
+if [[ -f /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so ]]; then
+    echo "  🔧 Disabling tumbler poppler plugin (main PDF thumbnailer)..."
+    if sudo mv /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so.disabled; then
+        echo "  ✓ Tumbler poppler plugin disabled"
+    else
+        echo "  ❌ Failed to disable tumbler poppler plugin"
+        return 1
+    fi
+else
+    echo "  ✓ Tumbler poppler plugin already disabled"
+fi
+
 # Disable evince thumbnailer
 if [[ -f /usr/share/thumbnailers/evince.thumbnailer ]]; then
-    sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || {
-        echo "  ⚠ Could not disable evince thumbnailer - you may need to run manually:"
-        echo "  sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled"
-    }
-    echo "  ✓ Evince PDF thumbnails disabled"
+    echo "  🔧 Disabling evince.thumbnailer..."
+    if sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled; then
+        echo "  ✓ Evince PDF thumbnails disabled"
+    else
+        echo "  ❌ Failed to disable evince thumbnailer"
+        return 1
+    fi
 else
     echo "  ✓ Evince PDF thumbnails already disabled"
 fi
@@ -182,6 +197,16 @@ else
     echo "  ✓ No thumbnail cache found"
 fi
 
+# Ensure Thunar thumbnails are enabled for everything EXCEPT PDFs
+echo "⚙️  Ensuring Thunar thumbnails are enabled for non-PDF files..."
+if command -v xfconf-query &>/dev/null; then
+    # Make sure thumbnail mode is set to ALWAYS (not NEVER)
+    xfconf-query -c thunar -p /misc-thumbnail-mode -s THUNAR_THUMBNAIL_MODE_ALWAYS --create --type string 2>/dev/null || true
+    echo "  ✓ Thunar thumbnails enabled for all non-PDF files"
+else
+    echo "  ⚠ xfconf-query not available, skipping Thunar thumbnail settings"
+fi
+
 # Update tumbler config to explicitly disable PDF thumbnails
 echo "⚙️  Updating tumbler configuration to disable PDF thumbnails..."
 sed -i 's/\[PopelerThumbnailer\]/[PoplerThumbnailer]/' "$TUMBLER_CONFIG_DIR/tumbler.rc" 2>/dev/null || true
@@ -210,12 +235,19 @@ fi
 # Restart tumbler service to apply changes
 echo "🔄 Restarting thumbnail service to apply changes..."
 pkill -f tumbler 2>/dev/null || true
-sleep 1
+pkill -f tumblerd 2>/dev/null || true
+sleep 2
 
 # Kill any running Thunar instances to force refresh
 echo "🔄 Restarting Thunar to apply changes..."
 pkill -f thunar 2>/dev/null || true
 sleep 1
+
+# Force restart tumbler with clean state
+if command -v tumblerd >/dev/null; then
+    tumblerd &
+    echo "  ✓ Tumbler service restarted"
+fi
 
 echo "  ✓ PDF thumbnails comprehensively disabled"
 
@@ -223,10 +255,13 @@ echo ""
 echo "✅ Thunar thumbnail fix complete!"
 echo ""
 echo "📋 What was fixed:"
-echo "  • Installed thumbnail generation packages"
-echo "  • Configured tumbler service"
-echo "  • Cleared old thumbnail cache"
+echo "  • Disabled tumbler poppler plugin (main PDF thumbnailer)"
+echo "  • Disabled evince and papers PDF thumbnailers"
+echo "  • Cleared PDF thumbnail cache"
+echo "  • Ensured thumbnails work for all non-PDF files"
 echo "  • Restarted thumbnail services"
+echo ""
+echo "🎯 Result: Thumbnails work for images/videos/etc, but PDFs show icons only"
 echo ""
 echo "💡 Next steps:"
 echo "  1. Open Thunar and navigate to a folder with images/videos"

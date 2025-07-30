@@ -45,13 +45,9 @@ if command -v gnome-text-editor >/dev/null 2>&1; then
     gsettings set org.gnome.TextEditor line-height 1.2
     gsettings set org.gnome.TextEditor use-system-font false
 
-    # Set default theme (prefer Tokyo Night, fallback to first available)
-    if [[ -f "$HOME/.local/share/gtksourceview-5/styles/cypherriot.xml" ]]; then
-        gsettings set org.gnome.TextEditor style-scheme 'cypherriot'
-        echo "✓ Gnome Text Editor configured with CypherRiot theme"
-    else
-        echo "ℹ Using default text editor theme"
-    fi
+    # Set default theme to Tokyo Night Dark
+    gsettings set org.gnome.TextEditor style-scheme 'tokyonight-night'
+    echo "✓ Tokyo Night Dark theme set for text editor"
 fi
 
 # Install Zed editor configuration and launcher

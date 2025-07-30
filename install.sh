@@ -532,6 +532,18 @@ finalize_installation() {
     fi
     nohup waybar &>/dev/null & disown 2>/dev/null || true
 
+    # Configure thumbnails (disable PDF thumbnails while keeping others)
+    log_message "INFO" "Configuring thumbnails (disable PDF thumbnails)..."
+    if [[ -f "$INSTALL_DIR/bin/fix-thunar-thumbnails" ]]; then
+        if bash "$INSTALL_DIR/bin/fix-thunar-thumbnails" 2>&1 | tee -a "$LOG_FILE"; then
+            log_message "SUCCESS" "Thumbnail configuration completed"
+        else
+            log_message "WARNING" "Thumbnail configuration had issues but continuing"
+        fi
+    else
+        log_message "WARNING" "Thumbnail fix script not found"
+    fi
+
     # Update version file
     if [[ -n "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
         mkdir -p "$HOME/.local/share/archriot"
