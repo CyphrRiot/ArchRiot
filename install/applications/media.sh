@@ -10,6 +10,7 @@
 install_packages "mpv pavucontrol ffmpeg" "essential"
 install_packages "totem" "essential"
 install_packages "yt-dlp" "essential"
+install_packages "python-opencv" "essential"
 install_packages "lollypop" "optional"
 install_packages "spotdl" "optional"
 

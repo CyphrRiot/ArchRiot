@@ -3,15 +3,29 @@
 import json
 import os
 from datetime import datetime, timedelta
+from pathlib import Path
 
 TIMER_FILE = "/tmp/waybar-tomato.json"
 STATE_FILE = "/tmp/waybar-tomato-timer.state"
+CONFIG_FILE = Path.home() / ".config/archriot/archriot.conf"
 
 class SimplePomodoro:
     def __init__(self):
-        self.work_minutes = 25
+        self.enabled, self.work_minutes = self.load_config()
         self.break_minutes = 5
         self.load_and_process()
+
+    def load_config(self):
+        """Load Pomodoro config from ArchRiot config file"""
+        try:
+            import configparser
+            config = configparser.ConfigParser()
+            config.read(CONFIG_FILE)
+            enabled = config.getboolean('pomodoro', 'enabled', fallback=True)
+            duration = config.getint('pomodoro', 'duration', fallback=25)
+            return enabled, duration
+        except:
+            return True, 25  # Default fallback
 
     def load_and_process(self):
         """Load state and process commands"""
@@ -29,8 +43,8 @@ class SimplePomodoro:
         except:
             self.reset_state()
 
-        # Process click commands
-        if os.path.exists(STATE_FILE):
+        # Process click commands - but only if enabled
+        if self.enabled and os.path.exists(STATE_FILE):
             try:
                 with open(STATE_FILE, 'r') as f:
                     action = json.load(f).get('action')
@@ -39,6 +53,12 @@ class SimplePomodoro:
                 elif action == 'reset':
                     self.reset_state()
                     self.save_state()
+                os.remove(STATE_FILE)
+            except:
+                pass
+        elif not self.enabled and os.path.exists(STATE_FILE):
+            # Remove state file but don't process when disabled
+            try:
                 os.remove(STATE_FILE)
             except:
                 pass
@@ -83,8 +103,12 @@ class SimplePomodoro:
 
     def get_display(self):
         """Get waybar display"""
+        # If disabled, show grayed out version
+        if not self.enabled:
+            return {"text": "󰌾 --:--", "tooltip": "Pomodoro Timer - Disabled", "class": "disabled"}
+
         if self.mode == 'idle':
-            return {"text": "󰌾 25:00", "tooltip": "Pomodoro Timer - Click to start", "class": "idle"}
+            return {"text": f"󰌾 {self.work_minutes:02d}:00", "tooltip": "Pomodoro Timer - Click to start", "class": "idle"}
 
         if not self.running and self.paused_remaining is not None:
             remaining = self.paused_remaining
