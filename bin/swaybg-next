@@ -64,7 +64,7 @@ echo "🖼️  Switched to background: $(basename "$NEW_BACKGROUND") ($(($NEXT_I
 # Relaunch swaybg
 pkill -x swaybg 2>/dev/null
 sleep 0.5
-setsid swaybg -i "$NEW_BACKGROUND" -m fill >/dev/null 2>&1 &
+nohup setsid swaybg -i "$NEW_BACKGROUND" -m fill >/dev/null 2>&1 & disown
 
 # Verify swaybg started
 sleep 1

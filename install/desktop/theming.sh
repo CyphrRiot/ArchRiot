@@ -266,7 +266,7 @@ setup_backgrounds() {
     if [[ -f "$riot_01_bg" ]]; then
         pkill swaybg 2>/dev/null || true
         sleep 1
-        swaybg -i "$riot_01_bg" -m fill >/dev/null 2>&1 &
+        nohup swaybg -i "$riot_01_bg" -m fill >/dev/null 2>&1 & disown
         echo "✓ Background service started with riot_01.jpg"
     else
         # Fallback to first available background
@@ -274,7 +274,7 @@ setup_backgrounds() {
         if [[ -n "$first_bg" ]]; then
             pkill swaybg 2>/dev/null || true
             sleep 1
-            swaybg -i "$first_bg" -m fill >/dev/null 2>&1 &
+            nohup swaybg -i "$first_bg" -m fill >/dev/null 2>&1 & disown
             echo "✓ Background service started with: $(basename "$first_bg")"
         fi
     fi
@@ -400,7 +400,7 @@ start_background_service() {
     fi
 
     if [[ -f "$bg_file" ]]; then
-        swaybg -i "$bg_file" -m fill >/dev/null 2>&1 &
+        nohup swaybg -i "$bg_file" -m fill >/dev/null 2>&1 & disown
         echo "✓ Background service started with: $(basename "$bg_file")"
     else
         echo "⚠ No background files found in ~/.config/archriot/backgrounds"
