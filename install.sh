@@ -32,6 +32,7 @@ declare -A MODULE_PRIORITIES=(
     ["system"]=20
     ["development"]=30
     ["desktop"]=40
+    ["post-desktop"]=45
     ["applications"]=50
     ["optional"]=60
 )
@@ -422,19 +423,14 @@ finalize_installation() {
         hyprctl reload 2>/dev/null || true
     fi
 
-    # Ensure waybar is running after installation (only in Wayland environment)
-    if [[ -n "$WAYLAND_DISPLAY" ]] || pgrep -x "Hyprland" >/dev/null; then
-        if pgrep -x "waybar" >/dev/null; then
-            log_message "INFO" "Restarting waybar..."
-            pkill waybar 2>/dev/null || true
-            sleep 1
-        else
-            log_message "INFO" "Starting waybar..."
-        fi
-        nohup waybar &>/dev/null & disown
-    else
-        log_message "INFO" "Skipping waybar start (no Wayland environment detected)"
+    # Ensure waybar is running after installation
+    log_message "INFO" "Starting waybar..."
+    if pgrep -x "waybar" >/dev/null; then
+        log_message "INFO" "Restarting waybar..."
+        pkill waybar 2>/dev/null || true
+        sleep 1
     fi
+    nohup waybar &>/dev/null & disown 2>/dev/null || true
 
     # Update version file
     if [[ -n "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
