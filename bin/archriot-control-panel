@@ -1218,48 +1218,84 @@ class DisplayWidget(BaseControlWidget):
         self.setup_controls()
 
     def get_available_resolutions(self):
-        """Get available monitor resolutions from hyprctl"""
+        """Get available monitor resolutions from system"""
+        try:
+            import subprocess
+            import os
+
+            # Try hyprctl first
+            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
+            if result.returncode == 0:
+                current_resolution = "1920x1080"
+                available_resolutions = set()
+
+                for line in result.stdout.split('\n'):
+                    # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
+                    if '@' in line and 'x' in line and not 'availableModes:' in line:
+                        if line.strip() and line.startswith('\t') and ' at ' in line:
+                            try:
+                                resolution_part = line.strip().split('@')[0]
+                                if 'x' in resolution_part:
+                                    current_resolution = resolution_part
+                            except (ValueError, IndexError):
+                                pass
+
+                    # Get available modes
+                    if 'availableModes:' in line:
+                        modes = line.split('availableModes:')[1].strip()
+                        for mode in modes.split():
+                            if 'x' in mode and '@' in mode:
+                                resolution = mode.split('@')[0]
+                                if 'x' in resolution:
+                                    available_resolutions.add(resolution)
+
+                if available_resolutions:
+                    sorted_resolutions = sorted(list(available_resolutions),
+                                              key=lambda x: int(x.split('x')[0]) * int(x.split('x')[1]),
+                                              reverse=True)[:5]
+                    return sorted_resolutions, current_resolution
+
+            # Fallback: try to get from /sys/class/drm
+            drm_modes = []
+            for drm_path in os.listdir('/sys/class/drm/'):
+                if drm_path.startswith('card0-') and not drm_path.endswith('-status'):
+                    modes_file = f'/sys/class/drm/{drm_path}/modes'
+                    if os.path.exists(modes_file):
+                        with open(modes_file, 'r') as f:
+                            for mode in f.read().strip().split('\n'):
+                                if mode and 'x' in mode:
+                                    drm_modes.append(mode)
+
+            if drm_modes:
+                # Remove duplicates and sort by pixel count
+                unique_modes = list(set(drm_modes))
+                sorted_modes = sorted(unique_modes,
+                                    key=lambda x: int(x.split('x')[0]) * int(x.split('x')[1]),
+                                    reverse=True)[:5]
+                return sorted_modes, sorted_modes[0] if sorted_modes else "1920x1080"
+
+            # Final fallback - mixed aspect ratios
+            return ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"], "1920x1080"
+
+        except Exception as e:
+            return ["1920x1080", "1680x1050", "1440x900", "1280x720", "1024x768"], "1920x1080"
+
+    def get_current_scaling(self):
+        """Get current monitor scaling from hyprctl"""
         try:
             import subprocess
             result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
-            if result.returncode != 0:
-                return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
-
-            # Extract current resolution and available modes
-            current_resolution = 1920
-            widths = set()
-
-
-            for line in result.stdout.split('\n'):
-                # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
-                if '@' in line and 'x' in line and not 'availableModes:' in line:
-                    if line.strip() and line.startswith('\t') and ' at ' in line:
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if line.strip().startswith('scale:'):
                         try:
-                            resolution_part = line.strip().split('@')[0]
-                            if 'x' in resolution_part:
-                                current_resolution = int(resolution_part.split('x')[0])
+                            scale_value = float(line.strip().split(':')[1].strip())
+                            return int(scale_value * 100)  # Convert to percentage
                         except (ValueError, IndexError):
                             pass
-
-                # Get available modes
-                if 'availableModes:' in line:
-                    modes = line.split('availableModes:')[1].strip()
-                    for mode in modes.split():
-                        if 'x' in mode and '@' in mode:
-                            width = mode.split('x')[0]
-                            try:
-                                widths.add(int(width))
-                            except ValueError:
-                                continue
-
-            # Sort and take up to 5 largest resolutions
-            sorted_widths = sorted(widths, reverse=True)[:5]
-            available_widths = sorted_widths if sorted_widths else [1920, 1680, 1440, 1280, 1024]
-
-            return available_widths, current_resolution
-
-        except Exception as e:
-            return [1920, 1680, 1440, 1280, 1024], 1920  # fallback resolutions
+            return 100  # Default to 100%
+        except Exception:
+            return 100
 
     def setup_controls(self):
         """Setup display settings controls"""
@@ -1269,10 +1305,11 @@ class DisplayWidget(BaseControlWidget):
         try:
             self.available_resolutions, current_resolution = self.get_available_resolutions()
         except Exception as e:
-            self.available_resolutions, current_resolution = [1920, 1680, 1440, 1280, 1024], 1920
+            self.available_resolutions, current_resolution = ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"], "1920x1080"
 
-        # Always use actual current resolution, not stored config value
+        # Always use actual current resolution and scaling, not stored config values
         display_config['resolution'] = current_resolution
+        display_config['scaling'] = self.get_current_scaling()
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
@@ -1288,8 +1325,8 @@ class DisplayWidget(BaseControlWidget):
 
         # Ensure we have at least 2 resolutions for a valid slider range
         if len(self.available_resolutions) < 2:
-            self.available_resolutions = [1920, 1680, 1440, 1280, 1024]
-            current_resolution = 1920
+            self.available_resolutions = ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"]
+            current_resolution = "1920x1080"
             display_config['resolution'] = current_resolution
 
         max_range = max(1, len(self.available_resolutions)-1)  # Ensure max is at least 1
@@ -1332,16 +1369,17 @@ class DisplayWidget(BaseControlWidget):
         except Exception as e:
             raise
 
-        # Add evenly spaced tick marks with full resolution labels
-        resolution_labels = ["2560×1440", "1920×1080", "1680×1050", "1600×1200", "1440×900"]
-        for i, label in enumerate(resolution_labels):
-            self.resolution_scale.add_mark(i, Gtk.PositionType.BOTTOM, label)
+        # Add tick marks with actual available resolutions
+        for i, resolution in enumerate(self.available_resolutions):
+            # Convert "1920x1080" to "1920×1080" for display
+            display_res = resolution.replace('x', '×')
+            self.resolution_scale.add_mark(i, Gtk.PositionType.BOTTOM, display_res)
 
         resolution_box.append(self.resolution_scale)
         self.controls_box.append(resolution_box)
 
-        # Scaling slider (100%, 125%, 150%, 175%, 200%)
-        scaling_values = [100, 125, 150, 175, 200]
+        # Scaling slider - all valid Hyprland scaling factors
+        scaling_values = [100, 107, 120, 125, 150, 175, 200]  # 1.0, 1.066, 1.2, 1.25, 1.5, 1.75, 2.0
         scaling_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
         self.scaling_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 100, 200, 1)
@@ -1350,9 +1388,10 @@ class DisplayWidget(BaseControlWidget):
         self.scaling_scale.set_sensitive(display_config['enabled'])
         self.scaling_scale.connect("value-changed", self.on_scaling_changed)
 
-        # Add scaling tick marks
-        for scaling in scaling_values:
-            self.scaling_scale.add_mark(scaling, Gtk.PositionType.BOTTOM, f"{scaling}%")
+        # Add scaling tick marks with proper labels
+        scaling_labels = ["100%", "107%", "120%", "125%", "150%", "175%", "200%"]
+        for i, scaling in enumerate(scaling_values):
+            self.scaling_scale.add_mark(scaling, Gtk.PositionType.BOTTOM, scaling_labels[i])
 
         scaling_box.append(self.scaling_scale)
         self.controls_box.append(scaling_box)
@@ -1394,7 +1433,7 @@ class DisplayWidget(BaseControlWidget):
     def on_scaling_changed(self, scale):
         """Handle scaling change with snapping"""
         value = scale.get_value()
-        snapped_value = self.snap_to_nearest(value, [100, 125, 150, 175, 200])
+        snapped_value = self.snap_to_nearest(value, [100, 107, 120, 125, 150, 175, 200])
 
         if abs(value - snapped_value) > 0.5:
             scale.set_value(snapped_value)
@@ -1417,11 +1456,11 @@ class DisplayWidget(BaseControlWidget):
                 for line in lines:
                     if line.startswith('Monitor ') and '(ID' in line:
                         monitor_name = line.split(' ')[1]
-                        # Set resolution on this monitor
-                        subprocess.run(['hyprctl', 'keyword', 'monitor', f'{monitor_name},{resolution}x1440,0x0,1'], check=False)
+                        # Set resolution on this monitor using the full resolution string
+                        subprocess.run(['hyprctl', 'keyword', 'monitor', f'{monitor_name},{resolution},0x0,1'], check=False)
                         break
-        except Exception:
-            pass  # Silently fail if hyprctl is not available
+        except Exception as e:
+            print(f"Resolution change error: {e}")
 
     def apply_scaling_change(self, scaling):
         """Apply scaling change immediately to system"""
@@ -1454,7 +1493,7 @@ class DisplayWidget(BaseControlWidget):
         """Apply all pending changes"""
         enabled = self.switch.get_active()
         resolution = self.snap_to_nearest(self.resolution_scale.get_value(), self.available_resolutions)
-        scaling = self.snap_to_nearest(self.scaling_scale.get_value(), [100, 125, 150, 175, 200])
+        scaling = self.snap_to_nearest(self.scaling_scale.get_value(), [100, 107, 120, 125, 150, 175, 200])
 
         # Save to config
         self.config.set_display_config(enabled, resolution, scaling)
@@ -1640,8 +1679,7 @@ class ControlPanelWindow:
         # Initialize state tracking
         self.has_unsaved_changes = False
 
-        # Store original config for "Exit without Saving"
-        self.original_config = self.backup_current_config()
+
 
         # Create main window
         self.window = Gtk.Window()
@@ -1747,21 +1785,20 @@ class ControlPanelWindow:
         footer_box.set_margin_top(5)
         footer_box.set_margin_bottom(8)
 
-        # Exit without Saving button (left side)
-        exit_button = Gtk.Button(label="Exit (No Save)")
-        exit_button.connect("clicked", self.on_exit_without_saving)
-        footer_box.append(exit_button)
+        # Spacer to center the close button
+        spacer_left = Gtk.Box()
+        spacer_left.set_hexpand(True)
+        footer_box.append(spacer_left)
 
-        # Spacer to push Save button to the right
-        spacer = Gtk.Box()
-        spacer.set_hexpand(True)
-        footer_box.append(spacer)
+        # Close Control Panel button (center)
+        close_button = Gtk.Button(label="Close Control Panel")
+        close_button.connect("clicked", lambda x: self.window.close())
+        footer_box.append(close_button)
 
-        # Save and Exit button (right side)
-        save_button = Gtk.Button(label="Save and Exit")
-        save_button.connect("clicked", self.on_save_and_exit)
-        save_button.add_css_class("suggested-action")  # Purple/highlighted
-        footer_box.append(save_button)
+        # Spacer to center the close button
+        spacer_right = Gtk.Box()
+        spacer_right.set_hexpand(True)
+        footer_box.append(spacer_right)
 
         container.append(footer_box)
 
@@ -1791,15 +1828,7 @@ class ControlPanelWindow:
         self.has_unsaved_changes = False
         print("All changes applied!")
 
-    def on_exit_without_saving(self, button):
-        """Handle exit without saving button click - restore original config"""
-        self.restore_original_config()
-        self.window.close()
 
-    def on_save_and_exit(self, button):
-        """Handle save and exit button click"""
-        self.apply_all_changes()
-        self.window.close()
 
     def on_window_close(self, window):
         """Handle window close request"""
@@ -1807,40 +1836,9 @@ class ControlPanelWindow:
             self.app.quit()
         return False
 
-    def backup_current_config(self):
-        """Backup current config state for restoration"""
-        try:
-            return {
-                'pomodoro': self.config.get_pomodoro_config(),
-                'bluelight': self.config.get_bluelight_config(),
-                'mullvad': self.config.get_mullvad_config(),
-                'display': self.config.get_display_config(),
-                'power': self.config.get_power_config()
-            }
-        except:
-            return {}
 
-    def restore_original_config(self):
-        """Restore config to original state"""
-        try:
-            if hasattr(self, 'original_config') and self.original_config:
-                if 'pomodoro' in self.original_config:
-                    p = self.original_config['pomodoro']
-                    self.config.set_pomodoro_config(p['enabled'], p['duration'])
-                if 'bluelight' in self.original_config:
-                    b = self.original_config['bluelight']
-                    self.config.set_bluelight_config(b['enabled'], b['temperature'])
-                if 'mullvad' in self.original_config:
-                    m = self.original_config['mullvad']
-                    self.config.set_mullvad_config(m['enabled'], m['account_number'], m['auto_connect'])
-                if 'display' in self.original_config:
-                    d = self.original_config['display']
-                    self.config.set_display_config(d['enabled'], d['resolution'], d['scaling'])
-                if 'power' in self.original_config:
-                    pw = self.original_config['power']
-                    self.config.set_power_config(pw['enabled'], pw['profile'])
-        except Exception as e:
-            print(f"Config restore error: {e}")
+
+
 
     def get_archriot_version(self):
         """Read ArchRiot version from VERSION file"""

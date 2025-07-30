@@ -453,8 +453,8 @@ verify_installation() {
         ((failures++))
     fi
 
-    # Verify theme system
-    if [[ ! -d "$HOME/.config/archriot/current" ]]; then
+    # Verify theme system (consolidated structure)
+    if [[ ! -f "$HOME/.config/archriot/archriot.conf" ]] || [[ ! -d "$HOME/.config/archriot/backgrounds" ]]; then
         log_message "ERROR" "Theme system not configured"
         ((failures++))
 
