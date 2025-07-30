@@ -10,7 +10,66 @@
 
 ## IMMEDIATE PRIORITIES
 
-### 1. 🚨 CRITICAL: Process Detachment Audit
+### 1. 🎨 CRITICAL: Theme System Optimization & Redundancy Elimination
+
+**Status**: CRITICAL PRIORITY - User experience and installation efficiency
+**Problem**: Theme system has multiple redundant operations causing confusion and performance issues
+**Impact**: Slower installations, duplicate theme setups, confusing error messages, background resets
+
+**Root Cause Analysis**: The theme system currently has several overlapping and redundant operations:
+
+1. **"Cannot find theme directory" errors** - Theme verification runs before theme installation completes
+2. **Multiple Hyprland WM resets** - Different modules restart Hyprland independently
+3. **Repeated background setup** - Background service gets started/stopped/restarted multiple times
+4. **Duplicate theme configuration** - Theme setup runs in multiple places with different timing
+
+**CRITICAL ISSUES TO RESOLVE**:
+
+- [ ] **Eliminate "Cannot find theme directory" false positives**
+    - Move theme verification to run AFTER all theme setup is complete
+    - Improve verification logic to wait for theme system to be fully installed
+    - Add intelligent retry logic for transient theme directory issues
+
+- [ ] **Consolidate Hyprland restart operations**
+    - Identify all places where Hyprland gets restarted during installation
+    - Create single "finalize desktop" step that handles all Hyprland operations
+    - Eliminate mid-installation Hyprland restarts that disrupt user experience
+
+- [ ] **Optimize background service management**
+    - Single background service initialization after all theme components ready
+    - Eliminate redundant background starts/stops during theme setup
+    - Ensure background service only starts once with proper configuration
+
+- [ ] **Streamline theme setup workflow**
+    - Map all theme-related operations across installation modules
+    - Create dependency-aware theme setup that runs in correct order
+    - Eliminate duplicate theme configuration steps
+
+- [ ] **Implement installation state management**
+    - Track what theme components have been installed/configured
+    - Skip redundant operations when components already properly configured
+    - Provide clear progress indication for theme-related steps
+
+**TECHNICAL APPROACH**:
+
+1. **Theme State Tracking**: Create ~/.config/archriot/.install-state to track completion
+2. **Deferred Theme Operations**: Collect all theme operations, execute at end
+3. **Single Hyprland Restart**: Only restart Hyprland once after all desktop setup complete
+4. **Background Service Coordination**: Centralized background service management
+5. **Intelligent Verification**: Theme verification only after theme setup guaranteed complete
+
+**SUCCESS CRITERIA**:
+
+- ✅ Zero "Cannot find theme directory" errors during normal installation
+- ✅ Hyprland restarts maximum once during entire installation
+- ✅ Background service starts exactly once and persists correctly
+- ✅ No duplicate theme setup operations
+- ✅ Faster installation with cleaner progress indication
+- ✅ Consistent theme state across fresh installs and upgrades
+
+**PRIORITY**: This affects every single ArchRiot installation and upgrade, causing user confusion and unnecessary delays.
+
+### 2. 🚨 CRITICAL: Process Detachment Audit
 
 **Status**: CRITICAL PRIORITY - System stability issue
 **Problem**: Background processes not properly detached from installer terminal sessions
@@ -52,7 +111,7 @@
 - Comprehensive documentation of proper background process patterns
 - Zero process orphaning or service loss during installation
 
-### 2. 🔧 Fix Fuzzel Sudo Integration
+### 3. 🔧 Fix Fuzzel Sudo Integration
 
 **Status**: High Priority - Affects core user experience
 **Problem**: Migrate command works in terminal but fails in Fuzzel launcher
@@ -66,7 +125,7 @@
 - [ ] Test fuzzel integration with sudo commands
 - [ ] Verify migrate tool launches from application menu
 
-### 2. 📊 Implement Modern Progress Bar System
+### 4. 📊 Implement Modern Progress Bar System
 
 **Status**: FUTURE ENHANCEMENT - Clean installer experience
 **Problem**: Current installer output is verbose and overwhelming
@@ -98,7 +157,7 @@
 - Progress bar shows actual completion percentage
 - User can see what's happening without noise
 
-### 3. 🚀 System-wide v2.0.5 Deployment
+### 5. 🚀 System-wide v2.0.5 Deployment
 
 **Status**: Medium Priority - Production rollout
 **Problem**: Ensure all systems get latest fixes and improvements
@@ -123,7 +182,7 @@
 
 ## SYSTEMATIC CODE OPTIMIZATION & BUG FIXES
 
-### 7. 🔧 File-by-File Optimization Initiative
+### 6. 🔧 File-by-File Optimization Initiative
 
 **Status**: NEW PRIORITY - Systematic codebase improvement
 **Problem**: Need comprehensive analysis of every file for optimization opportunities and bug fixes
