@@ -16,15 +16,31 @@ if pgrep -x "hyprlock" > /dev/null; then
     sleep 0.5
 fi
 
-# Ensure background symlink exists for hyprlock
-BACKGROUND_LINK="$HOME/.config/archriot/current/background"
-if [[ ! -f "$BACKGROUND_LINK" ]]; then
-    log "Background symlink missing, running fix-background"
-    if command -v fix-background >/dev/null; then
-        fix-background >/dev/null 2>&1
-        log "Background fix completed"
+# Ensure background exists for hyprlock (consolidated theme system)
+CURRENT_BACKGROUND_FILE="$HOME/.config/archriot/.current-background"
+BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
+
+# Get current background from state file or fallback to riot_01.jpg
+if [[ -f "$CURRENT_BACKGROUND_FILE" ]]; then
+    BACKGROUND_PATH=$(cat "$CURRENT_BACKGROUND_FILE" 2>/dev/null)
+    if [[ ! -f "$BACKGROUND_PATH" ]]; then
+        log "Saved background no longer exists, using fallback"
+        BACKGROUND_PATH="$BACKGROUNDS_DIR/riot_01.jpg"
+    fi
+else
+    log "No current background state, using default"
+    BACKGROUND_PATH="$BACKGROUNDS_DIR/riot_01.jpg"
+fi
+
+# Verify background file exists
+if [[ ! -f "$BACKGROUND_PATH" ]]; then
+    log "Background file missing: $BACKGROUND_PATH"
+    # Find any available background as last resort
+    BACKGROUND_PATH=$(find "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | head -1)
+    if [[ -f "$BACKGROUND_PATH" ]]; then
+        log "Using fallback background: $(basename "$BACKGROUND_PATH")"
     else
-        log "fix-background command not found"
+        log "No background files found in $BACKGROUNDS_DIR"
     fi
 fi
 

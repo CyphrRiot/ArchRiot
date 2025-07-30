@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Cycles through the background images available
+# Cycles through the background images available in consolidated theme system
 
-BACKGROUNDS_DIR="$HOME/.config/archriot/current/backgrounds"
-CURRENT_BACKGROUND_LINK="$HOME/.config/archriot/current/background"
+BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
+CURRENT_BACKGROUND_FILE="$HOME/.config/archriot/.current-background"
 
 # Check if backgrounds directory exists
 if [[ ! -d "$BACKGROUNDS_DIR" ]]; then
@@ -11,16 +11,8 @@ if [[ ! -d "$BACKGROUNDS_DIR" ]]; then
     exit 1
 fi
 
-# Get numbered background files first, then any others as fallback (follow symlinks)
-mapfile -t NUMBERED_BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f -name "[0-9][0-9]-*" \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
-mapfile -t ALL_BACKGROUNDS < <(find -L "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
-
-# Prefer numbered backgrounds if available
-if [[ ${#NUMBERED_BACKGROUNDS[@]} -gt 0 ]]; then
-    BACKGROUNDS=("${NUMBERED_BACKGROUNDS[@]}")
-else
-    BACKGROUNDS=("${ALL_BACKGROUNDS[@]}")
-fi
+# Get all background files from flat directory
+mapfile -t BACKGROUNDS < <(find "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) | sort)
 TOTAL=${#BACKGROUNDS[@]}
 
 # Check if any backgrounds exist
@@ -29,15 +21,15 @@ if [[ $TOTAL -eq 0 ]]; then
     exit 1
 fi
 
-# Get current background from symlink
+# Get current background from state file
 CURRENT_BACKGROUND=""
-if [[ -L "$CURRENT_BACKGROUND_LINK" ]]; then
-    CURRENT_BACKGROUND=$(readlink "$CURRENT_BACKGROUND_LINK")
+if [[ -f "$CURRENT_BACKGROUND_FILE" ]]; then
+    CURRENT_BACKGROUND=$(cat "$CURRENT_BACKGROUND_FILE" 2>/dev/null)
 fi
 
 # Find current background index
 INDEX=0
-if [[ -n "$CURRENT_BACKGROUND" ]]; then
+if [[ -n "$CURRENT_BACKGROUND" && -f "$CURRENT_BACKGROUND" ]]; then
     for i in "${!BACKGROUNDS[@]}"; do
         if [[ "${BACKGROUNDS[$i]}" == "$CURRENT_BACKGROUND" ]]; then
             INDEX=$i
@@ -56,8 +48,8 @@ if [[ ! -f "$NEW_BACKGROUND" ]]; then
     exit 1
 fi
 
-# Set new background symlink
-ln -snf "$NEW_BACKGROUND" "$CURRENT_BACKGROUND_LINK"
+# Save current background to state file
+echo "$NEW_BACKGROUND" > "$CURRENT_BACKGROUND_FILE"
 
 echo "🖼️  Switched to background: $(basename "$NEW_BACKGROUND") ($(($NEXT_INDEX + 1))/${#BACKGROUNDS[@]})"
 

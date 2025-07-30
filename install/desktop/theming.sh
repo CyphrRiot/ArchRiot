@@ -261,24 +261,6 @@ setup_backgrounds() {
 
     echo "✓ Installed $copied_count backgrounds"
 
-    # Start background service with riot_01.jpg
-    local riot_01_bg="$BACKGROUNDS_DIR/riot_01.jpg"
-    if [[ -f "$riot_01_bg" ]]; then
-        pkill swaybg 2>/dev/null || true
-        sleep 1
-        nohup swaybg -i "$riot_01_bg" -m fill >/dev/null 2>&1 & disown
-        echo "✓ Background service started with riot_01.jpg"
-    else
-        # Fallback to first available background
-        local first_bg=$(find "$BACKGROUNDS_DIR" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) | sort | head -1)
-        if [[ -n "$first_bg" ]]; then
-            pkill swaybg 2>/dev/null || true
-            sleep 1
-            nohup swaybg -i "$first_bg" -m fill >/dev/null 2>&1 & disown
-            echo "✓ Background service started with: $(basename "$first_bg")"
-        fi
-    fi
-
     echo "✅ Background setup completed successfully"
     return 0
 }

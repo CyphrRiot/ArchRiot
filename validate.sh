@@ -169,25 +169,27 @@ test_desktop_environment() {
 test_theming_system() {
     print_section "Theming System (CRITICAL)"
 
-    # Test theme directory structure
-    if [[ -d "$CONFIG_DIR/archriot/current" ]]; then
-        test_result "Theme directory structure" "PASS"
+    # Test consolidated backgrounds directory
+    if [[ -d "$CONFIG_DIR/archriot/backgrounds" ]]; then
+        test_result "Consolidated backgrounds directory" "PASS"
 
-        # Check for theme symlinks
-        local theme_links=0
-        for link in "$CONFIG_DIR/archriot/current"/*; do
-            if [[ -L "$link" ]]; then
-                ((theme_links++))
-            fi
-        done
+        # Check for background files
+        local bg_count=$(find "$CONFIG_DIR/archriot/backgrounds" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) 2>/dev/null | wc -l)
 
-        if [[ $theme_links -gt 0 ]]; then
-            test_result "Theme symlinks ($theme_links found)" "PASS"
+        if [[ $bg_count -gt 0 ]]; then
+            test_result "Background files ($bg_count found)" "PASS"
         else
-            test_result "Theme symlinks" "FAIL" "No theme symlinks found"
+            test_result "Background files" "FAIL" "No background files found"
+        fi
+
+        # Check for default background
+        if [[ -f "$CONFIG_DIR/archriot/backgrounds/riot_01.jpg" ]]; then
+            test_result "Default background (riot_01.jpg)" "PASS"
+        else
+            test_result "Default background" "WARN" "riot_01.jpg not found"
         fi
     else
-        test_result "Theme directory structure" "FAIL" "~/.config/archriot/current not found"
+        test_result "Consolidated backgrounds directory" "FAIL" "~/.config/archriot/backgrounds not found"
     fi
 
     # Test cursor theme

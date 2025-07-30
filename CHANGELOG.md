@@ -5,6 +5,36 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.16] - 2025-07-30
+
+### 🎨 Major Theme System Optimization
+
+#### Theme System Redundancy Elimination (ROADMAP Priority #1)
+
+- **Eliminated redundant background service starts** - Removed duplicate `swaybg` startup calls in theming.sh
+- **Fixed background cycling for consolidated theme system** - Updated `swaybg-next` to work with flat directory structure
+- **Resolved "Cannot find theme directory" validation errors** - Updated `validate.sh` to check consolidated backgrounds directory
+- **Fixed hyprlock background loading** - Updated `hyprlock-wrapper.sh` to use consolidated system without symlinks
+- **Removed old theme structure dependencies** - All scripts now use `~/.config/archriot/backgrounds/` directly
+- **Implemented simple state tracking** - Background cycling now uses `.current-background` state file instead of broken symlinks
+- **Verified 23 background files working** - All riot_01.jpg through riot_23.png backgrounds accessible and cycling properly
+- **Zero theme validation errors** - Complete theme system now passes all validation checks
+
+#### Technical Improvements
+
+- **Streamlined background service management** - Single background service initialization eliminates restart loops
+- **Robust error handling** - Graceful fallbacks to default backgrounds when state files missing
+- **Simplified directory structure** - No more complex symlink dependencies or `/current/` directory requirements
+- **Performance optimization** - Reduced I/O operations and process spawning during background operations
+
+#### Success Criteria Achieved
+
+- ✅ Zero "Cannot find theme directory" errors during validation
+- ✅ Background cycling works perfectly with consolidated system
+- ✅ Background service starts exactly once and persists correctly
+- ✅ No duplicate theme setup operations
+- ✅ Consistent theme state across fresh installs and upgrades
+
 ## [2.0.15] - 2025-07-30
 
 ### 🚨 Critical Bug Fix
