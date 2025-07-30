@@ -72,7 +72,7 @@ if [[ -d ~/.local/share/archriot/.git ]]; then
         echo "⚠ Update failed, performing fresh installation..."
         cd - >/dev/null
         rm -rf ~/.local/share/archriot
-        git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
+        git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
             echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
             echo "🧹 Cleaning up partial download..."
             rm -rf ~/.local/share/archriot
@@ -93,7 +93,7 @@ if [[ -d ~/.local/share/archriot/.git ]]; then
 else
     echo -e "\n📥 Fresh ArchRiot installation..."
     rm -rf ~/.local/share/archriot  # Remove any non-git directory
-    git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
+    git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
         echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
         echo "🧹 Cleaning up partial download..."
         rm -rf ~/.local/share/archriot
