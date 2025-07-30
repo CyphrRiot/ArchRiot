@@ -188,7 +188,6 @@ tooltip {
 #custom-reboot,
 #custom-settings,
 #custom-spotify,
-#custom-swaync,
 #custom-tty,
 #custom-updater,
 #custom-weather,
@@ -533,30 +532,6 @@ label:focus {
 
 #custom-mullvad.mullvad-disconnected {
     color: @memory_color; /* Same as FREE RAM */
-}
-
-/* Notification Center (SwayNC) */
-#custom-swaync {
-    padding-left: 6px;
-    padding-right: 6px;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-/* Dark cyan when no notifications */
-#custom-swaync.none,
-#custom-swaync.dnd-none,
-#custom-swaync.inhibited-none,
-#custom-swaync.dnd-inhibited-none {
-    color: #008b8b; /* Dark cyan for no notifications */
-}
-
-/* Purple when there are notifications (like active Mullvad) */
-#custom-swaync.notification,
-#custom-swaync.dnd-notification,
-#custom-swaync.inhibited-notification,
-#custom-swaync.dnd-inhibited-notification {
-    color: #bb9af7; /* Purple like active Mullvad when notifications present */
 }
 
 /* Window title styling */

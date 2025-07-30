@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
+import subprocess
 
 TIMER_FILE = "/tmp/waybar-tomato.json"
 STATE_FILE = "/tmp/waybar-tomato-timer.state"
@@ -69,6 +70,7 @@ class SimplePomodoro:
         self.running = False
         self.end_time = None
         self.paused_remaining = None
+        self.send_notification("🍅 Pomodoro Timer Reset", "Timer has been reset and is ready to start")
 
     def save_state(self):
         """Save timer state"""
@@ -87,19 +89,33 @@ class SimplePomodoro:
             self.mode = 'work'
             self.running = True
             self.end_time = datetime.now() + timedelta(minutes=self.work_minutes)
+            self.send_notification("🍅 Pomodoro Started!", f"Work session started - {self.work_minutes} minutes")
         elif self.running:
             # Pause - save remaining time
             if self.end_time:
                 remaining = (self.end_time - datetime.now()).total_seconds()
                 self.paused_remaining = max(0, remaining)
+                minutes = int(remaining // 60)
+                seconds = int(remaining % 60)
+                self.send_notification("⏸️ Pomodoro Paused", f"Timer paused with {minutes}:{seconds:02d} remaining")
             self.running = False
         else:
             # Resume - set new end time based on saved remaining time
             if self.paused_remaining:
                 self.end_time = datetime.now() + timedelta(seconds=self.paused_remaining)
+                minutes = int(self.paused_remaining // 60)
+                seconds = int(self.paused_remaining % 60)
+                self.send_notification("▶️ Pomodoro Resumed", f"Timer resumed with {minutes}:{seconds:02d} remaining")
                 self.paused_remaining = None
             self.running = True
         self.save_state()
+
+    def send_notification(self, title, message):
+        """Send desktop notification"""
+        try:
+            subprocess.run(['notify-send', '-t', '8000', '-u', 'normal', '-i', 'timer', title, message], check=False)
+        except:
+            pass  # Silently fail if notify-send not available
 
     def get_display(self):
         """Get waybar display"""
@@ -117,11 +133,15 @@ class SimplePomodoro:
 
         if remaining <= 0:
             if self.mode == 'work':
+                # Work session completed - send notification and switch to break
+                self.send_notification("🎉 Work Session Complete!", f"Great job! Take a {self.break_minutes} minute break")
                 self.mode = 'break'
                 self.end_time = datetime.now() + timedelta(minutes=self.break_minutes)
                 self.save_state()
                 return {"text": "󰌾 Break!", "tooltip": "Work done! Take a 5 minute break", "class": "break"}
             else:
+                # Break completed - send notification and reset to idle
+                self.send_notification("☕ Break Complete!", "Break time is over. Ready for your next work session!")
                 self.reset_state()
                 self.save_state()
                 return {"text": "󰌾 Ready", "tooltip": "Break over! Ready for next session", "class": "ready"}

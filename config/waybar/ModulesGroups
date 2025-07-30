@@ -58,11 +58,10 @@
         "drawer": {
             "transition-left-to-right": false,
             "transition-duration": 500,
-            "children-class": "custom/swaync"
+            "children-class": "custom/notifications"
         },
         "orientation": "inherit",
         "modules": [
-            "custom/swaync"
         ]
     },
     "group/motherboard": {

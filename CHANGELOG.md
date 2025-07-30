@@ -5,6 +5,48 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.19] - 2025-07-30
+
+### 🍅 Pomodoro Timer & System Enhancements
+
+#### Enhanced Pomodoro Timer System
+
+- **Added comprehensive notifications** - Beautiful purple-bordered notifications for all timer state changes
+- **Added hotkey support** - SUPER + comma to start/pause timer, double-tap to reset
+- **Notification system optimized** - 8-second duration with normal urgency preserves CypherRiot styling
+- **Complete state feedback** - Notifications for start, pause, resume, work complete, break complete, and reset
+- **Real-time timer integration** - Seamless waybar integration with immediate state updates
+
+#### Window Management Improvements
+
+- **Lollypop music player rules** - Now opens as 50% width/height floating window, centered
+- **Consistent floating behavior** - Matches pattern of other media applications like Signal and Feather
+
+#### Application Launcher Cleanup
+
+- **Removed migrate from Fuzzel** - Eliminated sudo integration issues by removing migrate.desktop
+- **Migrate still available** - Command remains functional from terminal where sudo works properly
+- **Cleaner application menu** - Fuzzel now shows only GUI-appropriate applications
+
+#### Notification System Stabilization
+
+- **Eliminated SwayNC conflicts** - Completely removed SwayNC modules and styling from waybar
+- **Mako-only notifications** - Single notification system prevents conflicts and ensures consistency
+- **Preserved CypherRiot styling** - Beautiful purple-bordered notifications with proper theming
+
+#### Keybind Optimization
+
+- **Pomodoro timer hotkey** - SUPER + comma for timer control
+- **Reorganized notification keys** - Moved dismiss notifications to SUPER + period
+- **Logical key grouping** - Related functions grouped for better user experience
+
+#### Technical Improvements
+
+- **Removed redundant waybar modules** - Cleaned up ModulesCustom, ModulesGroups, and CSS
+- **Notification system reliability** - Single notification daemon eliminates race conditions
+- **Timer state management** - Robust state tracking with proper notification timing
+- **Waybar integration** - Seamless timer display with real-time updates
+
 ## [2.0.18] - 2025-07-30
 
 ### 🏗️ Major Control Panel Architecture Overhaul
