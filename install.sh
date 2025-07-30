@@ -309,13 +309,8 @@ execute_module() {
     log_message "INFO" "🔄 Executing module: $module_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    # Execute module directly with full output visibility
-    local temp_log=$(mktemp)
-    if bash "$module_path" 2>&1 | tee "$temp_log"; then
-        # Append module output to main log
-        cat "$temp_log" >> "$LOG_FILE"
-        rm -f "$temp_log"
-
+    # Execute module with optimized logging (direct to log file, no temp files)
+    if bash "$module_path" 2>&1 | tee -a "$LOG_FILE"; then
         local end_time=$(date +%s)
         local duration=$((end_time - start_time))
         log_message "SUCCESS" "$module_name completed (${duration}s)"
@@ -324,11 +319,9 @@ execute_module() {
     else
         local exit_code=$?
 
-        # Log the failure details
-        echo "Module output:" >> "$ERROR_LOG"
-        cat "$temp_log" >> "$ERROR_LOG"
-        cat "$temp_log" >> "$LOG_FILE"
-        rm -f "$temp_log"
+        # For failures, the output is already in LOG_FILE, just copy to ERROR_LOG
+        echo "Module: $module_name (exit code: $exit_code)" >> "$ERROR_LOG"
+        echo "See main log for details: $LOG_FILE" >> "$ERROR_LOG"
 
         log_message "ERROR" "$module_name failed (exit code: $exit_code)"
         FAILED_MODULES+=("$module_name")
