@@ -439,6 +439,9 @@ process_installation_modules() {
 verify_installation() {
     log_message "INFO" "🔍 Verifying critical installations..."
 
+    # Small delay to ensure all file operations complete during upgrades
+    sleep 2
+
     local failures=0
 
     # Verify yay
@@ -453,9 +456,35 @@ verify_installation() {
         ((failures++))
     fi
 
-    # Verify theme system (consolidated structure)
-    if [[ ! -f "$HOME/.config/archriot/archriot.conf" ]] || [[ ! -d "$HOME/.config/archriot/backgrounds" ]]; then
-        log_message "ERROR" "Theme system not configured"
+    # Verify theme system (consolidated structure) with detailed logging
+    log_message "INFO" "Checking theme system configuration..."
+    local theme_issues=0
+
+    # Check archriot.conf
+    if [[ ! -f "$HOME/.config/archriot/archriot.conf" ]]; then
+        log_message "ERROR" "Missing: ~/.config/archriot/archriot.conf"
+        ((theme_issues++))
+    else
+        log_message "INFO" "✓ archriot.conf found"
+    fi
+
+    # Check backgrounds directory
+    if [[ ! -d "$HOME/.config/archriot/backgrounds" ]]; then
+        log_message "ERROR" "Missing: ~/.config/archriot/backgrounds/"
+        ((theme_issues++))
+    else
+        local bg_count=$(find "$HOME/.config/archriot/backgrounds" -type f \( -name "*.jpg" -o -name "*.png" \) 2>/dev/null | wc -l)
+        if [[ $bg_count -gt 0 ]]; then
+            log_message "INFO" "✓ backgrounds directory found ($bg_count files)"
+        else
+            log_message "ERROR" "backgrounds directory exists but contains no image files"
+            ((theme_issues++))
+        fi
+    fi
+
+    # Only attempt fix if there are actual issues
+    if [[ $theme_issues -gt 0 ]]; then
+        log_message "ERROR" "Theme system has $theme_issues issue(s)"
         ((failures++))
 
         # Attempt to fix theme system
@@ -469,6 +498,8 @@ verify_installation() {
                 log_message "ERROR" "Failed to fix theme system"
             fi
         fi
+    else
+        log_message "INFO" "✓ Theme system properly configured"
     fi
 
     # Verify gum (required for UI)

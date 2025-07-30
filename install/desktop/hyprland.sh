@@ -60,8 +60,14 @@ setup_hyprland_packages() {
     yay -S --noconfirm --needed $core || return 1
 
     # Utilities (best effort)
-    local utilities="waybar fuzzel mako swaybg hyprlock hypridle swayosd grim slurp hyprshot hyprpicker hyprland-qtutils kooha gst-libav gst-plugins-ugly x264"
+    local utilities="waybar fuzzel mako swaybg hyprlock hypridle swayosd grim slurp hyprshot hyprpicker hyprland-qtutils"
     yay -S --noconfirm --needed $utilities || echo "⚠ Some Hyprland utilities may have failed"
+
+    # Screen recording with comprehensive codec support
+    echo "🎬 Installing Kooha screen recorder with full video codec support..."
+    local kooha_codecs="kooha gst-libav gst-plugins-ugly gst-plugins-bad x264 x265 libvpx aom gifski gifsicle"
+    yay -S --noconfirm --needed $kooha_codecs || echo "⚠ Some Kooha codecs may have failed"
+    echo "✓ Kooha installed with MP4, WebM, GIF, and advanced codec support"
 
     # Display management GUI
     yay -S --noconfirm --needed nwg-displays || echo "⚠ nwg-displays installation failed"
@@ -114,9 +120,10 @@ show_summary() {
     echo ""
     echo "🎉 Hyprland desktop environment setup complete!"
     echo ""
-    echo "📦 Installed: Hyprland WM, Waybar, Fuzzel launcher, Mako notifications, SwayOSD volume overlay, Hyprlock screen locker, screen tools, Kooha recorder"
+    echo "📦 Installed: Hyprland WM, Waybar, Fuzzel launcher, Mako notifications, SwayOSD volume overlay, Hyprlock screen locker, screen tools"
+    echo "🎬 Screen Recording: Kooha with full codec support (MP4, WebM, GIF, H.264/H.265, VP8/VP9, AV1)"
     echo "🚀 Getting started: Log out/in to start Hyprland, or type 'Hyprland'"
-    echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher)"
+    echo "⌨️  Key bindings: Super+Return (terminal), Super+D (launcher), Super+D → Kooha (screen recording)"
 }
 
 

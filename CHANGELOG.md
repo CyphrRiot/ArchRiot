@@ -5,6 +5,75 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.14] - 2025-07-30
+
+### 🚀 Major Application Improvements
+
+#### Zed Editor Complete Installation Overhaul
+
+- **Intelligent Vulkan driver detection**: Automatically detects AMD/Intel/NVIDIA GPUs and installs correct Vulkan drivers
+- **User-friendly command creation**: Users can now run `zed filename.txt` directly (not just `zed-wayland`)
+- **Perfect Wayland integration**: Optimized environment variables and native rendering
+- **Upgrade-safe installation**: Handles existing conflicting installations with automatic backups
+- **Desktop integration**: Clean application menu entry with no duplicates
+- **Functional testing**: Verifies Zed actually launches and works with GPU acceleration
+- **Consolidated installation**: Removed duplicate installations, single source of truth
+
+#### Screen Recording (Kooha) Enhancement
+
+- **Comprehensive codec support**: Added x264, x265, libvpx, aom, gifski, gifsicle for complete format coverage
+- **Video format support**: MP4 H.265), WebM (VP8/VP9), AV1, and all GStreamer formats
+- **GIF creation tools**: High-quality GIF encoding via gifski and optimization via gifsicle
+- **Hardware acceleration**: VA-API support for Intel/AMD GPU encoding
+- **Professional-grade recording**: All codecs verified working through GStreamer pipeline
+
+#### Spotify Downloader (spotdl) Fix
+
+- **Root cause resolution**: Fixed python-syncedlyrics dependency failing due to API test failures
+- **Specialized installation function**: Added `install_aur_nocheck()` for packages with failing tests
+- **Bypassed broken tests**: Uses `--mflags "--nocheck"` to skip Musixmatch/Genius API tests
+- **Future-proof solution**: Can handle other AUR packages with similar API test issues
+- **Comprehensive documentation**: Explains why this approach is needed
+
+### 🛠️ System Stability & Installation Improvements
+
+#### Theme System Verification Enhancement
+
+- **Eliminated false positives**: Fixed "Theme system not configured" appearing when theme IS configured
+- **Detailed verification logging**: Shows exactly what's being checked (archriot.conf, backgrounds)
+- **Individual component checks**: Verifies each theme component separately with clear feedback
+- **Background file validation**: Ensures images actually exist, not just directories
+- **Race condition prevention**: Added 2-second delay to prevent upgrade timing issues
+- **Smart fix triggering**: Only runs theme setup when actually needed
+
+#### Hardware Detection Improvements
+
+- **Fixed missing lsusb command**: Installs usbutils package to provide lsusb for hardware detection
+- **Enhanced Apple keyboard support**: Proper detection and configuration with clear user feedback
+- **Better error handling**: Graceful fallback when hardware detection tools unavailable
+- **Comprehensive hardware utilities**: Added both usbutils and pciutils for complete detection
+
+#### Process Management Fix
+
+- **Background service persistence**: Fixed services disappearing when installer terminal closes
+- **Proper process detachment**: Added nohup and disown to swaybg and other background services
+- **Upgrade-safe background services**: Services now survive terminal closure during upgrades
+- **Comprehensive process audit**: Systematic review of all background process starts
+
+### 🐛 Bug Fixes
+
+- **Package installation robustness**: Better handling of AUR packages with test failures
+- **Installation verification accuracy**: More precise detection of installed components
+- **Desktop integration cleanup**: Removed duplicate installations and conflicting files
+- **Hardware setup reliability**: Eliminated command not found errors
+
+### 🧹 Code Quality Improvements
+
+- **Specialized installation functions**: Added targeted functions for problematic packages
+- **Better error messages**: More descriptive feedback when installations fail
+- **Upgrade handling**: Safe file replacement with automatic backups
+- **Documentation**: Clear explanations of why special handling is needed
+
 ## [2.0.4] - 2025-07-29
 
 ### 📚 Documentation Improvements

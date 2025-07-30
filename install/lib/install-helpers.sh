@@ -245,8 +245,45 @@ show_install_summary() {
     fi
 }
 
+# Install AUR packages that have failing tests (need --nocheck)
+# This is specifically needed for packages like:
+# - spotdl: python-syncedlyrics dependency has failing API tests (Musixmatch/Genius 401 errors)
+# - Any package whose tests make real API calls that may fail during build
+install_aur_nocheck() {
+    local packages="$1"
+    local package_type="${2:-optional}"
+
+    print_status "INSTALL" "Installing AUR packages with --nocheck: $packages"
+    print_status "INFO" "Skipping tests for packages with known API test failures"
+
+    if yay -S --noconfirm --needed --mflags "--nocheck" $packages; then
+        print_status "SUCCESS" "Successfully installed: $packages"
+        return 0
+    else
+        local exit_code=$?
+        print_status "ERROR" "Failed to install: $packages (even with --nocheck)"
+        FAILED_PACKAGES+=("$packages")
+
+        case $package_type in
+            "essential"|"critical")
+                handle_critical_failure "$packages" "$exit_code"
+                ;;
+            "optional")
+                handle_optional_failure "$packages" "$exit_code"
+                return 0
+                ;;
+            *)
+                handle_optional_failure "$packages" "$exit_code"
+                return 0
+                ;;
+        esac
+
+        return $exit_code
+    fi
+}
+
 # Export all functions for use in other scripts
 export -f init_installer install_packages install_essential install_optional
-export -f validate_packages cleanup_install_files show_install_summary
+export -f install_aur_nocheck validate_packages cleanup_install_files show_install_summary
 export -f handle_critical_failure handle_optional_failure
 export -f log_failure_details show_troubleshooting

@@ -6,6 +6,9 @@
 # Simple hardware driver installation
 # ==============================================================================
 
+# Install hardware detection utilities
+install_packages "usbutils pciutils" "essential"
+
 # Enable multilib for 32-bit support
 sudo sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
 # Note: No manual pacman -Sy needed - yay will sync when installing packages
@@ -26,8 +29,14 @@ if lspci | grep -qi intel | grep -qi -E 'vga|3d|display|graphics'; then
 fi
 
 # Fix Apple keyboard if detected
-if lsusb | grep -qi apple | grep -qi keyboard; then
-    echo "options hid_apple fnmode=2" | sudo tee /etc/modprobe.d/hid_apple.conf
+if command -v lsusb >/dev/null 2>&1; then
+    if lsusb | grep -qi apple | grep -qi keyboard; then
+        echo "🍎 Apple keyboard detected - configuring function keys..."
+        echo "options hid_apple fnmode=2" | sudo tee /etc/modprobe.d/hid_apple.conf >/dev/null
+        echo "✓ Apple keyboard configured (function keys work normally)"
+    fi
+else
+    echo "⚠ lsusb not available - skipping Apple keyboard detection"
 fi
 
 echo "✅ Hardware setup complete!"

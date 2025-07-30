@@ -87,11 +87,15 @@ install_media_tools() {
 
     local media_apps=(
         "yt-dlp"                # YouTube and media downloader
-        "spotdl"                # Spotify downloader
         "ffmpeg"                # Media converter
     )
 
+    # Install regular media packages
     install_packages "Media Tools" "${media_apps[@]}"
+
+    # Install spotdl separately with --nocheck flag (API test failures)
+    print_status "INFO" "Installing spotdl (requires --nocheck due to API test failures)"
+    install_aur_nocheck "spotdl" "optional"
 }
 
 # Install experimental and niche applications
