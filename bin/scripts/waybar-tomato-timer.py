@@ -52,7 +52,7 @@ class SimplePomodoro:
                 if action == 'toggle':
                     self.toggle()
                 elif action == 'reset':
-                    self.reset_state()
+                    self.reset_state(notify=True)
                     self.save_state()
                 os.remove(STATE_FILE)
             except:
@@ -64,13 +64,14 @@ class SimplePomodoro:
             except:
                 pass
 
-    def reset_state(self):
+    def reset_state(self, notify=False):
         """Reset to idle state"""
         self.mode = 'idle'
         self.running = False
         self.end_time = None
         self.paused_remaining = None
-        self.send_notification("🍅 Pomodoro Timer Reset", "Timer has been reset and is ready to start")
+        if notify:
+            self.send_notification("🍅 Pomodoro Timer Reset", "Timer has been reset and is ready to start")
 
     def save_state(self):
         """Save timer state"""
@@ -142,7 +143,7 @@ class SimplePomodoro:
             else:
                 # Break completed - send notification and reset to idle
                 self.send_notification("☕ Break Complete!", "Break time is over. Ready for your next work session!")
-                self.reset_state()
+                self.reset_state(notify=False)
                 self.save_state()
                 return {"text": "󰌾 Ready", "tooltip": "Break over! Ready for next session", "class": "ready"}
 

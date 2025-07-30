@@ -5,6 +5,26 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2025-07-30
+
+### 🚨 Critical Hotfix
+
+#### Pomodoro Timer Notification Spam Fix
+
+- **Fixed notification spam during installation** - Pomodoro timer was sending "Timer Reset" notifications continuously during system updates
+- **Root cause**: `reset_state()` function always sent notifications, even during automatic resets from service restarts
+- **Solution**: Added `notify` parameter to `reset_state()` - only sends notifications when explicitly reset by user
+- **Impact**: Eliminates notification spam that made installations unusable
+
+#### Technical Details
+
+- **Modified**: `bin/scripts/waybar-tomato-timer.py`
+- **Change**: `reset_state(notify=False)` for automatic resets, `reset_state(notify=True)` for user-initiated resets
+- **Affected scenarios**: Installation, system service restarts, Waybar reloads
+- **User experience**: Silent automatic resets, notifications only for intentional user actions
+
+This critical hotfix resolves the installation experience regression introduced in v2.1.0.
+
 ## [2.1.0] - 2025-07-30
 
 ### 📊 Modern Progress Bar System
