@@ -107,8 +107,8 @@ restore_plymouth_theme() {
                 echo -e "${YELLOW}⚠ Plymouth theme files restored but theme setting failed${RESET}"
             fi
 
-            # Clean up backup
-            rm -rf ~/.cache/archriot/upgrade-backup/archriot ~/.cache/archriot/upgrade-backup/plymouth_theme.txt
+            # Clean up backup (sudo required since files were copied with sudo)
+            sudo rm -rf ~/.cache/archriot/upgrade-backup/archriot ~/.cache/archriot/upgrade-backup/plymouth_theme.txt
         fi
     fi
 }
