@@ -54,6 +54,16 @@ else
   echo "⚠ Signal desktop file not found in repository applications"
 fi
 
+# Install off-screen window fix script (AMD DPMS bug recovery)
+mkdir -p ~/.local/bin/scripts
+if [[ -f "$script_dir/../../bin/scripts/fix-offscreen-windows.sh" ]]; then
+  cp "$script_dir/../../bin/scripts/fix-offscreen-windows.sh" ~/.local/bin/scripts/
+  chmod +x ~/.local/bin/scripts/fix-offscreen-windows.sh
+  echo "✓ Off-screen window fix script installed (AMD DPMS recovery)"
+else
+  echo "⚠ Off-screen window fix script not found in repository bin/scripts"
+fi
+
 # Install Brave Private desktop file
 if [[ -f "$script_dir/../../applications/brave-private.desktop" ]]; then
   cp "$script_dir/../../applications/brave-private.desktop" ~/.local/share/applications/
