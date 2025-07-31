@@ -15,7 +15,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly INSTALL_DIR="$HOME/.local/share/archriot/install"
 readonly LOG_FILE="$HOME/.cache/archriot/install.log"
 readonly ERROR_LOG="$HOME/.cache/archriot/install-errors.log"
-readonly BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d-%H%M%S)"
+# Backup directory now handled by centralized backup system
 
 # Read version from VERSION file
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
@@ -65,8 +65,8 @@ declare -a STANDALONE_INSTALLERS=(
 )
 
 # Performance tracking
-declare -g INSTALL_START_TIME=$(date +%s)
-declare -g INSTALL_START_DATE=$(date)
+export INSTALL_START_TIME=$(date +%s)
+export INSTALL_START_DATE=$(date)
 FAILED_MODULES=()
 SKIPPED_MODULES=()
 
@@ -85,6 +85,15 @@ else
     progress_pause_for_input() { echo ""; }
     progress_resume_after_input() { echo ""; }
     progress_show_completion() { echo "Installation complete!"; }
+fi
+
+# Load centralized backup system
+if [[ -f "$INSTALL_DIR/lib/backup-manager.sh" ]]; then
+    source "$INSTALL_DIR/lib/backup-manager.sh"
+else
+    # Fallback backup functions
+    backup_configs() { echo "INFO: Backup system not available" >> "${LOG_FILE:-/dev/null}" 2>&1; }
+    emergency_backup() { echo "INFO: Emergency backup not available" >> "${LOG_FILE:-/dev/null}" 2>&1; }
 fi
 
 # Initialize comprehensive logging
@@ -449,6 +458,48 @@ process_installation_modules() {
 # Verification Functions
 # ================================================================================
 
+# Clean up old scattered backup directories from previous backup systems
+cleanup_old_backups() {
+    echo "INFO: 🧹 Cleaning up old backup directories..." >> "$LOG_FILE" 2>&1
+
+    local total_removed=0
+
+    # Remove old install.sh backups (~/.config-backup-*)
+    for backup_dir in ~/.config-backup-*; do
+        if [[ -d "$backup_dir" ]]; then
+            rm -rf "$backup_dir" 2>/dev/null && ((total_removed++))
+        fi
+    done
+
+    # Remove old setup.sh backups (archriot-backup-*)
+    for backup_dir in ~/.local/share/archriot-backup-*; do
+        if [[ -d "$backup_dir" ]]; then
+            rm -rf "$backup_dir" 2>/dev/null && ((total_removed++))
+        fi
+    done
+
+    # Remove old theming.sh backups (archriot-backups/*)
+    if [[ -d ~/.config/archriot-backups ]]; then
+        for backup_dir in ~/.config/archriot-backups/*; do
+            if [[ -d "$backup_dir" ]]; then
+                rm -rf "$backup_dir" 2>/dev/null && ((total_removed++))
+            fi
+        done
+        rmdir ~/.config/archriot-backups 2>/dev/null
+    fi
+
+    # Remove old bin backups (.local/bin.backup-*)
+    for backup_dir in ~/.local/bin.backup-*; do
+        if [[ -d "$backup_dir" ]]; then
+            rm -rf "$backup_dir" 2>/dev/null && ((total_removed++))
+        fi
+    done
+
+    if [[ $total_removed -gt 0 ]]; then
+        echo "INFO: ✓ Cleaned up $total_removed old backup directories" >> "$LOG_FILE" 2>&1
+    fi
+}
+
 # Verify critical installations
 verify_installation() {
     echo "INFO: 🔍 Verifying critical installations..." >> "$LOG_FILE" 2>&1
@@ -562,11 +613,7 @@ finalize_installation() {
     gtk-update-icon-cache -f ~/.local/share/icons/hicolor/ 2>/dev/null || true
     update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
 
-    # Reload running services
-    echo "INFO: Reloading system services..." >> "$LOG_FILE" 2>&1
-    if pgrep -x "Hyprland" >/dev/null; then
-        hyprctl reload 2>/dev/null || true
-    fi
+    # Services will be restarted at the end of installation
 
     # Configure thumbnails (disable PDF thumbnails while keeping others)
     echo "INFO: Configuring thumbnails (disable PDF thumbnails)..." >> "$LOG_FILE" 2>&1
@@ -580,19 +627,7 @@ finalize_installation() {
         echo "WARNING: Thumbnail fix script not found" >> "$LOG_FILE" 2>&1
     fi
 
-    # Ensure waybar is running after installation (only in Wayland environment)
-    if [[ -n "$WAYLAND_DISPLAY" ]] || pgrep -x "Hyprland" >/dev/null; then
-        if pgrep -x "waybar" >/dev/null; then
-            echo "INFO: Restarting waybar..." >> "$LOG_FILE" 2>&1
-            pkill waybar 2>/dev/null || true
-            sleep 1
-        else
-            echo "INFO: Starting waybar..." >> "$LOG_FILE" 2>&1
-        fi
-        nohup waybar &>/dev/null & disown
-    else
-        echo "INFO: Skipping waybar start (no Wayland environment detected)" >> "$LOG_FILE" 2>&1
-    fi
+    # Services will be restarted in final restart function
 
     # Update version file
     if [[ -n "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
@@ -620,6 +655,45 @@ show_installation_summary() {
     progress_show_completion
 }
 
+# Final service restart - consolidate all restarts into one operation
+final_service_restart() {
+    echo "INFO: 🔄 Final service restart..." >> "$LOG_FILE" 2>&1
+
+    # Only restart if we're in a Wayland environment
+    if [[ -n "$WAYLAND_DISPLAY" ]] || pgrep -x "Hyprland" >/dev/null; then
+
+        # Restart Mako notifications with new configs
+        if pgrep -x "mako" >/dev/null; then
+            echo "INFO: Restarting mako notifications..." >> "$LOG_FILE" 2>&1
+            pkill mako 2>/dev/null || true
+            sleep 1
+        fi
+        if command -v mako &>/dev/null; then
+            mako &>/dev/null & disown
+        fi
+
+        # Restart Waybar with new configs
+        if pgrep -x "waybar" >/dev/null; then
+            echo "INFO: Restarting waybar..." >> "$LOG_FILE" 2>&1
+            pkill waybar 2>/dev/null || true
+            sleep 1
+        fi
+        if command -v waybar &>/dev/null; then
+            waybar &>/dev/null & disown
+        fi
+
+        # Reload Hyprland configs (no restart needed)
+        if pgrep -x "Hyprland" >/dev/null; then
+            echo "INFO: Reloading Hyprland configuration..." >> "$LOG_FILE" 2>&1
+            hyprctl reload 2>/dev/null || true
+        fi
+
+        echo "INFO: ✓ Desktop services restarted with new configurations" >> "$LOG_FILE" 2>&1
+    else
+        echo "INFO: Skipping service restart (no Wayland environment detected)" >> "$LOG_FILE" 2>&1
+    fi
+}
+
 # Show final tips and commands
 show_final_tips() {
     echo "🎯 Quick Commands:"
@@ -628,10 +702,10 @@ show_final_tips() {
     echo "  • View Help: Super + H"
     echo ""
 
-    # Show backup location if created
-    if [[ -d "$BACKUP_DIR" ]]; then
-        echo "📦 Previous configuration backed up to:"
-        echo "   $BACKUP_DIR"
+    # Show backup location if centralized backups exist
+    if [[ -d "$HOME/.archriot/backups" ]] && [[ -n "$(ls -A "$HOME/.archriot/backups" 2>/dev/null)" ]]; then
+        echo "📦 Configuration backups available at:"
+        echo "   ~/.archriot/backups/ (keeping 3 most recent)"
         echo ""
     fi
 }
@@ -673,6 +747,9 @@ main() {
         exit 1
     }
 
+    # Clean up old backup directories from previous systems
+    cleanup_old_backups
+
     setup_sudo
 
     # Load specific helper libraries if available (avoid shared.sh which has dependencies)
@@ -702,6 +779,9 @@ main() {
 
     # Clean up
     cleanup_sudo
+
+    # Final service restart - only once at the very end
+    final_service_restart
 
     # Show summary
     show_installation_summary

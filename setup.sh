@@ -47,11 +47,7 @@ fi
 # Install git if missing
 pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
 
-# Cleanup OLD installations only
-echo -e "\n🧹 Cleaning up old OhmArchy installations..."
-rm -rf ~/.local/share/ohmarchy/
-rm -rf ~/.config/ohmarchy/
-echo "✓ Old installations cleaned"
+
 
 # Smart ArchRiot installation/update
 if [[ -d ~/.local/share/archriot/.git ]]; then
@@ -60,9 +56,17 @@ if [[ -d ~/.local/share/archriot/.git ]]; then
 
     # Backup any local changes before destructive reset
     if ! git diff --quiet || ! git diff --cached --quiet; then
-        backup_dir="$HOME/.local/share/archriot-backup-$(date +%Y%m%d-%H%M%S)"
-        cp -r ~/.local/share/archriot "$backup_dir"
-        echo "📦 Local changes backed up to: $backup_dir"
+        # Load centralized backup system
+        if [[ -f ~/.local/share/archriot/install/lib/backup-manager.sh ]]; then
+            source ~/.local/share/archriot/install/lib/backup-manager.sh
+            backup_archriot_install "Local changes detected during upgrade"
+            echo "📦 Local changes backed up to: ~/.archriot/backups/"
+        else
+            # Fallback to old method if backup system not available
+            backup_dir="$HOME/.local/share/archriot-backup-$(date +%Y%m%d-%H%M%S)"
+            cp -r ~/.local/share/archriot "$backup_dir"
+            echo "📦 Local changes backed up to: $backup_dir"
+        fi
     fi
 
     # Safe update with fallback to fresh clone

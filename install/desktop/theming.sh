@@ -411,35 +411,26 @@ setup_fuzzel_cache() {
 backup_existing_configs() {
     echo "💾 Creating configuration backups..."
 
-    local backup_dir="$HOME/.config/archriot-backups/$(date +%Y-%m-%d-%H%M%S)"
-    mkdir -p "$backup_dir"
+    # Load centralized backup system
+    if [[ -f "$INSTALL_DIR/lib/backup-manager.sh" ]]; then
+        source "$INSTALL_DIR/lib/backup-manager.sh"
 
-    local configs_to_backup=(
-        "$HOME/.config/waybar/config"
-        "$HOME/.config/fuzzel/fuzzel.ini"
-        "$HOME/.config/hypr/hyprlock.conf"
-        "$HOME/.config/mako/config"
-        "$HOME/.config/gtk-3.0/gtk.css"
-        "$HOME/.config/gtk-3.0/settings.ini"
-        "$HOME/.config/gtk-4.0/settings.ini"
-    )
+        local configs_to_backup=(
+            "waybar"
+            "fuzzel"
+            "hypr"
+            "mako"
+            "gtk-3.0"
+            "gtk-4.0"
+        )
 
-    local backed_up=0
-    for config in "${configs_to_backup[@]}"; do
-        if [[ -f "$config" && ! -L "$config" ]]; then
-            local relative_path="${config#$HOME/.config/}"
-            local backup_path="$backup_dir/$relative_path"
-
-            mkdir -p "$(dirname "$backup_path")"
-            cp "$config" "$backup_path" 2>/dev/null && ((backed_up++))
+        if backup_configs "theming" "${configs_to_backup[@]}"; then
+            echo "✓ Configuration backups created at: ~/.archriot/backups/"
+        else
+            echo "✓ No configurations to backup"
         fi
-    done
-
-    if [[ $backed_up -gt 0 ]]; then
-        echo "✓ Configuration backups created at: $backup_dir"
     else
-        rmdir "$backup_dir" 2>/dev/null || true
-        echo "✓ No configurations to backup"
+        echo "✓ Backup system not available, skipping backup"
     fi
 }
 

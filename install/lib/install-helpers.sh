@@ -15,7 +15,8 @@ NC='\033[0m' # No Color
 
 # Installation context tracking
 CURRENT_INSTALLER=""
-INSTALL_START_TIME=""
+# Don't override INSTALL_START_TIME if it's already set by main installer
+LOCAL_START_TIME=""
 FAILED_PACKAGES=()
 
 # Unified status message function for consistency
@@ -35,7 +36,7 @@ print_status() {
 init_installer() {
     local installer_name="$1"
     CURRENT_INSTALLER="$installer_name"
-    INSTALL_START_TIME=$(date +%s)
+    LOCAL_START_TIME=$(date +%s)
     echo -e "${BLUE}🔧 Initializing: $installer_name${NC}"
 }
 
@@ -121,7 +122,7 @@ log_failure_details() {
         echo "Installer: $CURRENT_INSTALLER"
         echo "Failed packages: $failed_packages"
         echo "Exit code: $exit_code"
-        echo "Duration: $(($(date +%s) - INSTALL_START_TIME))s"
+        echo "Duration: $(($(date +%s) - LOCAL_START_TIME))s"
         echo "System info:"
         echo "  - Architecture: $(uname -m)"
         echo "  - Kernel: $(uname -r)"
@@ -232,7 +233,7 @@ cleanup_install_files() {
 
 # Show installation summary
 show_install_summary() {
-    local duration=$(($(date +%s) - INSTALL_START_TIME))
+    local duration=$(($(date +%s) - LOCAL_START_TIME))
     echo
     echo -e "${GREEN}✓ $CURRENT_INSTALLER completed successfully${NC}"
     echo -e "${BLUE}Duration: ${duration}s${NC}"

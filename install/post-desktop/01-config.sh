@@ -40,55 +40,48 @@ setup_environment() {
 
 # Surgical backup system - only backup ArchRiot-managed configs
 create_surgical_backup() {
-    local backup_dir="$HOME/.archriot/backups/$(date +%Y-%m-%d-%H%M%S)"
-    local configs_to_backup=(
-        "btop" "environment.d" "fastfetch" "fish" "fuzzel"
-        "ghostty" "gtk-3.0" "gtk-4.0" "hypr" "nvim"
-        "systemd" "waybar" "xdg-desktop-portal" "zed"
-    )
+    # Load centralized backup system
+    if [[ -f "$INSTALL_DIR/lib/backup-manager.sh" ]]; then
+        source "$INSTALL_DIR/lib/backup-manager.sh"
 
-    echo "📦 Installing ArchRiot configurations..."
+        local configs_to_backup=(
+            "btop" "environment.d" "fastfetch" "fish" "fuzzel"
+            "ghostty" "gtk-3.0" "gtk-4.0" "hypr" "nvim"
+            "systemd" "waybar" "xdg-desktop-portal" "zed"
+        )
 
-    for config in "${configs_to_backup[@]}"; do
-        local source="$HOME/.config/$config"
-        local target="$backup_dir/$config"
+        echo "📦 Installing ArchRiot configurations..."
 
-        if [[ -e "$source" ]]; then
-            echo "  → Backing up: $config" >> "$ARCHRIOT_LOG_FILE"
-            mkdir -p "$(dirname "$target")"
-            cp -R "$source" "$target"
+        if backup_configs "config-install" "${configs_to_backup[@]}"; then
+            local backup_dir=$(get_latest_backup "config-install")
+            echo "$backup_dir" > /tmp/archriot-config-backup
+            echo "✓ Configuration backup created at: ~/.archriot/backups/" >> "$ARCHRIOT_LOG_FILE"
+        else
+            echo "✓ No existing configurations to backup" >> "$ARCHRIOT_LOG_FILE"
         fi
-    done
-
-    # Save backup manifest
-    printf '%s\n' "${configs_to_backup[@]}" > "$backup_dir/MANIFEST"
-    echo "$backup_dir" > /tmp/archriot-config-backup
-    echo "✓ Configuration backup created" >> "$ARCHRIOT_LOG_FILE"
+    else
+        echo "⚠ Backup system not available, skipping backup" >> "$ARCHRIOT_LOG_FILE"
+    fi
 }
 
 # Smart restoration from surgical backup
 restore_from_backup() {
     local backup_dir="$1"
 
-    if [[ ! -d "$backup_dir" || ! -f "$backup_dir/MANIFEST" ]]; then
-        echo "⚠️ Invalid backup directory or missing manifest"
+    # Load centralized backup system
+    if [[ -f "$INSTALL_DIR/lib/backup-manager.sh" ]]; then
+        source "$INSTALL_DIR/lib/backup-manager.sh"
+
+        if restore_backup "$backup_dir"; then
+            echo "✓ Configuration restored from backup"
+        else
+            echo "⚠️ Failed to restore from backup"
+            return 1
+        fi
+    else
+        echo "⚠️ Backup system not available for restore"
         return 1
     fi
-
-    echo "🔄 Restoring from surgical backup: $backup_dir"
-
-    while IFS= read -r config; do
-        local source="$backup_dir/$config"
-        local target="$HOME/.config/$config"
-
-        if [[ -e "$source" ]]; then
-            echo "  → Restoring: $config"
-            rm -rf "$target"
-            cp -R "$source" "$target"
-        fi
-    done < "$backup_dir/MANIFEST"
-
-    echo "✓ Configuration restored from backup"
 }
 
 # Install dependencies and copy configurations
@@ -192,8 +185,7 @@ pre_installation_safety_check() {
         fi
     fi
 
-    # Backup existing ~/.local/bin if it has potential conflicts
-    local backup_bin_dir="$HOME/.local/bin.backup-$(date +%s)"
+    # Check existing ~/.local/bin for potential conflicts (no longer creating backups)
     if [[ -d "$HOME/.local/bin" ]]; then
         # Check for any non-executable files that might cause issues
         local problematic_files=()
@@ -205,8 +197,7 @@ pre_installation_safety_check() {
 
         if [[ ${#problematic_files[@]} -gt 0 ]]; then
             echo "⚠ Found ${#problematic_files[@]} non-executable files in ~/.local/bin"
-            echo "Creating backup at: $backup_bin_dir"
-            cp -R "$HOME/.local/bin" "$backup_bin_dir"
+            echo "These will be preserved during installation"
         fi
     fi
 
@@ -528,31 +519,11 @@ validate_installation() {
 
 # Restart desktop services after config installation
 restart_desktop_services() {
-    echo "🔄 Restarting desktop services with new configs..."
+    echo "🔄 Desktop services will be restarted at end of installation..."
 
-    # Restart mako notifications to apply theme
-    if pgrep -x "mako" >/dev/null; then
-        echo "🔔 Restarting mako notifications..."
-        pkill mako 2>/dev/null || true
-        sleep 1
-        mako &>/dev/null & disown
-        echo "✓ Mako restarted with new theme"
-    elif command -v mako &>/dev/null; then
-        echo "🔔 Starting mako notifications..."
-        mako &>/dev/null & disown
-        echo "✓ Mako started"
-    fi
-
-    # Restart waybar if running to apply any config changes
-    if pgrep -x "waybar" >/dev/null; then
-        echo "📊 Restarting waybar..."
-        pkill waybar 2>/dev/null || true
-        sleep 1
-        waybar &>/dev/null & disown
-        echo "✓ Waybar restarted"
-    fi
-
-    echo "✓ Desktop services restarted"
+    # Services are now restarted once at the end of installation
+    # This eliminates multiple restarts during the installation process
+    echo "✓ Service restart scheduled for installation completion"
 }
 
 # Main execution with rollback

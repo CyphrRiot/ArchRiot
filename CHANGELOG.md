@@ -5,6 +5,44 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.4] - 2025-07-30
+
+### 🗂️ Backup System Consolidation & Performance Optimization
+
+#### Centralized Backup System
+
+- **Single backup location** - All backups now stored in `~/.archriot/backups/` instead of scattered directories
+- **Smart cleanup** - Automatically keeps only 3 most recent backups, removes older ones
+- **Unified API** - All installation scripts use same backup functions for consistency
+- **Automatic legacy cleanup** - Removes old scattered backup directories on upgrade
+- **Metadata tracking** - Each backup includes creation info, manifest, and restoration details
+- **Space efficient** - Eliminates duplicate backups and wasted disk space
+
+#### Installation Performance Improvements
+
+- **Consolidated service restarts** - Single restart at end instead of multiple restarts during installation
+- **Eliminated screen flashing** - No more Hyprland/Waybar restarts interrupting user workflow
+- **Fixed timing calculation** - Installation duration now displays correctly instead of "0m 0s"
+- **Reduced process conflicts** - Services no longer fight over resources during installation
+- **Professional experience** - Smooth installation without desktop environment disruption
+
+#### Legacy Cleanup
+
+- **Removed Ohmarchy references** - Eliminated obsolete cleanup messages for non-existent legacy system
+- **Backup directory cleanup** - Automatic removal of scattered backup directories from previous versions
+- **Code consolidation** - Unified backup and restart logic across all installation modules
+
+#### Technical Architecture
+
+- **New backup manager** - `install/lib/backup-manager.sh` provides centralized backup functionality
+- **Export fixes** - Proper variable export ensures timing calculations work correctly
+- **Conflict resolution** - Separate timing variables prevent conflicts between different installer components
+- **Silent operation** - All backup operations logged to files, no console spam
+
+### Impact
+
+This release significantly improves the installation experience by eliminating chaotic service restarts and consolidating the backup system. Users get a professional, smooth installation with intelligent backup management and accurate progress reporting.
+
 ## [2.1.2] - 2025-07-30
 
 ### 🔧 Minor Improvements

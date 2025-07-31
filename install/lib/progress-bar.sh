@@ -198,12 +198,20 @@ progress_clear_errors() {
 # Show beautiful completion summary
 progress_show_completion() {
     local end_time=$(date +%s)
-    local duration=$((end_time - INSTALL_START_TIME))
+
+    # Get start time from main installer or fallback to current time
+    local start_time="${INSTALL_START_TIME:-$end_time}"
+
+    # Debug logging
+    echo "DEBUG: end_time=$end_time, start_time=$start_time, INSTALL_START_TIME=$INSTALL_START_TIME" >> "${LOG_FILE:-/dev/null}" 2>&1
+
+    local duration=$((end_time - start_time))
     local duration_min=$((duration / 60))
     local duration_sec=$((duration % 60))
 
-    # Ensure INSTALL_START_TIME is set properly
-    if [[ -z "$INSTALL_START_TIME" ]] || [[ "$INSTALL_START_TIME" -eq 0 ]]; then
+    # Ensure we have a reasonable duration (not negative or impossibly large)
+    if [[ $duration -lt 0 ]] || [[ $duration -gt 7200 ]]; then
+        echo "DEBUG: Invalid duration $duration, resetting to 0" >> "${LOG_FILE:-/dev/null}" 2>&1
         duration_min=0
         duration_sec=0
     fi
@@ -246,7 +254,7 @@ progress_show_completion() {
 
     echo ""
     if [[ ${#FAILED_MODULES[@]} -eq 0 ]]; then
-        printf "${PROGRESS_CYAN}🚀 Perfect! Log out and back in to activate ArchRiot.${PROGRESS_NC}\n"
+        printf "${PROGRESS_CYAN}🚀 Perfect! You have updated to the latest ArchRiot.${PROGRESS_NC}\n"
     else
         printf "${PROGRESS_YELLOW}🔄 Some modules failed. Check logs and retry if needed.${PROGRESS_NC}\n"
     fi
