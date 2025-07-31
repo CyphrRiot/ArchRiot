@@ -56,8 +56,8 @@ fi
 
 # Install off-screen window fix script (AMD DPMS bug recovery)
 mkdir -p ~/.local/bin/scripts
-if [[ -f "$script_dir/../../bin/scripts/fix-offscreen-windows.sh" ]]; then
-  cp "$script_dir/../../bin/scripts/fix-offscreen-windows.sh" ~/.local/bin/scripts/
+if [[ -f ~/.local/share/archriot/bin/scripts/fix-offscreen-windows.sh ]]; then
+  cp ~/.local/share/archriot/bin/scripts/fix-offscreen-windows.sh ~/.local/bin/scripts/
   chmod +x ~/.local/bin/scripts/fix-offscreen-windows.sh
   echo "✓ Off-screen window fix script installed (AMD DPMS recovery)"
 else
