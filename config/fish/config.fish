@@ -47,7 +47,8 @@ set -g __fish_git_prompt_char_upstream_equal ""
 function fish_prompt
     set -l last_status $status
     set_color purple
-    echo -n "门 "  # Purple gate - ArchRiot themed (Chinese gate character)
+    echo -n "λ "  # Purple lambda - ArchRiot programming themed
+    # echo -n "门 "  # Purple gate - ArchRiot themed (Chinese gate character) - old version
     set_color normal
     set_color blue
     printf "%s" (string replace $HOME "~" (pwd))

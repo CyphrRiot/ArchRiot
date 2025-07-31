@@ -192,6 +192,7 @@ fi
 echo "🧹 Cleaning up old Plymouth themes..."
 sudo rm -rf /usr/share/plymouth/themes/archriot
 sudo rm -rf /usr/share/plymouth/themes/ohmarchy
+sudo rm -rf /usr/share/plymouth/themes/omarchy
 sudo rm -rf /usr/share/plymouth/themes/archriot
 
 # Remove any cached theme references
