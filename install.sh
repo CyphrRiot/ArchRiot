@@ -367,31 +367,17 @@ execute_module() {
 
         FAILED_MODULES+=("$module_name")
 
-        # For critical modules, ask user how to proceed
+        # For critical modules, fail the installation
         if [[ "$module_name" == *"identity"* ]] || [[ "$module_name" == *"hyprland"* ]] || [[ "$module_name" == *"theming"* ]]; then
             echo "🚨 CRITICAL MODULE FAILED: $module_name"
             echo "This module is essential for ArchRiot functionality."
+            echo "Installation cannot continue with this failure."
             echo ""
-            echo "Options:"
-            echo "1. Continue installation (may result in broken system)"
-            echo "2. Retry this module"
-            echo "3. Abort installation"
+            echo "Check the log file for details: $LOG_FILE"
+            echo "Fix the issue and re-run the installation."
             echo ""
-
-            read -p "Choose [1/2/3]: " choice
-            case "$choice" in
-                2)
-                    echo "INFO: Retrying $module_name..." >> "$LOG_FILE" 2>&1
-                    return $(execute_module "$module_path")
-                    ;;
-                3)
-                    echo "CRITICAL: Installation aborted by user" >> "$LOG_FILE" 2>&1
-                    exit 1
-                    ;;
-                *)
-                    echo "WARNING: Continuing despite critical module failure" >> "$LOG_FILE" 2>&1
-                    ;;
-            esac
+            echo "CRITICAL: Installation failed due to $module_name failure" >> "$LOG_FILE" 2>&1
+            exit 1
         fi
 
         return $exit_code

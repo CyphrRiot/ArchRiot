@@ -286,13 +286,8 @@ setup_backgrounds() {
     export BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
     mkdir -p "$BACKGROUNDS_DIR"
 
-    # Copy background files directly from repo
-    # Use absolute path resolution to work in any execution context
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-    # Resolve the absolute path to avoid any relative path issues when sourced
-    local archriot_root="$(cd "$script_dir/../.." && pwd)"
-    local source_bg_dir="$archriot_root/backgrounds"
+    # Copy background files from ArchRiot data directory
+    local source_bg_dir="$HOME/.local/share/archriot/backgrounds"
 
     echo "🔍 Checking source directory: $source_bg_dir"
 

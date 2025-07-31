@@ -5,6 +5,25 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.8] - 2025-01-31
+
+### 🐛 Critical Bug Fixes
+
+#### Installation System Stability
+
+- **FIXED**: Infinite loop in critical module failure dialog causing 2.4GB log files
+    - **ISSUE**: Interactive prompts in non-interactive environments (VMs, automated installs) caused endless loops
+    - **SOLUTION**: Critical module failures now exit cleanly with clear error messages
+    - **IMPACT**: Prevents installation hangs and massive log file generation
+
+#### Path Resolution Improvements
+
+- **ELIMINATED**: Remaining `../../` relative path navigation in theming system
+    - **REPLACED**: Background path resolution now uses proper `$HOME/.local/share/archriot/backgrounds`
+    - **RESULT**: More reliable path handling across different execution contexts
+
+---
+
 ## [2.1.7] - 2025-01-31
 
 ### 🚀 Installation System Optimizations
