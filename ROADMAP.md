@@ -1,75 +1,90 @@
 # ArchRiot Development Roadmap
 
-## v2.2.0 ARCHITECTURAL OVERHAUL - IN DEVELOPMENT BRANCH
+## v2.2.0 SIMPLIFIED MODULE SYSTEM - IN DEVELOPMENT BRANCH
 
 **CURRENT BRANCH**: `v2.2-yaml-architecture` (DEVELOPMENT - NOT IN MASTER)
 
-### 🚀 MAJOR INITIATIVE: Declarative Package & Configuration System
+### 🚀 MAJOR INITIATIVE: Brilliant Simplified Approach
 
-**Status**: PLANNING & PROTOTYPING - Changes made in isolated branch
+**Status**: IMPLEMENTATION - Ultra-simple solution preserving all existing functionality
 **Target**: v2.2.0 major release
 **Safety**: All development isolated from stable master branch until fully tested and approved
 
-#### DEVELOPMENT PLAN & NEXT STEPS:
+#### THE BRILLIANT SIMPLE SOLUTION:
 
-**PHASE 1: YAML Manifest Design** (Current Phase)
+**Keep install.sh exactly as-is, eliminate 25+ scattered files with just:**
 
-- [ ] Design comprehensive YAML schema for packages, configs, and dependencies
-- [ ] Create example manifests for core, desktop, applications modules
-- [ ] Define dependency resolution logic and validation rules
-- [ ] Document migration strategy from current shell script system
+- `install.sh` (unchanged - all existing logic preserved)
+- `install/modules.yaml` (simple: packages + configs + dependencies)
+- `install/complex-modules.sh` (only for tricky logic that needs shell scripting)
 
-**PHASE 2: Core Engine Development**
+#### IMPLEMENTATION PLAN:
 
-- [ ] Build YAML parser and validator
-- [ ] Implement dependency resolution engine
-- [ ] Create unified package installation system
-- [ ] Develop configuration template system with proper variable substitution
+**PHASE 1: Create Simple Structure** (Current Phase)
 
-**PHASE 3: Gradual Module Migration**
+- [x] Delete all overengineered files from previous attempt
+- [x] Create simple modules.yaml with package lists and config paths
+- [x] Create modules.sh for hardware detection, services, etc.
+- [ ] Add 5-10 lines to install.sh to read YAML for simple modules
 
-- [ ] Convert core modules to YAML format (base, identity, shell)
-- [ ] Migrate desktop modules (hyprland, theming, applications)
-- [ ] Transform applications modules (productivity, utilities, communication)
-- [ ] Maintain backward compatibility during transition
+**PHASE 2: Migration**
 
-**PHASE 4: Testing & Validation**
+- [ ] Move simple modules (packages + configs only) to modules.yaml
+- [ ] Move complex logic (GPU detection, yay install, services) to complex-modules.sh
+- [ ] Remove 25+ individual .sh files
+- [ ] Test that everything still works exactly the same
 
-- [ ] Comprehensive testing of all converted modules
-- [ ] Performance comparison with current system
-- [ ] Edge case testing and error handling validation
-- [ ] User acceptance testing with real installations
+**PHASE 3: Testing & Validation**
 
-**PHASE 5: APPROVAL & MERGE** (REQUIRES EXPLICIT PERMISSION)
+- [ ] Verify all existing functionality preserved
+- [ ] Test fallback if YAML reading fails
+- [ ] Performance validation (should be faster)
+- [ ] User acceptance testing
+
+**PHASE 4: APPROVAL & MERGE** (REQUIRES EXPLICIT PERMISSION)
 
 - [ ] Final code review and approval
 - [ ] Master branch merge ONLY after complete testing and user approval
-- [ ] Rollback plan if issues discovered post-merge
-- [ ] Documentation updates for new system
+- [ ] Documentation updates
 
-#### DEVELOPMENT WORKFLOW RULES:
+#### ARCHITECTURE:
 
-1. **BRANCH ISOLATION**: All v2.2 changes stay in `v2.2-yaml-architecture` branch
-2. **NO MASTER CHANGES**: Master branch remains stable with v2.1.7 system
-3. **EXPLICIT APPROVAL**: Each phase requires user approval before proceeding
-4. **TESTING MANDATORY**: Every component must be tested before phase completion
-5. **ROLLBACK READY**: Maintain ability to abandon changes if issues arise
+**modules.yaml handles:**
 
-#### ARCHITECTURAL GOALS:
+- Package lists (pacman + AUR)
+- Config file copying paths
+- Simple dependencies
 
-- **90% Code Reduction**: Eliminate repetitive shell scripting across 30+ modules
-- **Dependency Management**: Clear, automatic resolution of component dependencies
-- **Maintainability**: Single YAML file changes instead of scattered script modifications
-- **Reliability**: Consistent error handling, retry logic, and state management
-- **Extensibility**: Easy addition of new packages/configs without script writing
+**modules.sh handles:**
+
+- GPU detection and driver installation
+- Service configuration and enablement
+- yay AUR helper installation
+- Hardware-specific logic
+- Anything requiring shell scripting
+
+**install.sh:**
+
+- Unchanged existing logic
+- Reads modules.yaml for simple stuff
+- Calls modules.sh for complex stuff
+- Full backward compatibility
+
+#### BENEFITS:
+
+- **90% Code Reduction**: Eliminate 25+ scattered .sh files
+- **Zero Risk**: install.sh remains unchanged
+- **Easy Maintenance**: Simple modules centralized in YAML
+- **Preserve Complexity**: Complex logic stays in shell where it belongs
+- **Minimal Changes**: <10 lines added to install.sh
 
 #### RISK MITIGATION:
 
-- Development in isolated branch prevents disruption of working system
-- Incremental migration allows testing at each step
-- Backward compatibility maintained during transition
-- Original system preserved for rollback if needed
-- User approval required at every major milestone
+- install.sh functionality completely preserved
+- Complex logic remains in proven shell scripts
+- Simple fallback if YAML fails
+- All existing workflows unchanged
+- Gradual migration with testing at each step
 
 ---
 
