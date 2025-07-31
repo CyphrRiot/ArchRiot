@@ -1,6 +1,79 @@
 # ArchRiot Development Roadmap
 
-## Current Status: v2.1.7
+## v2.2.0 ARCHITECTURAL OVERHAUL - IN DEVELOPMENT BRANCH
+
+**CURRENT BRANCH**: `v2.2-yaml-architecture` (DEVELOPMENT - NOT IN MASTER)
+
+### 🚀 MAJOR INITIATIVE: Declarative Package & Configuration System
+
+**Status**: PLANNING & PROTOTYPING - Changes made in isolated branch
+**Target**: v2.2.0 major release
+**Safety**: All development isolated from stable master branch until fully tested and approved
+
+#### DEVELOPMENT PLAN & NEXT STEPS:
+
+**PHASE 1: YAML Manifest Design** (Current Phase)
+
+- [ ] Design comprehensive YAML schema for packages, configs, and dependencies
+- [ ] Create example manifests for core, desktop, applications modules
+- [ ] Define dependency resolution logic and validation rules
+- [ ] Document migration strategy from current shell script system
+
+**PHASE 2: Core Engine Development**
+
+- [ ] Build YAML parser and validator
+- [ ] Implement dependency resolution engine
+- [ ] Create unified package installation system
+- [ ] Develop configuration template system with proper variable substitution
+
+**PHASE 3: Gradual Module Migration**
+
+- [ ] Convert core modules to YAML format (base, identity, shell)
+- [ ] Migrate desktop modules (hyprland, theming, applications)
+- [ ] Transform applications modules (productivity, utilities, communication)
+- [ ] Maintain backward compatibility during transition
+
+**PHASE 4: Testing & Validation**
+
+- [ ] Comprehensive testing of all converted modules
+- [ ] Performance comparison with current system
+- [ ] Edge case testing and error handling validation
+- [ ] User acceptance testing with real installations
+
+**PHASE 5: APPROVAL & MERGE** (REQUIRES EXPLICIT PERMISSION)
+
+- [ ] Final code review and approval
+- [ ] Master branch merge ONLY after complete testing and user approval
+- [ ] Rollback plan if issues discovered post-merge
+- [ ] Documentation updates for new system
+
+#### DEVELOPMENT WORKFLOW RULES:
+
+1. **BRANCH ISOLATION**: All v2.2 changes stay in `v2.2-yaml-architecture` branch
+2. **NO MASTER CHANGES**: Master branch remains stable with v2.1.7 system
+3. **EXPLICIT APPROVAL**: Each phase requires user approval before proceeding
+4. **TESTING MANDATORY**: Every component must be tested before phase completion
+5. **ROLLBACK READY**: Maintain ability to abandon changes if issues arise
+
+#### ARCHITECTURAL GOALS:
+
+- **90% Code Reduction**: Eliminate repetitive shell scripting across 30+ modules
+- **Dependency Management**: Clear, automatic resolution of component dependencies
+- **Maintainability**: Single YAML file changes instead of scattered script modifications
+- **Reliability**: Consistent error handling, retry logic, and state management
+- **Extensibility**: Easy addition of new packages/configs without script writing
+
+#### RISK MITIGATION:
+
+- Development in isolated branch prevents disruption of working system
+- Incremental migration allows testing at each step
+- Backward compatibility maintained during transition
+- Original system preserved for rollback if needed
+- User approval required at every major milestone
+
+---
+
+## Current Status: v2.1.7 (STABLE)
 
 - Installation system reliability: ✅ Complete
 - Theme config nightmare: ✅ ELIMINATED
@@ -54,9 +127,10 @@
 
 ## CURRENT DEVELOPMENT FOCUS
 
-### 🚀 MAJOR ARCHITECTURAL PROPOSAL: Declarative Package & Configuration System
+### 🚀 ACTIVE DEVELOPMENT: Declarative Package & Configuration System (v2.2 Branch)
 
-**Status**: PROPOSED - Fundamental architectural improvement for v2.2.0
+**Status**: IN DEVELOPMENT - Fundamental architectural improvement for v2.2.0
+**Branch**: `v2.2-yaml-architecture` (isolated from stable master)
 **Problem**: Current system has excessive scripting and code duplication across 30+ modules
 
 #### Current Architecture Issues:
@@ -109,12 +183,12 @@ applications:
 - **Faster Development**: Add new components by editing YAML, not writing scripts
 - **Better Testing**: Test manifest logic instead of scattered scripts
 
-#### Implementation Plan:
+#### Implementation Status:
 
-- **v2.2.0 Branch**: Develop YAML system in separate branch
-- **Gradual Migration**: Convert modules one category at a time
-- **Backward Compatibility**: Maintain current system during transition
-- **Comprehensive Testing**: Ensure feature parity before main branch merge
+- ✅ **v2.2.0 Branch Created**: `v2.2-yaml-architecture` active development branch
+- 🔄 **Phase 1 Active**: YAML manifest design and planning in progress
+- ⏳ **Gradual Migration**: Will convert modules one category at a time after approval
+- ⏳ **Testing Pipeline**: Comprehensive validation planned before any master merge
 
 ### 🔧 Completed File-by-File Optimizations
 
