@@ -15,13 +15,18 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly INSTALL_DIR="$HOME/.local/share/archriot/install"
 readonly LOG_FILE="$HOME/.cache/archriot/install.log"
 readonly ERROR_LOG="$HOME/.cache/archriot/install-errors.log"
+readonly ARCHRIOT_DATA_DIR="$HOME/.local/share/archriot"
+readonly ARCHRIOT_ICONS_DIR="$HOME/.local/share/icons/hicolor"
+readonly ARCHRIOT_APPS_DIR="$HOME/.local/share/applications"
+readonly ARCHRIOT_BACKUP_PREFIX="$HOME/.local/share/archriot-backup-"
+readonly TEMP_BUILD_DIR="/tmp"
 # Backup directory now handled by centralized backup system
 
 # Read version from VERSION file
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
     readonly ARCHRIOT_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
-elif [ -f "$HOME/.local/share/archriot/VERSION" ]; then
-    readonly ARCHRIOT_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "unknown")
+elif [ -f "$ARCHRIOT_DATA_DIR/VERSION" ]; then
+    readonly ARCHRIOT_VERSION=$(cat "$ARCHRIOT_DATA_DIR/VERSION" 2>/dev/null || echo "unknown")
 else
     readonly ARCHRIOT_VERSION=$(curl -fsSL https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION 2>/dev/null || echo "unknown")
 fi
@@ -37,27 +42,31 @@ declare -A MODULE_PRIORITIES=(
     ["optional"]=60
 )
 
-# Get all installation modules dynamically with proper ordering
-get_installation_modules() {
-    local modules=()
+# Execute all installation modules with direct execution approach
+execute_installation_modules() {
+    echo "INFO: 🚀 Starting module processing..." >> "$LOG_FILE" 2>&1
 
-    # Scan for individual core files first (numbered for ordering)
+    # Core modules first (numbered order)
     for file in "$INSTALL_DIR/core"/*.sh; do
-        [[ -f "$file" ]] && modules+=("core/$(basename "$file")")
+        [[ -f "$file" ]] && execute_module "$file"
     done
 
-    # Then scan directory modules by priority
-    for dir in "$INSTALL_DIR"/*; do
-        if [[ -d "$dir" && "$(basename "$dir")" != "core" && "$(basename "$dir")" != "lib" ]]; then
-            modules+=("$(basename "$dir")")
+    # Directory modules in specific order
+    for dir in "$INSTALL_DIR"/{system,desktop,applications,development,post-desktop,optional}; do
+        [[ -d "$dir" ]] && execute_module_directory "$dir"
+    done
+
+    # Execute standalone installers
+    for standalone in "${STANDALONE_INSTALLERS[@]}"; do
+        local standalone_path="$INSTALL_DIR/$standalone"
+        if [[ -f "$standalone_path" ]]; then
+            execute_module "$standalone_path"
+        else
+            echo "WARNING: Standalone installer not found: $standalone" >> "$LOG_FILE" 2>&1
+            SKIPPED_MODULES+=("$standalone")
         fi
     done
-
-    printf '%s\n' "${modules[@]}"
 }
-
-# Get installation modules in correct order
-declare -a INSTALL_MODULES=($(get_installation_modules))
 
 # Standalone installers
 declare -a STANDALONE_INSTALLERS=(
@@ -114,24 +123,30 @@ log_message() {
     local level="$1"
     local message="$2"
     local timestamp="[$(date '+%H:%M:%S')]"
+    local formatted_message
 
     case "$level" in
         "INFO")
-            echo "$timestamp $message" | tee -a "$LOG_FILE"
+            formatted_message="$timestamp $message"
             ;;
         "SUCCESS")
-            echo "$timestamp ✅ $message" | tee -a "$LOG_FILE"
+            formatted_message="$timestamp ✅ $message"
             ;;
         "WARNING")
-            echo "$timestamp ⚠️  $message" | tee -a "$LOG_FILE"
+            formatted_message="$timestamp ⚠️  $message"
             ;;
         "ERROR")
-            echo "$timestamp ❌ $message" | tee -a "$LOG_FILE" | tee -a "$ERROR_LOG"
+            formatted_message="$timestamp ❌ $message"
+            echo "$formatted_message" >> "$ERROR_LOG"
             ;;
         "CRITICAL")
-            echo "$timestamp 🚨 CRITICAL: $message" | tee -a "$LOG_FILE" | tee -a "$ERROR_LOG"
+            formatted_message="$timestamp 🚨 CRITICAL: $message"
+            echo "$formatted_message" >> "$ERROR_LOG"
             ;;
     esac
+
+    # Single output operation
+    echo "$formatted_message" >> "$LOG_FILE"
 }
 
 # ================================================================================
@@ -153,7 +168,7 @@ install_essential_tools() {
     if ! command -v yay &>/dev/null; then
         echo "Installing yay AUR helper..." >> "$LOG_FILE" 2>&1
 
-        cd /tmp || return 1
+        cd "$TEMP_BUILD_DIR" || return 1
         if ! git clone https://aur.archlinux.org/yay-bin.git >> "$LOG_FILE" 2>&1; then
             echo "CRITICAL: Failed to clone yay-bin repository" >> "$LOG_FILE" 2>&1
             return 1
@@ -166,7 +181,7 @@ install_essential_tools() {
         fi
 
         cd /
-        rm -rf /tmp/yay-bin
+        rm -rf "$TEMP_BUILD_DIR/yay-bin"
 
         # Verify yay installation
         if ! command -v yay &>/dev/null; then
@@ -426,33 +441,7 @@ execute_module_directory() {
     return 0
 }
 
-# Process all installation modules
-process_installation_modules() {
-    echo "INFO: 🚀 Starting module processing..." >> "$LOG_FILE" 2>&1
-
-    for module in "${INSTALL_MODULES[@]}"; do
-        if [[ "$module" == *".sh" ]]; then
-            # Individual module file
-            local module_path="$INSTALL_DIR/$module"
-            execute_module "$module_path"
-        else
-            # Module directory
-            local module_dir="$INSTALL_DIR/$module"
-            execute_module_directory "$module_dir"
-        fi
-    done
-
-    # Execute standalone installers
-    for standalone in "${STANDALONE_INSTALLERS[@]}"; do
-        local standalone_path="$INSTALL_DIR/$standalone"
-        if [[ -f "$standalone_path" ]]; then
-            execute_module "$standalone_path"
-        else
-            echo "WARNING: Standalone installer not found: $standalone" >> "$LOG_FILE" 2>&1
-            SKIPPED_MODULES+=("$standalone")
-        fi
-    done
-}
+# Removed - functionality moved to execute_installation_modules()
 
 # ================================================================================
 # Verification Functions
@@ -472,7 +461,7 @@ cleanup_old_backups() {
     done
 
     # Remove old setup.sh backups (archriot-backup-*)
-    for backup_dir in ~/.local/share/archriot-backup-*; do
+    for backup_dir in "${ARCHRIOT_BACKUP_PREFIX}"*; do
         if [[ -d "$backup_dir" ]]; then
             rm -rf "$backup_dir" 2>/dev/null && ((total_removed++))
         fi
@@ -610,8 +599,8 @@ finalize_installation() {
 
     # Update icon cache
     echo "INFO: Updating icon cache..." >> "$LOG_FILE" 2>&1
-    gtk-update-icon-cache -f ~/.local/share/icons/hicolor/ 2>/dev/null || true
-    update-desktop-database ~/.local/share/applications/ 2>/dev/null || true
+    gtk-update-icon-cache -f "$ARCHRIOT_ICONS_DIR/" 2>/dev/null || true
+    update-desktop-database "$ARCHRIOT_APPS_DIR/" 2>/dev/null || true
 
     # Services will be restarted at the end of installation
 
@@ -631,8 +620,8 @@ finalize_installation() {
 
     # Update version file
     if [[ -n "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
-        mkdir -p "$HOME/.local/share/archriot"
-        echo "$ARCHRIOT_VERSION" > "$HOME/.local/share/archriot/VERSION"
+        mkdir -p "$ARCHRIOT_DATA_DIR"
+        echo "$ARCHRIOT_VERSION" > "$ARCHRIOT_DATA_DIR/VERSION"
     fi
 
     log_message "SUCCESS" "Installation finalized"
@@ -726,7 +715,7 @@ handle_installation_error() {
     echo "   Main log: $LOG_FILE"
     echo "   Error log: $ERROR_LOG"
     echo ""
-    echo "🔄 To retry: source $HOME/.local/share/archriot/install.sh"
+    echo "🔄 To retry: source $ARCHRIOT_DATA_DIR/install.sh"
     echo "💡 Most components are idempotent - re-running will skip installed items"
 
     exit 1
@@ -772,7 +761,7 @@ main() {
     progress_resume_after_input
 
     # Process all installation modules
-    process_installation_modules
+    execute_installation_modules
 
     # Verify critical installations
     verify_installation

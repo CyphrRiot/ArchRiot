@@ -5,6 +5,47 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.7] - 2025-01-31
+
+### 🚀 Installation System Optimizations
+
+#### Core Installer Performance Improvements
+
+- **OPTIMIZED**: `install.sh` main installer with systematic efficiency improvements
+    - **Eliminated multiple tee operations**: Replaced process spawning in `log_message()` with direct file operations
+    - **Simplified module discovery**: Direct execution approach eliminating 49 lines of complex array building logic
+    - **Centralized hardcoded paths**: All path constants defined in configuration section for better maintainability
+    - **IMPACT**: Faster installation startup and reduced I/O overhead during module execution
+
+#### Process Management Cleanup
+
+- **REMOVED**: Orphaned `config/waybar/waybar.sh` script with improper process detachment
+    - **ISSUE**: Script existed but was never called, contained background processes without `nohup & disown`
+    - **AUDIT**: Verified all critical services (swaybg, waybar, mako) properly detached in installer
+    - **RESULT**: Clean codebase with consistent background process management
+
+### 🎨 AMD Graphics Compatibility
+
+#### Progressive Graphics Rendering System
+
+- **IMPLEMENTED**: AMD-specific graphics artifact fixes for GTK4 applications
+    - **PRIMARY**: `GSK_RENDERER=gl` for stable GL rendering across all systems
+    - **AMD OPTIMIZATIONS**: `mesa_glthread=true` and Mesa version overrides for better compatibility
+    - **PROGRESSIVE FALLBACKS**: Cairo renderer and software rendering options available if needed
+    - **IMPACT**: Eliminates Thunar and other GTK4 visual artifacts while preserving hardware acceleration
+
+### 📋 Documentation & Planning Updates
+
+- **UPDATED**: ROADMAP.md with completed optimizations and architectural proposal
+- **PROPOSED**: YAML-based declarative package system for v2.2.0 development
+- **CLEANED**: Redundant roadmap sections, focused on current development priorities
+
+### 🔧 Code Quality Improvements
+
+- **Consistent Installation Logic**: Unified approach to background service management
+- **Maintainable Path Handling**: Centralized configuration for all installer paths
+- **Reduced Code Duplication**: Eliminated redundant operations across core installer
+
 ## [2.1.6] - 2025-01-31
 
 ### 🚨 Critical System Fixes
