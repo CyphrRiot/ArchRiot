@@ -22,7 +22,7 @@ if lspci | grep -qi -E 'amd|radeon'; then
     install_packages "mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon" "essential"
 fi
 
-if lspci | grep -qi intel | grep -qi -E 'vga|3d|display|graphics'; then
+if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then
     echo "🎮 Installing Intel graphics drivers..."
     install_packages "mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver" "essential"
     echo "✓ Intel graphics drivers installed"
@@ -30,7 +30,7 @@ fi
 
 # Fix Apple keyboard if detected
 if command -v lsusb >/dev/null 2>&1; then
-    if lsusb | grep -qi apple | grep -qi keyboard; then
+    if lsusb | grep -i apple | grep -qi keyboard; then
         echo "🍎 Apple keyboard detected - configuring function keys..."
         echo "options hid_apple fnmode=2" | sudo tee /etc/modprobe.d/hid_apple.conf >/dev/null
         echo "✓ Apple keyboard configured (function keys work normally)"

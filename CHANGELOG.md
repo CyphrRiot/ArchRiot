@@ -5,6 +5,30 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.5] - 2025-07-30
+
+### 🔧 Hardware Detection Fixes
+
+#### Critical Pipeline Bugs Fixed
+
+- **Fixed Intel graphics detection** - `lspci | grep -qi intel | grep -qi -E 'vga|3d|display|graphics'` → `lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'`
+- **Fixed Apple keyboard detection** - `lsusb | grep -qi apple | grep -qi keyboard` → `lsusb | grep -i apple | grep -qi keyboard`
+- **Root cause**: Silent first grep (`-q`) in pipeline broke second grep - no input to search
+
+#### Impact
+
+- **Intel graphics drivers** now install properly on Intel systems
+- **Apple keyboard function keys** now configure correctly on Apple keyboards
+- **Hardware detection** works as intended across all supported hardware
+
+#### Technical Details
+
+- **Pipeline issue**: Using `grep -q` (quiet) as first command in pipeline kills output for subsequent commands
+- **Solution**: Remove `-q` from first grep, keep `-q` on final grep for boolean result
+- **Affected systems**: Any ArchRiot installation on Intel graphics or with Apple keyboards
+
+This release fixes critical hardware detection that was silently failing due to broken shell pipelines.
+
 ## [2.1.4] - 2025-07-30
 
 ### 🗂️ Backup System Consolidation & Performance Optimization

@@ -1,6 +1,6 @@
 # ArchRiot Development Roadmap
 
-## Current Status: v2.1.4
+## Current Status: v2.1.5
 
 - Installation system reliability: ✅ Complete
 - Theme config nightmare: ✅ ELIMINATED
