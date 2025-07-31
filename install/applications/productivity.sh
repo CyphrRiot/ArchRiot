@@ -190,8 +190,8 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p ~/.local/share/applications ~/.local/bin
 
 # Install Zed Wayland launcher
-if [[ -f "$script_dir/../../bin/zed-wayland" ]]; then
-  cp "$script_dir/../../bin/zed-wayland" ~/.local/bin/
+if [[ -f ~/.local/share/archriot/bin/zed-wayland ]]; then
+  cp ~/.local/share/archriot/bin/zed-wayland ~/.local/bin/
   chmod +x ~/.local/bin/zed-wayland
   echo "✓ Zed Wayland launcher installed"
 
@@ -222,7 +222,7 @@ NoDisplay=true" > ~/.local/share/applications/zed.desktop.bak
 fi
 
 # Install Zed desktop file (upgrade-safe)
-if [[ -f "$script_dir/../../applications/zed.desktop" ]]; then
+if [[ -f ~/.local/share/archriot/applications/zed.desktop ]]; then
   echo "📱 Installing Zed desktop file..."
 
   # Check if existing desktop file needs updating
@@ -235,16 +235,16 @@ if [[ -f "$script_dir/../../applications/zed.desktop" ]]; then
   fi
 
   # Install with proper HOME expansion
-  sed "s|\$HOME|$HOME|g" "$script_dir/../../applications/zed.desktop" > ~/.local/share/applications/zed.desktop
+  sed "s|\$HOME|$HOME|g" ~/.local/share/archriot/applications/zed.desktop > ~/.local/share/applications/zed.desktop
   echo "✓ Zed desktop file installed with Wayland support"
 else
   echo "⚠ Zed desktop file not found in repository"
 fi
 
 # Install Zed configuration
-if [[ -d "$script_dir/../../config/zed" ]]; then
+if [[ -d ~/.local/share/archriot/config/zed ]]; then
   mkdir -p ~/.config/zed
-  cp -r "$script_dir/../../config/zed"/* ~/.config/zed/
+  cp -r ~/.local/share/archriot/config/zed/* ~/.config/zed/
   echo "✓ Zed configuration installed"
 else
   echo "⚠ Zed configuration not found in repository"

@@ -1,6 +1,6 @@
 # ArchRiot Development Roadmap
 
-## Current Status: v2.1.5
+## Current Status: v2.1.6
 
 - Installation system reliability: ✅ Complete
 - Theme config nightmare: ✅ ELIMINATED
@@ -201,6 +201,44 @@
 ✅ User can see what's happening without noise - professional installer experience
 
 This represents a complete transformation of the installation experience from overwhelming to elegant.
+
+### 4. ✅ COMPLETED: Hyprland Window Management Bug Investigation
+
+**Status**: SOLVED - Off-screen window recovery system implemented
+**Problem**: Floating windows vanish and all windows get offset by thousands of pixels after DPMS wake
+**Impact**: Fixed - Users now have automatic recovery for floating windows after screen lock/wake
+
+**Critical Symptoms** (RESOLVED):
+
+- ✅ **Windows disappear**: Fixed with automatic recovery system
+- ✅ **Massive coordinate corruption**: Detected and corrected automatically
+- ✅ **Ghost window state**: Windows now properly restored to visible coordinates
+- ✅ **Workspace switching workaround**: No longer needed
+- ✅ **Hardware specific**: AMD GPU systems now stable
+
+**Root Cause Analysis** (COMPLETED):
+
+- ✅ **DPMS wake event corruption**: Identified coordinate corruption beyond screen boundaries
+- ✅ **AMD driver interaction**: Implemented AMD-specific recovery integration
+- ✅ **Internal state corruption**: Created detection and recovery mechanism
+- ✅ **Floating window destruction**: Automatic centering restores lost windows
+
+**Solution Implemented**:
+
+- ✅ **fix-offscreen-windows.sh**: Detects windows beyond screen boundaries and centers them
+- ✅ **Automatic recovery**: Integrated into AMD DPMS wake process via hypridle.conf
+- ✅ **Manual recovery**: SUPER+SHIFT+TAB keybinding for instant window recovery
+- ✅ **Focus-then-center**: Ensures proper positioning regardless of window size
+- ✅ **Installation integration**: Automatically deployed with new installs/upgrades
+
+**Success Criteria** (ACHIEVED):
+
+- ✅ Windows remain accessible after extended screen lock/DPMS cycles
+- ✅ Floating windows don't disappear after monitor wake events
+- ✅ No coordinate corruption requiring workspace switching to fix
+- ✅ AMD systems have same window stability as Intel systems
+
+**Priority**: COMPLETED - AMD users now have stable floating window management
 
 ### 5. 🚀 System-wide v2.0.5 Deployment
 

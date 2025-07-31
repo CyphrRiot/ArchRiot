@@ -20,25 +20,25 @@ echo "🌐 Installing essential web applications..."
 
 # Copy desktop files for web apps
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ -f "$script_dir/../../applications/Proton Mail.desktop" ]]; then
-    cp "$script_dir/../../applications/Proton Mail.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/Proton\ Mail.desktop ]]; then
+    cp ~/.local/share/archriot/applications/Proton\ Mail.desktop ~/.local/share/applications/
     echo "✓ Proton Mail desktop file installed"
 fi
 
-if [[ -f "$script_dir/../../applications/Google Messages.desktop" ]]; then
-    cp "$script_dir/../../applications/Google Messages.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/Google\ Messages.desktop ]]; then
+    cp ~/.local/share/archriot/applications/Google\ Messages.desktop ~/.local/share/applications/
     echo "✓ Google Messages desktop file installed"
 fi
 
-if [[ -f "$script_dir/../../applications/X.desktop" ]]; then
-    cp "$script_dir/../../applications/X.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/X.desktop ]]; then
+    cp ~/.local/share/archriot/applications/X.desktop ~/.local/share/applications/
     echo "✓ X (Twitter) desktop file installed"
 fi
 
 # Copy icons
-if [[ -d "$script_dir/../../applications/icons" ]]; then
+if [[ -d ~/.local/share/archriot/applications/icons ]]; then
     mkdir -p ~/.local/share/icons
-    cp -r "$script_dir/../../applications/icons"/* ~/.local/share/icons/ 2>/dev/null || true
+    cp -r ~/.local/share/archriot/applications/icons/* ~/.local/share/icons/ 2>/dev/null || true
     echo "✓ Web app icons installed"
 fi
 

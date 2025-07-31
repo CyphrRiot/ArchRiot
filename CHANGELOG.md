@@ -5,6 +5,34 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.6] - 2025-01-31
+
+### 🚨 Critical System Fixes
+
+#### AMD DPMS Window Management Bug - SOLVED
+
+- **FIXED**: Floating windows disappearing after DPMS wake events on AMD systems
+    - **ROOT CAUSE**: Windows positioned beyond screen boundaries (coordinates >4000px) after monitor wake
+    - **SOLUTION**: Automatic off-screen window detection and recovery system
+    - **IMPLEMENTATION**: `fix-offscreen-windows.sh` script with focus-then-center approach
+    - **INTEGRATION**: Automatic recovery on DPMS wake + manual SUPER+SHIFT+TAB keybinding
+    - **IMPACT**: All floating windows (Signal, Calculator, System Monitor, etc.) now survive screen lock/wake cycles
+
+#### Installation System Architecture Cleanup
+
+- **ELIMINATED**: 23+ instances of confusing `"$script_dir/../../"` relative path navigation
+- **REPLACED**: All installation scripts now use clean `~/.local/share/archriot/` absolute paths
+- **IMPROVED**: Installation code readability and maintainability across entire system
+- **FILES AFFECTED**: communication.sh, productivity.sh, utilities.sh, post-desktop/01-config.sh
+
+### 🧹 Code Quality Improvements
+
+- **Standardized installation path patterns** across all modules
+- **Enhanced installation system reliability** with direct path references
+- **Improved debugging experience** with clear, readable installation logic
+
+---
+
 ## [2.1.5] - 2025-07-30
 
 ### 🔧 Hardware Detection Fixes

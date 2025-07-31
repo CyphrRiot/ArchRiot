@@ -287,8 +287,8 @@ setup_scripts_and_env() {
 
     # Install Control Panel script using working pattern
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    if [[ -f "$script_dir/../../bin/archriot-control-panel" ]]; then
-        cp "$script_dir/../../bin/archriot-control-panel" ~/.local/bin/
+    if [[ -f ~/.local/share/archriot/bin/archriot-control-panel ]]; then
+        cp ~/.local/share/archriot/bin/archriot-control-panel ~/.local/bin/
         chmod +x ~/.local/bin/archriot-control-panel
         echo "Control Panel script installed" >> "$ARCHRIOT_LOG_FILE"
     else
@@ -296,8 +296,8 @@ setup_scripts_and_env() {
     fi
 
     # Install Config script
-    if [[ -f "$script_dir/../../bin/archriot-config" ]]; then
-        cp "$script_dir/../../bin/archriot-config" ~/.local/bin/
+    if [[ -f ~/.local/share/archriot/bin/archriot-config ]]; then
+        cp ~/.local/share/archriot/bin/archriot-config ~/.local/bin/
         chmod +x ~/.local/bin/archriot-config
         echo "Config script installed" >> "$ARCHRIOT_LOG_FILE"
     else
@@ -305,8 +305,8 @@ setup_scripts_and_env() {
     fi
 
     # Install Power Menu script
-    if [[ -f "$script_dir/../../bin/power-menu" ]]; then
-        cp "$script_dir/../../bin/power-menu" ~/.local/bin/
+    if [[ -f ~/.local/share/archriot/bin/power-menu ]]; then
+        cp ~/.local/share/archriot/bin/power-menu ~/.local/bin/
         chmod +x ~/.local/bin/power-menu
         echo "Power Menu script installed" >> "$ARCHRIOT_LOG_FILE"
     else
@@ -359,7 +359,7 @@ setup_scripts_and_env() {
 
     # Install welcome image from repository
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local source_image="$script_dir/../../images/welcome.png"
+    local source_image=~/.local/share/archriot/images/welcome.png
     local dest_dir="$HOME/.local/share/archriot/images"
     local dest_image="$dest_dir/welcome.png"
 

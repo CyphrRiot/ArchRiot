@@ -23,8 +23,8 @@ mkdir -p ~/.local/share/applications ~/.local/bin ~/.local/share/icons/hicolor/2
 # Install Feather Wallet desktop file and icon
 # Feather Wallet
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ -f "$script_dir/../../applications/feather-wallet.desktop" ]]; then
-  cp "$script_dir/../../applications/feather-wallet.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/feather-wallet.desktop ]]; then
+  cp ~/.local/share/archriot/applications/feather-wallet.desktop ~/.local/share/applications/
   echo "✓ Feather Wallet desktop file installed"
 else
   echo "⚠ Feather Wallet desktop file not found in repository applications"
@@ -39,16 +39,16 @@ fi
 
 # Install Signal Wayland launcher and desktop file
 # Note: signal-desktop package is installed by communication.sh module
-if [[ -f "$script_dir/../../bin/signal-wayland" ]]; then
-  cp "$script_dir/../../bin/signal-wayland" ~/.local/bin/
+if [[ -f ~/.local/share/archriot/bin/signal-wayland ]]; then
+  cp ~/.local/share/archriot/bin/signal-wayland ~/.local/bin/
   chmod +x ~/.local/bin/signal-wayland
   echo "✓ Signal Wayland launcher installed"
 else
   echo "⚠ Signal Wayland launcher not found in repository bin"
 fi
 
-if [[ -f "$script_dir/../../applications/signal-desktop.desktop" ]]; then
-  cp "$script_dir/../../applications/signal-desktop.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/signal-desktop.desktop ]]; then
+  cp ~/.local/share/archriot/applications/signal-desktop.desktop ~/.local/share/applications/
   echo "✓ Signal desktop file installed with Wayland support"
 else
   echo "⚠ Signal desktop file not found in repository applications"
@@ -65,8 +65,8 @@ else
 fi
 
 # Install Brave Private desktop file
-if [[ -f "$script_dir/../../applications/brave-private.desktop" ]]; then
-  cp "$script_dir/../../applications/brave-private.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/brave-private.desktop ]]; then
+  cp ~/.local/share/archriot/applications/brave-private.desktop ~/.local/share/applications/
   echo "✓ Brave Private desktop file installed"
 else
   echo "⚠ Brave Private desktop file not found in repository applications"
@@ -76,8 +76,8 @@ fi
 echo "🌐 Installing web applications and custom icon apps..."
 custom_apps=("Google Messages.desktop" "Proton Mail.desktop" "X.desktop" "Activity.desktop" "zed.desktop")
 for app in "${custom_apps[@]}"; do
-  if [[ -f "$script_dir/../../applications/$app" ]]; then
-    cp "$script_dir/../../applications/$app" ~/.local/share/applications/
+  if [[ -f ~/.local/share/archriot/applications/$app ]]; then
+    cp ~/.local/share/archriot/applications/$app ~/.local/share/applications/
     echo "✓ Custom app installed: $(basename "$app" .desktop)"
   else
     echo "⚠ Custom app not found: $app"
@@ -98,8 +98,8 @@ echo '[Desktop Entry]
 NoDisplay=true' > ~/.local/share/applications/btop.desktop
 
 # Install our clean renamed System Monitor (matches local working system)
-if [[ -f "$script_dir/../../applications/system-monitor.desktop" ]]; then
-  cp "$script_dir/../../applications/system-monitor.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/system-monitor.desktop ]]; then
+  cp ~/.local/share/archriot/applications/system-monitor.desktop ~/.local/share/applications/
   echo "✓ System Monitor (clean renamed version) installed"
 else
   echo "⚠ System Monitor desktop file not found"
@@ -117,8 +117,8 @@ fi
 
 # Install iwgtk desktop file with better name and icon
 echo "📶 Installing WiFi Manager desktop file..."
-if [[ -f "$script_dir/../../applications/iwgtk.desktop" ]]; then
-  cp "$script_dir/../../applications/iwgtk.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/iwgtk.desktop ]]; then
+  cp ~/.local/share/archriot/applications/iwgtk.desktop ~/.local/share/applications/
   echo "✓ WiFi Manager desktop file installed"
 else
   echo "⚠ WiFi Manager desktop file not found in repository"
@@ -126,7 +126,7 @@ fi
 
 # Copy icons for applications - ensure they're not 0-byte files
 echo "🎨 Installing application icons (preventing 0-byte corruption)..."
-icons_dir="$script_dir/../../applications/icons"
+icons_dir=~/.local/share/archriot/applications/icons
 if [[ -d "$icons_dir" ]]; then
     mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"
     for icon_file in "$icons_dir"/*.png; do
@@ -151,27 +151,27 @@ rm -f ~/.local/share/applications/file-manager.desktop
 echo "✓ Old duplicate desktop files removed"
 
 # Media Player (renamed from mpv Media Player)
-if [[ -f "$script_dir/../../applications/mpv.desktop" ]]; then
-  cp "$script_dir/../../applications/mpv.desktop" ~/.local/share/applications/media-player.desktop
+if [[ -f ~/.local/share/archriot/applications/mpv.desktop ]]; then
+  cp ~/.local/share/archriot/applications/mpv.desktop ~/.local/share/applications/media-player.desktop
   echo "✓ Media Player desktop file installed"
 fi
 
 # File Manager (renamed from Thunar File Manager)
-if [[ -f "$script_dir/../../applications/thunar.desktop" ]]; then
-  cp "$script_dir/../../applications/thunar.desktop" ~/.local/share/applications/thunar.desktop
+if [[ -f ~/.local/share/archriot/applications/thunar.desktop ]]; then
+  cp ~/.local/share/archriot/applications/thunar.desktop ~/.local/share/applications/thunar.desktop
   echo "✓ File Manager desktop file installed (overwriting original)"
 fi
 
 # Removable Drives (shortened from Removable Drives and Media)
-if [[ -f "$script_dir/../../applications/thunar-volman-settings.desktop" ]]; then
-  cp "$script_dir/../../applications/thunar-volman-settings.desktop" ~/.local/share/applications/
+if [[ -f ~/.local/share/archriot/applications/thunar-volman-settings.desktop ]]; then
+  cp ~/.local/share/archriot/applications/thunar-volman-settings.desktop ~/.local/share/applications/
   echo "✓ Removable Drives desktop file installed"
 fi
 
 # Install ArchRiot upgrade-system script
 echo "🚀 Installing ArchRiot upgrade-system utility..."
-if [[ -f "$script_dir/../../bin/upgrade-system" ]]; then
-  cp "$script_dir/../../bin/upgrade-system" ~/.local/bin/
+if [[ -f ~/.local/share/archriot/bin/upgrade-system ]]; then
+  cp ~/.local/share/archriot/bin/upgrade-system ~/.local/bin/
   chmod +x ~/.local/bin/upgrade-system
   echo "✓ ArchRiot upgrade-system installed to ~/.local/bin/"
   echo "  Usage: upgrade-system --help"
