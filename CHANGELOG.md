@@ -5,6 +5,25 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] - 2025-07-30
+
+### 🔧 Minor Improvements
+
+#### Notification Duration Enhancement
+
+- **Extended upgrade notification** - "Starting ArchRiot Upgrade" notification now displays for 3 seconds instead of 2 seconds
+- **Better user feedback** - Users have more time to see the upgrade launch confirmation
+- **Improved UX** - More consistent with other system notifications timing
+
+#### Setup Performance Optimization
+
+- **Faster downloads** - Added `--depth 1` to git clone commands in setup.sh for shallow clones
+- **Reduced download size** - Only downloads latest commit instead of full git history
+- **Improved installation speed** - Significantly faster for users on slower connections
+- **Same functionality** - No impact on installation reliability or features
+
+These minor improvements enhance the user experience with better feedback timing and faster installation performance.
+
 ## [2.1.1] - 2025-07-30
 
 ### 🚨 Critical Hotfix
