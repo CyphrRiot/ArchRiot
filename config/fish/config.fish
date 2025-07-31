@@ -72,6 +72,11 @@ end
 alias vim='nvim'
 alias vi='nvim'
 
+# Directory listing with lsd (better ls)
+alias ls='lsd'
+alias ll='lsd -l'
+alias la='lsd -la'
+
 # Fastfetch with correct logo width
 alias fastfetch='command fastfetch --logo-width 20'
 

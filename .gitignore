@@ -41,3 +41,6 @@ local/
 .ropeproject/
 plan.md
 PROPOSAL.md
+
+# No crush
+.crush/*

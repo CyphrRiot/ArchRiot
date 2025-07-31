@@ -669,7 +669,7 @@ final_service_restart() {
             sleep 1
         fi
         if command -v mako &>/dev/null; then
-            mako &>/dev/null & disown
+            nohup mako &>/dev/null & disown
         fi
 
         # Restart Waybar with new configs
@@ -677,9 +677,12 @@ final_service_restart() {
             echo "INFO: Restarting waybar..." >> "$LOG_FILE" 2>&1
             pkill waybar 2>/dev/null || true
             sleep 1
-        fi
-        if command -v waybar &>/dev/null; then
-            waybar &>/dev/null & disown
+            if command -v waybar &>/dev/null; then
+                nohup waybar &>/dev/null & disown
+            fi
+        elif command -v waybar &>/dev/null; then
+            echo "INFO: Starting waybar..." >> "$LOG_FILE" 2>&1
+            nohup waybar &>/dev/null & disown
         fi
 
         # Reload Hyprland configs (no restart needed)
