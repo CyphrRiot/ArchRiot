@@ -131,20 +131,20 @@ init_progress_system() {
     CURRENT_MODULE=0
     PROGRESS_INITIALIZED=true
 
-    # Get terminal height and set output limit
-    TERMINAL_HEIGHT=$(tput lines 2>/dev/null || echo 24)
-    MAX_OUTPUT_LINE=$((TERMINAL_HEIGHT - 2))  # Leave 2 lines buffer
-
-    # Reserve top 10 lines for progress display
-    printf '\033[1;1H'
+    # Show header (preserve any previous output)
+    echo ""
     echo "🚀 ArchRiot Installation v$ARCHRIOT_VERSION"
-    printf '\033[2;1H'
     echo "══════════════════════════════════════════════════════════════════════"
-    printf '\033[3;1H'
+    echo ""
     echo "Installing to: $HOME/.local/share/archriot"
+    echo ""
+    echo ""  # Space for progress bar (line 6)
+    echo ""  # Space for current task (line 7)
+    echo ""  # Space for module counter (line 8)
+    echo ""
+    echo ""  # Space for errors (line 10+)
 
-    # Move cursor to line 11 for all other output
-    printf '\033[11;1H'
+    # Initial progress bar removed - starts clean before user credentials
 }
 
 # Update progress for a module start
@@ -187,8 +187,10 @@ progress_show_error() {
 
 # Clear error messages
 progress_clear_errors() {
-    # Clear error area (line 9)
-    printf '\033[9;1H\033[K'
+    # Clear error area (lines 10-15)
+    for i in {10..15}; do
+        printf '\033[%d;1H\033[K' $i
+    done
 }
 
 # Show beautiful completion summary
@@ -215,11 +217,8 @@ progress_show_completion() {
     local success_count=$((TOTAL_MODULES - ${#FAILED_MODULES[@]}))
     local success_rate=$((success_count * 100 / TOTAL_MODULES))
 
-    # Clear output area and move to safe position
-    for line in $(seq 11 $MAX_OUTPUT_LINE); do
-        printf '\033[%d;1H\033[K' $line
-    done
-    printf '\033[11;1H'
+    # Clear screen and reset cursor position
+    printf '\033[2J\033[H'
 
     echo ""
     printf "${PROGRESS_GREEN}══════════════════════════════════════════════════════════════════════${PROGRESS_NC}\n"
@@ -273,19 +272,23 @@ progress_pause_for_input() {
 
 # Resume progress display after user interaction
 progress_resume_after_input() {
-    # Clear output area only (below line 10, up to terminal height)
-    for line in $(seq 11 $MAX_OUTPUT_LINE); do
-        printf '\033[%d;1H\033[K' $line
-    done
+    # Clear the interaction area and redraw progress
+    clear
+    echo ""
+    echo "🚀 ArchRiot Installation v$ARCHRIOT_VERSION"
+    echo "══════════════════════════════════════════════════════════════════════"
+    echo ""
+    echo "Installing to: $HOME/.local/share/archriot"
+    echo ""
+    echo ""  # Space for progress bar (line 6)
+    echo ""  # Space for current task (line 7)
+    echo ""  # Space for module counter (line 8)
+    echo ""
+    echo ""  # Space for errors (line 10+)
 
-    # Move cursor back to output area
-    printf '\033[11;1H'
-
-    # Redraw current progress in reserved area
-    if [[ $CURRENT_MODULE -gt 0 ]]; then
-        local percentage=$((CURRENT_MODULE * 100 / TOTAL_MODULES))
-        draw_progress_bar $percentage "Resuming installation..."
-    fi
+    # Redraw current progress
+    local percentage=$((CURRENT_MODULE * 100 / TOTAL_MODULES))
+    draw_progress_bar $percentage "Resuming installation..."
 }
 
 # Disable progress system (for fallback)
