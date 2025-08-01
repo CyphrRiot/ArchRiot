@@ -153,13 +153,36 @@ log_message() {
 # System Preparation Functions
 # ================================================================================
 
+# Sync package databases before installation
+sync_package_databases() {
+    echo "INFO: 🔄 Syncing package databases..." >> "$LOG_FILE" 2>&1
+
+    # Sync pacman database
+    if ! sudo pacman -Sy --noconfirm >> "$LOG_FILE" 2>&1; then
+        echo "CRITICAL: Failed to sync pacman database" >> "$LOG_FILE" 2>&1
+        return 1
+    fi
+    echo "SUCCESS: Pacman database synced" >> "$LOG_FILE" 2>&1
+
+    # Sync yay database if yay is available
+    if command -v yay &>/dev/null; then
+        if ! yay -Sy --noconfirm >> "$LOG_FILE" 2>&1; then
+            echo "WARNING: Failed to sync yay database, continuing anyway" >> "$LOG_FILE" 2>&1
+        else
+            echo "SUCCESS: Yay database synced" >> "$LOG_FILE" 2>&1
+        fi
+    fi
+
+    return 0
+}
+
 # Install essential tools immediately
 # Install base development tools and yay AUR helper
 install_essential_tools() {
     echo "Installing essential tools..." >> "$LOG_FILE" 2>&1
 
-    # Install base development tools (silent)
-    if ! sudo pacman -Sy --noconfirm --needed base-devel git rsync bc >> "$LOG_FILE" 2>&1; then
+    # Install base development tools (silent) - database already synced
+    if ! sudo pacman -S --noconfirm --needed base-devel git rsync bc >> "$LOG_FILE" 2>&1; then
         echo "CRITICAL: Failed to install base development tools" >> "$LOG_FILE" 2>&1
         return 1
     fi
@@ -720,6 +743,13 @@ main() {
 
     # Essential system preparation
     echo "INFO: 🔧 Preparing system..." >> "$LOG_FILE" 2>&1
+
+    # Sync package databases first
+    sync_package_databases || {
+        echo "CRITICAL: Failed to sync package databases" >> "$LOG_FILE" 2>&1
+        exit 1
+    }
+
     install_essential_tools || {
         echo "CRITICAL: Failed to install essential tools" >> "$LOG_FILE" 2>&1
         exit 1
