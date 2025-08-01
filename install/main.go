@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
 	"strings"
 	"time"
 
@@ -98,6 +99,8 @@ type InstallModel struct {
 	inputMode   string // "git-username", "git-email", "reboot", ""
 	inputValue  string // current typed input
 	inputPrompt string // what we're asking for
+	showRebootButtons bool // show YES/NO buttons in scroll window
+	selectedButton    int  // 0 = YES, 1 = NO
 }
 
 // NewInstallModel creates a new installation model
@@ -112,6 +115,8 @@ func NewInstallModel() *InstallModel {
 		inputMode:   "",
 		inputValue:  "",
 		inputPrompt: "",
+		showRebootButtons: false,
+		selectedButton:    1, // Default to NO
 	}
 }
 
@@ -128,10 +133,29 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 	case tea.KeyMsg:
+		if m.showRebootButtons {
+			// Handle button selection
+			switch msg.Type {
+			case tea.KeyLeft:
+				m.selectedButton = 0 // YES
+				return m, nil
+			case tea.KeyRight:
+				m.selectedButton = 1 // NO
+				return m, nil
+			case tea.KeyEnter:
+				// Just quit directly - don't send messages
+				return m, tea.Quit
+			case tea.KeyEsc, tea.KeyCtrlC:
+				return m, tea.Quit
+			}
+			return m, nil
+		}
+
 		if m.inputMode != "" {
 			// Handle input mode
 			switch msg.Type {
 			case tea.KeyEnter:
+				logMessage("DEBUG", fmt.Sprintf("ENTER pressed with input: '%s'", m.inputValue))
 				return m.handleInputSubmit()
 			case tea.KeyBackspace:
 				if len(m.inputValue) > 0 {
@@ -140,6 +164,8 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			case tea.KeyRunes:
 				m.inputValue += string(msg.Runes)
+				// Test: write ANY keypress to log to see if input is working
+				logMessage("DEBUG", fmt.Sprintf("Key received: '%s', input now: '%s'", string(msg.Runes), m.inputValue))
 				return m, nil
 			case tea.KeyEsc, tea.KeyCtrlC:
 				return m, tea.Quit
@@ -165,7 +191,10 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case DoneMsg:
 		m.done = true
-		m.setInputMode("reboot", "Reboot now? [y/N]: ")
+		m.showRebootButtons = true
+		m.addLog("")
+		m.addLog("✅ Installation Complete!")
+		m.addLog("")
 		return m, nil
 	case InputRequestMsg:
 		m.setInputMode(msg.Mode, msg.Prompt)
@@ -218,12 +247,21 @@ func (m *InstallModel) View() string {
 	// Scroll window - bordered content area
 	s.WriteString(m.renderScrollWindow())
 
-	// Input field if active or completion prompt
-	if m.inputMode != "" {
+	// Buttons below scroll window if shown
+	if m.showRebootButtons {
+		var yesButton, noButton string
+
+		if m.selectedButton == 0 {
+			yesButton = "[►YES◄]"
+			noButton = "[ NO ]"
+		} else {
+			yesButton = "[ YES ]"
+			noButton = "[►NO◄]"
+		}
+
+		s.WriteString(fmt.Sprintf("\n\nReboot now?  %s  %s  (← → to select, Enter to confirm)", yesButton, noButton))
+	} else if m.inputMode != "" {
 		s.WriteString("\n\n" + m.inputPrompt + m.inputValue + "_")
-	} else if m.done {
-		s.WriteString("\n\n✅ Installation Complete!")
-		s.WriteString("\nPress any key to exit...")
 	} else {
 		s.WriteString("\n\nPress 'q' to quit or 'ctrl+c' to exit")
 	}
@@ -275,18 +313,23 @@ func (m *InstallModel) renderScrollWindow() string {
 	content.WriteString(strings.Repeat("─", separatorWidth) + "\n")
 
 	// Calculate how many log lines we can display
-	displayLogs := availableHeight - 2 // Account for header and separator
-	if displayLogs < 1 {
-		displayLogs = 1
+	maxLogLines := availableHeight - 2 // Account for header and separator
+	if maxLogLines < 1 {
+		maxLogLines = 1
 	}
 
-	// Show recent logs
+	// Show recent logs - limit to calculated space
 	start := 0
-	if len(m.logs) > displayLogs {
-		start = len(m.logs) - displayLogs
+	if len(m.logs) > maxLogLines {
+		start = len(m.logs) - maxLogLines
 	}
 
-	for i := start; i < len(m.logs); i++ {
+	actualLogCount := len(m.logs) - start
+	if actualLogCount > maxLogLines {
+		actualLogCount = maxLogLines
+	}
+
+	for i := start; i < start + actualLogCount; i++ {
 		line := m.logs[i]
 		maxLineWidth := contentWidth - 4 // Account for padding
 		if maxLineWidth < 10 {
@@ -298,8 +341,10 @@ func (m *InstallModel) renderScrollWindow() string {
 		content.WriteString(line + "\n")
 	}
 
-	// Fill remaining lines
-	for i := len(m.logs) - start; i < displayLogs; i++ {
+	// Buttons are now rendered outside scroll window
+
+	// Fill remaining lines in log area only
+	for i := actualLogCount; i < maxLogLines; i++ {
 		content.WriteString("\n")
 	}
 
@@ -347,22 +392,14 @@ func (m *InstallModel) handleInputSubmit() (tea.Model, tea.Cmd) {
 		return m, nil
 	case "reboot":
 		value := strings.ToLower(strings.TrimSpace(m.inputValue))
-		// Debug: log what we received
-		logMessage("DEBUG", fmt.Sprintf("Reboot input received: '%s'", value))
+
 		if value == "y" || value == "yes" {
 			program.Send(RebootMsg(true))
-			logMessage("DEBUG", "Sending reboot=true")
 		} else {
-			// Default to no reboot for empty input or "n"
 			program.Send(RebootMsg(false))
-			logMessage("DEBUG", "Sending reboot=false")
 		}
-		// Clear input mode and quit
-		m.inputMode = ""
-		m.inputPrompt = ""
-		m.inputValue = ""
-		logMessage("DEBUG", "About to quit TUI")
-		return m, tea.Quit
+		// Force exit with os.Exit instead of tea.Quit
+		os.Exit(0)
 	}
 	return m, nil
 }
