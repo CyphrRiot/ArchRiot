@@ -226,11 +226,25 @@ else
   echo "⚠ Zed desktop file not found in repository"
 fi
 
-# Install Zed configuration
+# Install Zed configuration (preserve existing user settings)
 if [[ -d ~/.local/share/archriot/config/zed ]]; then
   mkdir -p ~/.config/zed
-  cp -r ~/.local/share/archriot/config/zed/* ~/.config/zed/
-  echo "✓ Zed configuration installed"
+
+  # Check if user already has Zed configuration files
+  if [[ -f ~/.config/zed/settings.json ]]; then
+    echo "🔍 Existing Zed settings.json found - preserving user configuration"
+    echo "  📁 Current settings: ~/.config/zed/settings.json"
+    echo "  💡 ArchRiot defaults: ~/.local/share/archriot/config/zed/settings.json"
+    echo "  🔧 To use ArchRiot settings: cp ~/.local/share/archriot/config/zed/settings.json ~/.config/zed/"
+    echo "✓ User Zed configuration preserved"
+  else
+    echo "📝 Installing ArchRiot Zed configuration..."
+    if cp -r ~/.local/share/archriot/config/zed/* ~/.config/zed/ 2>/dev/null; then
+      echo "✓ Zed configuration installed"
+    else
+      echo "❌ Failed to install Zed configuration"
+    fi
+  fi
 else
   echo "⚠ Zed configuration not found in repository"
 fi
