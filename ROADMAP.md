@@ -1,14 +1,14 @@
 # ArchRiot Development Roadmap
 
-## 🎯 NEXT: YAML ARCHITECTURE TRANSITION (v2.3.0)
+## 🎯 NEXT: YAML ARCHITECTURE TRANSITION (v2.5.0)
 
-**TARGET**: Major simplification of installation system while preserving 100% functionality
-**STATUS**: Planning phase - clear implementation strategy defined
+**TARGET**: Replace 30+ scattered .sh files with unified YAML-driven installation system
+**STATUS**: Planning phase - corrected implementation strategy
 **SAFETY**: All development in separate branch until fully tested and approved
 
-### 📋 YAML PLAN: Crystal Clear Implementation Strategy
+### 📋 CORRECT YAML PLAN: Actually Eliminate Shell Scripts
 
-#### OBJECTIVE: Eliminate 30+ scattered .sh files while keeping install.sh unchanged
+#### OBJECTIVE: Replace (not supplement) 30+ .sh files with YAML processing
 
 **CURRENT PROBLEM:**
 
@@ -18,24 +18,21 @@
 - Hard to see "what gets installed" without reading scripts
 - Maintenance nightmare when adding new packages
 
-**SOLUTION: Three-File Architecture**
+**SOLUTION: YAML Processing System**
 
-1. **`install.sh`** - UNCHANGED (all existing logic preserved)
-2. **`install/packages.yaml`** - Simple package + config definitions
-3. **`install/complex.sh`** - Only complex logic requiring shell scripting
+1. **`install.sh`** - Enhanced with YAML processing capability
+2. **`install/packages.yaml`** - All package and config definitions
+3. **`install/handlers.sh`** - Only for truly complex operations (GPU detection, etc.)
 
 #### YAML STRUCTURE (packages.yaml):
 
 ```yaml
-# Simple, clear package definitions
+# Complete package definitions replacing individual .sh files
 core:
     base:
         packages: [base-devel, git, rsync, bc]
         configs: [environment.d/*, fish/*]
-
-    yay:
-        # Complex logic stays in complex.sh
-        handler: "install_yay_aur_helper"
+        handler: setup_base_system # Only for yay installation complexity
 
 desktop:
     hyprland:
@@ -53,10 +50,6 @@ development:
         packages: [zed, btop, fastfetch, tree, wget, curl]
         configs: [zed/*, btop/*]
 
-    migrate:
-        # Complex download logic stays in complex.sh
-        handler: "install_migrate_tool"
-
 media:
     players:
         packages: [mpv, lollypop, pavucontrol]
@@ -65,25 +58,26 @@ media:
 
 #### IMPLEMENTATION PHASES:
 
-**PHASE 1: Create Foundation**
+**PHASE 1: Build YAML Processing Engine**
 
-- [ ] Create `install/packages.yaml` with core package definitions
-- [ ] Create `install/complex.sh` for GPU detection, yay install, etc.
-- [ ] Add 10 lines to `install.sh` to read YAML for simple modules
-- [ ] Test that basic packages install correctly
+- [ ] Add YAML parsing capability to `install.sh`
+- [ ] Create package installation function that reads YAML
+- [ ] Create config copying function that reads YAML
+- [ ] Test with one simple module (replace actual .sh file)
 
-**PHASE 2: Migrate Simple Modules**
+**PHASE 2: Create Complete Package Definitions**
 
-- [ ] Move all "packages + configs only" from .sh files to YAML
-- [ ] Applications, media, productivity, utilities → YAML
-- [ ] Keep complex logic (GPU detection, services) in complex.sh
-- [ ] Test each migration step
+- [ ] Map all existing .sh files to YAML definitions
+- [ ] Create `install/packages.yaml` with complete system definition
+- [ ] Identify what truly needs `handlers.sh` (GPU detection, services)
+- [ ] Test YAML processing installs everything correctly
 
-**PHASE 3: Remove Old Files**
+**PHASE 3: Replace Shell Scripts**
 
-- [ ] Delete 25+ individual .sh files that are now in YAML
-- [ ] Update directory structure
-- [ ] Verify nothing broken
+- [ ] Switch `install.sh` to use YAML processing instead of calling .sh files
+- [ ] Delete replaced .sh files (applications/, development/, media/, etc.)
+- [ ] Keep only complex handlers that cannot be represented in YAML
+- [ ] Verify complete system works without old .sh files
 
 **PHASE 4: Testing & Approval**
 
@@ -94,79 +88,64 @@ media:
 
 #### BENEFITS:
 
-✅ **90% Code Reduction**: 30+ files → 3 files
-✅ **Zero Risk**: install.sh logic completely unchanged
-✅ **Easy Maintenance**: Add packages by editing YAML, not shell scripts
-✅ **Clear Overview**: See entire system in one YAML file
-✅ **Preserve Complexity**: GPU detection, services stay in proven shell code
-✅ **Faster Installation**: No script parsing overhead for simple operations
+✅ **Actual File Reduction**: 30+ files → 2-3 files
+✅ **Real Simplification**: YAML replaces shell scripts, doesn't supplement them
+✅ **Maintainable**: Add packages by editing YAML, not writing shell scripts
+✅ **Clear System View**: See entire installation in one YAML file
+✅ **Preserve Complexity**: Only truly complex operations stay in shell
+✅ **Faster Installation**: Direct YAML processing, no script overhead
 
-#### SAFETY MEASURES:
+#### CRITICAL DIFFERENCE FROM FAILED APPROACH:
 
-- install.sh core logic remains 100% unchanged
-- Complex hardware detection stays in shell scripts where it belongs
-- Fallback to old system if YAML parsing fails
-- All development in isolated branch until approved
-- Gradual migration with testing at each step
-- **NO MERGE TO MASTER** without explicit approval
+**WRONG**: Create YAML + keep all .sh files (adding complexity)
+**RIGHT**: Replace .sh files with YAML processing (reducing complexity)
+
+The goal is REPLACEMENT, not SUPPLEMENTATION.
 
 ---
 
-### 🚀 ACTIVE DEVELOPMENT: Declarative Package & Configuration System (v2.2 Branch)
+### 🚀 PREPARATION: Understanding Current Architecture for YAML Transition
 
-**Status**: IN DEVELOPMENT - Fundamental architectural improvement for v2.2.0
-**Branch**: `v2.2-yaml-architecture` (isolated from stable master)
-**Problem**: Current system has excessive scripting and code duplication across 30+ modules
+**Status**: ANALYSIS PHASE - Understanding current system before replacement
+**Target**: Map existing .sh files to YAML definitions for v2.5.0 transition
+**Goal**: Complete replacement of shell script architecture
 
-#### Current Architecture Issues:
+#### Current Architecture Analysis:
 
-- **Repeated Code**: Every script duplicates `install_packages`, error handling, config copying
-- **Scattered Package Lists**: Package definitions spread across dozens of separate files
-- **Inconsistent Patterns**: Different error handling and logging approaches
-- **No Dependency Management**: Unclear relationships between installation modules
-- **Hard to Maintain**: Difficult to see "what gets installed" without reading scripts
+**File Categories for YAML Migration:**
 
-#### Proposed Solution: YAML-Based Declarative System
+1. **Simple Package Lists** (Easy YAML conversion):
+    - `install/applications/` - Direct package → YAML mapping
+    - `install/development/` - Tools and packages → YAML mapping
+    - `install/optional/` - Optional packages → YAML mapping
+    - Most desktop components → YAML mapping
 
-**1. Single Package Manifest** (`install/packages.yaml`):
+2. **Complex Logic** (Requires handlers):
+    - GPU detection and driver installation
+    - Service configuration and startup
+    - yay AUR helper installation
+    - Hardware-specific configurations
 
-```yaml
-core:
-    base:
-        packages: [base-devel, git, rsync, bc]
-        configs: [environment.d/*, fish/*]
-        dependencies: []
+3. **Current Duplicated Patterns** (YAML will eliminate):
+    - `install_packages` function calls in every script
+    - Config file copying logic repeated everywhere
+    - Inconsistent error handling patterns
+    - Manual dependency management
 
-desktop:
-    hyprland:
-        packages: [hyprland, waybar, fuzzel, mako]
-        configs: [hypr/*, waybar/*, fuzzel/*]
-        dependencies: [core.base]
+#### Analysis Results:
 
-applications:
-    productivity:
-        packages: [zed, btop, fastfetch]
-        configs: [zed/*, btop/*]
-        dependencies: [desktop.hyprland]
-```
+- **~25 files**: Pure package lists → Direct YAML conversion
+- **~5 files**: Complex hardware/service logic → Handler functions
+- **~90% reduction possible**: Most scripts just install packages + copy configs
 
-**2. Unified Installation Engine**:
+#### YAML Processing Requirements:
 
-- Reads YAML manifest for all package/config definitions
-- Automatic dependency resolution with proper ordering
-- Consistent error handling and retry logic across all operations
-- Template-based configuration deployment
-- State tracking to eliminate redundant operations
-- Single point of maintenance for all installation logic
-
-#### Expected Benefits:
-
-- **90% Code Reduction**: Eliminate repetitive shell scripting
-- **Clear Dependencies**: Visual dependency chains and resolution
-- **Easier Maintenance**: Change packages/configs in one centralized location
-- **Better Reliability**: Consistent error handling and state management
-- **Faster Development**: Add new components by editing YAML, not writing scripts
-- **Better Testing**: Test manifest logic instead of scattered scripts
+- Package installation with pacman/yay
+- Config file copying with pattern matching
+- Dependency resolution and ordering
+- Handler function execution for complex operations
+- Error handling and rollback capability
+- Progress reporting integration
 
 ## Current Status: v2.2.0 (STABLE)
 
