@@ -322,7 +322,7 @@
 		"portable": "",
 		"car": "",
 		"default": [
-			"", "", "󰕾",  ""
+			"󰕿", "󰖀", "󰕾", "󰕾"
 		],
 		"ignored-sinks": [
 			"Easy Effects Sink"

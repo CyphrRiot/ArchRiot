@@ -5,6 +5,50 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.4] - 2025-08-01
+
+### 🔐 Privacy & System Cleanup
+
+#### Privacy Violations Removed
+
+- **REMOVED**: Microsoft Visual Studio Code (415 MB) - Telemetry violation not part of ArchRiot
+- **REMOVED**: crush-bin AI tool - Making unauthorized API calls to x.ai
+- **REMOVED**: 2+ GB of debugging artifacts from development sessions
+- **CLEANED**: Docker, VLC, 7zip, npm, qemu, audacity, and other unwanted packages
+
+#### Document Viewer Optimization
+
+- **REMOVED**: Evince and Sushi (102 MB) - Redundant with Papers reference manager
+- **STREAMLINED**: Single document solution using Papers for all PDF viewing
+- **FIXED**: Thunar-based file management (sushi was Nautilus-specific)
+
+#### Waybar Interface Fixes
+
+- **FIXED**: Audio volume icons - Now shows proper speaker icons at all volume levels
+- **FIXED**: Large gap between package update and power menu modules
+- **IMPROVED**: Consistent waybar spacing and visual alignment
+
+#### Extended Lock Screen Fixes
+
+- **FIXED**: AMD GPU window positioning bug for extended lock sessions (10.5min+)
+- **ADDED**: Automatic window recovery for DPMS wake events
+- **ENHANCED**: Dedicated DPMS wake fix script with proper timing (2s delay vs 0.5s)
+- **RESULT**: Complete fix for disappearing windows after any lock/unlock scenario
+
+#### Installation System Improvements
+
+- **ADDED**: Package database sync before installation begins
+- **ENHANCED**: Prevents version conflicts and package installation issues
+- **IMPROVED**: More reliable installation process
+
+### 📦 Package Management
+
+- **RESTORED**: lsof utility (accidentally removed with VS Code)
+- **VERIFIED**: All remaining packages are official ArchRiot components
+- **AUDITED**: System now adheres to "no telemetry, no data collection" promise
+
+---
+
 ## [2.2.0] - 2025-01-31
 
 ### 🖥️ VM Environment Compatibility

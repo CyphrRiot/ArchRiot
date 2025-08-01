@@ -5,7 +5,7 @@
     "modules-right": [
         "custom/separator#blank_3",
         "tray", "custom/separator#blank", "temperature", "custom/separator#blank", "custom/cpu-aggregate", "custom/separator#blank", "custom/memory-accurate",
-        "custom/separator#line-tray", "pulseaudio", "custom/separator#blank", "bluetooth", "custom/separator#blank", "custom/tomato-timer", "custom/separator#blank", "network", "custom/mullvad", "custom/separator#blank", "battery", "custom/separator#blank", "custom/archriot-update", "custom/separator#blank", "group/notify", "custom/separator#blank", "group/status", "custom/lock"
+        "custom/separator#line-tray", "pulseaudio", "custom/separator#blank", "bluetooth", "custom/separator#blank", "custom/tomato-timer", "custom/separator#blank", "network", "custom/mullvad", "custom/separator#blank", "battery", "custom/separator#blank", "custom/archriot-update", "custom/separator#blank", "group/status", "custom/lock"
     ],
     "modules-center": ["clock"],
     "layer": "top",

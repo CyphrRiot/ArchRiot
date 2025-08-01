@@ -98,7 +98,6 @@ install_file_management() {
 
     # File management enhancements (non-critical)
     local file_enhancements=(
-        "sushi"                # File previewer
         "ffmpegthumbnailer"   # Video thumbnails
         "tumbler"             # Image/document thumbnails for Thunar
         "libwebp"             # WEBP image format support
@@ -171,7 +170,6 @@ install_media_apps() {
     local media_packages=(
         "mpv"       # Video player
         "imv"       # Image viewer
-        "evince"    # PDF viewer
     )
 
     local failed_media=()
@@ -358,7 +356,7 @@ display_apps_summary() {
     echo "  • File management (thunar + enhancements)"
     echo "  • Input methods (fcitx5 for international input)"
     echo "  • Session utilities (clipboard, keyring, blue light filter)"
-    echo "  • Media applications (mpv, imv, evince)"
+    echo "  • Media applications (mpv, imv)"
     echo "  • Web browser (Brave)"
     echo "  • VPN client (Mullvad - configure with your account)"
     echo "  • UI enhancements (fuzzel launcher, notification center, app drawer)"
