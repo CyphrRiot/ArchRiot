@@ -64,6 +64,15 @@ else
   echo "⚠ Off-screen window fix script not found in repository bin/scripts"
 fi
 
+# Install hyprlock wrapper script (auto-fix windows after unlock)
+if [[ -f ~/.local/share/archriot/bin/scripts/hyprlock-with-fix.sh ]]; then
+  cp ~/.local/share/archriot/bin/scripts/hyprlock-with-fix.sh ~/.local/bin/scripts/
+  chmod +x ~/.local/bin/scripts/hyprlock-with-fix.sh
+  echo "✓ Hyprlock wrapper script installed (auto-fix windows after unlock)"
+else
+  echo "⚠ Hyprlock wrapper script not found in repository bin/scripts"
+fi
+
 # Install Brave Private desktop file
 if [[ -f ~/.local/share/archriot/applications/brave-private.desktop ]]; then
   cp ~/.local/share/archriot/applications/brave-private.desktop ~/.local/share/applications/
