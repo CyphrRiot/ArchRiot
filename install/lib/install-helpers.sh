@@ -47,6 +47,18 @@ install_packages() {
 
     print_status "INSTALL" "Installing $package_type packages: $packages"
 
+    # Check and enable multilib repository if missing
+    if ! pacman -Sl multilib >/dev/null 2>&1; then
+        print_status "INFO" "Enabling multilib repository for 32-bit package support"
+        sudo sed -i '/^\[multilib\]/,/^$/s/^#//' /etc/pacman.conf
+        if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+            echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf >/dev/null
+        fi
+    fi
+
+    # Sync databases first to prevent multilib errors
+    sudo pacman -Sy --noconfirm >/dev/null 2>&1 || true
+
     if yay -S --noconfirm --needed $packages; then
         print_status "SUCCESS" "Successfully installed: $packages"
         return 0
@@ -256,6 +268,18 @@ install_aur_nocheck() {
 
     print_status "INSTALL" "Installing AUR packages with --nocheck: $packages"
     print_status "INFO" "Skipping tests for packages with known API test failures"
+
+    # Check and enable multilib repository if missing
+    if ! pacman -Sl multilib >/dev/null 2>&1; then
+        print_status "INFO" "Enabling multilib repository for 32-bit package support"
+        sudo sed -i '/^\[multilib\]/,/^$/s/^#//' /etc/pacman.conf
+        if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+            echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf >/dev/null
+        fi
+    fi
+
+    # Sync databases first to prevent multilib errors
+    sudo pacman -Sy --noconfirm >/dev/null 2>&1 || true
 
     if yay -S --noconfirm --needed --mflags "--nocheck" $packages; then
         print_status "SUCCESS" "Successfully installed: $packages"

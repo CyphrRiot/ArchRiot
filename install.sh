@@ -799,7 +799,7 @@ main() {
 
     # Optional reboot prompt
     if command -v gum &>/dev/null; then
-        if gum confirm "Reboot to ensure all settings are fully applied?"; then
+        if gum confirm --default=false "Reboot to ensure all settings are fully applied?"; then
             reboot
         fi
     else
@@ -809,6 +809,9 @@ main() {
             reboot
         fi
     fi
+
+    # Clear screen after reboot prompt to prevent text corruption
+    clear
 }
 
 # Execute main function

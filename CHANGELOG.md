@@ -5,6 +5,45 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-01-31
+
+### 🖥️ VM Environment Compatibility
+
+#### Critical VM Installation Fixes
+
+- **FIXED**: Missing multilib repository causing package installation failures in VMs
+    - **AUTO-DETECTION**: Automatically enables multilib repository when missing
+    - **DATABASE SYNC**: Added database synchronization before package installations
+    - **RESULT**: Eliminates "database file for 'multilib' does not exist" errors
+
+#### GPU Detection Improvements
+
+- **ELIMINATED**: Interactive GPU selection prompts that hang in non-interactive environments
+    - **SMART FALLBACK**: Uses vulkan-swrast software rendering for VMs/unknown hardware
+    - **PRESERVED**: Existing GPU detection logic for NVIDIA/AMD/Intel hardware
+    - **RESULT**: No more hanging prompts in VMs or automated installations
+
+#### Installation Experience Enhancements
+
+- **IMPROVED**: Reboot prompt defaults to "No" for safer automation
+- **FIXED**: Text corruption after reboot prompt with proper screen cleanup
+- **ENHANCED**: Package installation reliability with automatic repository configuration
+
+---
+
+## [2.1.9] - 2025-01-31
+
+### 🐛 Progress Display Fixes
+
+#### Installation Interface Improvements
+
+- **REVERTED**: Broken reserved-line progress system that caused overlapping text
+- **FIXED**: Completion screen clearing properly without artifacts
+- **REMOVED**: Initial progress bar that created display mess before credentials
+- **PRESERVED**: Startup messages by removing premature screen clearing
+
+---
+
 ## [2.1.8] - 2025-01-31
 
 ### 🐛 Critical Bug Fixes

@@ -38,24 +38,9 @@ install_zed_with_vulkan() {
         echo "✓ Intel GPU detected - using vulkan-intel"
     else
         gpu_detected="Unknown/Virtual"
-        echo "⚠ GPU hardware not clearly detected, available options:"
-        echo "  1) vulkan-intel (Intel GPUs)"
-        echo "  2) vulkan-radeon (AMD GPUs)"
-        echo "  3) vulkan-nouveau (NVIDIA open-source)"
-        echo "  4) nvidia-utils (NVIDIA proprietary)"
-        echo "  5) vulkan-swrast (Software fallback)"
-
-        while true; do
-            read -p "🤔 Which Vulkan driver should be installed? [1-5]: " choice
-            case $choice in
-                1) vulkan_driver="vulkan-intel"; echo "✓ Selected Intel GPU drivers"; break ;;
-                2) vulkan_driver="vulkan-radeon"; echo "✓ Selected AMD GPU drivers"; break ;;
-                3) vulkan_driver="vulkan-nouveau"; echo "✓ Selected NVIDIA open-source drivers"; break ;;
-                4) vulkan_driver="nvidia-utils"; echo "✓ Selected NVIDIA proprietary drivers"; break ;;
-                5) vulkan_driver="vulkan-swrast"; echo "✓ Selected software fallback drivers"; break ;;
-                *) echo "❌ Invalid choice. Please enter 1-5." ;;
-            esac
-        done
+        vulkan_driver="vulkan-swrast"
+        echo "⚠ GPU hardware not clearly detected - using software fallback"
+        echo "✓ Selected vulkan-swrast (software fallback) for VM/unknown hardware"
     fi
 
     # Install the Vulkan driver first
