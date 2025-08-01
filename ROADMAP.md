@@ -2,9 +2,129 @@
 
 ## 🎯 NEXT: YAML ARCHITECTURE TRANSITION (v2.5.0)
 
+## **IMPORTANT** -- RULES
+
+READ THE RULES. READ THE ROADMAP.
+
+1. Propose ONE SMALL DIRECT CHANGE AT A TIME.
+
+2. IF I AGREE to the change, then make it.
+
+3. After you've made it, wait for me to confirm and review the code and ask "Continue?" and wait for "yes" or further instructions.
+
+4. Test each change!
+
+5. If there is ANY new info, update the ROADMAP so we stay on task and keep up-to-date
+
+DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
+
+### PLAN
+
 **TARGET**: Replace 30+ scattered .sh files with unified YAML-driven installation system
-**STATUS**: Planning phase - corrected implementation strategy
+**STATUS**: MAJOR PIVOT - Moving from Bash to Go for performance and reliability
 **SAFETY**: All development in separate branch until fully tested and approved
+
+### 🔄 CURRENT PROGRESS (v2.5 BRANCH)
+
+**COMPLETED TUI ARCHITECTURE FIXES:**
+
+- ✅ **v2.5 branch created**: Proper tracking for TUI fixes and architecture changes
+- ✅ **TUI threading model fixed**: TUI now owns main thread, installation runs in goroutine (no more race conditions)
+- ✅ **Responsive terminal sizing implemented**: Width/height calculations based on actual terminal size
+- ✅ **Package installation spam removed**: Clean TUI showing only module-level operations, not individual package details
+- ✅ **Command output truncation**: Limited to 200 chars to prevent massive dumps
+- ✅ **Mirror fixing bullshit eliminated**: Removed hanging reflector commands, graceful pacman sync failure
+- ✅ **Screen clearing issues resolved**: Removed WithAltScreen() to preserve output, added proper spacing
+- ✅ **Input field system implemented**: Full user input handling for git credentials and reboot prompt
+- ✅ **Beautiful Tokyo Night TUI**: ASCII art, proper styling, bordered scroll window working
+
+**CURRENT TUI ISSUES REMAINING:**
+
+- ❌ **renderComplete() screen replacement**: Fixed but broke again - TUI overwrites everything at completion
+- ❌ **Input handling broken**: "N" response to reboot prompt doesn't exit properly
+- ❌ **Missing Ctrl+C guidance**: Removed user escape option text
+- ❌ **Database lock issues**: Hanging processes from testing causing pacman locks
+- 🔥 **CRITICAL**: TUI works beautifully during installation but fails at completion interaction
+
+**CORE FUNCTIONALITY STATUS:**
+
+- ✅ **Package installation working**: YAML-driven batch installation functional
+- ✅ **Config copying working**: Preservation directives and file copying implemented
+- ✅ **Module execution working**: Priority-based execution (core→development→desktop→media)
+- ✅ **Logging system working**: File-based logging with proper error handling
+- ✅ **No hanging commands**: Eliminated mirror fixing, graceful error handling
+
+**CURRENT ISSUES TO FIX:**
+
+1. **IMMEDIATE**: Fix reboot prompt input handling - "N" should exit
+2. **UI Polish**: Restore "Ctrl+C to quit" guidance text
+3. **Input System**: Debug why handleInputSubmit() tea.Quit not working
+4. **Process Management**: Kill hanging go processes, clear database locks
+5. **Testing**: Proper end-to-end testing without breaking database locks
+
+**LESSONS LEARNED:**
+
+- ✅ **One change at a time works**: Small focused changes easier to debug
+- ❌ **Quick reactions break things**: Speculation and guessing makes it worse
+- ✅ **TUI architecture is complex**: Input handling, screen management, state transitions critical
+- ✅ **Screen replacement vs append**: Never replace entire screen, always append to bottom
+
+**FINDINGS FROM SHELL SCRIPT ANALYSIS:**
+
+**Pattern Analysis (core/01-base.sh):**
+
+- Complex error handling and validation logic
+- Mirror fixing functionality
+- yay installation with fallback methods
+- Package installation with dependency verification
+- Critical vs non-critical failure handling
+- PATH management and binary verification
+
+**Key Insights:**
+
+- Not just package lists - complex logic that needs handler functions
+- Error recovery and system repair capabilities
+- Interactive vs automated installation modes
+- Dependency verification beyond package manager
+
+**BASH LIMITATIONS DISCOVERED:**
+
+- No native YAML support - requires external `yq` dependency
+- Terrible data structures - arrays are clunky, no objects/maps
+- String processing hell - parsing structured data is painful
+- Error handling nightmare - no proper exception handling
+- Sequential processing - no concurrency for package installs
+- Type system issues - everything is strings, easy mistakes
+
+**GO INSTALLER BENEFITS:**
+
+- ✅ **Single compiled binary** - no runtime dependencies
+- ✅ **Parallel package installs** - goroutines for concurrent operations
+- ✅ **Built-in YAML support** - native parsing without external tools
+- ✅ **Static typing** - catch errors at compile time
+- ✅ **Superior error handling** - proper error types and propagation
+- ✅ **Fast execution** - compiled performance vs interpreted bash
+- ✅ **No external UI dependencies** - native Go UI instead of gum
+- ✅ **Beautiful UI potential** - bubbletea/lipgloss for professional terminal interface
+
+**NEXT STEPS (v2.5):**
+
+1. **IMMEDIATE**: Fix reboot prompt input handling - debug why "N" + Enter doesn't exit
+2. **UI Polish**: Restore "Ctrl+C to quit" guidance text for user escape option
+3. **Input Debugging**: Add proper debug output to see exactly what input values are received
+4. **Process Cleanup**: Implement proper cleanup to prevent database locks during testing
+5. **Git Credentials**: Implement git username/email input prompts in TUI
+6. **Testing Protocol**: Establish proper testing workflow to avoid breaking functionality
+7. **THEN**: Resume shell script analysis once TUI completion interaction is bulletproof
+
+**CRITICAL SUCCESS CRITERIA:**
+
+- TUI shows beautiful installation progress ✅
+- User can interact with reboot prompt at end ❌
+- "N" response exits cleanly ❌
+- Git credentials can be input when needed ❌
+- No screen clearing/replacement at completion ❌
+- Output persists in terminal after exit ❌
 
 ### 📋 CORRECT YAML PLAN: Actually Eliminate Shell Scripts
 
@@ -60,24 +180,59 @@ media:
 
 **PHASE 1: Build YAML Processing Engine**
 
-- [ ] Add YAML parsing capability to `install.sh`
-- [ ] Create package installation function that reads YAML
-- [ ] Create config copying function that reads YAML
-- [ ] Test with one simple module (replace actual .sh file)
+- [x] Add YAML parsing capability to `install.sh`
+- [x] Create package installation function that reads YAML
+- [x] Create config copying function that reads YAML
+- [x] Create test YAML file with real package definitions
+- [x] Test YAML engine with core.base module on live system
+- [x] Validate all functions work correctly with real package manager calls
+- [x] **PIVOT DECISION**: Move from Bash to Go for superior architecture
 
-**PHASE 2: Create Complete Package Definitions**
+**PHASE 2: Go Installer Development**
 
-- [ ] Map all existing .sh files to YAML definitions
-- [ ] Create `install/packages.yaml` with complete system definition
-- [ ] Identify what truly needs `handlers.sh` (GPU detection, services)
-- [ ] Test YAML processing installs everything correctly
+- [x] Build minimal Go installer binary
+- [x] Implement YAML parsing with native Go libraries
+- [x] Add batch package installation (avoiding database locks)
+- [x] Create proper error handling and validation
+- [x] Test Go installer with core.base module
+- [x] Add system preparation (database sync, yay installation)
+- [x] Implement comprehensive logging system
+- [x] Implement config file copying with preservation directives
+- [x] Add Git configuration handler with user identity and aliases
+- [x] Add mirror fixing capability for database sync failures
+- [x] Add Tokyo Night color theme (from Migrate project)
+- [✅] **TUI structure implemented**: Proper header, info, progress bar, scroll window (copied from Migrate)
+- [✅] **Direct console output removed**: All fmt.Printf/Println calls eliminated from main.go
+- [❌] **CRITICAL BUG**: TUI display corruption, terminal sizing issues, output artifacts persist
+- [ ] **CURRENT**: Debug and fix fundamental TUI display problems
+- [ ] Resume systematic analysis of install/core/04-shell.sh and remaining scripts
+- [ ] Map shell script functionality to Go functions and YAML definitions
+- [ ] Add missing modules and handlers based on analysis
+- [ ] Fix TUI properly after core functionality complete
+
+**PHASE 2.5: Complete Package Definitions**
+
+- [ ] **ACTIVE**: Systematically analyze each .sh file to understand complete workflows
+    - [ ] install/core/\*.sh (3 files) - Base system, identity, shell
+    - [ ] install/system/\*.sh - System configuration
+    - [ ] install/desktop/\*.sh - Desktop environment components
+    - [ ] install/applications/\*.sh - Application installations
+    - [ ] install/development/\*.sh - Development tools
+    - [ ] install/optional/\*.sh - Optional components
+    - [ ] install/post-desktop/\*.sh - Post-desktop configuration
+    - [ ] Standalone files: plymouth.sh, printer.sh, mimetypes.sh, asdcontrol.sh
+- [ ] Map all existing .sh files to YAML definitions + Go handler functions
+- [ ] Expand `install/packages.yaml` with complete system definition
+- [ ] Create Go functions for complex logic (mirror fixing, GPU detection, service management)
+- [ ] Test complete Go installer handles all installation scenarios correctly
 
 **PHASE 3: Replace Shell Scripts**
 
-- [ ] Switch `install.sh` to use YAML processing instead of calling .sh files
+- [ ] Replace `install.sh` with compiled Go binary
+- [ ] Update `setup.sh` to download and run Go installer
 - [ ] Delete replaced .sh files (applications/, development/, media/, etc.)
-- [ ] Keep only complex handlers that cannot be represented in YAML
-- [ ] Verify complete system works without old .sh files
+- [ ] Keep only complex handlers as Go functions within binary
+- [ ] Verify complete system works faster and more reliably than shell scripts
 
 **PHASE 4: Testing & Approval**
 
@@ -88,19 +243,41 @@ media:
 
 #### BENEFITS:
 
-✅ **Actual File Reduction**: 30+ files → 2-3 files
-✅ **Real Simplification**: YAML replaces shell scripts, doesn't supplement them
+✅ **Actual File Reduction**: 30+ files → 1 binary + 1 YAML file
+✅ **Real Simplification**: YAML + Go replaces shell scripts entirely
 ✅ **Maintainable**: Add packages by editing YAML, not writing shell scripts
 ✅ **Clear System View**: See entire installation in one YAML file
-✅ **Preserve Complexity**: Only truly complex operations stay in shell
-✅ **Faster Installation**: Direct YAML processing, no script overhead
+✅ **Preserve Complexity**: Complex operations as Go functions in binary
+✅ **Much Faster Installation**: Compiled binary with concurrent package installs
+✅ **Superior Reliability**: Static typing and proper error handling
+✅ **Zero Dependencies**: Single binary, no runtime requirements
 
-#### CRITICAL DIFFERENCE FROM FAILED APPROACH:
+**CRITICAL DIFFERENCE FROM FAILED APPROACH:**
 
 **WRONG**: Create YAML + keep all .sh files (adding complexity)
-**RIGHT**: Replace .sh files with YAML processing (reducing complexity)
+**RIGHT**: Replace .sh files with Go binary + YAML (reducing complexity)
 
 The goal is REPLACEMENT, not SUPPLEMENTATION.
+
+**REALITY CHECK FROM ANALYSIS:**
+
+- Shell scripts contain complex logic beyond package installation
+- Go functions will handle: mirror fixing, yay installation, GPU detection, service management
+- YAML will handle: package lists, config file patterns, module dependencies
+- Result: 1 compiled Go binary + 1 YAML file instead of 30+ shell scripts
+
+**WHY GO IS SUPERIOR:**
+
+- **Performance**: Compiled binary vs interpreted shell scripts
+- **Concurrency**: Batch package installation avoiding database locks
+- **Reliability**: Static typing catches errors before runtime
+- **Maintainability**: Clean code structure vs bash spaghetti
+- **Distribution**: Single binary vs complex script dependencies
+- **UI Independence**: Tokyo Night color theme implemented (TUI needs fixing)
+- **Config Intelligence**: Sophisticated config preservation logic
+- **Git Integration**: Automatic Git configuration from environment files
+- **Mirror Management**: Automatic mirror fixing when database sync fails
+- **Professional Appearance**: Will implement proper TUI after core functionality complete
 
 ---
 

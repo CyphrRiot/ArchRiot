@@ -95,6 +95,9 @@ type InstallModel struct {
 	done        bool
 	operation   string
 	currentStep string
+	inputMode   string // "git-username", "git-email", "reboot", ""
+	inputValue  string // current typed input
+	inputPrompt string // what we're asking for
 }
 
 // NewInstallModel creates a new installation model
@@ -106,6 +109,9 @@ func NewInstallModel() *InstallModel {
 		height:      24,
 		operation:   "ArchRiot Installation",
 		currentStep: "Initializing...",
+		inputMode:   "",
+		inputValue:  "",
+		inputPrompt: "",
 	}
 }
 
@@ -122,7 +128,30 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 	case tea.KeyMsg:
+		if m.inputMode != "" {
+			// Handle input mode
+			switch msg.Type {
+			case tea.KeyEnter:
+				return m.handleInputSubmit()
+			case tea.KeyBackspace:
+				if len(m.inputValue) > 0 {
+					m.inputValue = m.inputValue[:len(m.inputValue)-1]
+				}
+				return m, nil
+			case tea.KeyRunes:
+				m.inputValue += string(msg.Runes)
+				return m, nil
+			case tea.KeyEsc, tea.KeyCtrlC:
+				return m, tea.Quit
+			}
+			return m, nil
+		}
+
 		if msg.String() == "q" || msg.String() == "ctrl+c" {
+			return m, tea.Quit
+		}
+		// If installation is complete and no input mode, any key press exits
+		if m.done && m.inputMode == "" {
 			return m, tea.Quit
 		}
 	case LogMsg:
@@ -136,20 +165,30 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case DoneMsg:
 		m.done = true
-		return m, tea.Quit
+		m.setInputMode("reboot", "Reboot now? [y/N]: ")
+		return m, nil
+	case InputRequestMsg:
+		m.setInputMode(msg.Mode, msg.Prompt)
+		return m, nil
+	case GitUsernameMsg:
+		// Git username received, handled by installation process
+		return m, nil
+	case GitEmailMsg:
+		// Git email received, handled by installation process
+		return m, nil
+	case RebootMsg:
+		// Reboot decision received, handled by installation process
+		return m, nil
 	}
 	return m, nil
 }
 
 // View implements tea.Model - exact structure from Migrate
 func (m *InstallModel) View() string {
-	if m.done {
-		return m.renderComplete()
-	}
-
 	var s strings.Builder
 
-	// Header - ASCII + title + version (like Migrate)
+	// Header - ASCII + title + version (like Migrate) with spacing
+	s.WriteString("\n") // Blank line before ASCII logo
 	asciiStyle := lipgloss.NewStyle().Foreground(accentColor).Bold(true)
 	ascii := asciiStyle.Render(ArchRiotASCII)
 	s.WriteString(ascii + "\n")
@@ -179,7 +218,15 @@ func (m *InstallModel) View() string {
 	// Scroll window - bordered content area
 	s.WriteString(m.renderScrollWindow())
 
-	s.WriteString("\n\nPress 'q' to quit or 'ctrl+c' to exit")
+	// Input field if active or completion prompt
+	if m.inputMode != "" {
+		s.WriteString("\n\n" + m.inputPrompt + m.inputValue + "_")
+	} else if m.done {
+		s.WriteString("\n\n✅ Installation Complete!")
+		s.WriteString("\nPress any key to exit...")
+	} else {
+		s.WriteString("\n\nPress 'q' to quit or 'ctrl+c' to exit")
+	}
 
 	return s.String()
 }
@@ -198,60 +245,68 @@ func (m *InstallModel) renderProgressBar() string {
 
 // renderScrollWindow creates the bordered scroll window
 func (m *InstallModel) renderScrollWindow() string {
+	// Calculate responsive dimensions based on terminal size
+	contentWidth := m.width - 4 // Account for borders and padding
+	if contentWidth < 40 {
+		contentWidth = 40 // Minimum width
+	}
+
+	// Calculate available height for scroll window
+	// Account for: ASCII (7) + Title/subtitle (4) + Operation (2) + Progress (2) + Footer (3) + Buffer (2)
+	usedHeight := 20
+	availableHeight := m.height - usedHeight
+	if availableHeight < 5 {
+		availableHeight = 5 // Minimum scroll window height
+	}
+
 	boxStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(primaryColor).
 		Padding(0, 1).
-		Width(78).
-		Height(m.maxLogs + 2)
+		Width(contentWidth).
+		Height(availableHeight)
 
 	content := strings.Builder{}
 	content.WriteString("Installation Log\n")
-	content.WriteString(strings.Repeat("─", 76) + "\n")
+	separatorWidth := contentWidth - 2 // Account for padding
+	if separatorWidth < 10 {
+		separatorWidth = 10
+	}
+	content.WriteString(strings.Repeat("─", separatorWidth) + "\n")
+
+	// Calculate how many log lines we can display
+	displayLogs := availableHeight - 2 // Account for header and separator
+	if displayLogs < 1 {
+		displayLogs = 1
+	}
 
 	// Show recent logs
 	start := 0
-	if len(m.logs) > m.maxLogs {
-		start = len(m.logs) - m.maxLogs
+	if len(m.logs) > displayLogs {
+		start = len(m.logs) - displayLogs
 	}
 
 	for i := start; i < len(m.logs); i++ {
 		line := m.logs[i]
-		if len(line) > 74 {
-			line = line[:71] + "..."
+		maxLineWidth := contentWidth - 4 // Account for padding
+		if maxLineWidth < 10 {
+			maxLineWidth = 10
+		}
+		if len(line) > maxLineWidth {
+			line = line[:maxLineWidth-3] + "..."
 		}
 		content.WriteString(line + "\n")
 	}
 
 	// Fill remaining lines
-	for i := len(m.logs) - start; i < m.maxLogs; i++ {
+	for i := len(m.logs) - start; i < displayLogs; i++ {
 		content.WriteString("\n")
 	}
 
 	return boxStyle.Render(content.String())
 }
 
-// renderComplete shows completion screen
-func (m *InstallModel) renderComplete() string {
-	var s strings.Builder
-
-	// Header
-	asciiStyle := lipgloss.NewStyle().Foreground(successColor).Bold(true)
-	ascii := asciiStyle.Render(ArchRiotASCII)
-	s.WriteString(ascii + "\n")
-
-	titleStyle := lipgloss.NewStyle().Foreground(successColor).Bold(true)
-	title := titleStyle.Render("✅ Installation Complete!")
-	s.WriteString(title + "\n\n")
-
-	completionStyle := lipgloss.NewStyle().Foreground(fgColor)
-	s.WriteString(completionStyle.Render("🎉 ArchRiot has been successfully installed!") + "\n")
-	s.WriteString(completionStyle.Render("📝 Full logs available at: "+logPath) + "\n\n")
-
-	s.WriteString("Press any key to exit...")
-
-	return s.String()
-}
+// renderComplete - REMOVED, completion shows at bottom of normal view
 
 // addLog adds a new log entry
 func (m *InstallModel) addLog(message string) {
@@ -268,6 +323,50 @@ func (m *InstallModel) setCurrentStep(step string) {
 	m.currentStep = step
 }
 
+// setInputMode sets the input mode and prompt
+func (m *InstallModel) setInputMode(mode, prompt string) {
+	m.inputMode = mode
+	m.inputPrompt = prompt
+	m.inputValue = ""
+}
+
+// handleInputSubmit processes submitted input
+func (m *InstallModel) handleInputSubmit() (tea.Model, tea.Cmd) {
+	switch m.inputMode {
+	case "git-username":
+		// Store git username and ask for email
+		program.Send(GitUsernameMsg(m.inputValue))
+		m.setInputMode("git-email", "Git Email: ")
+		return m, nil
+	case "git-email":
+		// Store git email and continue
+		program.Send(GitEmailMsg(m.inputValue))
+		m.inputMode = ""
+		m.inputPrompt = ""
+		m.inputValue = ""
+		return m, nil
+	case "reboot":
+		value := strings.ToLower(strings.TrimSpace(m.inputValue))
+		// Debug: log what we received
+		logMessage("DEBUG", fmt.Sprintf("Reboot input received: '%s'", value))
+		if value == "y" || value == "yes" {
+			program.Send(RebootMsg(true))
+			logMessage("DEBUG", "Sending reboot=true")
+		} else {
+			// Default to no reboot for empty input or "n"
+			program.Send(RebootMsg(false))
+			logMessage("DEBUG", "Sending reboot=false")
+		}
+		// Clear input mode and quit
+		m.inputMode = ""
+		m.inputPrompt = ""
+		m.inputValue = ""
+		logMessage("DEBUG", "About to quit TUI")
+		return m, tea.Quit
+	}
+	return m, nil
+}
+
 // LogMsg represents a log message
 type LogMsg string
 
@@ -279,6 +378,21 @@ type StepMsg string
 
 // DoneMsg indicates completion
 type DoneMsg struct{}
+
+// GitUsernameMsg carries git username input
+type GitUsernameMsg string
+
+// GitEmailMsg carries git email input
+type GitEmailMsg string
+
+// RebootMsg carries reboot decision
+type RebootMsg bool
+
+// InputRequestMsg requests user input
+type InputRequestMsg struct {
+	Mode   string
+	Prompt string
+}
 
 // Global model instance
 var model *InstallModel
@@ -353,7 +467,7 @@ func main() {
 
 	// Initialize TUI model
 	model = NewInstallModel()
-	program = tea.NewProgram(model, tea.WithAltScreen())
+	program = tea.NewProgram(model)
 
 	// Start installation in background
 	go func() {
@@ -395,18 +509,9 @@ func runInstallation() {
 
 	// Sync package databases first
 	if err := syncPackageDatabases(); err != nil {
-		sendLog("⚠️  Initial sync failed, fixing mirrors...")
-
-		if err := fixMirrors(); err != nil {
-			sendLog(fmt.Sprintf("❌ Mirror fixing failed: %v", err))
-			return
-		}
-
-		// Retry sync after mirror fix
-		if err := syncPackmanDatabase(); err != nil {
-			sendLog("❌ Pacman sync failed even after mirror fix")
-			return
-		}
+		sendLog(fmt.Sprintf("❌ Failed to sync package databases: %v", err))
+		sendLog("💡 Please run 'sudo pacman -Sy' manually and try again")
+		return
 	}
 
 	sendStep("Loading configuration...")
@@ -596,21 +701,10 @@ func syncPackageDatabases() error {
 		// Yay already available logged to file only
 	}
 
-	// Sync pacman database with mirror fixing fallback
+	// Sync pacman database - fail gracefully if it doesn't work
 	if err := syncPackmanDatabase(); err != nil {
-		logMessage("WARNING", "Initial pacman sync failed, attempting mirror fix...")
-		program.Send(LogMsg("⚠️  Initial sync failed, fixing mirrors..."))
-
-		if err := fixMirrors(); err != nil {
-			logMessage("CRITICAL", fmt.Sprintf("Mirror fixing failed: %v", err))
-			return fmt.Errorf("failed to fix mirrors after sync failure: %w", err)
-		}
-
-		// Retry sync after mirror fix
-		if err := syncPackmanDatabase(); err != nil {
-			logMessage("CRITICAL", "Pacman sync failed even after mirror fix")
-			return fmt.Errorf("pacman sync failed after mirror fix: %w", err)
-		}
+		logMessage("CRITICAL", fmt.Sprintf("Pacman sync failed: %v", err))
+		return fmt.Errorf("pacman sync failed - please run 'sudo pacman -Sy' manually: %w", err)
 	}
 
 	// Sync yay database
@@ -653,58 +747,6 @@ func syncPackmanDatabase() error {
 
 	logMessage("SUCCESS", "Pacman database synced")
 	// Pacman sync success logged to file only
-	return nil
-}
-
-// fixMirrors automatically fixes pacman mirrors using reflector
-func fixMirrors() error {
-	logMessage("INFO", "🔧 Fixing mirrors with reflector...")
-	if program != nil {
-		program.Send(LogMsg("    🔧 Fixing mirrors with reflector..."))
-	}
-
-	// Install reflector if not present
-	if !commandExists("reflector") {
-		logMessage("INFO", "Installing reflector...")
-		if program != nil {
-			program.Send(LogMsg("      📦 Installing reflector..."))
-		}
-
-		cmd := exec.Command("sudo", "pacman", "-S", "--noconfirm", "--needed", "reflector")
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("failed to install reflector: %w", err)
-		}
-	}
-
-	// Run reflector to fix mirrors
-	cmd := exec.Command("sudo", "reflector",
-		"--country", "US",
-		"--age", "12",
-		"--protocol", "https",
-		"--sort", "rate",
-		"--fastest", "10",
-		"--save", "/etc/pacman.d/mirrorlist")
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		// Limit output to prevent massive error dumps
-		outputStr := string(output)
-		if len(outputStr) > 200 {
-			outputStr = outputStr[:200] + "... (truncated)"
-		}
-		return fmt.Errorf("reflector failed: %s", outputStr)
-	}
-
-	// Force refresh package database after mirror fix
-	cmd = exec.Command("sudo", "pacman", "-Syy", "--noconfirm")
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to refresh database after mirror fix: %w", err)
-	}
-
-	logMessage("SUCCESS", "Mirrors fixed successfully")
-	if program != nil {
-		program.Send(LogMsg("      ✅ Mirrors fixed and database refreshed"))
-	}
 	return nil
 }
 
