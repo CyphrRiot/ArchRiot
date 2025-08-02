@@ -193,7 +193,7 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.done = true
 		m.showRebootButtons = true
 		m.addLog("")
-		m.addLog("✅ Installation Complete!")
+		m.addLog("✅ 🎉 Installation     Complete!")
 		m.addLog("")
 		return m, nil
 	case InputRequestMsg:
@@ -217,7 +217,7 @@ func (m *InstallModel) View() string {
 	var s strings.Builder
 
 	// Header - ASCII + title + version (like Migrate) with spacing
-	s.WriteString("\n") // Blank line before ASCII logo
+	s.WriteString("\n\n") // Blank lines before ASCII logo
 	asciiStyle := lipgloss.NewStyle().Foreground(accentColor).Bold(true)
 	ascii := asciiStyle.Render(ArchRiotASCII)
 	s.WriteString(ascii + "\n")
@@ -239,7 +239,7 @@ func (m *InstallModel) View() string {
 	logStyle := lipgloss.NewStyle().Foreground(dimColor)
 
 	s.WriteString(infoStyle.Render("📋 Current Step:   "+m.currentStep) + "\n")
-	s.WriteString(logStyle.Render("📝 Log File:       "+logPath) + "\n\n")
+	s.WriteString(logStyle.Render("📝 Log File:       "+logPath) + "\n")
 
 	// Progress bar
 	s.WriteString(m.renderProgressBar() + "\n\n")
@@ -570,21 +570,21 @@ func runInstallation() {
 		return
 	}
 
-	sendLog("✅ YAML config loaded successfully")
+	sendLog("✅ 📋 YAML Config      Config loaded")
 	sendStep("Installing modules...")
 	sendProgress(0.3)
 
 	// Execute modules in proper order
 	if err := executeModulesInOrder(config); err != nil {
-		sendLog(fmt.Sprintf("❌ Module execution failed: %v", err))
+		sendLog(fmt.Sprintf("❌ 🚀 Module Exec      Failed: %v", err))
 		return
 	}
 
 	sendStep("Installation complete!")
 	sendProgress(1.0)
-	sendLog("✅ 🎉 Go installer completed successfully!")
-	sendLog("🚀 All modules executed in proper order")
-	sendLog(fmt.Sprintf("📝 Full logs available at: %s", logPath))
+	sendLog("✅ 🎉 Installation     Complete!")
+	sendLog("✅ 🚀 Module Exec      All modules done")
+	sendLog(fmt.Sprintf("📝 📋 Log File        Available at: %s", logPath))
 }
 
 // findConfigFile looks for packages.yaml in common locations
@@ -622,7 +622,7 @@ func loadConfig(path string) (*Config, error) {
 func installPackages(packages []string) error {
 	if len(packages) == 0 {
 		if program != nil {
-			program.Send(LogMsg("ℹ️  No packages to install"))
+			program.Send(LogMsg("ℹ️  📋 Packages        None to install"))
 		}
 		return nil
 	}
@@ -697,7 +697,7 @@ func installPackageBatch(packages []string) error {
 			if len(outputStr) > 200 {
 				outputStr = outputStr[:200] + "... (truncated)"
 			}
-			program.Send(LogMsg(fmt.Sprintf("❌ Installation failed: %s", outputStr)))
+			program.Send(LogMsg(fmt.Sprintf("❌ 📦 Package Error    Failed: %s", outputStr)))
 		}
 		return fmt.Errorf("batch installation failed: %w", err)
 	}
@@ -709,7 +709,7 @@ func installPackageBatch(packages []string) error {
 func syncPackageDatabases() error {
 	logMessage("INFO", "🔄 Syncing package databases...")
 	if program != nil {
-		program.Send(LogMsg("  🔄 Syncing package databases..."))
+		program.Send(LogMsg("🔄 🗄️  Database Sync   Syncing databases"))
 	}
 
 	start := time.Now()
@@ -755,7 +755,7 @@ func syncPackageDatabases() error {
 		}
 		logMessage("WARNING", fmt.Sprintf("Failed to sync yay database: %s", outputStr))
 		if program != nil {
-			program.Send(LogMsg("    ⚠️  Yay database sync failed, continuing anyway"))
+			program.Send(LogMsg("⚠️  🗄️  Database Sync   Yay sync failed, continuing"))
 		}
 	} else {
 		logMessage("SUCCESS", "Yay database synced")
@@ -910,7 +910,7 @@ func getLevelIcon(level string) string {
 func copyConfigs(configs []ConfigRule) error {
 	if len(configs) == 0 {
 		if program != nil {
-			program.Send(LogMsg("ℹ️  No configs to copy"))
+			program.Send(LogMsg("ℹ️  📁 Config Copy      None to copy"))
 		}
 		return nil
 	}
@@ -925,7 +925,7 @@ func copyConfigs(configs []ConfigRule) error {
 
 	// logMessage("INFO", fmt.Sprintf("Copying configs from: %s", configSourceDir))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("📁 Copying configs from: %s", configSourceDir)))
+		program.Send(LogMsg(fmt.Sprintf("🔄 📁 Config Copy      From: %s", configSourceDir)))
 	}
 
 	for _, configRule := range configs {
@@ -934,11 +934,11 @@ func copyConfigs(configs []ConfigRule) error {
 		if err := copyConfigPattern(configSourceDir, homeDir, configRule); err != nil {
 			// logMessage("WARNING", fmt.Sprintf("Failed to copy config %s: %v", configRule.Pattern, err))
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("  📄 %s ❌ Failed: %v", configRule.Pattern, err)))
+				program.Send(LogMsg(fmt.Sprintf("❌ 📄 %-15s Failed: %v", configRule.Pattern, err)))
 			}
 		} else {
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("  📄 %s ✅", configRule.Pattern)))
+				program.Send(LogMsg(fmt.Sprintf("✅ 📄 %-15s Copied successfully", configRule.Pattern)))
 			}
 		}
 	}
@@ -1054,7 +1054,7 @@ func copyFile(source, dest string, preserveFiles []string) error {
 func executeModulesInOrder(config *Config) error {
 	logMessage("INFO", "Starting module execution in priority order")
 	if program != nil {
-		program.Send(LogMsg("📋 Executing modules in priority order..."))
+		program.Send(LogMsg("🔄 🚀 Module Exec      Starting modules"))
 	}
 
 	// Core modules (priority 10)
@@ -1086,7 +1086,7 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 	if len(modules) == 0 {
 		logMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("  ⏭️  No %s modules to execute", category)))
+			program.Send(LogMsg(fmt.Sprintf("ℹ️  ⏭️  %-15s No modules", strings.Title(category))))
 		}
 		return nil
 	}
@@ -1094,14 +1094,14 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 	priority := ModuleOrder[category]
 	logMessage("INFO", fmt.Sprintf("Executing %s modules (priority %d)", category, priority))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("🔧 Executing %s modules (priority %d)...", category, priority)))
+		program.Send(LogMsg(fmt.Sprintf("🔄 🔧 %-15s Starting %s modules", strings.Title(category), category)))
 	}
 
 	for name, module := range modules {
 		fullName := fmt.Sprintf("%s.%s", category, name)
 		logMessage("INFO", fmt.Sprintf("Starting module: %s - %s", fullName, module.Description))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("  📦 %s: %s", fullName, module.Description)))
+			program.Send(LogMsg(fmt.Sprintf("🔄 📦 %-15s %s", fullName, module.Description)))
 		}
 
 		// Install packages
@@ -1115,7 +1115,7 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 			if err := handleGitConfiguration(); err != nil {
 				logMessage("WARNING", fmt.Sprintf("Git configuration had issues: %v", err))
 				if program != nil {
-					program.Send(LogMsg(fmt.Sprintf("    ⚠️  Git configuration had issues: %v", err)))
+					program.Send(LogMsg(fmt.Sprintf("⚠️  🔧 Git Setup        Issues: %v", err)))
 				}
 			}
 		}
@@ -1124,19 +1124,19 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 		if err := copyConfigs(module.Configs); err != nil {
 			logMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("    ⚠️  Config copying had issues for %s: %v", fullName, err)))
+				program.Send(LogMsg(fmt.Sprintf("⚠️  📁 %-15s Config issues: %v", fullName, err)))
 			}
 		}
 
 		logMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("  ✅ %s completed", fullName)))
+			program.Send(LogMsg(fmt.Sprintf("✅ ✓ %-15s Complete", fullName)))
 		}
 	}
 
 	logMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("✅ All %s modules completed", category)))
+		program.Send(LogMsg(fmt.Sprintf("✅ 🎉 %-15s All done", strings.Title(category))))
 	}
 	return nil
 }
@@ -1147,7 +1147,7 @@ func handleGitConfiguration() error {
 	logMessage("INFO", "🔧 Applying Git configuration...")
 
 	if program != nil {
-		program.Send(LogMsg("🔧 Git Configuration Setup"))
+		program.Send(LogMsg("🔄 🔧 Git Setup        Configuring identity"))
 	}
 
 	homeDir, err := os.UserHomeDir()
@@ -1180,7 +1180,7 @@ func handleGitConfiguration() error {
 			return fmt.Errorf("setting git user.name: %w", err)
 		}
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("  ✓ Git user.name set to: %s", userName)))
+			program.Send(LogMsg(fmt.Sprintf("✅ 👤 Git Identity     User name set to: %s", userName)))
 		}
 		logMessage("SUCCESS", fmt.Sprintf("Git user.name set to: %s", userName))
 	}
@@ -1190,7 +1190,7 @@ func handleGitConfiguration() error {
 			return fmt.Errorf("setting git user.email: %w", err)
 		}
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("  ✓ Git user.email set to: %s", userEmail)))
+			program.Send(LogMsg(fmt.Sprintf("✅ 📧 Git Identity     User email set to: %s", userEmail)))
 		}
 		logMessage("SUCCESS", fmt.Sprintf("Git user.email set to: %s", userEmail))
 	}
@@ -1206,7 +1206,7 @@ func handleGitConfiguration() error {
 	}
 
 	if program != nil {
-		program.Send(LogMsg("  ⚙️  Setting up Git aliases and defaults..."))
+		program.Send(LogMsg("🔄 ⚙️  Git Aliases      Setting aliases"))
 	}
 
 	for key, value := range gitConfigs {
@@ -1216,7 +1216,7 @@ func handleGitConfiguration() error {
 	}
 
 	if program != nil {
-		program.Send(LogMsg("  ✓ Git configuration applied successfully"))
+		program.Send(LogMsg("✅ 🔧 Git Setup        Complete"))
 	}
 	logMessage("SUCCESS", "Git configuration applied")
 
