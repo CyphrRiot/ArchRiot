@@ -5,6 +5,22 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.6] - 2025-08-01
+
+### 🔧 Lock Screen Fixes
+
+#### Bug Fixes
+
+- **FIXED**: Multiple waybar instances spawning after lock screen wake
+- **REMOVED**: Problematic dpms-wake-fix.sh script causing waybar restarts
+- **SIMPLIFIED**: DPMS wake handling to prevent component restart loops
+
+#### Technical Changes
+
+- Cleaned up hypridle.conf to use simple `hyprctl dispatch dpms on`
+- Eliminated complex script chains that were causing timing issues
+- Improved lock screen stability and reliability
+
 ## [2.2.4] - 2025-08-01
 
 ### 🔐 Privacy & System Cleanup
