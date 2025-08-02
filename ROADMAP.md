@@ -81,8 +81,8 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 
 **NEXT MODULE EXTRACTION PRIORITIES:**
 
-1. **🔄 NEXT: Create tui/ package** - Extract TUI interface (model, view, update, buttons)
-2. **📋 THEN: Create config/ package** - Extract YAML parsing and configuration types
+1. **✅ COMPLETED: Create tui/ package** - ✅ Extracted TUI interface (model, view, update, buttons) - All TUI code moved to tui/ package, main.go updated, screen clearing added, standardized logging function created
+2. **🔄 NEXT: Create config/ package** - Extract YAML parsing and configuration types
 3. **📋 THEN: Create git/ package** - Extract git credential handling
 4. **📋 THEN: Create installer/ package** - Extract installation logic
 5. **📋 FINALLY: Refactor main.go** - Small coordinator importing modules (target: 50 lines)
@@ -102,6 +102,9 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 - ❌ **WATCH SYSTEM CHANGES**: Accidentally overwrote user's git config during testing
 - ✅ **FOLLOW THE RULES**: One change at a time prevents debugging nightmares
 - ✅ **CONSISTENT FORMATTING**: Emoji alignment and spacing matter for professional appearance
+- ✅ **MODULAR LOGGING**: Created sendFormattedLog() function for consistent message formatting
+- ✅ **GIT CREDENTIAL FIX**: Fixed broken git YES/NO confirmation using callback system
+- ✅ **LOG ALIGNMENT**: Fixed misaligned completion messages by using sendFormattedLog consistently
 
 **ARCHITECTURE INSIGHTS:**
 
