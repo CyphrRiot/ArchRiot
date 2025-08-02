@@ -141,6 +141,8 @@ func configureMimeTypes() error {
 	return nil
 }
 
+
+
 // setupFishShell handles the complex fish shell configuration
 func setupFishShell() error {
 	logger.LogMessage("INFO", "Setting up Fish shell...")
@@ -227,6 +229,7 @@ var HandlerRegistry = map[string]func() error{
 	"setup_audio_system": setupAudioSystem,
 	"apply_memory_optimization": applyMemoryOptimization,
 	"configure_mime_types": configureMimeTypes,
+
 }
 
 // ExecuteHandler executes a handler by name

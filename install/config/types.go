@@ -13,6 +13,7 @@ type Config struct {
 type Module struct {
 	Packages    []string     `yaml:"packages"`
 	Configs     []ConfigRule `yaml:"configs"`
+	Commands    []string     `yaml:"commands,omitempty"`
 	Handler     string       `yaml:"handler,omitempty"`
 	Depends     []string     `yaml:"depends,omitempty"`
 	Description string       `yaml:"description"`

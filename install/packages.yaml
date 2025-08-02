@@ -27,11 +27,7 @@ core:
         packages:
             - fish
             - starship
-            - wget
-            - curl
-            - unzip
             - inetutils
-            - git
             - neovim
             - kitty
             - fd
@@ -40,8 +36,6 @@ core:
             - zoxide
             - bat
             - lsd
-            - fastfetch
-            - btop
             - wl-clipboard
             - man
             - less
@@ -95,11 +89,7 @@ development:
     tools:
         packages:
             - zed
-            - btop
-            - fastfetch
             - tree
-            - wget
-            - curl
         configs:
             - pattern: zed/*
               preserve_if_exists: [settings.json]
@@ -118,15 +108,26 @@ development:
             - go
             - github-cli
             - jq
-            - curl
-            - wget
-            - unzip
             - zip
             - tmux
         configs: []
         depends: [core.base]
         handler: install_migrate_tool
         description: "Development tools, compilers, and utilities"
+
+    editors:
+        packages:
+            - tree-sitter-cli
+            - lua-language-server
+            - pyright
+            - typescript-language-server
+            - bash-language-server
+            - gopls
+        configs: []
+        commands:
+            - "sudo ln -sf /usr/bin/nvim /usr/bin/vi"
+        depends: [core.base]
+        description: "Neovim editor with LSP servers for development"
 
 system:
     fonts:
@@ -231,7 +232,6 @@ media:
         packages:
             - mpv
             - lollypop
-            - pavucontrol
             - ffmpeg
             - yt-dlp
             - python-opencv

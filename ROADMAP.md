@@ -162,6 +162,12 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
     - Simple handler applies copied config with `sysctl -p`
     - **LESSON**: Configuration content belongs in config files, NOT hardcoded in Go handlers
 
+14. **✅ mimetypes.sh**: Converted to `system.mimetypes` module in packages.yaml
+    - Default application associations for all major file types
+    - Handler manages xdg-mime commands for images, videos, PDFs, text, and browser
+    - Comprehensive file type coverage: PNG→imv, MP4→mpv, PDF→Papers, HTTP→brave
+    - Tested: Handler executes successfully and MIME associations are applied correctly
+
 **🎯 HANDLER SYSTEM ARCHITECTURE (CRITICAL - DO NOT REPEAT MISTAKES):**
 
 **✅ ABSTRACTED HANDLER SYSTEM IMPLEMENTED:**
@@ -186,6 +192,35 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 3. **Abstract common patterns**: service enablement, commands, logging
 4. **Keep registry clean**: Max 3 lines per handler
 5. **Document in code**: Clear examples for future developers
+
+**PACKAGE DUPLICATION PREVENTION RULES:**
+
+- **NEVER install the same package in multiple modules**
+- **ALWAYS check existing modules before adding packages**: Use `grep -r "package_name" packages.yaml`
+- **USE logical organization**: core→development→desktop→system→media
+- **VERIFY dependencies**: modules inherit packages from dependencies
+- **CLEAN UP immediately**: remove duplicates as soon as discovered
+
+**PACKAGE ORGANIZATION GUIDELINES:**
+
+1. **core.base**: Essential system packages (base-devel, git)
+2. **core.shell**: Shell environment only (fish, terminal tools, basic utilities)
+3. **development.tools**: Development applications (zed, btop, fastfetch, tree)
+4. **development.helpers**: Development utilities (wget, curl, compilers, build tools)
+5. **development.editors**: Editor-specific packages (LSP servers, tree-sitter)
+6. **desktop.\***: Desktop environment packages (hyprland, apps)
+7. **system.\***: System configuration packages (audio, fonts, networking)
+8. **media.\***: Media applications (players, tools)
+
+**DUPLICATION DETECTION PROCESS:**
+
+Before adding any package:
+
+1. Run: `grep -r "package_name" install/packages.yaml`
+2. Check if package already exists in any module
+3. If exists, verify it belongs in the correct logical category
+4. If adding to wrong category, move it instead of duplicating
+5. Update dependencies if module relationships change
 
 **EXAMPLE - GOOD HANDLER:**
 
@@ -217,7 +252,7 @@ This would eliminate the need for custom handlers that just copy files to system
 **🔄 IN PROGRESS: Shell Script Analysis**
 
 1. **🔄 NEXT: Simple script analysis** - Skip complex 01-config.sh, find simpler conversion targets
-2. **📋 REMAINING: 21 .sh files** in install/pending/ awaiting conversion
+2. **📋 REMAINING: 19 .sh files** in install/pending/ awaiting conversion
     - Need to categorize by complexity (simple package lists vs complex logic)
     - Identify patterns for YAML structure optimization
 
@@ -250,7 +285,9 @@ This would eliminate the need for custom handlers that just copy files to system
 - ✅ **CLEAN ORGANIZATION**: Moved all shell scripts to pending/ directory for systematic conversion tracking
 - ✅ **MAJOR SIZE REDUCTION**: Reduced main.go from 810+ lines to 98 lines (88% reduction!)
 - ✅ **MODULAR ARCHITECTURE WORKING**: Fixed channel communication by proper initialization order
-- ✅ **CONFIG PATTERN ESTABLISHED**: Never hardcode system configuration in handlers - use config files + YAML copying
+- ✅ **CONFIG PATTERN ESTABLISHED**: Never hardcode system configuration in handlers - use config files
+- ✅ **PACKAGE DUPLICATION ELIMINATED**: Systematic cleanup preventing installation redundancy
+- ✅ **PACKAGE ORGANIZATION RULES**: Established logical categories and duplication detection process
 - ✅ **GO LESSONS LEARNED**: Always initialize variables before passing to other packages
 - ✅ **CLEAN CODE ACHIEVED**: Removed all unused code, proper package separation
 - ✅ **SYSTEMATIC APPROACH**: One change at a time prevented breaking working systems

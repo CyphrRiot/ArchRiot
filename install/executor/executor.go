@@ -2,6 +2,7 @@ package executor
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,6 +29,29 @@ func sendFormattedLog(status, emoji, name, description string) {
 	if Program != nil {
 		Program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
 	}
+}
+
+// executeCommands runs a list of shell commands
+func executeCommands(commands []string, moduleName string) error {
+	if len(commands) == 0 {
+		return nil
+	}
+
+	logger.LogMessage("INFO", fmt.Sprintf("Executing %d commands for %s", len(commands), moduleName))
+
+	for i, command := range commands {
+		logger.LogMessage("INFO", fmt.Sprintf("Running command %d/%d: %s", i+1, len(commands), command))
+
+		cmd := exec.Command("sh", "-c", command)
+		if err := cmd.Run(); err != nil {
+			logger.LogMessage("WARNING", fmt.Sprintf("Command failed for %s: %s (error: %v)", moduleName, command, err))
+			return fmt.Errorf("command failed: %s", command)
+		}
+
+		logger.LogMessage("SUCCESS", fmt.Sprintf("Command completed: %s", command))
+	}
+
+	return nil
 }
 
 // ExecuteModulesInOrder executes all modules according to priority order
@@ -109,6 +133,16 @@ func executeModuleCategory(category string, modules map[string]config.Module) er
 			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
 			if Program != nil {
 				sendFormattedLog("⚠️", "📁", fullName, "Config issues: "+err.Error())
+			}
+		}
+
+		// Execute commands if specified
+		if len(module.Commands) > 0 {
+			if err := executeCommands(module.Commands, fullName); err != nil {
+				logger.LogMessage("WARNING", fmt.Sprintf("Command execution had issues for %s: %v", fullName, err))
+				if Program != nil {
+					sendFormattedLog("⚠️", "⚡", fullName, "Command issues: "+err.Error())
+				}
 			}
 		}
 
