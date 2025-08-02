@@ -219,6 +219,13 @@ system:
         handler: apply_memory_optimization
         description: "Memory optimization with sysctl configuration for better performance"
 
+    mimetypes:
+        packages: []
+        configs: []
+        depends: [core.base]
+        handler: configure_mime_types
+        description: "Default application associations for file types"
+
 media:
     players:
         packages:

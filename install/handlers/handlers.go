@@ -91,6 +91,56 @@ func applyMemoryOptimization() error {
 	return nil
 }
 
+// configureMimeTypes sets up default application associations for file types
+func configureMimeTypes() error {
+	logger.LogMessage("INFO", "Configuring MIME type associations...")
+	sendLog("📄", "MIME Types", "Setting default applications")
+
+	// Update desktop database
+	runCommand("update-desktop-database ~/.local/share/applications")
+
+	// Set image viewer (imv) for all image formats
+	imageTypes := []string{
+		"image/png", "image/jpeg", "image/gif", "image/webp",
+		"image/bmp", "image/tiff",
+	}
+	for _, mimeType := range imageTypes {
+		runCommand(fmt.Sprintf("xdg-mime default imv.desktop %s", mimeType))
+	}
+
+	// Set PDF viewer
+	runCommand("xdg-mime default org.gnome.Papers.desktop application/pdf")
+
+	// Set default browser
+	runCommand("xdg-settings set default-web-browser brave-browser.desktop")
+	browserSchemes := []string{"x-scheme-handler/http", "x-scheme-handler/https"}
+	for _, scheme := range browserSchemes {
+		runCommand(fmt.Sprintf("xdg-mime default brave-browser.desktop %s", scheme))
+	}
+
+	// Set text editor for text and markdown
+	textTypes := []string{
+		"text/plain", "text/markdown", "text/x-markdown", "application/x-markdown",
+	}
+	for _, mimeType := range textTypes {
+		runCommand(fmt.Sprintf("xdg-mime default org.gnome.TextEditor.desktop %s", mimeType))
+	}
+
+	// Set video player (mpv) for all video formats
+	videoTypes := []string{
+		"video/mp4", "video/x-msvideo", "video/x-matroska", "video/x-flv",
+		"video/x-ms-wmv", "video/mpeg", "video/ogg", "video/webm",
+		"video/quicktime", "video/3gpp", "video/3gpp2", "video/x-ms-asf",
+		"video/x-ogm+ogg", "video/x-theora+ogg", "application/ogg",
+	}
+	for _, mimeType := range videoTypes {
+		runCommand(fmt.Sprintf("xdg-mime default mpv.desktop %s", mimeType))
+	}
+
+	logger.LogMessage("SUCCESS", "MIME type associations configured")
+	return nil
+}
+
 // setupFishShell handles the complex fish shell configuration
 func setupFishShell() error {
 	logger.LogMessage("INFO", "Setting up Fish shell...")
@@ -176,6 +226,7 @@ var HandlerRegistry = map[string]func() error{
 	},
 	"setup_audio_system": setupAudioSystem,
 	"apply_memory_optimization": applyMemoryOptimization,
+	"configure_mime_types": configureMimeTypes,
 }
 
 // ExecuteHandler executes a handler by name
