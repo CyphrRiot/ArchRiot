@@ -27,11 +27,33 @@ core:
         packages:
             - fish
             - starship
+            - wget
+            - curl
+            - unzip
+            - inetutils
+            - git
+            - neovim
+            - kitty
+            - fd
+            - fzf
+            - ripgrep
+            - zoxide
+            - bat
+            - lsd
+            - fastfetch
+            - btop
+            - wl-clipboard
+            - man
+            - less
+            - whois
+            - tldr
+            - plocate
         configs:
             - pattern: fish/*
               preserve_if_exists: []
         depends: [core.base]
-        description: "Fish shell and Starship prompt"
+        handler: setup_fish_shell
+        description: "Fish shell and terminal tools"
 
 desktop:
     hyprland:

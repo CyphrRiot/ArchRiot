@@ -8,6 +8,7 @@ import (
 
 	"archriot-installer/config"
 	"archriot-installer/git"
+	"archriot-installer/handlers"
 	"archriot-installer/installer"
 	"archriot-installer/logger"
 	"archriot-installer/tui"
@@ -19,6 +20,7 @@ var Program *tea.Program
 // SetProgram sets the TUI program reference
 func SetProgram(p *tea.Program) {
 	Program = p
+	handlers.SetProgram(p)
 }
 
 // sendFormattedLog sends a properly formatted log message to TUI
@@ -107,6 +109,16 @@ func executeModuleCategory(category string, modules map[string]config.Module) er
 			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
 			if Program != nil {
 				sendFormattedLog("⚠️", "📁", fullName, "Config issues: "+err.Error())
+			}
+		}
+
+		// Execute handler if specified
+		if module.Handler != "" {
+			if err := handlers.ExecuteHandler(module.Handler); err != nil {
+				logger.LogMessage("WARNING", fmt.Sprintf("Handler execution had issues for %s: %v", fullName, err))
+				if Program != nil {
+					sendFormattedLog("⚠️", "🔧", fullName, "Handler issues: "+err.Error())
+				}
 			}
 		}
 
