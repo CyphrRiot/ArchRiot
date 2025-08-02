@@ -6,13 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-
 	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"gopkg.in/yaml.v3"
+
+	"archriot-installer/logger"
 )
 
 // Config represents the YAML structure
@@ -57,12 +58,15 @@ const (
 // Global version variable read from VERSION file
 var VERSION string
 
-// Global logging infrastructure
+// Global program reference for TUI
+var program *tea.Program
+
+// Global git credentials handling
 var (
-	logFile      *os.File
-	errorLogFile *os.File
-	logPath      string
-	errorLogPath string
+	gitUsername        string
+	gitEmail           string
+	gitConfirmUse      bool
+	gitCredentialsChan = make(chan struct{})
 )
 
 // Tokyo Night inspired Cypher Riot theme
@@ -99,8 +103,9 @@ type InstallModel struct {
 	inputMode   string // "git-username", "git-email", "reboot", ""
 	inputValue  string // current typed input
 	inputPrompt string // what we're asking for
-	showRebootButtons bool // show YES/NO buttons in scroll window
-	selectedButton    int  // 0 = YES, 1 = NO
+	showConfirm    bool   // show YES/NO confirmation
+	confirmPrompt  string // confirmation prompt text
+	cursor         int    // 0 = YES, 1 = NO
 }
 
 // NewInstallModel creates a new installation model
@@ -115,8 +120,9 @@ func NewInstallModel() *InstallModel {
 		inputMode:   "",
 		inputValue:  "",
 		inputPrompt: "",
-		showRebootButtons: false,
-		selectedButton:    1, // Default to NO
+		showConfirm:   false,
+		confirmPrompt: "",
+		cursor:        1, // Default to NO
 	}
 }
 
@@ -133,29 +139,30 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 	case tea.KeyMsg:
-		if m.showRebootButtons {
-			// Handle button selection
+		if m.showConfirm {
+			// Handle confirmation selection
 			switch msg.Type {
-			case tea.KeyLeft:
-				m.selectedButton = 0 // YES
+			case tea.KeyLeft, tea.KeyUp:
+				m.cursor = 0 // YES
 				return m, nil
-			case tea.KeyRight:
-				m.selectedButton = 1 // NO
+			case tea.KeyRight, tea.KeyDown:
+				m.cursor = 1 // NO
 				return m, nil
 			case tea.KeyEnter:
-				// Just quit directly - don't send messages
-				return m, tea.Quit
+				return m.handleConfirmSelection()
 			case tea.KeyEsc, tea.KeyCtrlC:
 				return m, tea.Quit
 			}
 			return m, nil
 		}
 
+
+
 		if m.inputMode != "" {
 			// Handle input mode
 			switch msg.Type {
 			case tea.KeyEnter:
-				logMessage("DEBUG", fmt.Sprintf("ENTER pressed with input: '%s'", m.inputValue))
+				logger.LogMessage("DEBUG", fmt.Sprintf("ENTER pressed with input: '%s'", m.inputValue))
 				return m.handleInputSubmit()
 			case tea.KeyBackspace:
 				if len(m.inputValue) > 0 {
@@ -165,7 +172,7 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tea.KeyRunes:
 				m.inputValue += string(msg.Runes)
 				// Test: write ANY keypress to log to see if input is working
-				logMessage("DEBUG", fmt.Sprintf("Key received: '%s', input now: '%s'", string(msg.Runes), m.inputValue))
+				logger.LogMessage("DEBUG", fmt.Sprintf("Key received: '%s', input now: '%s'", string(msg.Runes), m.inputValue))
 				return m, nil
 			case tea.KeyEsc, tea.KeyCtrlC:
 				return m, tea.Quit
@@ -191,7 +198,9 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case DoneMsg:
 		m.done = true
-		m.showRebootButtons = true
+		m.showConfirm = true
+		m.confirmPrompt = "🔄 Reboot now?"
+		m.cursor = 1 // Default to NO for reboot
 		m.addLog("")
 		m.addLog("✅ 🎉 Installation     Complete!")
 		m.addLog("")
@@ -200,10 +209,11 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setInputMode(msg.Mode, msg.Prompt)
 		return m, nil
 	case GitUsernameMsg:
-		// Git username received, handled by installation process
+		gitUsername = string(msg)
 		return m, nil
 	case GitEmailMsg:
-		// Git email received, handled by installation process
+		gitEmail = string(msg)
+		close(gitCredentialsChan)
 		return m, nil
 	case RebootMsg:
 		// Reboot decision received, handled by installation process
@@ -239,7 +249,7 @@ func (m *InstallModel) View() string {
 	logStyle := lipgloss.NewStyle().Foreground(dimColor)
 
 	s.WriteString(infoStyle.Render("📋 Current Step:   "+m.currentStep) + "\n")
-	s.WriteString(logStyle.Render("📝 Log File:       "+logPath) + "\n")
+	s.WriteString(logStyle.Render("📝 Log File:       "+logger.GetLogPath()) + "\n")
 
 	// Progress bar
 	s.WriteString(m.renderProgressBar() + "\n\n")
@@ -247,19 +257,22 @@ func (m *InstallModel) View() string {
 	// Scroll window - bordered content area
 	s.WriteString(m.renderScrollWindow())
 
-	// Buttons below scroll window if shown
-	if m.showRebootButtons {
-		var yesButton, noButton string
+	// Confirmation below scroll window if shown
+	if m.showConfirm {
+		promptStyle := lipgloss.NewStyle().
+			Foreground(fgColor).
+			Bold(true)
 
-		if m.selectedButton == 0 {
-			yesButton = "[►YES◄]"
-			noButton = "[ NO ]"
-		} else {
-			yesButton = "[ YES ]"
-			noButton = "[►NO◄]"
-		}
+		helpStyle := lipgloss.NewStyle().
+			Foreground(dimColor).
+			Italic(true)
 
-		s.WriteString(fmt.Sprintf("\n\nReboot now?  %s  %s  (← → to select, Enter to confirm)", yesButton, noButton))
+		buttonRow := renderConfirmButtons(m.cursor)
+
+		s.WriteString(fmt.Sprintf("\n\n%s  %s  %s",
+			promptStyle.Render(m.confirmPrompt),
+			buttonRow,
+			helpStyle.Render("(← → to select, Enter to confirm)")))
 	} else if m.inputMode != "" {
 		s.WriteString("\n\n" + m.inputPrompt + m.inputValue + "_")
 	} else {
@@ -267,6 +280,33 @@ func (m *InstallModel) View() string {
 	}
 
 	return s.String()
+}
+
+// renderConfirmButtons creates styled YES/NO confirmation buttons
+func renderConfirmButtons(cursor int) string {
+	// Simple highlighted buttons
+	selectedStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#1a1b26")).
+		Background(primaryColor).
+		Padding(0, 1)
+
+	unselectedStyle := lipgloss.NewStyle().
+		Foreground(fgColor).
+		Padding(0, 1)
+
+	var yesButton, noButton string
+
+	if cursor == 0 {
+		yesButton = selectedStyle.Render("✓ YES")
+		noButton = unselectedStyle.Render("✗ NO")
+	} else {
+		yesButton = unselectedStyle.Render("✓ YES")
+		noButton = selectedStyle.Render("✗ NO")
+	}
+
+	// Create button row with proper spacing
+	return lipgloss.JoinHorizontal(lipgloss.Center, yesButton, "   ", noButton)
 }
 
 // renderProgressBar creates a progress bar with percentage
@@ -370,9 +410,31 @@ func (m *InstallModel) setCurrentStep(step string) {
 
 // setInputMode sets the input mode and prompt
 func (m *InstallModel) setInputMode(mode, prompt string) {
-	m.inputMode = mode
-	m.inputPrompt = prompt
-	m.inputValue = ""
+	if mode == "git-confirm" {
+		m.showConfirm = true
+		m.confirmPrompt = "🔧 Use these credentials?"
+		m.cursor = 0 // Default to YES
+	} else {
+		m.inputMode = mode
+		m.inputPrompt = prompt
+		m.inputValue = ""
+	}
+}
+
+// handleConfirmSelection processes YES/NO confirmation selection
+func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
+	if m.confirmPrompt == "🔄 Reboot now?" {
+		// Reboot confirmation
+		return m, tea.Quit
+	} else if m.confirmPrompt == "🔧 Use these credentials?" {
+		// Git credentials confirmation
+		gitConfirmUse = m.cursor == 0 // YES = 0
+		close(gitCredentialsChan)
+		m.showConfirm = false
+		m.confirmPrompt = ""
+		return m, nil
+	}
+	return m, nil
 }
 
 // handleInputSubmit processes submitted input
@@ -433,7 +495,6 @@ type InputRequestMsg struct {
 
 // Global model instance
 var model *InstallModel
-var program *tea.Program
 
 // Styled components
 var (
@@ -497,10 +558,10 @@ func main() {
 	}
 
 	// Initialize logging first
-	if err := initLogging(); err != nil {
+	if err := logger.InitLogging(); err != nil {
 		log.Fatalf("❌ Failed to initialize logging: %v", err)
 	}
-	defer closeLogging()
+	defer logger.CloseLogging()
 
 	// Initialize TUI model
 	model = NewInstallModel()
@@ -584,7 +645,7 @@ func runInstallation() {
 	sendProgress(1.0)
 	sendLog("✅ 🎉 Installation     Complete!")
 	sendLog("✅ 🚀 Module Exec      All modules done")
-	sendLog(fmt.Sprintf("📝 📋 Log File        Available at: %s", logPath))
+	sendLog(fmt.Sprintf("📝 📋 Log File        Available at: %s", logger.GetLogPath()))
 }
 
 // findConfigFile looks for packages.yaml in common locations
@@ -697,7 +758,7 @@ func installPackageBatch(packages []string) error {
 			if len(outputStr) > 200 {
 				outputStr = outputStr[:200] + "... (truncated)"
 			}
-			program.Send(LogMsg(fmt.Sprintf("❌ 📦 Package Error    Failed: %s", outputStr)))
+			program.Send(LogMsg(fmt.Sprintf("❌ 📦 %-15s Failed: %s", "Package Error", outputStr)))
 		}
 		return fmt.Errorf("batch installation failed: %w", err)
 	}
@@ -707,7 +768,7 @@ func installPackageBatch(packages []string) error {
 
 // syncPackageDatabases ensures yay is installed then synchronizes pacman and yay package databases
 func syncPackageDatabases() error {
-	logMessage("INFO", "🔄 Syncing package databases...")
+	logger.LogMessage("INFO", "🔄 Syncing package databases...")
 	if program != nil {
 		program.Send(LogMsg("🔄 🗄️  Database Sync   Syncing databases"))
 	}
@@ -716,7 +777,7 @@ func syncPackageDatabases() error {
 
 	// Install yay if not present
 	if !commandExists("yay") {
-		logMessage("INFO", "Installing yay AUR helper...")
+		logger.LogMessage("INFO", "Installing yay AUR helper...")
 		// Yay installation logged to file only
 
 		cmd := exec.Command("sudo", "pacman", "-S", "--noconfirm", "--needed", "yay")
@@ -727,20 +788,20 @@ func syncPackageDatabases() error {
 			if len(outputStr) > 200 {
 				outputStr = outputStr[:200] + "... (truncated)"
 			}
-			logMessage("CRITICAL", fmt.Sprintf("Failed to install yay: %s", outputStr))
+			logger.LogMessage("CRITICAL", fmt.Sprintf("Failed to install yay: %s", outputStr))
 			return fmt.Errorf("yay installation failed: %w", err)
 		}
 
-		logMessage("SUCCESS", "yay AUR helper installed")
+		logger.LogMessage("SUCCESS", "yay AUR helper installed")
 		// Yay installation success logged to file only
 	} else {
-		logMessage("SUCCESS", "yay AUR helper already available")
+		logger.LogMessage("SUCCESS", "yay AUR helper already available")
 		// Yay already available logged to file only
 	}
 
 	// Sync pacman database - fail gracefully if it doesn't work
 	if err := syncPackmanDatabase(); err != nil {
-		logMessage("CRITICAL", fmt.Sprintf("Pacman sync failed: %v", err))
+		logger.LogMessage("CRITICAL", fmt.Sprintf("Pacman sync failed: %v", err))
 		return fmt.Errorf("pacman sync failed - please run 'sudo pacman -Sy' manually: %w", err)
 	}
 
@@ -753,17 +814,17 @@ func syncPackageDatabases() error {
 		if len(outputStr) > 200 {
 			outputStr = outputStr[:200] + "... (truncated)"
 		}
-		logMessage("WARNING", fmt.Sprintf("Failed to sync yay database: %s", outputStr))
+		logger.LogMessage("WARNING", fmt.Sprintf("Failed to sync yay database: %s", outputStr))
 		if program != nil {
-			program.Send(LogMsg("⚠️  🗄️  Database Sync   Yay sync failed, continuing"))
+			program.Send(LogMsg("⚠️ 🗄️ Database Sync   Yay sync failed, continuing"))
 		}
 	} else {
-		logMessage("SUCCESS", "Yay database synced")
+		logger.LogMessage("SUCCESS", "Yay database synced")
 		// Yay sync success logged to file only
 	}
 
 	duration := time.Since(start)
-	logMessage("SUCCESS", fmt.Sprintf("Package databases synced in %v", duration))
+	logger.LogMessage("SUCCESS", fmt.Sprintf("Package databases synced in %v", duration))
 	// Database sync timing logged to file only
 
 	return nil
@@ -782,7 +843,7 @@ func syncPackmanDatabase() error {
 		return fmt.Errorf("pacman sync failed: %s", outputStr)
 	}
 
-	logMessage("SUCCESS", "Pacman database synced")
+	logger.LogMessage("SUCCESS", "Pacman database synced")
 	// Pacman sync success logged to file only
 	return nil
 }
@@ -822,89 +883,7 @@ func readVersion() error {
 	return nil
 }
 
-// initLogging initializes log files and creates necessary directories
-func initLogging() error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("getting home directory: %w", err)
-	}
 
-	// Create log directory
-	logDir := filepath.Join(homeDir, ".cache", "archriot")
-	if err := os.MkdirAll(logDir, 0755); err != nil {
-		return fmt.Errorf("creating log directory: %w", err)
-	}
-
-	// Set log file paths
-	logPath = filepath.Join(logDir, "install.log")
-	errorLogPath = filepath.Join(logDir, "install-errors.log")
-
-	// Create/truncate log files
-	logFile, err = os.Create(logPath)
-	if err != nil {
-		return fmt.Errorf("creating log file: %w", err)
-	}
-
-	errorLogFile, err = os.Create(errorLogPath)
-	if err != nil {
-		return fmt.Errorf("creating error log file: %w", err)
-	}
-
-	// Write headers
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	fmt.Fprintf(logFile, "=== ArchRiot Go Installer v%s - %s ===\n", VERSION, timestamp)
-	fmt.Fprintf(errorLogFile, "=== ArchRiot Go Installer Errors v%s - %s ===\n", VERSION, timestamp)
-
-	return nil
-}
-
-// closeLogging closes log files
-func closeLogging() {
-	if logFile != nil {
-		logFile.Close()
-	}
-	if errorLogFile != nil {
-		errorLogFile.Close()
-	}
-}
-
-// logMessage writes structured log messages to files and optionally console
-func logMessage(level string, message string) {
-	timestamp := time.Now().Format("15:04:05")
-	formattedMessage := fmt.Sprintf("[%s] %s %s", timestamp, getLevelIcon(level), message)
-
-	// Always write to main log file
-	if logFile != nil {
-		fmt.Fprintln(logFile, formattedMessage)
-		logFile.Sync() // Ensure immediate write
-	}
-
-	// Write errors to error log file too
-	if level == "ERROR" || level == "CRITICAL" {
-		if errorLogFile != nil {
-			fmt.Fprintln(errorLogFile, formattedMessage)
-			errorLogFile.Sync()
-		}
-	}
-}
-
-// getLevelIcon returns appropriate icon for log level
-func getLevelIcon(level string) string {
-	switch level {
-	case "INFO":
-		return "ℹ️ "
-	case "SUCCESS":
-		return "✅"
-	case "WARNING":
-		return "⚠️ "
-	case "ERROR":
-		return "❌"
-	case "CRITICAL":
-		return "🚨"
-	default:
-		return "📝"
-	}
-}
 
 // copyConfigs copies configuration files with preservation logic
 func copyConfigs(configs []ConfigRule) error {
@@ -925,7 +904,7 @@ func copyConfigs(configs []ConfigRule) error {
 
 	// logMessage("INFO", fmt.Sprintf("Copying configs from: %s", configSourceDir))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("🔄 📁 Config Copy      From: %s", configSourceDir)))
+		program.Send(LogMsg(fmt.Sprintf("🔄 📁 %-15s From: %s", "Config Copy", configSourceDir)))
 	}
 
 	for _, configRule := range configs {
@@ -1027,7 +1006,7 @@ func copyFile(source, dest string, preserveFiles []string) error {
 	for _, preserveFile := range preserveFiles {
 		if fileName == preserveFile {
 			if _, err := os.Stat(dest); err == nil {
-				logMessage("INFO", fmt.Sprintf("Preserving existing file: %s", dest))
+				logger.LogMessage("INFO", fmt.Sprintf("Preserving existing file: %s", dest))
 				return nil // File exists and should be preserved
 			}
 		}
@@ -1052,7 +1031,7 @@ func copyFile(source, dest string, preserveFiles []string) error {
 
 // executeModulesInOrder executes all modules according to priority order
 func executeModulesInOrder(config *Config) error {
-	logMessage("INFO", "Starting module execution in priority order")
+	logger.LogMessage("INFO", "Starting module execution in priority order")
 	if program != nil {
 		program.Send(LogMsg("🔄 🚀 Module Exec      Starting modules"))
 	}
@@ -1084,57 +1063,57 @@ func executeModulesInOrder(config *Config) error {
 // executeModuleCategory executes all modules in a category
 func executeModuleCategory(category string, modules map[string]Module) error {
 	if len(modules) == 0 {
-		logMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
+		logger.LogMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("ℹ️  ⏭️  %-15s No modules", strings.Title(category))))
+			program.Send(LogMsg(fmt.Sprintf("ℹ️ ⏭️ %-15s No modules", strings.Title(category))))
 		}
 		return nil
 	}
 
 	priority := ModuleOrder[category]
-	logMessage("INFO", fmt.Sprintf("Executing %s modules (priority %d)", category, priority))
+	logger.LogMessage("INFO", fmt.Sprintf("Executing %s modules (priority %d)", category, priority))
 	if program != nil {
 		program.Send(LogMsg(fmt.Sprintf("🔄 🔧 %-15s Starting %s modules", strings.Title(category), category)))
 	}
 
 	for name, module := range modules {
 		fullName := fmt.Sprintf("%s.%s", category, name)
-		logMessage("INFO", fmt.Sprintf("Starting module: %s - %s", fullName, module.Description))
+		logger.LogMessage("INFO", fmt.Sprintf("Starting module: %s - %s", fullName, module.Description))
 		if program != nil {
 			program.Send(LogMsg(fmt.Sprintf("🔄 📦 %-15s %s", fullName, module.Description)))
 		}
 
 		// Install packages
 		if err := installPackages(module.Packages); err != nil {
-			logMessage("ERROR", fmt.Sprintf("Package installation failed for %s: %v", fullName, err))
+			logger.LogMessage("ERROR", fmt.Sprintf("Package installation failed for %s: %v", fullName, err))
 			return fmt.Errorf("package installation failed for %s: %w", fullName, err)
 		}
 
 		// Handle Git configuration for identity module
 		if category == "core" && name == "identity" {
 			if err := handleGitConfiguration(); err != nil {
-				logMessage("WARNING", fmt.Sprintf("Git configuration had issues: %v", err))
+				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration had issues: %v", err))
 				if program != nil {
-					program.Send(LogMsg(fmt.Sprintf("⚠️  🔧 Git Setup        Issues: %v", err)))
+					program.Send(LogMsg(fmt.Sprintf("⚠️ 🔧 %-15s Issues: %v", "Git Setup", err)))
 				}
 			}
 		}
 
 		// Copy configs
 		if err := copyConfigs(module.Configs); err != nil {
-			logMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
+			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("⚠️  📁 %-15s Config issues: %v", fullName, err)))
+				program.Send(LogMsg(fmt.Sprintf("⚠️ 📁 %-15s Config issues: %v", fullName, err)))
 			}
 		}
 
-		logMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
+		logger.LogMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
 		if program != nil {
 			program.Send(LogMsg(fmt.Sprintf("✅ ✓ %-15s Complete", fullName)))
 		}
 	}
 
-	logMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
+	logger.LogMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
 	if program != nil {
 		program.Send(LogMsg(fmt.Sprintf("✅ 🎉 %-15s All done", strings.Title(category))))
 	}
@@ -1144,10 +1123,10 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 // handleGitConfiguration applies Git configuration with beautiful styling
 
 func handleGitConfiguration() error {
-	logMessage("INFO", "🔧 Applying Git configuration...")
+	logger.LogMessage("INFO", "🔧 Applying Git configuration...")
 
 	if program != nil {
-		program.Send(LogMsg("🔄 🔧 Git Setup        Configuring identity"))
+		program.Send(LogMsg("🔄 🔧 Git Setup        Checking credentials"))
 	}
 
 	homeDir, err := os.UserHomeDir()
@@ -1155,23 +1134,67 @@ func handleGitConfiguration() error {
 		return fmt.Errorf("getting home directory: %w", err)
 	}
 
-	// Load user environment if it exists
-	envFile := filepath.Join(homeDir, ".config", "archriot", "user.env")
+	// Check for existing git credentials in git config first
+	existingName, _ := runGitConfigGet("user.name")
+	existingEmail, _ := runGitConfigGet("user.email")
+
 	var userName, userEmail string
 
-	if _, err := os.Stat(envFile); err == nil {
-		logMessage("INFO", "Loading user environment from user.env")
-		if data, err := os.ReadFile(envFile); err == nil {
-			lines := strings.Split(string(data), "\n")
-			for _, line := range lines {
-				if strings.HasPrefix(line, "ARCHRIOT_USER_NAME=") {
-					userName = strings.Trim(strings.TrimPrefix(line, "ARCHRIOT_USER_NAME="), "\"'")
-				}
-				if strings.HasPrefix(line, "ARCHRIOT_USER_EMAIL=") {
-					userEmail = strings.Trim(strings.TrimPrefix(line, "ARCHRIOT_USER_EMAIL="), "\"'")
-				}
-			}
+	// If we have existing git credentials, ask to use them
+	if strings.TrimSpace(existingName) != "" || strings.TrimSpace(existingEmail) != "" {
+		// Reset channel before using it
+		gitCredentialsChan = make(chan struct{})
+
+		if program != nil {
+			program.Send(LogMsg(fmt.Sprintf("🎉 💬 %-15s Found existing git credentials", "Git Found")))
+			program.Send(LogMsg(fmt.Sprintf("📋 👤 %-15s %s", "Name", existingName)))
+			program.Send(LogMsg(fmt.Sprintf("📋 📧 %-15s %s", "Email", existingEmail)))
+			program.Send(InputRequestMsg{Mode: "git-confirm", Prompt: ""})
 		}
+
+		// Wait for confirmation
+		<-gitCredentialsChan
+
+		if gitConfirmUse {
+			userName = existingName
+			userEmail = existingEmail
+			if program != nil {
+				program.Send(LogMsg("✅ 🔧 Git Setup        Using existing credentials"))
+			}
+		} else {
+			// User said no, prompt for new credentials
+			gitCredentialsChan = make(chan struct{})
+
+			if program != nil {
+				program.Send(LogMsg("💬 🔧 Git Setup        Setting up new credentials"))
+				program.Send(InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
+			}
+
+			// Wait for new credentials
+			<-gitCredentialsChan
+
+			userName = gitUsername
+			userEmail = gitEmail
+		}
+	} else {
+		// No existing credentials, prompt for new ones
+		gitCredentialsChan = make(chan struct{})
+
+		if program != nil {
+			program.Send(LogMsg("💬 🔧 Git Setup        No credentials found, setting up"))
+			program.Send(InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
+		}
+
+		// Wait for credentials to be entered
+		<-gitCredentialsChan
+
+		userName = gitUsername
+		userEmail = gitEmail
+	}
+
+	// Save credentials to user.env
+	if err := saveGitCredentials(homeDir, userName, userEmail); err != nil {
+		logger.LogMessage("WARNING", fmt.Sprintf("Failed to save git credentials: %v", err))
 	}
 
 	// Apply Git user configuration
@@ -1180,9 +1203,9 @@ func handleGitConfiguration() error {
 			return fmt.Errorf("setting git user.name: %w", err)
 		}
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("✅ 👤 Git Identity     User name set to: %s", userName)))
+			program.Send(LogMsg(fmt.Sprintf("✅ 👤 %-15s User name set to: %s", "Git Identity", userName)))
 		}
-		logMessage("SUCCESS", fmt.Sprintf("Git user.name set to: %s", userName))
+		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.name set to: %s", userName))
 	}
 
 	if strings.TrimSpace(userEmail) != "" {
@@ -1190,9 +1213,9 @@ func handleGitConfiguration() error {
 			return fmt.Errorf("setting git user.email: %w", err)
 		}
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("✅ 📧 Git Identity     User email set to: %s", userEmail)))
+			program.Send(LogMsg(fmt.Sprintf("✅ 📧 %-15s User email set to: %s", "Git Identity", userEmail)))
 		}
-		logMessage("SUCCESS", fmt.Sprintf("Git user.email set to: %s", userEmail))
+		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.email set to: %s", userEmail))
 	}
 
 	// Apply Git aliases and defaults
@@ -1211,22 +1234,54 @@ func handleGitConfiguration() error {
 
 	for key, value := range gitConfigs {
 		if err := runGitConfig(key, value); err != nil {
-			logMessage("WARNING", fmt.Sprintf("Failed to set %s: %v", key, err))
+			logger.LogMessage("WARNING", fmt.Sprintf("Failed to set %s: %v", key, err))
 		}
 	}
 
 	if program != nil {
 		program.Send(LogMsg("✅ 🔧 Git Setup        Complete"))
 	}
-	logMessage("SUCCESS", "Git configuration applied")
+	logger.LogMessage("SUCCESS", "Git configuration applied")
 
 	return nil
 }
 
-// runGitConfig executes a git config command
+// saveGitCredentials saves git credentials to user.env file
+func saveGitCredentials(homeDir, userName, userEmail string) error {
+	configDir := filepath.Join(homeDir, ".config", "archriot")
+	envFile := filepath.Join(configDir, "user.env")
+
+	// Create config directory if it doesn't exist
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return fmt.Errorf("creating config directory: %w", err)
+	}
+
+	// Create user.env content
+	content := fmt.Sprintf("ARCHRIOT_USER_NAME=\"%s\"\nARCHRIOT_USER_EMAIL=\"%s\"\n", userName, userEmail)
+
+	// Write to file
+	if err := os.WriteFile(envFile, []byte(content), 0644); err != nil {
+		return fmt.Errorf("writing user.env file: %w", err)
+	}
+
+	logger.LogMessage("SUCCESS", "Git credentials saved to user.env")
+	return nil
+}
+
+// runGitConfig sets a git configuration value
 func runGitConfig(key, value string) error {
 	cmd := exec.Command("git", "config", "--global", key, value)
 	return cmd.Run()
+}
+
+// runGitConfigGet gets a git configuration value
+func runGitConfigGet(key string) (string, error) {
+	cmd := exec.Command("git", "config", "--global", key)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(output)), nil
 }
 
 // commandExists checks if a command is available in PATH
