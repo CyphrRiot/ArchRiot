@@ -43,6 +43,37 @@ func runCommand(command string) error {
 	return cmd.Run()
 }
 
+// setupAudioSystem handles PipeWire installation with conflict resolution
+func setupAudioSystem() error {
+	logger.LogMessage("INFO", "Setting up PipeWire audio system...")
+	sendLog("🔊", "Audio", "Configuring PipeWire")
+
+	// Check for conflicting packages and remove them
+	conflictingPackages := []string{"pulseaudio", "jack2"}
+	for _, pkg := range conflictingPackages {
+		cmd := exec.Command("pacman", "-Qs", "^"+pkg+"$")
+		if cmd.Run() == nil {
+			logger.LogMessage("INFO", fmt.Sprintf("Removing conflicting package: %s", pkg))
+			removeCmd := exec.Command("sudo", "pacman", "-Rdd", "--noconfirm", pkg)
+			if err := removeCmd.Run(); err != nil {
+				logger.LogMessage("WARNING", fmt.Sprintf("Could not remove %s: %v", pkg, err))
+			}
+		}
+	}
+
+	// Enable PipeWire services for user
+	services := []string{"pipewire", "pipewire-pulse", "wireplumber"}
+	for _, service := range services {
+		cmd := exec.Command("systemctl", "--user", "enable", "--now", service+".service")
+		if err := cmd.Run(); err != nil {
+			logger.LogMessage("WARNING", fmt.Sprintf("Failed to enable %s: %v", service, err))
+		}
+	}
+
+	logger.LogMessage("SUCCESS", "PipeWire audio system configured")
+	return nil
+}
+
 // setupFishShell handles the complex fish shell configuration
 func setupFishShell() error {
 	logger.LogMessage("INFO", "Setting up Fish shell...")
@@ -126,6 +157,7 @@ var HandlerRegistry = map[string]func() error{
 		sendLog("📦", "Migrate", "Tool installed")
 		return nil
 	},
+	"setup_audio_system": setupAudioSystem,
 }
 
 // ExecuteHandler executes a handler by name

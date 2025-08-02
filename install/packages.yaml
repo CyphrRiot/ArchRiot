@@ -191,6 +191,24 @@ system:
         handler: setup_wireless_networking
         description: "Wireless networking with iwd"
 
+    audio:
+        packages:
+            - pipewire
+            - pipewire-alsa
+            - pipewire-pulse
+            - pipewire-audio
+            - pipewire-jack
+            - gst-plugin-pipewire
+            - libpipewire
+            - wireplumber
+            - pavucontrol
+            - pamixer
+            - playerctl
+        configs: []
+        depends: [core.base]
+        handler: setup_audio_system
+        description: "PipeWire audio system with conflict resolution and controls"
+
 media:
     players:
         packages:
