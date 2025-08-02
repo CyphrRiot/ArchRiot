@@ -94,12 +94,31 @@ desktop:
     apps:
         packages:
             - ghostty
+            - ghostty-shell-integration
             - thunar
             - brave-bin
             - signal-desktop
+            - brightnessctl
+            - xdg-user-dirs
+            - wl-clip-persist
+            - hyprsunset
+            - tumbler
+            - ffmpegthumbnailer
+            - libwebp
+            - libheif
+            - libavif
+            - raw-thumbnailer
+            - gnome-calculator
+            - nwg-drawer
+            - imv
+            - mullvad-vpn-bin
         configs:
             - pattern: ghostty/*
-              preserve_if_exists: []
+            - pattern: xdg-desktop-portal/*
+        commands:
+            - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true"
+            - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || true"
+            - "xdg-user-dirs-update"
         depends: [desktop.hyprland]
         start: "Installing desktop applications"
         end: "Desktop applications installed"
