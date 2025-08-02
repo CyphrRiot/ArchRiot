@@ -59,3 +59,15 @@ func GetLogPath() string {
 	}
 	return "/tmp/archriot-install.log"
 }
+
+// Git callback functions
+var gitCompletionCallback func(bool)
+var gitUsernameCallback func(string)
+var gitEmailCallback func(string)
+
+// SetGitCallbacks sets the callback functions for git credential handling
+func SetGitCallbacks(completion func(bool), username func(string), email func(string)) {
+	gitCompletionCallback = completion
+	gitUsernameCallback = username
+	gitEmailCallback = email
+}

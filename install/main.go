@@ -64,10 +64,10 @@ var program *tea.Program
 
 // Global git credentials handling
 var (
-	gitUsername        string
-	gitEmail           string
-	gitConfirmUse      bool
-	gitCredentialsChan = make(chan struct{})
+	gitUsername   string
+	gitEmail      string
+	gitConfirmUse bool
+	gitInputDone  chan bool
 )
 
 
@@ -109,6 +109,24 @@ func main() {
 	// Set up TUI helper functions
 	tui.SetVersionGetter(func() string { return VERSION })
 	tui.SetLogPathGetter(func() string { return logger.GetLogPath() })
+
+	// Initialize git input channel
+	gitInputDone = make(chan bool, 1)
+
+	// Set up git credential callbacks
+	tui.SetGitCallbacks(
+		func(confirmed bool) {
+			gitConfirmUse = confirmed
+			gitInputDone <- true
+		},
+		func(username string) {
+			gitUsername = username
+		},
+		func(email string) {
+			gitEmail = email
+			gitInputDone <- true
+		},
+	)
 
 	// Initialize TUI model
 	model = tui.NewInstallModel()
@@ -184,15 +202,15 @@ func runInstallation() {
 
 	// Execute modules in proper order
 	if err := executeModulesInOrder(config); err != nil {
-		sendLog(fmt.Sprintf("❌ 🚀 Module Exec      Failed: %v", err))
+		sendFormattedLog("❌", "📦", "Module Exec", "Failed: "+err.Error())
 		return
 	}
 
 	sendStep("Installation complete!")
 	sendProgress(1.0)
-	sendLog("✅ 🎉 Installation     Complete!")
-	sendLog("✅ 🚀 Module Exec      All modules done")
-	sendLog(fmt.Sprintf("📝 📋 Log File        Available at: %s", logger.GetLogPath()))
+	sendFormattedLog("✅", "📦", "Installation", "Complete!")
+	sendFormattedLog("✅", "📦", "Module Exec", "All modules done")
+	sendFormattedLog("📝", "📋", "Log File", "Available at: "+logger.GetLogPath())
 }
 
 // findConfigFile looks for packages.yaml in common locations
@@ -580,7 +598,7 @@ func copyFile(source, dest string, preserveFiles []string) error {
 func executeModulesInOrder(config *Config) error {
 	logger.LogMessage("INFO", "Starting module execution in priority order")
 	if program != nil {
-		sendFormattedLog("🔄", "🚀", "Module Exec", "Starting modules")
+		sendFormattedLog("🔄", "📦", "Module Exec", "Starting modules")
 	}
 
 	// Core modules (priority 10)
@@ -656,13 +674,13 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
 		if program != nil {
-			sendFormattedLog("✅", "🎯", fullName, "Complete")
+			sendFormattedLog("✅", "📦", fullName, "Complete")
 		}
 	}
 
 	logger.LogMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
 	if program != nil {
-		sendFormattedLog("✅", "🎉", strings.Title(category), "All done")
+		sendFormattedLog("✅", "📦", strings.Title(category), "All done")
 	}
 	return nil
 }
@@ -689,9 +707,6 @@ func handleGitConfiguration() error {
 
 	// If we have existing git credentials, ask to use them
 	if strings.TrimSpace(existingName) != "" || strings.TrimSpace(existingEmail) != "" {
-		// Reset channel before using it
-		gitCredentialsChan = make(chan struct{})
-
 		if program != nil {
 			sendFormattedLog("🎉", "📦", "Git Found", "Found existing git credentials")
 			sendFormattedLog("📋", "📦", "Name", existingName)
@@ -700,7 +715,7 @@ func handleGitConfiguration() error {
 		}
 
 		// Wait for confirmation
-		<-gitCredentialsChan
+		<-gitInputDone
 
 		if gitConfirmUse {
 			userName = existingName
@@ -710,30 +725,26 @@ func handleGitConfiguration() error {
 			}
 		} else {
 			// User said no, prompt for new credentials
-			gitCredentialsChan = make(chan struct{})
-
 			if program != nil {
 				sendFormattedLog("💬", "📦", "Git Setup", "Setting up new credentials")
 				program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 			}
 
 			// Wait for new credentials
-			<-gitCredentialsChan
+			<-gitInputDone
 
 			userName = gitUsername
 			userEmail = gitEmail
 		}
 	} else {
 		// No existing credentials, prompt for new ones
-		gitCredentialsChan = make(chan struct{})
-
 		if program != nil {
 			sendFormattedLog("💬", "📦", "Git Setup", "No credentials found, setting up")
 			program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 		}
 
 		// Wait for credentials to be entered
-		<-gitCredentialsChan
+		<-gitInputDone
 
 		userName = gitUsername
 		userEmail = gitEmail

@@ -139,14 +139,11 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case GitUsernameMsg:
-		// Store git username and continue to email
-		m.setInputMode("git-email", "Git Email: ")
+		// Process git username input - handled by main
 		return m, nil
 
 	case GitEmailMsg:
-		// Git email received, clear input mode
-		m.inputMode = ""
-		m.inputPrompt = ""
+		// Process git email input - handled by main
 		return m, nil
 
 	case GitConfirmMsg:
@@ -370,9 +367,11 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 		// Git credentials confirmation - send result back to main
 		m.showConfirm = false
 		m.confirmPrompt = ""
-		return m, func() tea.Msg {
-			return GitConfirmMsg(m.cursor == 0) // YES = 0, NO = 1
+		// Signal completion through external callback
+		if gitCompletionCallback != nil {
+			gitCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
 		}
+		return m, nil
 	}
 	return m, nil
 }
@@ -386,18 +385,21 @@ func (m *InstallModel) handleInputSubmit() (tea.Model, tea.Cmd) {
 		m.inputMode = ""
 		m.inputPrompt = ""
 		m.inputValue = ""
-		return m, func() tea.Msg {
-			return GitUsernameMsg(inputValue)
+		if gitUsernameCallback != nil {
+			gitUsernameCallback(inputValue)
 		}
+		m.setInputMode("git-email", "Git Email: ")
+		return m, nil
 	case "git-email":
 		// Send email back to main and clear input
 		inputValue := m.inputValue
 		m.inputMode = ""
 		m.inputPrompt = ""
 		m.inputValue = ""
-		return m, func() tea.Msg {
-			return GitEmailMsg(inputValue)
+		if gitEmailCallback != nil {
+			gitEmailCallback(inputValue)
 		}
+		return m, nil
 	}
 	return m, nil
 }
