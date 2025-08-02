@@ -168,6 +168,41 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
     - Comprehensive file type coverage: PNG→imv, MP4→mpv, PDF→Papers, HTTP→brave
     - Tested: Handler executes successfully and MIME associations are applied correctly
 
+15. **✅ editors.sh**: Converted to `development.editors` module with YAML command system
+    - **MAJOR ARCHITECTURAL BREAKTHROUGH**: Implemented YAML command system
+    - Neovim + LSP servers: lua, pyright, typescript, bash, gopls, tree-sitter-cli
+    - Commands field replaces hardcoded Go handlers: `sudo ln -sf /usr/bin/nvim /usr/bin/vi`
+    - Comprehensive error handling: command failure detection, detailed logging, error propagation
+    - **ACHIEVEMENT**: System configuration now in YAML, not hardcoded in Go code
+
+**🎯 YAML COMMAND SYSTEM ARCHITECTURE (MAJOR BREAKTHROUGH):**
+
+**✅ COMMANDS FIELD IMPLEMENTED:**
+
+- **YAML-defined commands**: No more hardcoded system commands in Go handlers
+- **Error handling**: Command failure detection with detailed logging
+- **Command tracking**: Individual command logging with success/failure status
+- **Module integration**: Commands execute after packages/configs, before handlers
+- **Pattern established**: `commands: ["sudo ln -sf /usr/bin/nvim /usr/bin/vi"]`
+
+**COMMAND EXTRACTION RULES:**
+
+1. **NEVER hardcode system commands in Go handlers**
+2. **ALWAYS use YAML commands field for shell operations**
+3. **EXTRACT existing hardcoded commands** to YAML systematically
+4. **TEST each extraction** to ensure error handling works
+5. **ELIMINATE simple handlers** that only run commands
+
+**NEXT PHASE: SYSTEMATIC COMMAND EXTRACTION**
+
+Extract all hardcoded commands from existing handlers:
+
+- Service enablement: `systemctl enable --now service`
+- Cache updates: `fc-cache -f`, `update-desktop-database`
+- System commands: `sysctl -p`, `xdg-mime`, `xdg-settings`
+- Package operations: yay installs, curl downloads
+- File operations: chmod, chown, mkdir
+
 **🎯 HANDLER SYSTEM ARCHITECTURE (CRITICAL - DO NOT REPEAT MISTAKES):**
 
 **✅ ABSTRACTED HANDLER SYSTEM IMPLEMENTED:**
@@ -184,6 +219,29 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 - **NEVER hardcode configuration content in Go handlers**
 - **ALWAYS use config files + YAML copying pattern**
 - **Keep system configurations separate from code**
+
+**SYSTEM ARCHITECTURE PATTERNS (STOP BEING STUPID):**
+
+**CONFIG COPYING FLOW:**
+
+1. **Repository**: `ArchRiot/config/system/file.conf` (development)
+2. **User Install**: `~/.local/share/archriot/config/system/file.conf` (archriot-installer copies here)
+3. **Config Copy**: `~/.config/system/file.conf` (YAML `configs:` copies here)
+4. **System Copy**: `/etc/system/file.conf` (commands copy here if needed)
+
+**YAML PATTERNS:**
+
+- `packages: []` - Install packages
+- `configs: [pattern: system/file.conf]` - Copy from ~/.local/share/archriot/config/ to ~/.config/
+- `commands: []` - Run shell commands AFTER packages and configs
+- `depends: []` - Module dependencies
+
+**NEVER FORGET:**
+
+- When developing: we're in `~/Code/ArchRiot/` (repository)
+- When users run installer: configs are in `~/.local/share/archriot/config/` (installed)
+- Config copying goes: `~/.local/share/archriot/config/` → `~/.config/`
+- Commands reference copied files in `~/.config/` or final system locations
 
 **HANDLER DESIGN RULES:**
 
@@ -249,10 +307,15 @@ Before adding any package:
 
 This would eliminate the need for custom handlers that just copy files to system locations.
 
-**🔄 IN PROGRESS: Shell Script Analysis**
+**🔄 IN PROGRESS: Command Extraction & Script Analysis**
 
-1. **🔄 NEXT: Simple script analysis** - Skip complex 01-config.sh, find simpler conversion targets
-2. **📋 REMAINING: 19 .sh files** in install/pending/ awaiting conversion
+1. **🔄 IMMEDIATE PRIORITY: Extract hardcoded commands from existing handlers**
+    - Move service enablement commands to YAML
+    - Extract cache update commands (fc-cache, update-desktop-database)
+    - Move system configuration commands (sysctl, xdg-mime, xdg-settings)
+    - Replace custom package installations with YAML commands
+
+2. **📋 REMAINING: 18 .sh files** in install/pending/ awaiting conversion
     - Need to categorize by complexity (simple package lists vs complex logic)
     - Identify patterns for YAML structure optimization
 
@@ -288,6 +351,10 @@ This would eliminate the need for custom handlers that just copy files to system
 - ✅ **CONFIG PATTERN ESTABLISHED**: Never hardcode system configuration in handlers - use config files
 - ✅ **PACKAGE DUPLICATION ELIMINATED**: Systematic cleanup preventing installation redundancy
 - ✅ **PACKAGE ORGANIZATION RULES**: Established logical categories and duplication detection process
+- ✅ **YAML COMMAND SYSTEM**: Major architectural breakthrough - system commands in YAML, not Go code
+- ✅ **COMMAND ERROR HANDLING**: Comprehensive failure detection, logging, and error propagation
+- ✅ **HANDLERS ELIMINATED**: Entire handlers.go package deleted - 100% YAML-driven commands
+- ✅ **CONFIG PATTERNS DOCUMENTED**: Explicit flow to prevent future confusion about paths
 - ✅ **GO LESSONS LEARNED**: Always initialize variables before passing to other packages
 - ✅ **CLEAN CODE ACHIEVED**: Removed all unused code, proper package separation
 - ✅ **SYSTEMATIC APPROACH**: One change at a time prevented breaking working systems

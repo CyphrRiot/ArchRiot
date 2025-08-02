@@ -13,9 +13,6 @@ import (
 // CopyConfigs copies configuration files with preservation logic
 func CopyConfigs(configs []config.ConfigRule) error {
 	if len(configs) == 0 {
-		if program != nil {
-			sendFormattedLog("📋", "📁", "Config Copy", "None to copy")
-		}
 		return nil
 	}
 
@@ -55,7 +52,17 @@ func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) 
 	pattern := configRule.Pattern
 	var sourcePath, destPath string
 
-	if strings.HasSuffix(pattern, "/*") {
+	if configRule.Target != "" {
+		// Custom target specified
+		sourcePath = filepath.Join(sourceDir, pattern)
+		if strings.HasSuffix(configRule.Target, "/") {
+			// Target is a directory, append filename
+			destPath = filepath.Join(configRule.Target, filepath.Base(pattern))
+		} else {
+			// Target is a full file path
+			destPath = configRule.Target
+		}
+	} else if strings.HasSuffix(pattern, "/*") {
 		// Directory pattern: "hypr/*" -> copy all files from hypr/ to ~/.config/hypr/
 		dirName := strings.TrimSuffix(pattern, "/*")
 		sourcePath = filepath.Join(sourceDir, dirName)

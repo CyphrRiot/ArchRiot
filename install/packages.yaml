@@ -1,20 +1,29 @@
 # ArchRiot YAML Package Configuration
 
 core:
+    sudo:
+        packages: []
+        configs: []
+        commands:
+            - "sudo -n true || (echo 'Setting up passwordless sudo...' && sudo usermod -aG wheel $USER)"
+            - "sudo grep -q '^%wheel.*NOPASSWD.*ALL' /etc/sudoers || echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers"
+            - "sudo -k && sudo -n true"
+        depends: []
+        description: "Setup passwordless sudo for installation"
+
     base:
         packages:
             - base-devel
             - git
             - rsync
             - bc
-            - reflector
             - go-yq
         configs:
             - pattern: fish/*
               preserve_if_exists: []
             - pattern: environment.d/*
               preserve_if_exists: []
-        handler: setup_base_system
+        depends: [core.sudo]
         description: "Base development tools and yay AUR helper"
 
     identity:
@@ -45,8 +54,9 @@ core:
         configs:
             - pattern: fish/*
               preserve_if_exists: []
+        commands:
+            - "sudo chsh -s /usr/bin/fish $USER"
         depends: [core.base]
-        handler: setup_fish_shell
         description: "Fish shell and terminal tools"
 
 desktop:
@@ -80,8 +90,6 @@ desktop:
         configs:
             - pattern: ghostty/*
               preserve_if_exists: []
-            - pattern: thunar/*
-              preserve_if_exists: []
         depends: [desktop.hyprland]
         description: "Essential desktop applications"
 
@@ -111,8 +119,11 @@ development:
             - zip
             - tmux
         configs: []
+        commands:
+            - "mkdir -p ~/.local/bin"
+            - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
+            - "chmod +x ~/.local/bin/migrate"
         depends: [core.base]
-        handler: install_migrate_tool
         description: "Development tools, compilers, and utilities"
 
     editors:
@@ -138,16 +149,18 @@ system:
             - ttf-cascadia-mono-nerd
             - ttf-ia-writer
         configs: []
+        commands:
+            - "fc-cache -f"
         depends: [core.base]
-        handler: refresh_font_cache
         description: "System fonts and programming fonts with cache refresh"
 
     bluetooth:
         packages:
             - blueberry
         configs: []
+        commands:
+            - "sudo systemctl enable --now bluetooth.service"
         depends: [core.base]
-        handler: enable_bluetooth_service
         description: "Bluetooth management with Blueberry GUI"
 
     printer:
@@ -157,8 +170,9 @@ system:
             - cups-filters
             - system-config-printer
         configs: []
+        commands:
+            - "sudo systemctl enable --now cups.service"
         depends: [core.base]
-        handler: enable_cups_service
         description: "Printing system with CUPS and configuration GUI"
 
     power:
@@ -166,8 +180,9 @@ system:
             - power-profiles-daemon
             - powertop
         configs: []
+        commands:
+            - "sudo systemctl enable --now power-profiles-daemon.service"
         depends: [core.base]
-        handler: setup_power_management
         description: "Power management with profiles daemon and monitoring"
 
     filesystems:
@@ -180,16 +195,18 @@ system:
             - dosfstools
             - exfatprogs
         configs: []
+        commands:
+            - "sudo systemctl enable --now udisks2.service"
         depends: [core.base]
-        handler: enable_udisks_service
         description: "Filesystem support for GUI mounting and network shares"
 
     networking:
         packages:
             - iwd
         configs: []
+        commands:
+            - "sudo systemctl enable --now iwd.service"
         depends: [core.base]
-        handler: setup_wireless_networking
         description: "Wireless networking with iwd"
 
     audio:
@@ -206,25 +223,59 @@ system:
             - pamixer
             - playerctl
         configs: []
+        commands:
+            - "pacman -Qs ^pulseaudio$ && sudo pacman -Rdd --noconfirm pulseaudio || true"
+            - "pacman -Qs ^jack2$ && sudo pacman -Rdd --noconfirm jack2 || true"
+            - "systemctl --user enable --now pipewire.service"
+            - "systemctl --user enable --now pipewire-pulse.service"
+            - "systemctl --user enable --now wireplumber.service"
         depends: [core.base]
-        handler: setup_audio_system
         description: "PipeWire audio system with conflict resolution and controls"
 
     memory:
         packages: []
-        configs:
-            - pattern: system/99-memory-optimization.conf
-              target: /etc/sysctl.d/99-memory-optimization.conf
-              preserve_if_exists: []
+        configs: []
+        commands:
+            - "sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf"
+            - "sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf"
         depends: [core.base]
-        handler: apply_memory_optimization
         description: "Memory optimization with sysctl configuration for better performance"
 
     mimetypes:
         packages: []
         configs: []
+        commands:
+            - "update-desktop-database ~/.local/share/applications"
+            - "xdg-mime default imv.desktop image/png"
+            - "xdg-mime default imv.desktop image/jpeg"
+            - "xdg-mime default imv.desktop image/gif"
+            - "xdg-mime default imv.desktop image/webp"
+            - "xdg-mime default imv.desktop image/bmp"
+            - "xdg-mime default imv.desktop image/tiff"
+            - "xdg-mime default org.gnome.Papers.desktop application/pdf"
+            - "xdg-settings set default-web-browser brave-browser.desktop"
+            - "xdg-mime default brave-browser.desktop x-scheme-handler/http"
+            - "xdg-mime default brave-browser.desktop x-scheme-handler/https"
+            - "xdg-mime default org.gnome.TextEditor.desktop text/plain"
+            - "xdg-mime default org.gnome.TextEditor.desktop text/markdown"
+            - "xdg-mime default org.gnome.TextEditor.desktop text/x-markdown"
+            - "xdg-mime default org.gnome.TextEditor.desktop application/x-markdown"
+            - "xdg-mime default mpv.desktop video/mp4"
+            - "xdg-mime default mpv.desktop video/x-msvideo"
+            - "xdg-mime default mpv.desktop video/x-matroska"
+            - "xdg-mime default mpv.desktop video/x-flv"
+            - "xdg-mime default mpv.desktop video/x-ms-wmv"
+            - "xdg-mime default mpv.desktop video/mpeg"
+            - "xdg-mime default mpv.desktop video/ogg"
+            - "xdg-mime default mpv.desktop video/webm"
+            - "xdg-mime default mpv.desktop video/quicktime"
+            - "xdg-mime default mpv.desktop video/3gpp"
+            - "xdg-mime default mpv.desktop video/3gpp2"
+            - "xdg-mime default mpv.desktop video/x-ms-asf"
+            - "xdg-mime default mpv.desktop video/x-ogm+ogg"
+            - "xdg-mime default mpv.desktop video/x-theora+ogg"
+            - "xdg-mime default mpv.desktop application/ogg"
         depends: [core.base]
-        handler: configure_mime_types
         description: "Default application associations for file types"
 
 media:
@@ -236,9 +287,8 @@ media:
             - yt-dlp
             - python-opencv
             - spotdl
-        configs:
-            - pattern: mpv/*
-              preserve_if_exists: []
+        configs: []
+        commands:
+            - "yay -S --noconfirm --needed --mflags --nocheck spotdl"
         depends: [desktop.hyprland]
-        handler: setup_media_tools
         description: "Media players, downloaders, and webcam support"

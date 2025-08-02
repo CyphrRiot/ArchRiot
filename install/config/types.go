@@ -22,6 +22,7 @@ type Module struct {
 // ConfigRule represents a configuration copying rule
 type ConfigRule struct {
 	Pattern          string   `yaml:"pattern"`
+	Target           string   `yaml:"target,omitempty"`
 	PreserveIfExists []string `yaml:"preserve_if_exists,omitempty"`
 }
 

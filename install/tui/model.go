@@ -43,6 +43,7 @@ type InstallModel struct {
 	showConfirm    bool   // show YES/NO confirmation
 	confirmPrompt  string // confirmation prompt text
 	cursor         int    // 0 = YES, 1 = NO
+	scrollOffset   int    // scroll position in logs
 }
 
 // NewInstallModel creates a new installation model
@@ -60,6 +61,7 @@ func NewInstallModel() *InstallModel {
 		showConfirm:   false,
 		confirmPrompt: "",
 		cursor:        1, // Default to NO
+		scrollOffset:   0,
 	}
 }
 
@@ -114,8 +116,32 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+		// Handle scrolling in all modes (including reboot)
+		switch msg.String() {
+		case "up", "k":
+			if m.scrollOffset > 0 {
+				m.scrollOffset--
+			}
+			return m, nil
+		case "down", "j":
+			maxScroll := len(m.logs) - m.getMaxDisplayedLogs()
+			if maxScroll < 0 {
+				maxScroll = 0
+			}
+			if m.scrollOffset < maxScroll {
+				m.scrollOffset++
+			}
+			return m, nil
+		}
+
 	case LogMsg:
 		m.addLog(string(msg))
+		// Auto-scroll to bottom when new log added
+		maxScroll := len(m.logs) - m.getMaxDisplayedLogs()
+		if maxScroll < 0 {
+			maxScroll = 0
+		}
+		m.scrollOffset = maxScroll
 		return m, nil
 
 	case ProgressMsg:
@@ -214,7 +240,7 @@ func (m *InstallModel) View() string {
 	} else if m.inputMode != "" {
 		s.WriteString("\n\n" + m.inputPrompt + m.inputValue + "_")
 	} else {
-		s.WriteString("\n\nPress 'q' to quit or 'ctrl+c' to exit")
+		s.WriteString("\n\nPress ↑↓ to scroll, 'q' to quit or 'ctrl+c' to exit")
 	}
 
 	return s.String()
@@ -295,15 +321,18 @@ func (m *InstallModel) renderScrollWindow() string {
 		maxLogLines = 1
 	}
 
-	// Show recent logs - limit to calculated space
-	start := 0
-	if len(m.logs) > maxLogLines {
-		start = len(m.logs) - maxLogLines
+	// Show logs with scroll offset
+	start := m.scrollOffset
+	if start > len(m.logs) {
+		start = len(m.logs)
 	}
 
 	actualLogCount := len(m.logs) - start
 	if actualLogCount > maxLogLines {
 		actualLogCount = maxLogLines
+	}
+	if actualLogCount < 0 {
+		actualLogCount = 0
 	}
 
 	for i := start; i < start + actualLogCount; i++ {
@@ -323,12 +352,39 @@ func (m *InstallModel) renderScrollWindow() string {
 		content.WriteString("\n")
 	}
 
+	// Add scroll indicator if there are more logs
+	if len(m.logs) > maxLogLines {
+		totalLogs := len(m.logs)
+		scrollPos := start + 1
+		scrollEnd := start + actualLogCount
+		if scrollEnd > totalLogs {
+			scrollEnd = totalLogs
+		}
+		scrollInfo := fmt.Sprintf(" [%d-%d/%d] ↑↓ to scroll ", scrollPos, scrollEnd, totalLogs)
+		content.WriteString(lipgloss.NewStyle().Foreground(dimColor).Render(scrollInfo))
+	}
+
+
 	return boxStyle.Render(content.String())
 }
 
 // addLog adds a new log entry
 func (m *InstallModel) addLog(message string) {
 	m.logs = append(m.logs, message)
+}
+
+// getMaxDisplayedLogs calculates how many logs can be displayed
+func (m *InstallModel) getMaxDisplayedLogs() int {
+	usedHeight := 20
+	availableHeight := m.height - usedHeight
+	if availableHeight < 5 {
+		availableHeight = 5
+	}
+	maxLogLines := availableHeight - 2 // Account for header and separator
+	if maxLogLines < 1 {
+		maxLogLines = 1
+	}
+	return maxLogLines
 }
 
 // setProgress updates the progress value
