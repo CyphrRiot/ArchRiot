@@ -22,8 +22,8 @@ var (
 
 // ASCII Art
 const ArchRiotASCII = `
-   ▄▀█ █▀█ █▀▀ █ █ █▀█ █ █▀█ ▀█▀
-   █▀█ █▀▄ █▄▄ █▀█ █▀▄ █ █▄█  █
+  ▄▀█ █▀█ █▀▀ █ █ █▀█ █ █▀█ ▀█▀
+  █▀█ █▀▄ █▄▄ █▀█ █▀▄ █ █▄█  █
 `
 
 // InstallModel represents the TUI model
