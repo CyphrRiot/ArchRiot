@@ -1,0 +1,102 @@
+# ArchRiot YAML Package Configuration
+
+core:
+    base:
+        packages:
+            - base-devel
+            - git
+            - rsync
+            - bc
+            - reflector
+            - go-yq
+        configs:
+            - pattern: fish/*
+              preserve_if_exists: []
+            - pattern: environment.d/*
+              preserve_if_exists: []
+        handler: setup_base_system
+        description: "Base development tools and yay AUR helper"
+
+    identity:
+        packages:
+            - gum
+        configs:
+            - pattern: archriot/user.env
+              preserve_if_exists: []
+        depends: [core.base]
+        description: "User identity and Git configuration"
+
+    shell:
+        packages:
+            - fish
+            - starship
+        configs:
+            - pattern: fish/*
+              preserve_if_exists: []
+        depends: [core.base]
+        description: "Fish shell and Starship prompt"
+
+desktop:
+    hyprland:
+        packages:
+            - hyprland
+            - waybar
+            - fuzzel
+            - mako
+            - hyprlock
+            - hypridle
+            - swaybg
+        configs:
+            - pattern: hypr/*
+              preserve_if_exists: []
+            - pattern: waybar/*
+              preserve_if_exists: []
+            - pattern: fuzzel/*
+              preserve_if_exists: []
+            - pattern: mako/*
+              preserve_if_exists: []
+        depends: [core.base]
+        description: "Hyprland desktop environment"
+
+    apps:
+        packages:
+            - ghostty
+            - thunar
+            - brave-bin
+            - signal-desktop
+        configs:
+            - pattern: ghostty/*
+              preserve_if_exists: []
+            - pattern: thunar/*
+              preserve_if_exists: []
+        depends: [desktop.hyprland]
+        description: "Essential desktop applications"
+
+development:
+    tools:
+        packages:
+            - zed
+            - btop
+            - fastfetch
+            - tree
+            - wget
+            - curl
+        configs:
+            - pattern: zed/*
+              preserve_if_exists: [settings.json]
+            - pattern: btop/*
+              preserve_if_exists: []
+        depends: [core.base]
+        description: "Development tools and utilities"
+
+media:
+    players:
+        packages:
+            - mpv
+            - lollypop
+            - pavucontrol
+        configs:
+            - pattern: mpv/*
+              preserve_if_exists: []
+        depends: [desktop.hyprland]
+        description: "Media players and audio control"

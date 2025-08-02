@@ -10,10 +10,11 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+
 	"gopkg.in/yaml.v3"
 
 	"archriot-installer/logger"
+	"archriot-installer/tui"
 )
 
 // Config represents the YAML structure
@@ -69,479 +70,21 @@ var (
 	gitCredentialsChan = make(chan struct{})
 )
 
-// Tokyo Night inspired Cypher Riot theme
-var (
-	primaryColor = lipgloss.Color("#7aa2f7") // Tokyo Night blue
-	accentColor  = lipgloss.Color("#bb9af7") // Tokyo Night purple
-	successColor = lipgloss.Color("#9ece6a") // Tokyo Night green
-	warningColor = lipgloss.Color("#e0af68") // Tokyo Night yellow
-	errorColor   = lipgloss.Color("#f7768e") // Tokyo Night red
-	bgColor      = lipgloss.Color("#1a1b26") // Tokyo Night background
-	fgColor      = lipgloss.Color("#c0caf5") // Tokyo Night foreground
-	dimColor     = lipgloss.Color("#565f89") // Tokyo Night comment/dim - secondary text
-)
-
-// ASCII art for ArchRiot installer
-const ArchRiotASCII = ` █████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗ ██████╗ ████████╗
-██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██║██╔═══██╗╚══██╔══╝
-███████║██████╔╝██║     ███████║██████╔╝██║██║   ██║   ██║
-██╔══██║██╔══██╗██║     ██╔══██║██╔══██╗██║██║   ██║   ██║
-██║  ██║██║  ██║╚██████╗██║  ██║██║  ██║██║╚██████╔╝   ██║
-╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═╝`
-
-// TUI Model for installation progress
-type InstallModel struct {
-	progress    float64
-	message     string
-	logs        []string
-	maxLogs     int
-	width       int
-	height      int
-	done        bool
-	operation   string
-	currentStep string
-	inputMode   string // "git-username", "git-email", "reboot", ""
-	inputValue  string // current typed input
-	inputPrompt string // what we're asking for
-	showConfirm    bool   // show YES/NO confirmation
-	confirmPrompt  string // confirmation prompt text
-	cursor         int    // 0 = YES, 1 = NO
-}
-
-// NewInstallModel creates a new installation model
-func NewInstallModel() *InstallModel {
-	return &InstallModel{
-		logs:        make([]string, 0),
-		maxLogs:     12,
-		width:       80,
-		height:      24,
-		operation:   "ArchRiot Installation",
-		currentStep: "Initializing...",
-		inputMode:   "",
-		inputValue:  "",
-		inputPrompt: "",
-		showConfirm:   false,
-		confirmPrompt: "",
-		cursor:        1, // Default to NO
-	}
-}
-
-// Init implements tea.Model
-func (m *InstallModel) Init() tea.Cmd {
-	return nil
-}
-
-// Update implements tea.Model
-func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-		return m, nil
-	case tea.KeyMsg:
-		if m.showConfirm {
-			// Handle confirmation selection
-			switch msg.Type {
-			case tea.KeyLeft, tea.KeyUp:
-				m.cursor = 0 // YES
-				return m, nil
-			case tea.KeyRight, tea.KeyDown:
-				m.cursor = 1 // NO
-				return m, nil
-			case tea.KeyEnter:
-				return m.handleConfirmSelection()
-			case tea.KeyEsc, tea.KeyCtrlC:
-				return m, tea.Quit
-			}
-			return m, nil
-		}
 
 
 
-		if m.inputMode != "" {
-			// Handle input mode
-			switch msg.Type {
-			case tea.KeyEnter:
-				logger.LogMessage("DEBUG", fmt.Sprintf("ENTER pressed with input: '%s'", m.inputValue))
-				return m.handleInputSubmit()
-			case tea.KeyBackspace:
-				if len(m.inputValue) > 0 {
-					m.inputValue = m.inputValue[:len(m.inputValue)-1]
-				}
-				return m, nil
-			case tea.KeyRunes:
-				m.inputValue += string(msg.Runes)
-				// Test: write ANY keypress to log to see if input is working
-				logger.LogMessage("DEBUG", fmt.Sprintf("Key received: '%s', input now: '%s'", string(msg.Runes), m.inputValue))
-				return m, nil
-			case tea.KeyEsc, tea.KeyCtrlC:
-				return m, tea.Quit
-			}
-			return m, nil
-		}
 
-		if msg.String() == "q" || msg.String() == "ctrl+c" {
-			return m, tea.Quit
-		}
-		// If installation is complete and no input mode, any key press exits
-		if m.done && m.inputMode == "" {
-			return m, tea.Quit
-		}
-	case LogMsg:
-		m.addLog(string(msg))
-		return m, nil
-	case ProgressMsg:
-		m.setProgress(float64(msg))
-		return m, nil
-	case StepMsg:
-		m.setCurrentStep(string(msg))
-		return m, nil
-	case DoneMsg:
-		m.done = true
-		m.showConfirm = true
-		m.confirmPrompt = "🔄 Reboot now?"
-		m.cursor = 1 // Default to NO for reboot
-		m.addLog("")
-		m.addLog("✅ 🎉 Installation     Complete!")
-		m.addLog("")
-		return m, nil
-	case InputRequestMsg:
-		m.setInputMode(msg.Mode, msg.Prompt)
-		return m, nil
-	case GitUsernameMsg:
-		gitUsername = string(msg)
-		return m, nil
-	case GitEmailMsg:
-		gitEmail = string(msg)
-		close(gitCredentialsChan)
-		return m, nil
-	case RebootMsg:
-		// Reboot decision received, handled by installation process
-		return m, nil
-	}
-	return m, nil
-}
 
-// View implements tea.Model - exact structure from Migrate
-func (m *InstallModel) View() string {
-	var s strings.Builder
-
-	// Header - ASCII + title + version (like Migrate) with spacing
-	s.WriteString("\n\n") // Blank lines before ASCII logo
-	asciiStyle := lipgloss.NewStyle().Foreground(accentColor).Bold(true)
-	ascii := asciiStyle.Render(ArchRiotASCII)
-	s.WriteString(ascii + "\n")
-
-	titleStyle := lipgloss.NewStyle().Foreground(primaryColor).Bold(true)
-	title := titleStyle.Render(fmt.Sprintf("ArchRiot Installer v%s", VERSION))
-	s.WriteString(title + "\n")
-
-	versionStyle := lipgloss.NewStyle().Foreground(dimColor)
-	subtitle := versionStyle.Render("Tokyo Night Inspired • Cypher Riot Themed")
-	s.WriteString(subtitle + "\n\n")
-
-	// Operation title
-	operationStyle := lipgloss.NewStyle().Foreground(successColor).Bold(true)
-	s.WriteString(operationStyle.Render("📦 "+m.operation) + "\n")
-
-	// Info section - operation details
-	infoStyle := lipgloss.NewStyle().Foreground(fgColor)
-	logStyle := lipgloss.NewStyle().Foreground(dimColor)
-
-	s.WriteString(infoStyle.Render("📋 Current Step:   "+m.currentStep) + "\n")
-	s.WriteString(logStyle.Render("📝 Log File:       "+logger.GetLogPath()) + "\n")
-
-	// Progress bar
-	s.WriteString(m.renderProgressBar() + "\n\n")
-
-	// Scroll window - bordered content area
-	s.WriteString(m.renderScrollWindow())
-
-	// Confirmation below scroll window if shown
-	if m.showConfirm {
-		promptStyle := lipgloss.NewStyle().
-			Foreground(fgColor).
-			Bold(true)
-
-		helpStyle := lipgloss.NewStyle().
-			Foreground(dimColor).
-			Italic(true)
-
-		buttonRow := renderConfirmButtons(m.cursor)
-
-		s.WriteString(fmt.Sprintf("\n\n%s  %s  %s",
-			promptStyle.Render(m.confirmPrompt),
-			buttonRow,
-			helpStyle.Render("(← → to select, Enter to confirm)")))
-	} else if m.inputMode != "" {
-		s.WriteString("\n\n" + m.inputPrompt + m.inputValue + "_")
-	} else {
-		s.WriteString("\n\nPress 'q' to quit or 'ctrl+c' to exit")
-	}
-
-	return s.String()
-}
-
-// renderConfirmButtons creates styled YES/NO confirmation buttons
-func renderConfirmButtons(cursor int) string {
-	// Simple highlighted buttons
-	selectedStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#1a1b26")).
-		Background(primaryColor).
-		Padding(0, 1)
-
-	unselectedStyle := lipgloss.NewStyle().
-		Foreground(fgColor).
-		Padding(0, 1)
-
-	var yesButton, noButton string
-
-	if cursor == 0 {
-		yesButton = selectedStyle.Render("✓ YES")
-		noButton = unselectedStyle.Render("✗ NO")
-	} else {
-		yesButton = unselectedStyle.Render("✓ YES")
-		noButton = selectedStyle.Render("✗ NO")
-	}
-
-	// Create button row with proper spacing
-	return lipgloss.JoinHorizontal(lipgloss.Center, yesButton, "   ", noButton)
-}
-
-// renderProgressBar creates a progress bar with percentage
-func (m *InstallModel) renderProgressBar() string {
-	progressStyle := lipgloss.NewStyle().Foreground(primaryColor).Bold(true)
-
-	width := 50
-	filled := int(m.progress * float64(width))
-	bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
-	percentage := fmt.Sprintf("%.1f%%", m.progress*100)
-
-	return progressStyle.Render(fmt.Sprintf("Progress: [%s] %s", bar, percentage))
-}
-
-// renderScrollWindow creates the bordered scroll window
-func (m *InstallModel) renderScrollWindow() string {
-	// Calculate responsive dimensions based on terminal size
-	contentWidth := m.width - 4 // Account for borders and padding
-	if contentWidth < 40 {
-		contentWidth = 40 // Minimum width
-	}
-
-	// Calculate available height for scroll window
-	// Account for: ASCII (7) + Title/subtitle (4) + Operation (2) + Progress (2) + Footer (3) + Buffer (2)
-	usedHeight := 20
-	availableHeight := m.height - usedHeight
-	if availableHeight < 5 {
-		availableHeight = 5 // Minimum scroll window height
-	}
-
-	boxStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(primaryColor).
-		Padding(0, 1).
-		Width(contentWidth).
-		Height(availableHeight)
-
-	content := strings.Builder{}
-	content.WriteString("Installation Log\n")
-	separatorWidth := contentWidth - 2 // Account for padding
-	if separatorWidth < 10 {
-		separatorWidth = 10
-	}
-	content.WriteString(strings.Repeat("─", separatorWidth) + "\n")
-
-	// Calculate how many log lines we can display
-	maxLogLines := availableHeight - 2 // Account for header and separator
-	if maxLogLines < 1 {
-		maxLogLines = 1
-	}
-
-	// Show recent logs - limit to calculated space
-	start := 0
-	if len(m.logs) > maxLogLines {
-		start = len(m.logs) - maxLogLines
-	}
-
-	actualLogCount := len(m.logs) - start
-	if actualLogCount > maxLogLines {
-		actualLogCount = maxLogLines
-	}
-
-	for i := start; i < start + actualLogCount; i++ {
-		line := m.logs[i]
-		maxLineWidth := contentWidth - 4 // Account for padding
-		if maxLineWidth < 10 {
-			maxLineWidth = 10
-		}
-		if len(line) > maxLineWidth {
-			line = line[:maxLineWidth-3] + "..."
-		}
-		content.WriteString(line + "\n")
-	}
-
-	// Buttons are now rendered outside scroll window
-
-	// Fill remaining lines in log area only
-	for i := actualLogCount; i < maxLogLines; i++ {
-		content.WriteString("\n")
-	}
-
-	return boxStyle.Render(content.String())
-}
-
-// renderComplete - REMOVED, completion shows at bottom of normal view
-
-// addLog adds a new log entry
-func (m *InstallModel) addLog(message string) {
-	m.logs = append(m.logs, message)
-}
-
-// setProgress updates the progress value
-func (m *InstallModel) setProgress(progress float64) {
-	m.progress = progress
-}
-
-// setCurrentStep updates the current step
-func (m *InstallModel) setCurrentStep(step string) {
-	m.currentStep = step
-}
-
-// setInputMode sets the input mode and prompt
-func (m *InstallModel) setInputMode(mode, prompt string) {
-	if mode == "git-confirm" {
-		m.showConfirm = true
-		m.confirmPrompt = "🔧 Use these credentials?"
-		m.cursor = 0 // Default to YES
-	} else {
-		m.inputMode = mode
-		m.inputPrompt = prompt
-		m.inputValue = ""
-	}
-}
-
-// handleConfirmSelection processes YES/NO confirmation selection
-func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
-	if m.confirmPrompt == "🔄 Reboot now?" {
-		// Reboot confirmation
-		return m, tea.Quit
-	} else if m.confirmPrompt == "🔧 Use these credentials?" {
-		// Git credentials confirmation
-		gitConfirmUse = m.cursor == 0 // YES = 0
-		close(gitCredentialsChan)
-		m.showConfirm = false
-		m.confirmPrompt = ""
-		return m, nil
-	}
-	return m, nil
-}
-
-// handleInputSubmit processes submitted input
-func (m *InstallModel) handleInputSubmit() (tea.Model, tea.Cmd) {
-	switch m.inputMode {
-	case "git-username":
-		// Store git username and ask for email
-		program.Send(GitUsernameMsg(m.inputValue))
-		m.setInputMode("git-email", "Git Email: ")
-		return m, nil
-	case "git-email":
-		// Store git email and continue
-		program.Send(GitEmailMsg(m.inputValue))
-		m.inputMode = ""
-		m.inputPrompt = ""
-		m.inputValue = ""
-		return m, nil
-	case "reboot":
-		value := strings.ToLower(strings.TrimSpace(m.inputValue))
-
-		if value == "y" || value == "yes" {
-			program.Send(RebootMsg(true))
-		} else {
-			program.Send(RebootMsg(false))
-		}
-		// Force exit with os.Exit instead of tea.Quit
-		os.Exit(0)
-	}
-	return m, nil
-}
-
-// LogMsg represents a log message
-type LogMsg string
-
-// ProgressMsg represents progress update
-type ProgressMsg float64
-
-// StepMsg represents a step update
-type StepMsg string
-
-// DoneMsg indicates completion
-type DoneMsg struct{}
-
-// GitUsernameMsg carries git username input
-type GitUsernameMsg string
-
-// GitEmailMsg carries git email input
-type GitEmailMsg string
-
-// RebootMsg carries reboot decision
-type RebootMsg bool
-
-// InputRequestMsg requests user input
-type InputRequestMsg struct {
-	Mode   string
-	Prompt string
-}
 
 // Global model instance
-var model *InstallModel
+var model *tui.InstallModel
 
-// Styled components
-var (
-	titleStyle = lipgloss.NewStyle().
-			Foreground(primaryColor).
-			Bold(true).
-			Padding(0, 1)
-
-	successStyle = lipgloss.NewStyle().
-			Foreground(successColor).
-			Bold(true)
-
-	errorStyle = lipgloss.NewStyle().
-			Foreground(errorColor).
-			Bold(true)
-
-	warningStyle = lipgloss.NewStyle().
-			Foreground(warningColor).
-			Bold(true)
-
-	boxStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(primaryColor).
-			Padding(1, 2).
-			Margin(1, 0)
-
-	welcomeStyle = lipgloss.NewStyle().
-			Border(lipgloss.DoubleBorder()).
-			BorderForeground(accentColor).
-			Padding(1, 3).
-			Margin(1, 0).
-			Width(60).
-			Align(lipgloss.Center)
-
-	infoStyle = lipgloss.NewStyle().
-			Foreground(fgColor).
-			Padding(0, 1)
-
-	progressStyle = lipgloss.NewStyle().
-			Foreground(primaryColor).
-			Bold(true)
-
-	asciiStyle = lipgloss.NewStyle().
-			Foreground(accentColor).
-			Bold(true).
-			Align(lipgloss.Center)
-)
+// sendFormattedLog sends a properly formatted log message to TUI
+func sendFormattedLog(status, emoji, name, description string) {
+	if program != nil {
+		program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
+	}
+}
 
 // PackageResult represents the result of a package installation
 type PackageResult struct {
@@ -563,8 +106,12 @@ func main() {
 	}
 	defer logger.CloseLogging()
 
+	// Set up TUI helper functions
+	tui.SetVersionGetter(func() string { return VERSION })
+	tui.SetLogPathGetter(func() string { return logger.GetLogPath() })
+
 	// Initialize TUI model
-	model = NewInstallModel()
+	model = tui.NewInstallModel()
 	program = tea.NewProgram(model)
 
 	// Start installation in background
@@ -576,7 +123,7 @@ func main() {
 		runInstallation()
 
 		// Signal completion
-		program.Send(DoneMsg{})
+		program.Send(tui.DoneMsg{})
 	}()
 
 	// Run TUI in main thread
@@ -588,17 +135,17 @@ func main() {
 func runInstallation() {
 	// Send log messages to TUI
 	sendLog := func(msg string) {
-		program.Send(LogMsg(msg))
+		program.Send(tui.LogMsg(msg))
 	}
 
 	// Send progress updates to TUI
 	sendProgress := func(progress float64) {
-		program.Send(ProgressMsg(progress))
+		program.Send(tui.ProgressMsg(progress))
 	}
 
 	// Send step updates to TUI
 	sendStep := func(step string) {
-		program.Send(StepMsg(step))
+		program.Send(tui.StepMsg(step))
 	}
 
 	sendStep("Preparing system...")
@@ -683,7 +230,7 @@ func loadConfig(path string) (*Config, error) {
 func installPackages(packages []string) error {
 	if len(packages) == 0 {
 		if program != nil {
-			program.Send(LogMsg("ℹ️  📋 Packages        None to install"))
+			sendFormattedLog("📋", "📦", "Packages", "None to install")
 		}
 		return nil
 	}
@@ -758,7 +305,7 @@ func installPackageBatch(packages []string) error {
 			if len(outputStr) > 200 {
 				outputStr = outputStr[:200] + "... (truncated)"
 			}
-			program.Send(LogMsg(fmt.Sprintf("❌ 📦 %-15s Failed: %s", "Package Error", outputStr)))
+			sendFormattedLog("❌", "📦", "Package Error", "Failed: "+outputStr)
 		}
 		return fmt.Errorf("batch installation failed: %w", err)
 	}
@@ -770,7 +317,7 @@ func installPackageBatch(packages []string) error {
 func syncPackageDatabases() error {
 	logger.LogMessage("INFO", "🔄 Syncing package databases...")
 	if program != nil {
-		program.Send(LogMsg("🔄 🗄️  Database Sync   Syncing databases"))
+		sendFormattedLog("🔄", "📦", "Database Sync", "Syncing databases")
 	}
 
 	start := time.Now()
@@ -816,7 +363,7 @@ func syncPackageDatabases() error {
 		}
 		logger.LogMessage("WARNING", fmt.Sprintf("Failed to sync yay database: %s", outputStr))
 		if program != nil {
-			program.Send(LogMsg("⚠️ 🗄️ Database Sync   Yay sync failed, continuing"))
+			sendFormattedLog("⚠️", "📦", "Database Sync", "Yay sync failed, continuing")
 		}
 	} else {
 		logger.LogMessage("SUCCESS", "Yay database synced")
@@ -889,7 +436,7 @@ func readVersion() error {
 func copyConfigs(configs []ConfigRule) error {
 	if len(configs) == 0 {
 		if program != nil {
-			program.Send(LogMsg("ℹ️  📁 Config Copy      None to copy"))
+			sendFormattedLog("📋", "📁", "Config Copy", "None to copy")
 		}
 		return nil
 	}
@@ -904,7 +451,7 @@ func copyConfigs(configs []ConfigRule) error {
 
 	// logMessage("INFO", fmt.Sprintf("Copying configs from: %s", configSourceDir))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("🔄 📁 %-15s From: %s", "Config Copy", configSourceDir)))
+		sendFormattedLog("🔄", "📁", "Config Copy", "From: "+configSourceDir)
 	}
 
 	for _, configRule := range configs {
@@ -913,11 +460,11 @@ func copyConfigs(configs []ConfigRule) error {
 		if err := copyConfigPattern(configSourceDir, homeDir, configRule); err != nil {
 			// logMessage("WARNING", fmt.Sprintf("Failed to copy config %s: %v", configRule.Pattern, err))
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("❌ 📄 %-15s Failed: %v", configRule.Pattern, err)))
+				sendFormattedLog("❌", "📄", configRule.Pattern, "Failed: "+err.Error())
 			}
 		} else {
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("✅ 📄 %-15s Copied successfully", configRule.Pattern)))
+				sendFormattedLog("✅", "📄", configRule.Pattern, "Copied successfully")
 			}
 		}
 	}
@@ -1033,7 +580,7 @@ func copyFile(source, dest string, preserveFiles []string) error {
 func executeModulesInOrder(config *Config) error {
 	logger.LogMessage("INFO", "Starting module execution in priority order")
 	if program != nil {
-		program.Send(LogMsg("🔄 🚀 Module Exec      Starting modules"))
+		sendFormattedLog("🔄", "🚀", "Module Exec", "Starting modules")
 	}
 
 	// Core modules (priority 10)
@@ -1065,7 +612,7 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 	if len(modules) == 0 {
 		logger.LogMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("ℹ️ ⏭️ %-15s No modules", strings.Title(category))))
+			sendFormattedLog("📋", "📦", strings.Title(category), "No modules")
 		}
 		return nil
 	}
@@ -1073,14 +620,14 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 	priority := ModuleOrder[category]
 	logger.LogMessage("INFO", fmt.Sprintf("Executing %s modules (priority %d)", category, priority))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("🔄 🔧 %-15s Starting %s modules", strings.Title(category), category)))
+		sendFormattedLog("🔄", "📦", strings.Title(category), "Starting "+category+" modules")
 	}
 
 	for name, module := range modules {
 		fullName := fmt.Sprintf("%s.%s", category, name)
 		logger.LogMessage("INFO", fmt.Sprintf("Starting module: %s - %s", fullName, module.Description))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("🔄 📦 %-15s %s", fullName, module.Description)))
+			sendFormattedLog("🔄", "📦", fullName, module.Description)
 		}
 
 		// Install packages
@@ -1094,7 +641,7 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 			if err := handleGitConfiguration(); err != nil {
 				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration had issues: %v", err))
 				if program != nil {
-					program.Send(LogMsg(fmt.Sprintf("⚠️ 🔧 %-15s Issues: %v", "Git Setup", err)))
+					sendFormattedLog("⚠️", "📦", "Git Setup", "Issues: "+err.Error())
 				}
 			}
 		}
@@ -1103,19 +650,19 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 		if err := copyConfigs(module.Configs); err != nil {
 			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
 			if program != nil {
-				program.Send(LogMsg(fmt.Sprintf("⚠️ 📁 %-15s Config issues: %v", fullName, err)))
+				sendFormattedLog("⚠️", "📁", fullName, "Config issues: "+err.Error())
 			}
 		}
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("✅ ✓ %-15s Complete", fullName)))
+			sendFormattedLog("✅", "🎯", fullName, "Complete")
 		}
 	}
 
 	logger.LogMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
 	if program != nil {
-		program.Send(LogMsg(fmt.Sprintf("✅ 🎉 %-15s All done", strings.Title(category))))
+		sendFormattedLog("✅", "🎉", strings.Title(category), "All done")
 	}
 	return nil
 }
@@ -1126,7 +673,7 @@ func handleGitConfiguration() error {
 	logger.LogMessage("INFO", "🔧 Applying Git configuration...")
 
 	if program != nil {
-		program.Send(LogMsg("🔄 🔧 Git Setup        Checking credentials"))
+		sendFormattedLog("🔄", "📦", "Git Setup", "Checking credentials")
 	}
 
 	homeDir, err := os.UserHomeDir()
@@ -1146,10 +693,10 @@ func handleGitConfiguration() error {
 		gitCredentialsChan = make(chan struct{})
 
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("🎉 💬 %-15s Found existing git credentials", "Git Found")))
-			program.Send(LogMsg(fmt.Sprintf("📋 👤 %-15s %s", "Name", existingName)))
-			program.Send(LogMsg(fmt.Sprintf("📋 📧 %-15s %s", "Email", existingEmail)))
-			program.Send(InputRequestMsg{Mode: "git-confirm", Prompt: ""})
+			sendFormattedLog("🎉", "📦", "Git Found", "Found existing git credentials")
+			sendFormattedLog("📋", "📦", "Name", existingName)
+			sendFormattedLog("📋", "📦", "Email", existingEmail)
+			program.Send(tui.InputRequestMsg{Mode: "git-confirm", Prompt: ""})
 		}
 
 		// Wait for confirmation
@@ -1159,15 +706,15 @@ func handleGitConfiguration() error {
 			userName = existingName
 			userEmail = existingEmail
 			if program != nil {
-				program.Send(LogMsg("✅ 🔧 Git Setup        Using existing credentials"))
+				sendFormattedLog("✅", "📦", "Git Setup", "Using existing credentials")
 			}
 		} else {
 			// User said no, prompt for new credentials
 			gitCredentialsChan = make(chan struct{})
 
 			if program != nil {
-				program.Send(LogMsg("💬 🔧 Git Setup        Setting up new credentials"))
-				program.Send(InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
+				sendFormattedLog("💬", "📦", "Git Setup", "Setting up new credentials")
+				program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 			}
 
 			// Wait for new credentials
@@ -1181,8 +728,8 @@ func handleGitConfiguration() error {
 		gitCredentialsChan = make(chan struct{})
 
 		if program != nil {
-			program.Send(LogMsg("💬 🔧 Git Setup        No credentials found, setting up"))
-			program.Send(InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
+			sendFormattedLog("💬", "📦", "Git Setup", "No credentials found, setting up")
+			program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 		}
 
 		// Wait for credentials to be entered
@@ -1203,7 +750,7 @@ func handleGitConfiguration() error {
 			return fmt.Errorf("setting git user.name: %w", err)
 		}
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("✅ 👤 %-15s User name set to: %s", "Git Identity", userName)))
+			sendFormattedLog("✅", "📦", "Git Identity", "User name set to: "+userName)
 		}
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.name set to: %s", userName))
 	}
@@ -1213,7 +760,7 @@ func handleGitConfiguration() error {
 			return fmt.Errorf("setting git user.email: %w", err)
 		}
 		if program != nil {
-			program.Send(LogMsg(fmt.Sprintf("✅ 📧 %-15s User email set to: %s", "Git Identity", userEmail)))
+			sendFormattedLog("✅", "📦", "Git Identity", "User email set to: "+userEmail)
 		}
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.email set to: %s", userEmail))
 	}
@@ -1229,7 +776,7 @@ func handleGitConfiguration() error {
 	}
 
 	if program != nil {
-		program.Send(LogMsg("🔄 ⚙️  Git Aliases      Setting aliases"))
+		sendFormattedLog("🔄", "📦", "Git Aliases", "Setting aliases")
 	}
 
 	for key, value := range gitConfigs {
@@ -1239,7 +786,7 @@ func handleGitConfiguration() error {
 	}
 
 	if program != nil {
-		program.Send(LogMsg("✅ 🔧 Git Setup        Complete"))
+		sendFormattedLog("✅", "📦", "Git Setup", "Complete")
 	}
 	logger.LogMessage("SUCCESS", "Git configuration applied")
 
