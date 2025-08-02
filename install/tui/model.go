@@ -169,7 +169,7 @@ func (m *InstallModel) View() string {
 
 
 	// Header - ASCII + title + version (like Migrate) with spacing
-	s.WriteString("\n\n") // Blank lines before ASCII logo
+	s.WriteString("\n") // Blank line before ASCII logo
 	asciiStyle := lipgloss.NewStyle().Foreground(accentColor).Bold(true)
 	ascii := asciiStyle.Render(ArchRiotASCII)
 	s.WriteString(ascii + "\n")
@@ -179,7 +179,7 @@ func (m *InstallModel) View() string {
 	s.WriteString(title + "\n")
 
 	versionStyle := lipgloss.NewStyle().Foreground(dimColor)
-	subtitle := versionStyle.Render("Tokyo Night Inspired • Cypher Riot Themed")
+	subtitle := versionStyle.Render("Charm with Bubbletea • Cypher Riot Themed")
 	s.WriteString(subtitle + "\n\n")
 
 	// Operation title
@@ -194,7 +194,7 @@ func (m *InstallModel) View() string {
 	s.WriteString(logStyle.Render("📝 Log File:       "+GetLogPath()) + "\n")
 
 	// Progress bar
-	s.WriteString(m.renderProgressBar() + "\n\n")
+	s.WriteString("\n" + m.renderProgressBar() + "\n\n")
 
 	// Scroll window - bordered content area
 	s.WriteString(m.renderScrollWindow())

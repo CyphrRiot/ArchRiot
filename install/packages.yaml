@@ -18,11 +18,8 @@ core:
         description: "Base development tools and yay AUR helper"
 
     identity:
-        packages:
-            - gum
-        configs:
-            - pattern: archriot/user.env
-              preserve_if_exists: []
+        packages: []
+        configs: []
         depends: [core.base]
         description: "User identity and Git configuration"
 
@@ -88,6 +85,27 @@ development:
               preserve_if_exists: []
         depends: [core.base]
         description: "Development tools and utilities"
+
+system:
+    fonts:
+        packages:
+            - ttf-font-awesome
+            - noto-fonts
+            - ttf-hack-nerd
+            - ttf-cascadia-mono-nerd
+            - ttf-ia-writer
+        configs: []
+        depends: [core.base]
+        handler: refresh_font_cache
+        description: "System fonts and programming fonts with cache refresh"
+
+    bluetooth:
+        packages:
+            - blueberry
+        configs: []
+        depends: [core.base]
+        handler: enable_bluetooth_service
+        description: "Bluetooth management with Blueberry GUI"
 
 media:
     players:

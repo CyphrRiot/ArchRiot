@@ -40,7 +40,11 @@ func ExecuteModulesInOrder(cfg *config.Config) error {
 		return fmt.Errorf("core modules failed: %w", err)
 	}
 
-	// System modules (priority 20) - TODO: implement when we add system category
+	// System modules (priority 20)
+	if err := executeModuleCategory("system", cfg.System); err != nil {
+		return fmt.Errorf("system modules failed: %w", err)
+	}
+
 	// Development modules (priority 30)
 	if err := executeModuleCategory("development", cfg.Development); err != nil {
 		return fmt.Errorf("development modules failed: %w", err)

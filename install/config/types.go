@@ -3,6 +3,7 @@ package config
 // Config represents the YAML structure
 type Config struct {
 	Core        map[string]Module `yaml:"core"`
+	System      map[string]Module `yaml:"system"`
 	Desktop     map[string]Module `yaml:"desktop"`
 	Development map[string]Module `yaml:"development"`
 	Media       map[string]Module `yaml:"media"`

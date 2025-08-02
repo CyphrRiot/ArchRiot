@@ -93,23 +93,47 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 
 **CURRENT FOCUS: SHELL SCRIPT TO YAML MIGRATION**
 
-1. **🔄 IN PROGRESS: Shell Script Analysis**
-    - 33 .sh files in install/pending/ awaiting conversion
+**✅ COMPLETED SHELL SCRIPTS:**
+
+1. **✅ 01-base.sh**: Converted to `core.base` module in packages.yaml
+    - Base development tools (base-devel, git, rsync, bc)
+    - Eliminated problematic mirror fixing and manual yay installation
+    - Uses native package manager installation
+
+2. **✅ 02-identity.sh**: Converted to `core.identity` module and Go `git/` package
+    - Git credential handling with TUI integration
+    - Interactive user input replaced with native Go TUI
+    - Git configuration and aliases applied automatically
+
+3. **✅ fonts.sh**: Converted to `system.fonts` module in packages.yaml
+    - Essential fonts only: font-awesome, noto-fonts, hack-nerd, cascadia-mono-nerd, ia-writer
+    - Removed unused font packages (emoji, cjk, liberation, jetbrains)
+    - Font cache refresh handled by handler function
+
+4. **✅ bluetooth.sh**: Converted to `system.bluetooth` module in packages.yaml
+    - Simple package installation: blueberry
+    - Service enablement handled by handler function
+    - Bluetooth management with GUI interface
+
+**🔄 IN PROGRESS: Shell Script Analysis**
+
+1. **🔄 NEXT: Simple script analysis** - Skip complex 01-config.sh, find simpler conversion targets
+2. **📋 REMAINING: 29 .sh files** in install/pending/ awaiting conversion
     - Need to categorize by complexity (simple package lists vs complex logic)
     - Identify patterns for YAML structure optimization
 
-2. **📋 TODO: YAML Module Expansion**
+3. **📋 TODO: YAML Module Expansion**
     - Add missing categories: system, applications, optional
     - Implement conditional installation based on hardware/user choice
     - Add pre/post installation hooks where needed
 
-3. **📋 TODO: Handler Functions**
+4. **📋 TODO: Handler Functions**
     - GPU detection and driver selection
     - yay AUR helper installation
     - Service configuration and enablement
     - Hardware-specific configurations
 
-4. **📋 TODO: Testing & Release**
+5. **📋 TODO: Testing & Release**
     - Comprehensive testing on clean Arch systems
       12.5.0 release preparation
 
