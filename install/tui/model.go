@@ -22,8 +22,8 @@ var (
 
 // ASCII Art
 const ArchRiotASCII = `
-  ▄▀█ █▀█ █▀▀ █ █ █▀█ █ █▀█ ▀█▀
-  █▀█ █▀▄ █▄▄ █▀█ █▀▄ █ █▄█  █
+▄  ▄▀█ █▀█ █▀▀ █ █ █▀█ █ █▀█ ▀█▀  ▄
+▄  █▀█ █▀▄ █▄▄ █▀█ █▀▄ █ █▄█  █   ▄
 `
 
 // InstallModel represents the TUI model
@@ -175,23 +175,19 @@ func (m *InstallModel) View() string {
 	s.WriteString(ascii + "\n")
 
 	titleStyle := lipgloss.NewStyle().Foreground(primaryColor).Bold(true)
-	title := titleStyle.Render("ArchRiot Installer v"+GetVersion())
+	title := titleStyle.Render("-=-  ArchRiot Installer v"+GetVersion()+"  -=-")
 	s.WriteString(title + "\n")
 
 	versionStyle := lipgloss.NewStyle().Foreground(dimColor)
-	subtitle := versionStyle.Render("Charm with Bubbletea • Cypher Riot Themed")
+	subtitle := versionStyle.Render("( Charm • Bubbletea • Cypher Riot )")
 	s.WriteString(subtitle + "\n\n")
-
-	// Operation title
-	operationStyle := lipgloss.NewStyle().Foreground(successColor).Bold(true)
-	s.WriteString(operationStyle.Render("📦 "+m.operation) + "\n")
 
 	// Info section - operation details
 	infoStyle := lipgloss.NewStyle().Foreground(fgColor)
 	logStyle := lipgloss.NewStyle().Foreground(dimColor)
 
-	s.WriteString(infoStyle.Render("📋 Current Step:   "+m.currentStep) + "\n")
-	s.WriteString(logStyle.Render("📝 Log File:       "+GetLogPath()) + "\n")
+	s.WriteString(infoStyle.Render("🎯 Current Step:   "+m.currentStep) + "\n")
+	s.WriteString(logStyle.Render("📁 Log File:       "+GetLogPath()) + "\n")
 
 	// Progress bar
 	s.WriteString("\n" + m.renderProgressBar() + "\n\n")

@@ -115,10 +115,25 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
     - Service enablement handled by handler function
     - Bluetooth management with GUI interface
 
+5. **✅ printer.sh**: Converted to `system.printer` module in packages.yaml
+    - CUPS printing system packages: cups, cups-pdf, cups-filters, system-config-printer
+    - Service enablement handled by handler function
+    - Complete printing solution with GUI configuration
+
+6. **✅ power.sh**: Converted to `system.power` module in packages.yaml
+    - Power profiles daemon (provides powerprofilesctl) and powertop monitoring
+    - Handler manages service enablement and conditional battery detection
+    - Modern power management with profile switching support
+
+7. **✅ filesystems.sh**: Converted to `system.filesystems` module in packages.yaml
+    - Complete filesystem support: gvfs, udisks2, SMB, MTP, NTFS, FAT32, exFAT
+    - GUI mounting and network shares with udisks service enablement
+    - Universal compatibility for USB drives, SD cards, and mobile devices
+
 **🔄 IN PROGRESS: Shell Script Analysis**
 
 1. **🔄 NEXT: Simple script analysis** - Skip complex 01-config.sh, find simpler conversion targets
-2. **📋 REMAINING: 29 .sh files** in install/pending/ awaiting conversion
+2. **📋 REMAINING: 26 .sh files** in install/pending/ awaiting conversion
     - Need to categorize by complexity (simple package lists vs complex logic)
     - Identify patterns for YAML structure optimization
 

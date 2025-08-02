@@ -107,6 +107,40 @@ system:
         handler: enable_bluetooth_service
         description: "Bluetooth management with Blueberry GUI"
 
+    printer:
+        packages:
+            - cups
+            - cups-pdf
+            - cups-filters
+            - system-config-printer
+        configs: []
+        depends: [core.base]
+        handler: enable_cups_service
+        description: "Printing system with CUPS and configuration GUI"
+
+    power:
+        packages:
+            - power-profiles-daemon
+            - powertop
+        configs: []
+        depends: [core.base]
+        handler: setup_power_management
+        description: "Power management with profiles daemon and monitoring"
+
+    filesystems:
+        packages:
+            - gvfs
+            - udisks2
+            - gvfs-smb
+            - gvfs-mtp
+            - ntfs-3g
+            - dosfstools
+            - exfatprogs
+        configs: []
+        depends: [core.base]
+        handler: enable_udisks_service
+        description: "Filesystem support for GUI mounting and network shares"
+
 media:
     players:
         packages:
