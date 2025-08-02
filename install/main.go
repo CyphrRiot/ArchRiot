@@ -87,16 +87,16 @@ func main() {
 		},
 	)
 
-	// Set up git package
+	// Initialize TUI model
+	model = tui.NewInstallModel()
+	program = tea.NewProgram(model)
+
+	// Set up git package (after program is created)
 	git.SetProgram(program)
 	git.SetGitInputChannel(gitInputDone)
 
 	// Set up installer package
 	installer.SetProgram(program)
-
-	// Initialize TUI model
-	model = tui.NewInstallModel()
-	program = tea.NewProgram(model)
 
 	// Start installation in background
 	go func() {
@@ -247,10 +247,6 @@ func readVersion() error {
 	return nil
 }
 
-
-
-
-
 // executeModulesInOrder executes all modules according to priority order
 func executeModulesInOrder(config *config.Config) error {
 	logger.LogMessage("INFO", "Starting module execution in priority order")
@@ -279,6 +275,7 @@ func executeModulesInOrder(config *config.Config) error {
 		return fmt.Errorf("media modules failed: %w", err)
 	}
 
+	logger.LogMessage("SUCCESS", "All module categories completed")
 	return nil
 }
 

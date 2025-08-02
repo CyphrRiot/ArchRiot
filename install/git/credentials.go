@@ -13,53 +13,53 @@ import (
 )
 
 var (
-	gitUsername   string
-	gitEmail      string
-	gitConfirmUse bool
-	gitInputDone  chan bool
-	program       *tea.Program
+	GitUsername   string
+	GitEmail      string
+	GitConfirmUse bool
+	GitInputDone  chan bool
+	Program       *tea.Program
 )
 
 // SetProgram sets the TUI program reference for sending messages
 func SetProgram(p *tea.Program) {
-	program = p
+	Program = p
 }
 
 // SetGitInputChannel sets the channel for git input completion
 func SetGitInputChannel(ch chan bool) {
-	gitInputDone = ch
+	GitInputDone = ch
 }
 
 // SetGitCredentials sets the git credentials from TUI callbacks
 func SetGitCredentials(username, email string, confirmed bool) {
 	if username != "" {
-		gitUsername = username
+		GitUsername = username
 	}
 	if email != "" {
-		gitEmail = email
+		GitEmail = email
 	}
-	gitConfirmUse = confirmed
+	GitConfirmUse = confirmed
 }
 
 // SetGitConfirm sets only the confirmation status
 func SetGitConfirm(confirmed bool) {
-	gitConfirmUse = confirmed
+	GitConfirmUse = confirmed
 }
 
 // SetGitUsername sets only the username
 func SetGitUsername(username string) {
-	gitUsername = username
+	GitUsername = username
 }
 
 // SetGitEmail sets only the email
 func SetGitEmail(email string) {
-	gitEmail = email
+	GitEmail = email
 }
 
 // sendFormattedLog sends a properly formatted log message to TUI
 func sendFormattedLog(status, emoji, name, description string) {
-	if program != nil {
-		program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
+	if Program != nil {
+		Program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
 	}
 }
 
@@ -67,7 +67,7 @@ func sendFormattedLog(status, emoji, name, description string) {
 func HandleGitConfiguration() error {
 	logger.LogMessage("INFO", "🔧 Applying Git configuration...")
 
-	if program != nil {
+	if Program != nil {
 		sendFormattedLog("🔄", "📦", "Git Setup", "Checking credentials")
 	}
 
@@ -84,47 +84,47 @@ func HandleGitConfiguration() error {
 
 	// If we have existing git credentials, ask to use them
 	if strings.TrimSpace(existingName) != "" || strings.TrimSpace(existingEmail) != "" {
-		if program != nil {
+		if Program != nil {
 			sendFormattedLog("🎉", "📦", "Git Found", "Found existing git credentials")
 			sendFormattedLog("📋", "📦", "Name", existingName)
 			sendFormattedLog("📋", "📦", "Email", existingEmail)
-			program.Send(tui.InputRequestMsg{Mode: "git-confirm", Prompt: ""})
+			Program.Send(tui.InputRequestMsg{Mode: "git-confirm", Prompt: ""})
 		}
 
 		// Wait for confirmation
-		<-gitInputDone
+		<-GitInputDone
 
-		if gitConfirmUse {
+		if GitConfirmUse {
 			userName = existingName
 			userEmail = existingEmail
-			if program != nil {
+			if Program != nil {
 				sendFormattedLog("✅", "📦", "Git Setup", "Using existing credentials")
 			}
 		} else {
 			// User said no, prompt for new credentials
-			if program != nil {
+			if Program != nil {
 				sendFormattedLog("💬", "📦", "Git Setup", "Setting up new credentials")
-				program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
+				Program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 			}
 
 			// Wait for new credentials
-			<-gitInputDone
+			<-GitInputDone
 
-			userName = gitUsername
-			userEmail = gitEmail
+			userName = GitUsername
+			userEmail = GitEmail
 		}
 	} else {
 		// No existing credentials, prompt for new ones
-		if program != nil {
+		if Program != nil {
 			sendFormattedLog("💬", "📦", "Git Setup", "No credentials found, setting up")
-			program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
+			Program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 		}
 
 		// Wait for credentials to be entered
-		<-gitInputDone
+		<-GitInputDone
 
-		userName = gitUsername
-		userEmail = gitEmail
+		userName = GitUsername
+		userEmail = GitEmail
 	}
 
 	// Save credentials to user.env
@@ -137,7 +137,7 @@ func HandleGitConfiguration() error {
 		if err := runGitConfig("user.name", userName); err != nil {
 			return fmt.Errorf("setting git user.name: %w", err)
 		}
-		if program != nil {
+		if Program != nil {
 			sendFormattedLog("✅", "📦", "Git Identity", "User name set to: "+userName)
 		}
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.name set to: %s", userName))
@@ -147,7 +147,7 @@ func HandleGitConfiguration() error {
 		if err := runGitConfig("user.email", userEmail); err != nil {
 			return fmt.Errorf("setting git user.email: %w", err)
 		}
-		if program != nil {
+		if Program != nil {
 			sendFormattedLog("✅", "📦", "Git Identity", "User email set to: "+userEmail)
 		}
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.email set to: %s", userEmail))
@@ -163,7 +163,7 @@ func HandleGitConfiguration() error {
 		"init.defaultBranch": "master",
 	}
 
-	if program != nil {
+	if Program != nil {
 		sendFormattedLog("🔄", "📦", "Git Aliases", "Setting aliases")
 	}
 
@@ -173,7 +173,7 @@ func HandleGitConfiguration() error {
 		}
 	}
 
-	if program != nil {
+	if Program != nil {
 		sendFormattedLog("✅", "📦", "Git Setup", "Complete")
 	}
 	logger.LogMessage("SUCCESS", "Git configuration applied")

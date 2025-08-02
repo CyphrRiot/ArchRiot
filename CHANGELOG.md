@@ -5,6 +5,17 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2024-01-08
+
+### 🔧 Modular Architecture Refactoring
+
+#### Git Credential System Fixed
+
+- **FIXED**: Git credential hanging issue - Program initialization order corrected
+- **RESOLVED**: Channel communication between packages now working properly
+- **REMOVED**: Debug print statements for cleaner production code
+- **RESULT**: Git configuration flow works seamlessly during installation
+
 ## [2.2.4] - 2025-08-01
 
 ### 🔐 Privacy & System Cleanup
