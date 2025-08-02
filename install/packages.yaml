@@ -209,6 +209,16 @@ system:
         handler: setup_audio_system
         description: "PipeWire audio system with conflict resolution and controls"
 
+    memory:
+        packages: []
+        configs:
+            - pattern: system/99-memory-optimization.conf
+              target: /etc/sysctl.d/99-memory-optimization.conf
+              preserve_if_exists: []
+        depends: [core.base]
+        handler: apply_memory_optimization
+        description: "Memory optimization with sysctl configuration for better performance"
+
 media:
     players:
         packages:

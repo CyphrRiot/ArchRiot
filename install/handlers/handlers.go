@@ -74,6 +74,23 @@ func setupAudioSystem() error {
 	return nil
 }
 
+// applyMemoryOptimization applies the copied sysctl memory configuration
+func applyMemoryOptimization() error {
+	logger.LogMessage("INFO", "Applying memory optimization...")
+	sendLog("🧠", "Memory", "Applying sysctl config")
+
+	// Apply the copied sysctl configuration
+	configPath := "/etc/sysctl.d/99-memory-optimization.conf"
+	applyCmd := fmt.Sprintf("sudo sysctl -p %s", configPath)
+	if err := runCommand(applyCmd); err != nil {
+		logger.LogMessage("WARNING", fmt.Sprintf("Failed to apply sysctl config: %v", err))
+		return err
+	}
+
+	logger.LogMessage("SUCCESS", "Memory optimization applied")
+	return nil
+}
+
 // setupFishShell handles the complex fish shell configuration
 func setupFishShell() error {
 	logger.LogMessage("INFO", "Setting up Fish shell...")
@@ -158,6 +175,7 @@ var HandlerRegistry = map[string]func() error{
 		return nil
 	},
 	"setup_audio_system": setupAudioSystem,
+	"apply_memory_optimization": applyMemoryOptimization,
 }
 
 // ExecuteHandler executes a handler by name

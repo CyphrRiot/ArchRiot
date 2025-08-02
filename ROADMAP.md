@@ -150,6 +150,18 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
     - Handler manages fish shell configuration and default shell setup
     - Established design pattern for complex script conversion
 
+12. **✅ audio.sh**: Converted to `system.audio` module in packages.yaml
+    - Complete PipeWire audio stack: pipewire, pipewire-alsa, pipewire-pulse, wireplumber
+    - Audio controls: pavucontrol, pamixer, playerctl
+    - Handler manages conflict resolution (removes pulseaudio/jack2) and service enablement
+    - Tested: Successfully detects missing packages and executes handler functions
+
+13. **✅ memory.sh**: Converted to `system.memory` module with clean config pattern
+    - Created `config/system/99-memory-optimization.conf` with memory optimization settings
+    - Uses YAML config copying with `target: /etc/sysctl.d/...` specification
+    - Simple handler applies copied config with `sysctl -p`
+    - **LESSON**: Configuration content belongs in config files, NOT hardcoded in Go handlers
+
 **🎯 HANDLER SYSTEM ARCHITECTURE (CRITICAL - DO NOT REPEAT MISTAKES):**
 
 **✅ ABSTRACTED HANDLER SYSTEM IMPLEMENTED:**
@@ -157,8 +169,15 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 - **NEVER write 300+ line handler files again!**
 - **Use abstractions**: `enableService()`, `runCommand()`, `sendLog()`
 - **Registry pattern**: Simple 1-3 line handlers in map
-- **Only complex logic gets full functions** (like setupFishShell)
-- **Reduced 350+ lines to 140 lines** (60% reduction)
+
+5. **Only complex logic gets full functions** (like setupFishShell)
+6. **Reduced 350+ lines to 140 lines** (60% reduction)
+
+**CRITICAL CONFIG PATTERN RULE:**
+
+- **NEVER hardcode configuration content in Go handlers**
+- **ALWAYS use config files + YAML copying pattern**
+- **Keep system configurations separate from code**
 
 **HANDLER DESIGN RULES:**
 
@@ -184,10 +203,21 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 - Manual TUI message formatting
 - Copy-paste error handling code
 
+**📋 TODO: GENERIC FILE COPY HANDLER SYSTEM**
+
+**NEEDED**: Create abstracted file copy handler pattern like config copying but for system files:
+
+- `system_files` section in YAML for `/etc/`, `/usr/`, etc.
+- Generic `copySystemFile()` helper function
+- Proper permissions and ownership handling
+- Validation and backup capabilities
+
+This would eliminate the need for custom handlers that just copy files to system locations.
+
 **🔄 IN PROGRESS: Shell Script Analysis**
 
 1. **🔄 NEXT: Simple script analysis** - Skip complex 01-config.sh, find simpler conversion targets
-2. **📋 REMAINING: 23 .sh files** in install/pending/ awaiting conversion
+2. **📋 REMAINING: 21 .sh files** in install/pending/ awaiting conversion
     - Need to categorize by complexity (simple package lists vs complex logic)
     - Identify patterns for YAML structure optimization
 
@@ -218,8 +248,9 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 - ✅ **GIT CREDENTIAL FIXED**: Git YES/NO confirmation system working! Fixed initialization order (program was nil)
 - ✅ **LOG ALIGNMENT**: Fixed misaligned completion messages by using sendFormattedLog consistently
 - ✅ **CLEAN ORGANIZATION**: Moved all shell scripts to pending/ directory for systematic conversion tracking
-- **✅ **MAJOR SIZE REDUCTION\*\*: Reduced main.go from 810+ lines to 98 lines (88% reduction!)
+- ✅ **MAJOR SIZE REDUCTION**: Reduced main.go from 810+ lines to 98 lines (88% reduction!)
 - ✅ **MODULAR ARCHITECTURE WORKING**: Fixed channel communication by proper initialization order
+- ✅ **CONFIG PATTERN ESTABLISHED**: Never hardcode system configuration in handlers - use config files + YAML copying
 - ✅ **GO LESSONS LEARNED**: Always initialize variables before passing to other packages
 - ✅ **CLEAN CODE ACHIEVED**: Removed all unused code, proper package separation
 - ✅ **SYSTEMATIC APPROACH**: One change at a time prevented breaking working systems
