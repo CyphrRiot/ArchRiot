@@ -12,7 +12,7 @@ READ THE RULES. READ THE ROADMAP.
 
 3. After you've made it, wait for me to confirm and review the code and ask "Continue?" and wait for "yes" or further instructions.
 
-4. Test each change!
+4. Once it compiles properly, **WAIT FOR ME TO TEST AND REPORT BACK**
 
 5. If there is ANY new info, update the ROADMAP so we stay on task and keep up-to-date
 
@@ -130,10 +130,25 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
     - GUI mounting and network shares with udisks service enablement
     - Universal compatibility for USB drives, SD cards, and mobile devices
 
+8. **✅ media.sh**: Converted to expanded `media.players` module in packages.yaml
+    - Media tools: ffmpeg, yt-dlp, python-opencv (webcam for Control Panel), spotdl
+    - Handler manages spotdl special installation requirements
+    - Comprehensive media consumption and creation support
+
+9. **✅ tools.sh**: Converted to `development.helpers` module in packages.yaml
+    - Development compilers: clang, cmake, ninja, rust, python-pip, go
+    - CLI utilities: github-cli, jq, curl, wget, zip tools, tmux
+    - Handler manages migrate tool installation
+
+10. **✅ networking.sh**: Converted to `system.networking` module in packages.yaml
+    - Wireless networking with iwd package
+    - Service enablement handled by handler function
+    - Works for both fresh installs and system updates
+
 **🔄 IN PROGRESS: Shell Script Analysis**
 
 1. **🔄 NEXT: Simple script analysis** - Skip complex 01-config.sh, find simpler conversion targets
-2. **📋 REMAINING: 26 .sh files** in install/pending/ awaiting conversion
+2. **📋 REMAINING: 23 .sh files** in install/pending/ awaiting conversion
     - Need to categorize by complexity (simple package lists vs complex logic)
     - Identify patterns for YAML structure optimization
 

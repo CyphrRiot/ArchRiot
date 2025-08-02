@@ -86,6 +86,26 @@ development:
         depends: [core.base]
         description: "Development tools and utilities"
 
+    helpers:
+        packages:
+            - clang
+            - cmake
+            - ninja
+            - rust
+            - python-pip
+            - go
+            - github-cli
+            - jq
+            - curl
+            - wget
+            - unzip
+            - zip
+            - tmux
+        configs: []
+        depends: [core.base]
+        handler: install_migrate_tool
+        description: "Development tools, compilers, and utilities"
+
 system:
     fonts:
         packages:
@@ -141,14 +161,27 @@ system:
         handler: enable_udisks_service
         description: "Filesystem support for GUI mounting and network shares"
 
+    networking:
+        packages:
+            - iwd
+        configs: []
+        depends: [core.base]
+        handler: setup_wireless_networking
+        description: "Wireless networking with iwd"
+
 media:
     players:
         packages:
             - mpv
             - lollypop
             - pavucontrol
+            - ffmpeg
+            - yt-dlp
+            - python-opencv
+            - spotdl
         configs:
             - pattern: mpv/*
               preserve_if_exists: []
         depends: [desktop.hyprland]
-        description: "Media players and audio control"
+        handler: setup_media_tools
+        description: "Media players, downloaders, and webcam support"
