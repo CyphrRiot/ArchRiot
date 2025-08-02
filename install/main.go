@@ -13,43 +13,12 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"archriot-installer/config"
 	"archriot-installer/logger"
 	"archriot-installer/tui"
 )
 
-// Config represents the YAML structure
-type Config struct {
-	Core        map[string]Module `yaml:"core"`
-	Desktop     map[string]Module `yaml:"desktop"`
-	Development map[string]Module `yaml:"development"`
-	Media       map[string]Module `yaml:"media"`
-}
 
-// Module represents a single installation module
-type Module struct {
-	Packages    []string     `yaml:"packages"`
-	Configs     []ConfigRule `yaml:"configs"`
-	Handler     string       `yaml:"handler,omitempty"`
-	Depends     []string     `yaml:"depends,omitempty"`
-	Description string       `yaml:"description"`
-}
-
-// ConfigRule represents a configuration copying rule
-type ConfigRule struct {
-	Pattern          string   `yaml:"pattern"`
-	PreserveIfExists []string `yaml:"preserve_if_exists,omitempty"`
-}
-
-// ModuleOrder defines the execution order for different module categories
-var ModuleOrder = map[string]int{
-	"core":         10,
-	"system":       20,
-	"development":  30,
-	"desktop":      40,
-	"post-desktop": 45,
-	"applications": 50,
-	"optional":     60,
-}
 
 const (
 	CONFIG_FILE    = "packages.yaml"
@@ -230,18 +199,18 @@ func findConfigFile() string {
 }
 
 // loadConfig reads and parses the YAML configuration
-func loadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
+func loadConfig(filename string) (*config.Config, error) {
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("reading file: %w", err)
 	}
 
-	var config Config
-	if err := yaml.Unmarshal(data, &config); err != nil {
+	var cfg config.Config
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parsing YAML: %w", err)
 	}
 
-	return &config, nil
+	return &cfg, nil
 }
 
 // installPackages installs packages in a single batch to avoid database locks
@@ -451,7 +420,7 @@ func readVersion() error {
 
 
 // copyConfigs copies configuration files with preservation logic
-func copyConfigs(configs []ConfigRule) error {
+func copyConfigs(configs []config.ConfigRule) error {
 	if len(configs) == 0 {
 		if program != nil {
 			sendFormattedLog("📋", "📁", "Config Copy", "None to copy")
@@ -491,9 +460,9 @@ func copyConfigs(configs []ConfigRule) error {
 }
 
 // copyConfigPattern copies files matching a config pattern with preservation
-func copyConfigPattern(sourceDir, homeDir string, rule ConfigRule) error {
+func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) error {
 	// Parse pattern (e.g., "hypr/*" -> source: config/hypr, dest: ~/.config/hypr)
-	pattern := rule.Pattern
+	pattern := configRule.Pattern
 	var sourcePath, destPath string
 
 	if strings.HasSuffix(pattern, "/*") {
@@ -518,7 +487,7 @@ func copyConfigPattern(sourceDir, homeDir string, rule ConfigRule) error {
 	}
 
 	// Copy files
-	return copyFileOrDirectory(sourcePath, destPath, rule.PreserveIfExists)
+	return copyFileOrDirectory(sourcePath, destPath, configRule.PreserveIfExists)
 }
 
 // copyFileOrDirectory recursively copies files or directories with preservation
@@ -595,7 +564,7 @@ func copyFile(source, dest string, preserveFiles []string) error {
 }
 
 // executeModulesInOrder executes all modules according to priority order
-func executeModulesInOrder(config *Config) error {
+func executeModulesInOrder(config *config.Config) error {
 	logger.LogMessage("INFO", "Starting module execution in priority order")
 	if program != nil {
 		sendFormattedLog("🔄", "📦", "Module Exec", "Starting modules")
@@ -626,7 +595,7 @@ func executeModulesInOrder(config *Config) error {
 }
 
 // executeModuleCategory executes all modules in a category
-func executeModuleCategory(category string, modules map[string]Module) error {
+func executeModuleCategory(category string, modules map[string]config.Module) error {
 	if len(modules) == 0 {
 		logger.LogMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
 		if program != nil {
@@ -635,7 +604,7 @@ func executeModuleCategory(category string, modules map[string]Module) error {
 		return nil
 	}
 
-	priority := ModuleOrder[category]
+	priority := config.ModuleOrder[category]
 	logger.LogMessage("INFO", fmt.Sprintf("Executing %s modules (priority %d)", category, priority))
 	if program != nil {
 		sendFormattedLog("🔄", "📦", strings.Title(category), "Starting "+category+" modules")

@@ -82,14 +82,15 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 **NEXT MODULE EXTRACTION PRIORITIES:**
 
 1. **✅ COMPLETED: Create tui/ package** - ✅ Extracted TUI interface (model, view, update, buttons) - All TUI code moved to tui/ package, main.go updated, screen clearing added, standardized logging function created
-2. **🔄 NEXT: Create config/ package** - Extract YAML parsing and configuration types
-3. **📋 THEN: Create git/ package** - Extract git credential handling
-4. **📋 THEN: Create installer/ package** - Extract installation logic
-5. **📋 FINALLY: Refactor main.go** - Small coordinator importing modules (target: 50 lines)
+2. **✅ COMPLETED: Create config/ package** - ✅ Extracted YAML parsing and configuration types to config/types.go, updated main.go imports
+3. **✅ COMPLETED: Shell script organization** - ✅ Moved all 33 .sh files to install/pending/ using git mv, removed empty directories, clean modular structure
+4. **🔄 NEXT: Create git/ package** - Extract git credential handling
+5. **📋 THEN: Create installer/ package** - Extract installation logic
+6. **📋 FINALLY: Refactor main.go** - Small coordinator importing modules (target: 50 lines)
 
 **AFTER MODULAR REFACTORING:**
 
-1. **Shell Script Analysis**: Resume systematic analysis of remaining .sh files for YAML migration
+1. **Shell Script Analysis**: Systematic analysis of 33 .sh files in install/pending/ for YAML migration and eventual deletion
 2. **YAML Completion**: Add missing modules (system, applications, optional) based on shell script patterns
 3. **Handler Functions**: Implement complex logic that can't be represented in YAML
 4. **Final Binary**: Complete transition to single `archriot-install` binary + `packages.yaml`
@@ -105,6 +106,7 @@ DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
 - ✅ **MODULAR LOGGING**: Created sendFormattedLog() function for consistent message formatting
 - ✅ **GIT CREDENTIAL FIX**: Fixed broken git YES/NO confirmation using callback system
 - ✅ **LOG ALIGNMENT**: Fixed misaligned completion messages by using sendFormattedLog consistently
+- ✅ **CLEAN ORGANIZATION**: Moved all shell scripts to pending/ directory for systematic conversion tracking
 
 **ARCHITECTURE INSIGHTS:**
 
