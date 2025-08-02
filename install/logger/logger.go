@@ -5,6 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"archriot-installer/tui"
 )
 
 var (
@@ -12,7 +15,43 @@ var (
 	errorLogFile *os.File
 	logPath      string
 	errorLogPath string
+	program      *tea.Program
 )
+
+// Type constants mapping to emojis
+var typeEmojis = map[string]string{
+	"Package":  "📦",
+	"Git":      "🔧",
+	"Database": "🗄️",
+	"Module":   "🏗️",
+	"File":     "📁",
+	"System":   "🚀",
+}
+
+// getStatusEmoji returns emoji based on context automatically
+func getStatusEmoji(status string) string {
+	switch status {
+	case "Progress":
+		return "⏳"
+	case "Complete":
+		return "🎉"
+	case "Success":
+		return "✅"
+	case "Warning":
+		return "⚠️"
+	case "Error":
+		return "❌"
+	case "Info":
+		return "📋"
+	default:
+		return "📋"
+	}
+}
+
+// SetProgram sets the TUI program instance for logging
+func SetProgram(p *tea.Program) {
+	program = p
+}
 
 // InitLogging initializes the logging system with proper file paths
 func InitLogging() error {
@@ -53,7 +92,7 @@ func CloseLogging() {
 	}
 }
 
-// LogMessage logs a message with the specified level
+// LogMessage logs a message with the specified level (file only)
 func LogMessage(level, message string) {
 	timestamp := time.Now().Format("15:04:05")
 	logEntry := fmt.Sprintf("[%s] %s: %s\n", timestamp, level, message)
@@ -74,25 +113,49 @@ func LogMessage(level, message string) {
 	}
 }
 
+// Log logs to both file and TUI using semantic constants
+func Log(status, logType, name, description string) {
+	// Log to file with traditional format
+	logLevel := mapStatusToLevel(status)
+	fileMessage := fmt.Sprintf("%s.%s - %s: %s", logType, name, status, description)
+	LogMessage(logLevel, fileMessage)
+
+	// Send to TUI with formatted display
+	if program != nil {
+		// Get emojis automatically
+		statusEmoji := getStatusEmoji(status)
+		typeEmoji := typeEmojis[logType]
+
+		// Fallback to original string if type not found
+		if typeEmoji == "" {
+			typeEmoji = logType
+		}
+
+		// Truncate name if longer than 20 characters
+		if len(name) > 20 {
+			name = name[:17] + "..."
+		}
+		program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-20s %s", statusEmoji, typeEmoji, name, description)))
+	}
+}
+
 // GetLogPath returns the current log file path
 func GetLogPath() string {
 	return logPath
 }
 
-// GetLevelIcon returns the appropriate icon for a log level
-func GetLevelIcon(level string) string {
-	switch level {
-	case "INFO":
-		return "ℹ️ "
-	case "SUCCESS":
-		return "✅"
-	case "WARNING":
-		return "⚠️ "
-	case "ERROR":
-		return "❌"
-	case "CRITICAL":
-		return "🚨"
+// mapStatusToLevel converts semantic status to log level
+func mapStatusToLevel(status string) string {
+	switch status {
+	case "Progress", "Info":
+		return "INFO"
+	case "Success", "Complete":
+		return "SUCCESS"
+	case "Warning":
+		return "WARNING"
+	case "Error":
+		return "ERROR"
 	default:
-		return "📝"
+		return "INFO"
 	}
 }

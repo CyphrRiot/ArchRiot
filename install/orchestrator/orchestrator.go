@@ -1,8 +1,6 @@
 package orchestrator
 
 import (
-	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
 
 	"archriot-installer/config"
@@ -20,20 +18,10 @@ func SetProgram(p *tea.Program) {
 	Program = p
 }
 
-// sendFormattedLog sends a properly formatted log message to TUI
-func sendFormattedLog(status, emoji, name, description string) {
-	if Program != nil {
-		Program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
-	}
-}
+
 
 // RunInstallation runs the main installation process
 func RunInstallation() {
-	// Send log messages to TUI
-	sendLog := func(msg string) {
-		Program.Send(tui.LogMsg(msg))
-	}
-
 	// Send progress updates to TUI
 	sendProgress := func(progress float64) {
 		Program.Send(tui.ProgressMsg(progress))
@@ -45,13 +33,13 @@ func RunInstallation() {
 	}
 
 	sendStep("Preparing system...")
-	sendLog("🔧 Preparing system...")
+	logger.Log("Progress", "System", "System Prep", "Preparing system...")
 	sendProgress(0.1)
 
 	// Sync package databases first
 	if err := installer.SyncPackageDatabases(); err != nil {
-		sendLog(fmt.Sprintf("❌ Failed to sync package databases: %v", err))
-		sendLog("💡 Please run 'sudo pacman -Sy' manually and try again")
+		logger.Log("Error", "Database", "Database Sync", "Failed: "+err.Error())
+		logger.Log("Info", "System", "Manual Fix", "Please run 'sudo pacman -Sy' manually and try again")
 		return
 	}
 
@@ -61,32 +49,41 @@ func RunInstallation() {
 	// Find config file
 	configPath := config.FindConfigFile()
 	if configPath == "" {
-		sendLog("❌ packages.yaml not found")
+		logger.Log("Error", "File", "Config", "packages.yaml not found")
 		return
 	}
 
-	sendLog(fmt.Sprintf("📄 Loading config: %s", configPath))
+	logger.Log("Progress", "File", "Config Load", "Loading: "+configPath)
 
 	// Load and validate YAML
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		sendLog(fmt.Sprintf("❌ Failed to load config: %v", err))
+		logger.Log("Error", "File", "Config Load", "Failed: "+err.Error())
 		return
 	}
 
-	sendLog("✅ 📋 YAML Config      Config loaded")
+	logger.Log("Success", "File", "YAML Config", "Config loaded")
+
+	// Validate YAML configuration
+	logger.Log("Progress", "File", "YAML Validation", "Validating configuration...")
+	if err := config.ValidateConfig(cfg); err != nil {
+		logger.Log("Error", "File", "YAML Validation", "Failed: "+err.Error())
+		return
+	}
+	logger.Log("Success", "File", "YAML Validation", "Configuration validated")
+
 	sendStep("Installing modules...")
 	sendProgress(0.3)
 
 	// Execute modules in proper order
 	if err := executor.ExecuteModulesInOrder(cfg); err != nil {
-		sendFormattedLog("❌", "📦", "Module Exec", "Failed: "+err.Error())
+		logger.Log("Error", "System", "Module Exec", "Failed: "+err.Error())
 		return
 	}
 
 	sendStep("Installation complete!")
 	sendProgress(1.0)
-	sendFormattedLog("✅", "📦", "Installation", "Complete!")
-	sendFormattedLog("✅", "📦", "Module Exec", "All modules done")
-	sendFormattedLog("📝", "📋", "Log File", "Available at: "+logger.GetLogPath())
+	logger.Log("Success", "System", "Installation", "Complete!")
+	logger.Log("Success", "System", "Module Exec", "All modules done")
+	logger.Log("Info", "System", "Log File", "Available at: "+logger.GetLogPath())
 }

@@ -9,7 +9,9 @@ core:
             - "sudo grep -q '^%wheel.*NOPASSWD.*ALL' /etc/sudoers || echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers"
             - "sudo -k && sudo -n true"
         depends: []
-        description: "Setup passwordless sudo for installation"
+        start: "Setting up passwordless sudo"
+        end: "Sudo configured"
+        type: "System"
 
     base:
         packages:
@@ -24,13 +26,17 @@ core:
             - pattern: environment.d/*
               preserve_if_exists: []
         depends: [core.sudo]
-        description: "Base development tools and yay AUR helper"
+        start: "Installing base development tools"
+        end: "Base tools installed"
+        type: "Package"
 
     identity:
         packages: []
         configs: []
         depends: [core.base]
-        description: "User identity and Git configuration"
+        start: "Configuring Git identity"
+        end: "Git identity configured"
+        type: "Git"
 
     shell:
         packages:
@@ -57,7 +63,9 @@ core:
         commands:
             - "sudo chsh -s /usr/bin/fish $USER"
         depends: [core.base]
-        description: "Fish shell and terminal tools"
+        start: "Installing shell and terminal tools"
+        end: "Shell environment configured"
+        type: "Package"
 
 desktop:
     hyprland:
@@ -79,7 +87,9 @@ desktop:
             - pattern: mako/*
               preserve_if_exists: []
         depends: [core.base]
-        description: "Hyprland desktop environment"
+        start: "Installing Hyprland desktop"
+        end: "Hyprland desktop installed"
+        type: "Package"
 
     apps:
         packages:
@@ -91,7 +101,9 @@ desktop:
             - pattern: ghostty/*
               preserve_if_exists: []
         depends: [desktop.hyprland]
-        description: "Essential desktop applications"
+        start: "Installing desktop applications"
+        end: "Desktop applications installed"
+        type: "Package"
 
 development:
     tools:
@@ -104,7 +116,9 @@ development:
             - pattern: btop/*
               preserve_if_exists: []
         depends: [core.base]
-        description: "Development tools and utilities"
+        start: "Installing development tools"
+        end: "Development tools installed"
+        type: "Package"
 
     helpers:
         packages:
@@ -124,7 +138,9 @@ development:
             - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
             - "chmod +x ~/.local/bin/migrate"
         depends: [core.base]
-        description: "Development tools, compilers, and utilities"
+        start: "Installing development helpers"
+        end: "Development helpers installed"
+        type: "Package"
 
     editors:
         packages:
@@ -138,7 +154,9 @@ development:
         commands:
             - "sudo ln -sf /usr/bin/nvim /usr/bin/vi"
         depends: [core.base]
-        description: "Neovim editor with LSP servers for development"
+        start: "Installing editor and LSP servers"
+        end: "Editor environment configured"
+        type: "Package"
 
 system:
     fonts:
@@ -152,7 +170,9 @@ system:
         commands:
             - "fc-cache -f"
         depends: [core.base]
-        description: "System fonts and programming fonts with cache refresh"
+        start: "Installing system fonts"
+        end: "Fonts installed and cached"
+        type: "System"
 
     bluetooth:
         packages:
@@ -161,7 +181,9 @@ system:
         commands:
             - "sudo systemctl enable --now bluetooth.service"
         depends: [core.base]
-        description: "Bluetooth management with Blueberry GUI"
+        start: "Setting up Bluetooth"
+        end: "Bluetooth configured"
+        type: "System"
 
     printer:
         packages:
@@ -173,7 +195,9 @@ system:
         commands:
             - "sudo systemctl enable --now cups.service"
         depends: [core.base]
-        description: "Printing system with CUPS and configuration GUI"
+        start: "Installing printing system"
+        end: "Printing system configured"
+        type: "System"
 
     power:
         packages:
@@ -183,7 +207,9 @@ system:
         commands:
             - "sudo systemctl enable --now power-profiles-daemon.service"
         depends: [core.base]
-        description: "Power management with profiles daemon and monitoring"
+        start: "Configuring power management"
+        end: "Power management configured"
+        type: "System"
 
     filesystems:
         packages:
@@ -198,7 +224,9 @@ system:
         commands:
             - "sudo systemctl enable --now udisks2.service"
         depends: [core.base]
-        description: "Filesystem support for GUI mounting and network shares"
+        start: "Installing filesystem support"
+        end: "Filesystem support configured"
+        type: "System"
 
     networking:
         packages:
@@ -207,7 +235,9 @@ system:
         commands:
             - "sudo systemctl enable --now iwd.service"
         depends: [core.base]
-        description: "Wireless networking with iwd"
+        start: "Configuring wireless networking"
+        end: "Wireless networking configured"
+        type: "System"
 
     audio:
         packages:
@@ -230,7 +260,9 @@ system:
             - "systemctl --user enable --now pipewire-pulse.service"
             - "systemctl --user enable --now wireplumber.service"
         depends: [core.base]
-        description: "PipeWire audio system with conflict resolution and controls"
+        start: "Installing PipeWire audio system"
+        end: "Audio system configured"
+        type: "System"
 
     memory:
         packages: []
@@ -239,7 +271,9 @@ system:
             - "sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf"
             - "sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf"
         depends: [core.base]
-        description: "Memory optimization with sysctl configuration for better performance"
+        start: "Optimizing memory settings"
+        end: "Memory optimization applied"
+        type: "System"
 
     mimetypes:
         packages: []
@@ -276,7 +310,41 @@ system:
             - "xdg-mime default mpv.desktop video/x-theora+ogg"
             - "xdg-mime default mpv.desktop application/ogg"
         depends: [core.base]
-        description: "Default application associations for file types"
+        start: "Configuring file associations"
+        end: "File associations configured"
+        type: "System"
+
+    privacy:
+        packages: []
+        configs: []
+        commands:
+            - "gsettings set org.gnome.desktop.privacy remember-recent-files false || true"
+            - "rm -f ~/.local/share/recently-used.xbel"
+            - "mkdir -p ~/.config/gtk-3.0"
+            - "sed -i '/gtk-recent-files-enabled/d' ~/.config/gtk-3.0/settings.ini 2>/dev/null || true"
+            - "sed -i '/gtk-recent-files-max-age/d' ~/.config/gtk-3.0/settings.ini 2>/dev/null || true"
+            - "sed -i '/gtk-recent-files-limit/d' ~/.config/gtk-3.0/settings.ini 2>/dev/null || true"
+            - "grep -q '^\\[Settings\\]' ~/.config/gtk-3.0/settings.ini 2>/dev/null || echo '[Settings]' >> ~/.config/gtk-3.0/settings.ini"
+            - "sed -i '/^\\[Settings\\]/a gtk-recent-files-enabled=0\\ngtk-recent-files-max-age=0\\ngtk-recent-files-limit=0' ~/.config/gtk-3.0/settings.ini"
+            - "mkdir -p ~/.config/gtk-4.0"
+            - "sed -i '/gtk-recent-files-enabled/d' ~/.config/gtk-4.0/settings.ini 2>/dev/null || true"
+            - "sed -i '/gtk-recent-files-max-age/d' ~/.config/gtk-4.0/settings.ini 2>/dev/null || true"
+            - "sed -i '/gtk-recent-files-limit/d' ~/.config/gtk-4.0/settings.ini 2>/dev/null || true"
+            - "grep -q '^\\[Settings\\]' ~/.config/gtk-4.0/settings.ini 2>/dev/null || echo '[Settings]' >> ~/.config/gtk-4.0/settings.ini"
+            - "sed -i '/^\\[Settings\\]/a gtk-recent-files-enabled=0\\ngtk-recent-files-max-age=0\\ngtk-recent-files-limit=0' ~/.config/gtk-4.0/settings.ini"
+            - "mkdir -p ~/.config/Thunar"
+            - "sed -i '/LastShowRecent=/d' ~/.config/Thunar/thunarrc 2>/dev/null || true"
+            - "echo 'LastShowRecent=FALSE' >> ~/.config/Thunar/thunarrc"
+            - "mkdir -p ~/.local/bin"
+            - "echo '#!/bin/bash' > ~/.local/bin/clear-recents"
+            - "echo 'rm -f ~/.local/share/recently-used.xbel' >> ~/.local/bin/clear-recents"
+            - 'echo ''find ~/.local/share/gtk-* -name "*recent*" -type f -delete 2>/dev/null || true'' >> ~/.local/bin/clear-recents'
+            - 'echo ''find ~/.cache/thumbnails -name "*.xbel" -type f -delete 2>/dev/null || true'' >> ~/.local/bin/clear-recents'
+            - "chmod +x ~/.local/bin/clear-recents"
+        depends: [core.base]
+        start: "Configuring desktop privacy"
+        end: "Privacy settings applied"
+        type: "System"
 
 media:
     players:
@@ -291,4 +359,6 @@ media:
         commands:
             - "yay -S --noconfirm --needed --mflags --nocheck spotdl"
         depends: [desktop.hyprland]
-        description: "Media players, downloaders, and webcam support"
+        start: "Installing media players"
+        end: "Media players installed"
+        type: "Package"

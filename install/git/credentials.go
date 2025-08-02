@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	"archriot-installer/logger"
 	"archriot-installer/tui"
 )
@@ -56,20 +57,13 @@ func SetGitEmail(email string) {
 	GitEmail = email
 }
 
-// sendFormattedLog sends a properly formatted log message to TUI
-func sendFormattedLog(status, emoji, name, description string) {
-	if Program != nil {
-		Program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
-	}
-}
+
 
 // HandleGitConfiguration applies Git configuration with beautiful styling
 func HandleGitConfiguration() error {
 	logger.LogMessage("INFO", "🔧 Applying Git configuration...")
 
-	if Program != nil {
-		sendFormattedLog("🔄", "📦", "Git Setup", "Checking credentials")
-	}
+	logger.Log("Progress", "Git", "Git Setup", "Checking credentials")
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -84,10 +78,10 @@ func HandleGitConfiguration() error {
 
 	// If we have existing git credentials, ask to use them
 	if strings.TrimSpace(existingName) != "" || strings.TrimSpace(existingEmail) != "" {
+		logger.Log("Complete", "Git", "Git Found", "Found existing git credentials")
+		logger.Log("Info", "Git", "Name", existingName)
+		logger.Log("Info", "Git", "Email", existingEmail)
 		if Program != nil {
-			sendFormattedLog("🎉", "📦", "Git Found", "Found existing git credentials")
-			sendFormattedLog("📋", "📦", "Name", existingName)
-			sendFormattedLog("📋", "📦", "Email", existingEmail)
 			Program.Send(tui.InputRequestMsg{Mode: "git-confirm", Prompt: ""})
 		}
 
@@ -97,13 +91,11 @@ func HandleGitConfiguration() error {
 		if GitConfirmUse {
 			userName = existingName
 			userEmail = existingEmail
-			if Program != nil {
-				sendFormattedLog("✅", "📦", "Git Setup", "Using existing credentials")
-			}
+			logger.Log("Success", "Git", "Git Setup", "Using existing credentials")
 		} else {
 			// User said no, prompt for new credentials
+			logger.Log("Info", "Git", "Git Setup", "Setting up new credentials")
 			if Program != nil {
-				sendFormattedLog("💬", "📦", "Git Setup", "Setting up new credentials")
 				Program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 			}
 
@@ -115,8 +107,8 @@ func HandleGitConfiguration() error {
 		}
 	} else {
 		// No existing credentials, prompt for new ones
+		logger.Log("Info", "Git", "Git Setup", "No credentials found, setting up")
 		if Program != nil {
-			sendFormattedLog("💬", "📦", "Git Setup", "No credentials found, setting up")
 			Program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 		}
 
@@ -137,9 +129,7 @@ func HandleGitConfiguration() error {
 		if err := runGitConfig("user.name", userName); err != nil {
 			return fmt.Errorf("setting git user.name: %w", err)
 		}
-		if Program != nil {
-			sendFormattedLog("✅", "📦", "Git Identity", "User name set to: "+userName)
-		}
+		logger.Log("Success", "Git", "Git Identity", "User name set to: "+userName)
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.name set to: %s", userName))
 	}
 
@@ -147,9 +137,7 @@ func HandleGitConfiguration() error {
 		if err := runGitConfig("user.email", userEmail); err != nil {
 			return fmt.Errorf("setting git user.email: %w", err)
 		}
-		if Program != nil {
-			sendFormattedLog("✅", "📦", "Git Identity", "User email set to: "+userEmail)
-		}
+		logger.Log("Success", "Git", "Git Identity", "User email set to: "+userEmail)
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Git user.email set to: %s", userEmail))
 	}
 
@@ -163,9 +151,7 @@ func HandleGitConfiguration() error {
 		"init.defaultBranch": "master",
 	}
 
-	if Program != nil {
-		sendFormattedLog("🔄", "📦", "Git Aliases", "Setting aliases")
-	}
+	logger.Log("Progress", "Git", "Git Aliases", "Setting aliases")
 
 	for key, value := range gitConfigs {
 		if err := runGitConfig(key, value); err != nil {
@@ -173,9 +159,7 @@ func HandleGitConfiguration() error {
 		}
 	}
 
-	if Program != nil {
-		sendFormattedLog("✅", "📦", "Git Setup", "Complete")
-	}
+	logger.Log("Success", "Git", "Git Setup", "Complete")
 	logger.LogMessage("SUCCESS", "Git configuration applied")
 
 	return nil

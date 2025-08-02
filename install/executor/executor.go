@@ -9,10 +9,10 @@ import (
 
 	"archriot-installer/config"
 	"archriot-installer/git"
-	"archriot-installer/handlers"
 	"archriot-installer/installer"
 	"archriot-installer/logger"
-	"archriot-installer/tui"
+
+
 )
 
 // Program holds the TUI program reference
@@ -21,15 +21,9 @@ var Program *tea.Program
 // SetProgram sets the TUI program reference
 func SetProgram(p *tea.Program) {
 	Program = p
-	handlers.SetProgram(p)
 }
 
-// sendFormattedLog sends a properly formatted log message to TUI
-func sendFormattedLog(status, emoji, name, description string) {
-	if Program != nil {
-		Program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
-	}
-}
+
 
 // executeCommands runs a list of shell commands
 func executeCommands(commands []string, moduleName string) error {
@@ -57,9 +51,7 @@ func executeCommands(commands []string, moduleName string) error {
 // ExecuteModulesInOrder executes all modules according to priority order
 func ExecuteModulesInOrder(cfg *config.Config) error {
 	logger.LogMessage("INFO", "Starting module execution in priority order")
-	if Program != nil {
-		sendFormattedLog("🔄", "📦", "Module Exec", "Starting modules")
-	}
+	logger.Log("Progress", "System", "Module Exec", "Starting modules")
 
 	// Core modules (priority 10)
 	if err := executeModuleCategory("core", cfg.Core); err != nil {
@@ -94,24 +86,18 @@ func ExecuteModulesInOrder(cfg *config.Config) error {
 func executeModuleCategory(category string, modules map[string]config.Module) error {
 	if len(modules) == 0 {
 		logger.LogMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
-		if Program != nil {
-			sendFormattedLog("📋", "📦", strings.Title(category), "No modules")
-		}
+		logger.Log("Info", "Module", strings.Title(category), "No modules")
 		return nil
 	}
 
 	priority := config.ModuleOrder[category]
 	logger.LogMessage("INFO", fmt.Sprintf("Executing %s modules (priority %d)", category, priority))
-	if Program != nil {
-		sendFormattedLog("🔄", "📦", strings.Title(category), "Starting "+category+" modules")
-	}
+	logger.Log("Progress", "Module", strings.Title(category), "Starting "+category+" modules")
 
 	for name, module := range modules {
 		fullName := fmt.Sprintf("%s.%s", category, name)
-		logger.LogMessage("INFO", fmt.Sprintf("Starting module: %s - %s", fullName, module.Description))
-		if Program != nil {
-			sendFormattedLog("🔄", "📦", fullName, module.Description)
-		}
+		logger.LogMessage("INFO", fmt.Sprintf("Starting module: %s - %s", fullName, module.Start))
+		logger.Log("Progress", module.Type, fullName, module.Start)
 
 		// Install packages
 		if err := installer.InstallPackages(module.Packages); err != nil {
@@ -122,49 +108,31 @@ func executeModuleCategory(category string, modules map[string]config.Module) er
 		if category == "core" && name == "identity" {
 			if err := git.HandleGitConfiguration(); err != nil {
 				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration had issues: %v", err))
-				if Program != nil {
-					sendFormattedLog("⚠️", "📦", "Git Setup", "Issues: "+err.Error())
-				}
+				logger.Log("Warning", "Git", "Git Setup", "Issues: "+err.Error())
 			}
 		}
 
 		// Copy configs
 		if err := installer.CopyConfigs(module.Configs); err != nil {
 			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
-			if Program != nil {
-				sendFormattedLog("⚠️", "📁", fullName, "Config issues: "+err.Error())
-			}
+			logger.Log("Warning", "File", fullName, "Config issues: "+err.Error())
 		}
 
 		// Execute commands if specified
 		if len(module.Commands) > 0 {
 			if err := executeCommands(module.Commands, fullName); err != nil {
 				logger.LogMessage("WARNING", fmt.Sprintf("Command execution had issues for %s: %v", fullName, err))
-				if Program != nil {
-					sendFormattedLog("⚠️", "⚡", fullName, "Command issues: "+err.Error())
-				}
+				logger.Log("Warning", "System", fullName, "Command issues: "+err.Error())
 			}
 		}
 
-		// Execute handler if specified
-		if module.Handler != "" {
-			if err := handlers.ExecuteHandler(module.Handler); err != nil {
-				logger.LogMessage("WARNING", fmt.Sprintf("Handler execution had issues for %s: %v", fullName, err))
-				if Program != nil {
-					sendFormattedLog("⚠️", "🔧", fullName, "Handler issues: "+err.Error())
-				}
-			}
-		}
+
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
-		if Program != nil {
-			sendFormattedLog("✅", "📦", fullName, "Complete")
-		}
+		logger.Log("Complete", module.Type, fullName, module.End)
 	}
 
 	logger.LogMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
-	if Program != nil {
-		sendFormattedLog("✅", "📦", strings.Title(category), "All done")
-	}
+	logger.Log("Complete", "Module", strings.Title(category), "All done")
 	return nil
 }

@@ -64,6 +64,9 @@ func main() {
 	model = tui.NewInstallModel()
 	program = tea.NewProgram(model)
 
+	// Set up unified logger with TUI program (must be first)
+	logger.SetProgram(program)
+
 	// Set up git package (after program is created)
 	git.SetProgram(program)
 	git.SetGitInputChannel(gitInputDone)

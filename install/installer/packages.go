@@ -6,8 +6,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	"archriot-installer/logger"
-	"archriot-installer/tui"
 )
 
 var program *tea.Program
@@ -17,19 +17,13 @@ func SetProgram(p *tea.Program) {
 	program = p
 }
 
-// sendFormattedLog sends a properly formatted log message to TUI
-func sendFormattedLog(status, emoji, name, description string) {
-	if program != nil {
-		program.Send(tui.LogMsg(fmt.Sprintf("%s %s %-15s %s", status, emoji, name, description)))
-	}
-}
+
+
 
 // InstallPackages installs packages in a single batch to avoid database locks
 func InstallPackages(packages []string) error {
 	if len(packages) == 0 {
-		if program != nil {
-			sendFormattedLog("📋", "📦", "Packages", "None to install")
-		}
+		logger.Log("Info", "Package", "Packages", "None to install")
 		return nil
 	}
 
@@ -88,14 +82,12 @@ func installPackageBatch(packages []string) error {
 		output, err = cmd.CombinedOutput()
 
 		if err != nil {
-			if program != nil {
-				// Limit output to first 200 characters to prevent TUI spam
-				outputStr := string(output)
-				if len(outputStr) > 200 {
-					outputStr = outputStr[:200] + "... (truncated)"
-				}
-				sendFormattedLog("❌", "📦", "Package Error", "Failed: "+outputStr)
+			// Limit output to first 200 characters to prevent TUI spam
+			outputStr := string(output)
+			if len(outputStr) > 200 {
+				outputStr = outputStr[:200] + "... (truncated)"
 			}
+			logger.Log("Error", "Package", "Package Error", "Failed: "+outputStr)
 			return fmt.Errorf("batch installation failed: %w", err)
 		}
 	}
@@ -108,9 +100,7 @@ func installPackageBatch(packages []string) error {
 // SyncPackageDatabases syncs pacman and yay databases
 func SyncPackageDatabases() error {
 	logger.LogMessage("INFO", "🔄 Syncing package databases...")
-	if program != nil {
-		sendFormattedLog("🔄", "📦", "Database Sync", "Syncing databases")
-	}
+	logger.Log("Progress", "Database", "Database Sync", "Syncing databases")
 
 	start := time.Now()
 
@@ -130,9 +120,7 @@ func SyncPackageDatabases() error {
 			outputStr = outputStr[:200] + "... (truncated)"
 		}
 		logger.LogMessage("WARNING", fmt.Sprintf("Failed to sync yay database: %s", outputStr))
-		if program != nil {
-			sendFormattedLog("⚠️", "📦", "Database Sync", "Yay sync failed, continuing")
-		}
+		logger.Log("Warning", "Database", "Database Sync", "Yay sync failed, continuing")
 	} else {
 		logger.LogMessage("SUCCESS", "Yay database synced")
 	}

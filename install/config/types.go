@@ -11,12 +11,14 @@ type Config struct {
 
 // Module represents a single installation module
 type Module struct {
-	Packages    []string     `yaml:"packages"`
-	Configs     []ConfigRule `yaml:"configs"`
-	Commands    []string     `yaml:"commands,omitempty"`
-	Handler     string       `yaml:"handler,omitempty"`
-	Depends     []string     `yaml:"depends,omitempty"`
-	Description string       `yaml:"description"`
+	Packages []string     `yaml:"packages"`
+	Configs  []ConfigRule `yaml:"configs"`
+	Commands []string     `yaml:"commands,omitempty"`
+	Handler  string       `yaml:"handler,omitempty"`
+	Depends  []string     `yaml:"depends,omitempty"`
+	Start    string       `yaml:"start"`
+	End      string       `yaml:"end"`
+	Type     string       `yaml:"type"`
 }
 
 // ConfigRule represents a configuration copying rule

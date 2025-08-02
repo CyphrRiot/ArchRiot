@@ -24,22 +24,16 @@ func CopyConfigs(configs []config.ConfigRule) error {
 	configSourceDir := filepath.Join(homeDir, ".local", "share", "archriot", "config")
 
 	// logMessage("INFO", fmt.Sprintf("Copying configs from: %s", configSourceDir))
-	if program != nil {
-		sendFormattedLog("🔄", "📁", "Config Copy", "From: "+configSourceDir)
-	}
+	logger.Log("Progress", "File", "Config Copy", "From: "+configSourceDir)
 
 	for _, configRule := range configs {
 		logger.LogMessage("INFO", fmt.Sprintf("Processing config pattern: %s", configRule.Pattern))
 
 		if err := copyConfigPattern(configSourceDir, homeDir, configRule); err != nil {
 			// logMessage("WARNING", fmt.Sprintf("Failed to copy config %s: %v", configRule.Pattern, err))
-			if program != nil {
-				sendFormattedLog("❌", "📄", configRule.Pattern, "Failed: "+err.Error())
-			}
+			logger.Log("Error", "File", configRule.Pattern, "Failed: "+err.Error())
 		} else {
-			if program != nil {
-				sendFormattedLog("✅", "📄", configRule.Pattern, "Copied successfully")
-			}
+			logger.Log("Success", "File", configRule.Pattern, "Copied successfully")
 		}
 	}
 
