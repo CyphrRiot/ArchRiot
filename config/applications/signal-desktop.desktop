@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Signal
+Comment=Private messaging from your desktop
+Exec=sh -c 'env GDK_SCALE=1 signal-desktop --ozone-platform=wayland --enable-features=UseOzonePlatform'
+Terminal=false
+Type=Application
+Icon=signal-desktop
+StartupNotify=true
+Categories=Network;InstantMessaging;Chat;
+Keywords=signal;chat;messaging;secure;private;encryption;
+MimeType=x-scheme-handler/sgnl;x-scheme-handler/signalcaptcha;
+StartupWMClass=Signal

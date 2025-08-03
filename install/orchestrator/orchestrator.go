@@ -1,6 +1,7 @@
 package orchestrator
 
 import (
+	"math"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"archriot-installer/config"
@@ -20,11 +21,31 @@ func SetProgram(p *tea.Program) {
 
 
 
+// countTotalModules counts all modules across all categories
+func countTotalModules(cfg *config.Config) int {
+	total := 0
+	total += len(cfg.Core)
+	total += len(cfg.System)
+	total += len(cfg.Development)
+	total += len(cfg.Desktop)
+	total += len(cfg.Media)
+	total += len(cfg.Utilities)
+	total += len(cfg.Productivity)
+	total += len(cfg.Specialty)
+	total += len(cfg.Theming)
+	return total
+}
+
+// roundToNearest5 rounds progress to nearest 5%
+func roundToNearest5(progress float64) float64 {
+	return math.Round(progress*20) / 20
+}
+
 // RunInstallation runs the main installation process
 func RunInstallation() {
 	// Send progress updates to TUI
 	sendProgress := func(progress float64) {
-		Program.Send(tui.ProgressMsg(progress))
+		Program.Send(tui.ProgressMsg(roundToNearest5(progress)))
 	}
 
 	// Send step updates to TUI
@@ -75,8 +96,21 @@ func RunInstallation() {
 	sendStep("Installing modules...")
 	sendProgress(0.3)
 
-	// Execute modules in proper order
-	if err := executor.ExecuteModulesInOrder(cfg); err != nil {
+	// Calculate dynamic progress
+	totalModules := countTotalModules(cfg)
+	moduleProgressRange := 0.7 // 70% of progress is for modules (30% already used for prep)
+	progressPerModule := moduleProgressRange / float64(totalModules)
+
+	// Create progress callback for executor
+	completedModules := 0
+	progressCallback := func() {
+		completedModules++
+		currentProgress := 0.3 + (float64(completedModules) * progressPerModule)
+		sendProgress(currentProgress)
+	}
+
+	// Execute modules in proper order with progress tracking
+	if err := executor.ExecuteModulesInOrderWithProgress(cfg, progressCallback); err != nil {
 		logger.Log("Error", "System", "Module Exec", "Failed: "+err.Error())
 		return
 	}

@@ -48,42 +48,72 @@ func executeCommands(commands []string, moduleName string) error {
 	return nil
 }
 
-// ExecuteModulesInOrder executes all modules according to priority order
+// ExecuteModulesInOrder executes all modules in the correct priority order
 func ExecuteModulesInOrder(cfg *config.Config) error {
+	return ExecuteModulesInOrderWithProgress(cfg, nil)
+}
+
+// ExecuteModulesInOrderWithProgress executes all modules with progress callback
+func ExecuteModulesInOrderWithProgress(cfg *config.Config, progressCallback func()) error {
 	logger.LogMessage("INFO", "Starting module execution in priority order")
 	logger.Log("Progress", "System", "Module Exec", "Starting modules")
 
 	// Core modules (priority 10)
-	if err := executeModuleCategory("core", cfg.Core); err != nil {
+	if err := executeModuleCategoryWithProgress("core", cfg.Core, progressCallback); err != nil {
 		return fmt.Errorf("core modules failed: %w", err)
 	}
 
 	// System modules (priority 20)
-	if err := executeModuleCategory("system", cfg.System); err != nil {
+	if err := executeModuleCategoryWithProgress("system", cfg.System, progressCallback); err != nil {
 		return fmt.Errorf("system modules failed: %w", err)
 	}
 
 	// Development modules (priority 30)
-	if err := executeModuleCategory("development", cfg.Development); err != nil {
+	if err := executeModuleCategoryWithProgress("development", cfg.Development, progressCallback); err != nil {
 		return fmt.Errorf("development modules failed: %w", err)
 	}
 
 	// Desktop modules (priority 40)
-	if err := executeModuleCategory("desktop", cfg.Desktop); err != nil {
+	if err := executeModuleCategoryWithProgress("desktop", cfg.Desktop, progressCallback); err != nil {
 		return fmt.Errorf("desktop modules failed: %w", err)
 	}
 
-	// Media modules (priority 60 - treating as optional for now)
-	if err := executeModuleCategory("media", cfg.Media); err != nil {
+	// Media modules (priority 50)
+	if err := executeModuleCategoryWithProgress("media", cfg.Media, progressCallback); err != nil {
 		return fmt.Errorf("media modules failed: %w", err)
 	}
 
-	logger.LogMessage("SUCCESS", "All module categories completed")
+	// Utilities modules
+	if err := executeModuleCategoryWithProgress("utilities", cfg.Utilities, progressCallback); err != nil {
+		return fmt.Errorf("utilities modules failed: %w", err)
+	}
+
+	// Productivity modules
+	if err := executeModuleCategoryWithProgress("productivity", cfg.Productivity, progressCallback); err != nil {
+		return fmt.Errorf("productivity modules failed: %w", err)
+	}
+
+	// Specialty modules
+	if err := executeModuleCategoryWithProgress("specialty", cfg.Specialty, progressCallback); err != nil {
+		return fmt.Errorf("specialty modules failed: %w", err)
+	}
+
+	// Theming modules
+	if err := executeModuleCategoryWithProgress("theming", cfg.Theming, progressCallback); err != nil {
+		return fmt.Errorf("theming modules failed: %w", err)
+	}
+
+	logger.LogMessage("SUCCESS", "All modules executed successfully")
 	return nil
 }
 
 // executeModuleCategory executes all modules in a category
 func executeModuleCategory(category string, modules map[string]config.Module) error {
+	return executeModuleCategoryWithProgress(category, modules, nil)
+}
+
+// executeModuleCategoryWithProgress executes all modules in a category with progress callback
+func executeModuleCategoryWithProgress(category string, modules map[string]config.Module, progressCallback func()) error {
 	if len(modules) == 0 {
 		logger.LogMessage("INFO", fmt.Sprintf("No %s modules to execute", category))
 		logger.Log("Info", "Module", strings.Title(category), "No modules")
@@ -105,10 +135,9 @@ func executeModuleCategory(category string, modules map[string]config.Module) er
 		}
 
 		// Handle Git configuration for identity module
-		if category == "core" && name == "identity" {
+		if fullName == "core.identity" {
 			if err := git.HandleGitConfiguration(); err != nil {
-				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration had issues: %v", err))
-				logger.Log("Warning", "Git", "Git Setup", "Issues: "+err.Error())
+				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration failed for %s: %v", fullName, err))
 			}
 		}
 
@@ -118,21 +147,22 @@ func executeModuleCategory(category string, modules map[string]config.Module) er
 			logger.Log("Warning", "File", fullName, "Config issues: "+err.Error())
 		}
 
-		// Execute commands if specified
-		if len(module.Commands) > 0 {
-			if err := executeCommands(module.Commands, fullName); err != nil {
-				logger.LogMessage("WARNING", fmt.Sprintf("Command execution had issues for %s: %v", fullName, err))
-				logger.Log("Warning", "System", fullName, "Command issues: "+err.Error())
-			}
+		// Execute commands
+		if err := executeCommands(module.Commands, fullName); err != nil {
+			logger.LogMessage("WARNING", fmt.Sprintf("Command execution had issues for %s: %v", fullName, err))
+			logger.Log("Warning", "Command", fullName, "Command issues: "+err.Error())
 		}
 
+		logger.LogMessage("SUCCESS", fmt.Sprintf("Module completed: %s - %s", fullName, module.End))
+		logger.Log("Success", module.Type, fullName, module.End)
 
-
-		logger.LogMessage("SUCCESS", fmt.Sprintf("Module %s completed", fullName))
-		logger.Log("Complete", module.Type, fullName, module.End)
+		// Call progress callback after each module completes
+		if progressCallback != nil {
+			progressCallback()
+		}
 	}
 
-	logger.LogMessage("SUCCESS", fmt.Sprintf("All %s modules completed", category))
-	logger.Log("Complete", "Module", strings.Title(category), "All done")
+	logger.LogMessage("SUCCESS", fmt.Sprintf("%s modules completed", strings.Title(category)))
+	logger.Log("Success", "Module", strings.Title(category), "All "+category+" modules done")
 	return nil
 }

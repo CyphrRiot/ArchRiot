@@ -20,11 +20,17 @@ core:
             - rsync
             - bc
             - go-yq
+            - python
+            - python-psutil
         configs:
             - pattern: fish/*
-              preserve_if_exists: []
             - pattern: environment.d/*
-              preserve_if_exists: []
+            - pattern: systemd/*
+        commands:
+            - "python3 -c 'import psutil'"
+            - "systemctl --user daemon-reload"
+            - "systemctl --user enable version-check.timer 2>/dev/null || true"
+            - "systemctl --user start version-check.timer 2>/dev/null || true"
         depends: [core.sudo]
         start: "Installing base development tools"
         end: "Base tools installed"
@@ -33,6 +39,13 @@ core:
     identity:
         packages: []
         configs: []
+        commands:
+            - "git config --global alias.co checkout"
+            - "git config --global alias.br branch"
+            - "git config --global alias.ci commit"
+            - "git config --global alias.st status"
+            - "git config --global pull.rebase true"
+            - "git config --global init.defaultBranch master"
         depends: [core.base]
         start: "Configuring Git identity"
         end: "Git identity configured"
@@ -59,7 +72,8 @@ core:
             - plocate
         configs:
             - pattern: fish/*
-              preserve_if_exists: []
+            - pattern: default/tmux.conf
+              target: ~/.tmux.conf
         commands:
             - "sudo chsh -s /usr/bin/fish $USER"
         depends: [core.base]
@@ -79,13 +93,31 @@ desktop:
             - swaybg
         configs:
             - pattern: hypr/*
-              preserve_if_exists: []
             - pattern: waybar/*
-              preserve_if_exists: []
             - pattern: fuzzel/*
-              preserve_if_exists: []
             - pattern: mako/*
-              preserve_if_exists: []
+            - pattern: gtk-3.0/*
+              preserve_if_exists: [bookmarks]
+            - pattern: gtk-4.0/*
+            - pattern: Thunar/*
+            - pattern: bin/scripts/*
+              target: ~/.local/bin/
+            - pattern: bin/*
+              target: ~/.local/bin/
+            - pattern: applications/*.desktop
+              target: ~/.local/share/applications/
+            - pattern: applications/hidden/*
+              target: ~/.local/share/applications/
+            - pattern: applications/icons/*
+              target: ~/.local/share/icons/
+            - pattern: images/*
+              target: ~/.local/share/archriot/images/
+        commands:
+            - "chmod +x ~/.local/bin/*"
+            - "update-desktop-database ~/.local/share/applications/"
+            - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
+            - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
+            - "echo -e '[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $USER --noclear %I \\$TERM' | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null"
         depends: [core.base]
         start: "Installing Hyprland desktop"
         end: "Hyprland desktop installed"
@@ -133,7 +165,6 @@ development:
             - pattern: zed/*
               preserve_if_exists: [settings.json]
             - pattern: btop/*
-              preserve_if_exists: []
         depends: [core.base]
         start: "Installing development tools"
         end: "Development tools installed"
@@ -339,27 +370,6 @@ system:
         commands:
             - "gsettings set org.gnome.desktop.privacy remember-recent-files false || true"
             - "rm -f ~/.local/share/recently-used.xbel"
-            - "mkdir -p ~/.config/gtk-3.0"
-            - "sed -i '/gtk-recent-files-enabled/d' ~/.config/gtk-3.0/settings.ini 2>/dev/null || true"
-            - "sed -i '/gtk-recent-files-max-age/d' ~/.config/gtk-3.0/settings.ini 2>/dev/null || true"
-            - "sed -i '/gtk-recent-files-limit/d' ~/.config/gtk-3.0/settings.ini 2>/dev/null || true"
-            - "grep -q '^\\[Settings\\]' ~/.config/gtk-3.0/settings.ini 2>/dev/null || echo '[Settings]' >> ~/.config/gtk-3.0/settings.ini"
-            - "sed -i '/^\\[Settings\\]/a gtk-recent-files-enabled=0\\ngtk-recent-files-max-age=0\\ngtk-recent-files-limit=0' ~/.config/gtk-3.0/settings.ini"
-            - "mkdir -p ~/.config/gtk-4.0"
-            - "sed -i '/gtk-recent-files-enabled/d' ~/.config/gtk-4.0/settings.ini 2>/dev/null || true"
-            - "sed -i '/gtk-recent-files-max-age/d' ~/.config/gtk-4.0/settings.ini 2>/dev/null || true"
-            - "sed -i '/gtk-recent-files-limit/d' ~/.config/gtk-4.0/settings.ini 2>/dev/null || true"
-            - "grep -q '^\\[Settings\\]' ~/.config/gtk-4.0/settings.ini 2>/dev/null || echo '[Settings]' >> ~/.config/gtk-4.0/settings.ini"
-            - "sed -i '/^\\[Settings\\]/a gtk-recent-files-enabled=0\\ngtk-recent-files-max-age=0\\ngtk-recent-files-limit=0' ~/.config/gtk-4.0/settings.ini"
-            - "mkdir -p ~/.config/Thunar"
-            - "sed -i '/LastShowRecent=/d' ~/.config/Thunar/thunarrc 2>/dev/null || true"
-            - "echo 'LastShowRecent=FALSE' >> ~/.config/Thunar/thunarrc"
-            - "mkdir -p ~/.local/bin"
-            - "echo '#!/bin/bash' > ~/.local/bin/clear-recents"
-            - "echo 'rm -f ~/.local/share/recently-used.xbel' >> ~/.local/bin/clear-recents"
-            - 'echo ''find ~/.local/share/gtk-* -name "*recent*" -type f -delete 2>/dev/null || true'' >> ~/.local/bin/clear-recents'
-            - 'echo ''find ~/.cache/thumbnails -name "*.xbel" -type f -delete 2>/dev/null || true'' >> ~/.local/bin/clear-recents'
-            - "chmod +x ~/.local/bin/clear-recents"
         depends: [core.base]
         start: "Configuring desktop privacy"
         end: "Privacy settings applied"

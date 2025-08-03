@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Keyboard Settings
+GenericName=Keyboard Configuration
+Comment=Configure keyboard layout and input settings
+Icon=input-keyboard
+Exec=sh -c 'gnome-text-editor ~/.config/hypr/hyprland.conf && notify-send "Keyboard Settings" "Edit the input{} section to configure keyboard/touchpad settings"'
+Terminal=false
+Categories=Settings;HardwareSettings;
+Keywords=keyboard;input;layout;settings;configuration;hyprland;
+StartupNotify=true
+MimeType=text/plain;

@@ -2,6 +2,8 @@
 
 ## AI DEVELOPMENT RULES
 
+THE FIRST AND MAIN RULE -- LISTEN CLOSELY AND REVIEW EVERYTHING. SLOW DOWN. BE METHODICAL. ONE THING AT A TIME. BE THOROUGH. WAIT FOR FEEDBACK.
+
 ### SHELL SCRIPT MIGRATION
 
 - **COMPLETE MIGRATION ONLY**: Migrate ALL functionality from shell scripts to YAML
@@ -9,6 +11,7 @@
 - **READ ENTIRE SCRIPT FIRST**: Then implement everything in one edit
 - **CHECK FOR DUPLICATES**: Always verify packages/commands don't already exist in YAML
 - **CHECK EXISTING SYSTEM**: Use system commands to understand how packages should be configured and what dependencies exist - NOT to skip installation
+- **100% CERTAINTY REQUIRED**: DO NOT COMPLETE ANY TASK UNTIL YOU ARE 100% CERTAIN IT WORKS CORRECTLY
 - **NO BABYSITTING**: Don't require step-by-step guidance when source script has all info
 
 ### IMPLEMENTATION APPROACH

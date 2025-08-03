@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Name=Brave Private
+GenericName=Private Web Browser
+Comment=Browse the web privately with Brave
+StartupNotify=true
+StartupWMClass=brave-browser
+TryExec=brave
+Exec=brave --incognito
+Terminal=false
+Icon=brave-desktop
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;x-scheme-handler/http;x-scheme-handler/https;
+NoDisplay=false

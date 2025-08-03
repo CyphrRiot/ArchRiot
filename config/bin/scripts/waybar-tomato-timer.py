@@ -86,7 +86,7 @@ class SimplePomodoro:
 
     def toggle(self):
         """Start/pause timer"""
-        if self.mode == 'idle':
+        if self.mode == 'idle' or self.mode == 'break_complete':
             self.mode = 'work'
             self.running = True
             self.end_time = datetime.now() + timedelta(minutes=self.work_minutes)
@@ -127,6 +127,9 @@ class SimplePomodoro:
         if self.mode == 'idle':
             return {"text": f"󰌾 {self.work_minutes:02d}:00", "tooltip": "Pomodoro Timer - Click to start", "class": "idle"}
 
+        if self.mode == 'break_complete':
+            return {"text": "󰌾 Ready", "tooltip": "Break complete! Click to start next work session", "class": "break_complete"}
+
         if not self.running and self.paused_remaining is not None:
             remaining = self.paused_remaining
         else:
@@ -140,12 +143,15 @@ class SimplePomodoro:
                 self.end_time = datetime.now() + timedelta(minutes=self.break_minutes)
                 self.save_state()
                 return {"text": "󰌾 Break!", "tooltip": "Work done! Take a 5 minute break", "class": "break"}
-            else:
-                # Break completed - send notification and reset to idle
-                self.send_notification("☕ Break Complete!", "Break time is over. Ready for your next work session!")
-                self.reset_state(notify=False)
+            elif self.mode == 'break':
+                # Break completed - send notification and wait for manual restart
+                self.send_notification("☕ Break Complete!", "Break time is over. Click to start your next work session!")
+                self.mode = 'break_complete'
+                self.running = False
+                self.end_time = None
+                self.paused_remaining = None
                 self.save_state()
-                return {"text": "󰌾 Ready", "tooltip": "Break over! Ready for next session", "class": "ready"}
+                return {"text": "󰌾 Ready", "tooltip": "Break over! Click to start next session", "class": "break_complete"}
 
         minutes, seconds = int(remaining // 60), int(remaining % 60)
         icon = "󰔛" if self.mode == 'work' and self.running else "󰏤" if not self.running else "☕"
