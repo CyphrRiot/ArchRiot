@@ -8,6 +8,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// Global reboot flag setter
+var SetRebootFlag func(bool)
+
 // Color scheme
 var (
 	primaryColor = lipgloss.Color("#7aa2f7") // Tokyo Night blue
@@ -414,6 +417,9 @@ func (m *InstallModel) setInputMode(mode, prompt string) {
 func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 	if m.confirmPrompt == "🔄 Reboot now?" {
 		// Reboot confirmation
+		if m.cursor == 0 && SetRebootFlag != nil { // YES selected
+			SetRebootFlag(true)
+		}
 		return m, tea.Quit
 	} else if m.confirmPrompt == "🔧 Use these credentials?" {
 		// Git credentials confirmation - send result back to main

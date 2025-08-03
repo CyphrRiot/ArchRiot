@@ -11,8 +11,6 @@ import (
 // FindConfigFile looks for packages.yaml in common locations
 func FindConfigFile() string {
 	locations := []string{
-		"packages.yaml",
-		"install/packages.yaml",
 		filepath.Join(os.Getenv("HOME"), ".local/share/archriot/install/packages.yaml"),
 	}
 

@@ -2,8 +2,6 @@
 
 core:
     sudo:
-        packages: []
-        configs: []
         commands:
             - "sudo -n true || (echo 'Setting up passwordless sudo...' && sudo usermod -aG wheel $USER)"
             - "sudo grep -q '^%wheel.*NOPASSWD.*ALL' /etc/sudoers || echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers"
@@ -37,8 +35,6 @@ core:
         type: "Package"
 
     identity:
-        packages: []
-        configs: []
         commands:
             - "git config --global alias.co checkout"
             - "git config --global alias.br branch"
@@ -102,16 +98,14 @@ desktop:
             - pattern: Thunar/*
             - pattern: bin/upgrade-system
               target: ~/.local/bin/
-            - pattern: applications/*.desktop
+            - pattern: config/applications/*.desktop
               target: ~/.local/share/applications/
-            - pattern: applications/hidden/*
+            - pattern: config/applications/hidden/*
               target: ~/.local/share/applications/
-
-            - pattern: images/*
-              target: ~/.local/share/archriot/images/
         commands:
             - "chmod +x ~/.local/bin/*"
-            - "chmod +x ~/.local/share/archriot/config/bin/* ~/.local/share/archriot/config/bin/scripts/*"
+            - "chmod +x ~/.local/share/archriot/config/bin/* "
+            - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
             - "update-desktop-database ~/.local/share/applications/"
             - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
@@ -180,7 +174,7 @@ development:
             - jq
             - zip
             - tmux
-        configs: []
+
         commands:
             - "mkdir -p ~/.local/bin"
             - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
@@ -198,7 +192,7 @@ development:
             - typescript-language-server
             - bash-language-server
             - gopls
-        configs: []
+
         commands:
             - "sudo ln -sf /usr/bin/nvim /usr/bin/vi"
         depends: [core.base]
@@ -214,7 +208,7 @@ system:
             - ttf-hack-nerd
             - ttf-cascadia-mono-nerd
             - ttf-ia-writer
-        configs: []
+
         commands:
             - "fc-cache -f"
         depends: [core.base]
@@ -225,7 +219,7 @@ system:
     bluetooth:
         packages:
             - blueberry
-        configs: []
+
         commands:
             - "sudo systemctl enable --now bluetooth.service"
         depends: [core.base]
@@ -239,7 +233,7 @@ system:
             - cups-pdf
             - cups-filters
             - system-config-printer
-        configs: []
+
         commands:
             - "sudo systemctl enable --now cups.service"
         depends: [core.base]
@@ -251,7 +245,7 @@ system:
         packages:
             - power-profiles-daemon
             - powertop
-        configs: []
+
         commands:
             - "sudo systemctl enable --now power-profiles-daemon.service"
         depends: [core.base]
@@ -268,7 +262,7 @@ system:
             - ntfs-3g
             - dosfstools
             - exfatprogs
-        configs: []
+
         commands:
             - "sudo systemctl enable --now udisks2.service"
         depends: [core.base]
@@ -279,7 +273,7 @@ system:
     networking:
         packages:
             - iwd
-        configs: []
+
         commands:
             - "sudo systemctl enable --now iwd.service"
         depends: [core.base]
@@ -300,7 +294,7 @@ system:
             - pavucontrol
             - pamixer
             - playerctl
-        configs: []
+
         commands:
             - "pacman -Qs ^pulseaudio$ && sudo pacman -Rdd --noconfirm pulseaudio || true"
             - "pacman -Qs ^jack2$ && sudo pacman -Rdd --noconfirm jack2 || true"
@@ -313,8 +307,6 @@ system:
         type: "System"
 
     memory:
-        packages: []
-        configs: []
         commands:
             - "sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf"
             - "sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf"
@@ -324,8 +316,6 @@ system:
         type: "System"
 
     mimetypes:
-        packages: []
-        configs: []
         commands:
             - "update-desktop-database ~/.local/share/applications"
             - "xdg-mime default imv.desktop image/png"
@@ -363,8 +353,6 @@ system:
         type: "System"
 
     privacy:
-        packages: []
-        configs: []
         commands:
             - "gsettings set org.gnome.desktop.privacy remember-recent-files false || true"
             - "rm -f ~/.local/share/recently-used.xbel"
@@ -377,7 +365,7 @@ system:
         packages:
             - usbutils
             - pciutils
-        configs: []
+
         commands:
             - "sudo sed -i '/^#\\[multilib\\]/,/^#Include/ s/^#//' /etc/pacman.conf"
             - "if lspci | grep -qi nvidia; then yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils; fi"
@@ -398,7 +386,7 @@ media:
             - yt-dlp
             - python-opencv
             - spotdl
-        configs: []
+
         commands:
             - "yay -S --noconfirm --needed --mflags --nocheck spotdl"
         depends: [desktop.hyprland]

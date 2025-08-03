@@ -53,7 +53,7 @@ class WelcomeWindow:
     def add_welcome_image(self, container):
         # Add Welcome image - use image directly from repository
         home_dir = os.environ.get('HOME') or os.path.expanduser('~')
-        image_path = os.path.join(home_dir, '.local', 'share', 'archriot', 'images', 'welcome.png')
+        image_path = os.path.join(home_dir, '.local', 'share', 'archriot', 'config', 'images', 'welcome.png')
 
         if os.path.exists(image_path):
             try:

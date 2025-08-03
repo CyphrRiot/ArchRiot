@@ -401,10 +401,10 @@ class PomodoroWidget(BaseControlWidget):
         try:
             import os
             import sys
-            script_file = sys.argv[0] if sys.argv and sys.argv[0] else os.path.expanduser("~/.local/share/archriot/bin/archriot-control-panel")
+            script_file = sys.argv[0] if sys.argv and sys.argv[0] else os.path.expanduser("~/.local/share/archriot/config/bin/archriot-control-panel")
             script_dir = os.path.dirname(os.path.abspath(script_file))
             archriot_dir = os.path.dirname(script_dir)
-            image_path = os.path.join(archriot_dir, "images", "pomodoro.png")
+            image_path = os.path.join(archriot_dir, "config", "images", "pomodoro.png")
 
             if os.path.exists(image_path):
                 # Load the original pixbuf

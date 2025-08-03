@@ -12,7 +12,7 @@
 # ==============================================================================
 
 # Load shared library functions
-source "$(dirname "${BASH_SOURCE[0]}")/../lib/shared.sh" || {
+source "$HOME/.local/share/archriot/install/lib/shared.sh" || {
     echo "❌ Failed to load shared library functions"
     exit 1
 }

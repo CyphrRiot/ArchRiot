@@ -95,29 +95,36 @@ THE FIRST AND MAIN RULE -- LISTEN CLOSELY AND REVIEW EVERYTHING. SLOW DOWN. BE M
 1. **Scripts (config/bin/\*)** - ✅ COMPLETE
     - Step 1: ✅ Modified YAML to copy only `upgrade-system` (user CLI command)
     - Step 2: ✅ All internal scripts stay in `~/.local/share/archriot/config/bin/`
-    - Step 3: ⚠️ PENDING - Must update all references in hyprland.conf, waybar, etc.
+    - Step 3: ✅ Updated ALL references in hyprland.conf, waybar, power-menu, validate-system, systemd services
 
 2. **tmux Config (config/default/tmux.conf)** - ✅ COMPLETE
     - Step 1: ✅ Changed YAML target to `~/.config/tmux/tmux.conf` (XDG location)
     - Step 2: ✅ tmux automatically finds config in XDG location
     - Step 3: ✅ No additional references to update
 
-3. **Icons (config/applications/icons/\*)** - 🔄 IN PROGRESS
+3. **Icons (config/applications/icons/\*)** - ✅ COMPLETE
     - Step 1: ✅ Removed copying pattern from YAML
-    - Step 2: 🔄 Updating X.desktop to use `%h/.local/share/archriot/config/applications/icons/`
-    - Step 3: ⚠️ PENDING - Must update ALL desktop files and any other icon references
+    - Step 2: ✅ Updated desktop files to use `%h/.local/share/archriot/config/applications/icons/`
+    - Step 3: ✅ All icon references updated to use ArchRiot paths
 
-**PENDING MIGRATIONS:**
+4. **Images (config/images/\*)** - ✅ COMPLETE
+    - Step 1: ✅ Removed unnecessary copying from config/images/ to archriot/images/
+    - Step 2: ✅ Updated welcome script and control panel to reference config/images/
+    - Step 3: ✅ All image references use direct ArchRiot paths
 
-4. **Desktop Applications (config/applications/\*)**
+5. **YAML Cleanup** - ✅ COMPLETE
+    - Removed unnecessary `configs: []` and `packages: []` entries
+    - Fixed applications path patterns from `applications/*` to `config/applications/*`
+    - Fixed installer to always read from `~/.local/share/archriot/install/packages.yaml`
+    - Fixed database sync to run only once instead of per-module
+
+**KEEP COPYING (CORRECT DECISIONS):**
+
+6. **Desktop Applications (config/applications/\*)**
     - Current: Copy .desktop files to ~/.local/share/applications/
     - Decision: KEEP COPYING (desktop environments require standard location)
 
-5. **Images (config/images/\*)**
-    - Current: Copy to ~/.local/share/archriot/images/
-    - Decision: Already correct (staying in ArchRiot directory)
-
-6. **Config Files (hypr/_, waybar/_, etc.)**
+7. **Config Files (hypr/_, waybar/_, etc.)**
     - Current: Copy to ~/.config/{app}/
     - Decision: KEEP COPYING (applications require standard XDG locations)
 
@@ -155,20 +162,46 @@ For each file type:
 - Single source of truth for ArchRiot assets
 - Consistent architecture across all file types
 
-**CURRENT STATUS:** Following systematic 3-step pattern for each file type to ensure no functionality breaks.
+**CURRENT STATUS:** Systematic 3-step pattern complete for script architecture. File copying architecture now optimized with minimal duplication.
+
+### CRITICAL LESSONS LEARNED
+
+**❌ REPEATED MISTAKES BY AI:**
+
+1. **False Claims**: Multiple times claimed "100% certainty" about completing work that wasn't done
+2. **Sloppy Verification**: Said "fixed all references" without actually checking every single one
+3. **Incomplete Audits**: Missed obvious issues like applications path patterns in YAML
+4. **Relative Path Issues**: Claimed to remove all `../` paths but left several behind
+
+**✅ SUCCESSFUL PATTERNS:**
+
+1. **Systematic 3-Step Approach**: Fix copy → Fix primary reference → Find ALL references
+2. **Atomic Changes**: One change at a time with review before proceeding
+3. **Actual Testing**: Running installer revealed real issues vs theoretical fixes
+4. **Architecture Simplification**: Removing unnecessary copying and config noise
 
 ### NEXT IMMEDIATE TASKS
 
-**PHASE 1: ARCHITECTURE AUDIT (CRITICAL)**
+**PHASE 1: PENDING SCRIPT MIGRATIONS**
 
-1. **Complete file copying audit** using methodology above
-2. **Identify all unnecessary copying** in current YAML configs
-3. **Test application compatibility** with direct references
-4. **Update all references systematically** (scripts, icons, images, etc.)
+1. Convert remaining pending scripts to YAML modules:
+    - communication.sh → communication module
+    - theming.sh → theming module
+    - productivity.sh → productivity module
+    - utilities.sh → utilities module
+    - specialty.sh → specialty module
 
-**PHASE 2: PENDING MIGRATIONS** 5. Convert remaining pending scripts to YAML modules: - communication.sh → communication module - theming.sh → theming module - productivity.sh → productivity module - utilities.sh → utilities module - specialty.sh → specialty module
+**PHASE 2: FINAL CLEANUP**
 
-**PHASE 3: VALIDATION** 6. **Audit previous migration work** for sloppy implementations 7. **Verify all 01-config.sh functionality** was properly migrated 8. **Check for missing or broken functionality** from hasty changes
+2. **Remove remaining relative paths**: Actually audit and fix ALL `../` references
+3. **Test installer thoroughly**: Verify all file copying patterns work correctly
+4. **Update documentation**: Reflect new architecture in README and docs
+
+**PHASE 3: VALIDATION**
+
+5. **End-to-end testing**: Full installation on clean system
+6. **Performance validation**: Verify reference-based approach performs well
+7. **Documentation update**: Update installation guides for new architecture
 
 ### MIGRATION TARGET
 

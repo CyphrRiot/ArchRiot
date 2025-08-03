@@ -29,10 +29,7 @@ func InstallPackages(packages []string) error {
 
 	logger.LogMessage("INFO", fmt.Sprintf("Installing %d packages", len(packages)))
 
-	// Sync databases first
-	if err := SyncPackageDatabases(); err != nil {
-		logger.LogMessage("WARNING", fmt.Sprintf("Database sync failed: %v", err))
-	}
+
 
 	// Check which packages are already installed
 	var toInstall []string

@@ -44,8 +44,8 @@ echo -e "${GREEN}✓ ImageMagick available${NC}"
 
 # Automated change detection for logo updates
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_LOGO="$SCRIPT_DIR/../config/images/logo.png"
-LOGO_SCRIPT_PATH="$SCRIPT_DIR/../bin/generate-boot-logo.sh"
+SOURCE_LOGO="$HOME/.local/share/archriot/config/images/logo.png"
+LOGO_SCRIPT_PATH="$HOME/.local/share/archriot/config/bin/generate-boot-logo.sh"
 LOGO_CHECKSUM_FILE="$HOME/.config/archriot/logo_checksums.txt"
 
 # Create config directory if needed
