@@ -20,9 +20,11 @@ core:
             - go-yq
             - python
             - python-psutil
+            - fastfetch
         configs:
             - pattern: fish/*
             - pattern: environment.d/*
+            - pattern: fastfetch/*
             - pattern: systemd/*
         commands:
             - "python3 -c 'import psutil'"
@@ -118,6 +120,8 @@ desktop:
             - ghostty
             - ghostty-shell-integration
             - thunar
+            - thunar-volman
+            - thunar-archive-plugin
             - brave-bin
             - signal-desktop
             - brightnessctl
@@ -168,6 +172,24 @@ desktop:
         end: "Text editors configured"
         type: "Package"
 
+    utilities:
+        packages:
+            - gnome-system-monitor
+            - iwgtk
+            - file-roller
+            - secrets
+            - featherwallet-bin
+            - fragments
+            - wget
+        configs:
+            - pattern: applications/*
+        commands:
+            - "update-desktop-database ~/.local/share/applications/"
+        depends: [core.base]
+        start: "Installing desktop utilities"
+        end: "Desktop utilities installed"
+        type: "Package"
+
 development:
     tools:
         packages:
@@ -177,6 +199,8 @@ development:
             - pattern: zed/*
               preserve_if_exists: [settings.json]
             - pattern: btop/*
+        commands:
+            - "ln -sf /usr/bin/zeditor ~/.local/bin/zed"
         depends: [core.base, system.hardware]
         start: "Installing development tools"
         end: "Development tools installed"

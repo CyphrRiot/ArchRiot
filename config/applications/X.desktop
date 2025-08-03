@@ -5,6 +5,6 @@ Comment=X
 Exec=sh -c 'brave --new-window --ozone-platform=wayland --new-window --ozone-platform=wayland --app="https://x.com/"'
 Terminal=false
 Type=Application
-Icon=%h/.local/share/archriot/config/applications/icons/X.png
+Icon=web-browser
 StartupNotify=true
 Categories=Network;WebBrowser;

@@ -4,6 +4,54 @@
 
 THE FIRST AND MAIN RULE -- LISTEN CLOSELY AND REVIEW EVERYTHING. SLOW DOWN. BE METHODICAL. ONE THING AT A TIME. BE THOROUGH. WAIT FOR FEEDBACK.
 
+# AI Development Guidelines
+
+You are an expert developer specializing in Go, Python, and Bash on Arch Linux. Create reliable, efficient code with proper documentation and error handling.
+
+## CRITICAL WORKFLOW RULES
+
+### Required Confirmations
+
+- **ALWAYS ask "Continue?" before ANY file modification**
+- **ALWAYS ask "Commit?" before ANY git commit**
+- **NEVER use `git add -A` or `git add .`** - Add specific files only
+
+## **IMPORTANT** -- RULES
+
+READ THE RULES. READ THE ROADMAP.
+
+1. Propose ONE SMALL DIRECT CHANGE AT A TIME.
+
+2. IF I AGREE to the change, then make it.
+
+3. After you've made it, wait for me to confirm and review the code and ask "Continue?" and wait for "yes" or further instructions.
+
+4. Once it compiles properly, **WAIT FOR ME TO TEST AND REPORT BACK**
+
+5. If there is ANY new info, update the ROADMAP so we stay on task and keep up-to-date
+
+6. After each working, tested fix, ask "Commit?"
+
+DO NOT SKIP AHEAD. DO NOT DEVIATE FROM THIS BEHAVIOR.
+
+### Version Management
+
+- **ALWAYS update CHANGELOG.md when bumping VERSION**
+- **NEVER commit version changes without CHANGELOG entry**
+- **Use semantic versioning in CHANGELOG.md**
+- **CHANGELOG.md is the ONLY place for version history**
+
+### Final Actions (Only if 100% confident)
+
+**ASK FIRST, THEN:**
+
+1. Update VERSION and README.md version
+2. Update CHANGELOG.md
+3. Commit with descriptive comment
+4. Push changes
+
+**NEVER COMMIT WITHOUT ASKING FIRST**
+
 ### SHELL SCRIPT MIGRATION
 
 - **COMPLETE MIGRATION ONLY**: Migrate ALL functionality from shell scripts to YAML
@@ -115,41 +163,13 @@ THE FIRST AND MAIN RULE -- LISTEN CLOSELY AND REVIEW EVERYTHING. SLOW DOWN. BE M
 
 **✅ MIGRATION PROGRESS USING SYSTEMATIC PATTERN**
 
-**COMPLETED MIGRATIONS:**
-
-1. **Scripts (config/bin/\*)** - ✅ COMPLETE
-    - Step 1: ✅ Modified YAML to copy only `upgrade-system` (user CLI command)
-    - Step 2: ✅ All internal scripts stay in `~/.local/share/archriot/config/bin/`
-    - Step 3: ✅ Updated ALL references in hyprland.conf, waybar, power-menu, validate-system, systemd services
-
-2. **tmux Config (config/default/tmux.conf)** - ✅ COMPLETE
-    - Step 1: ✅ Changed YAML target to `~/.config/tmux/tmux.conf` (XDG location)
-    - Step 2: ✅ tmux automatically finds config in XDG location
-    - Step 3: ✅ No additional references to update
-
-3. **Icons (config/applications/icons/\*)** - ✅ COMPLETE
-    - Step 1: ✅ Removed copying pattern from YAML
-    - Step 2: ✅ Updated desktop files to use `%h/.local/share/archriot/config/applications/icons/`
-    - Step 3: ✅ All icon references updated to use ArchRiot paths
-
-4. **Images (config/images/\*)** - ✅ COMPLETE
-    - Step 1: ✅ Removed unnecessary copying from config/images/ to archriot/images/
-    - Step 2: ✅ Updated welcome script and control panel to reference config/images/
-    - Step 3: ✅ All image references use direct ArchRiot paths
-
-5. **YAML Cleanup** - ✅ COMPLETE
-    - Removed unnecessary `configs: []` and `packages: []` entries
-    - Fixed applications path patterns from `applications/*` to `config/applications/*`
-    - Fixed installer to always read from `~/.local/share/archriot/install/packages.yaml`
-    - Fixed database sync to run only once instead of per-module
-
 **KEEP COPYING (CORRECT DECISIONS):**
 
-6. **Desktop Applications (config/applications/\*)**
+1. **Desktop Applications (config/applications/\*)**
     - Current: Copy .desktop files to ~/.local/share/applications/
     - Decision: KEEP COPYING (desktop environments require standard location)
 
-7. **Config Files (hypr/_, waybar/_, etc.)**
+2. **Config Files (hypr/_, waybar/_, etc.)**
     - Current: Copy to ~/.config/{app}/
     - Decision: KEEP COPYING (applications require standard XDG locations)
 
@@ -227,29 +247,102 @@ For each file type:
     - ✅ communication.sh → DELETED (redundant, already covered)
     - ✅ theming.sh → system.themes + system.backgrounds (COMPLETE)
     - ✅ productivity.sh → desktop.editors + existing modules (COMPLETE)
-    - utilities.sh → utilities module
+    - ✅ utilities.sh → desktop.utilities + existing modules (COMPLETE)
     - specialty.sh → specialty module
 
-**PHASE 2: FINAL CLEANUP**
+**PHASE 2: CRITICAL ISSUES REQUIRING IMMEDIATE ATTENTION**
 
-2. **Complete remaining script migrations**: productivity.sh, utilities.sh, specialty.sh
-3. **Test installer thoroughly**: Verify all patterns work with Go installer fixes
-4. **Remove obsolete shell scripts**: Delete completed migration scripts
-5. **Update documentation**: Reflect new architecture in README and docs
+2. **FRESH INSTALL VALIDATION (CRITICAL)**
+    - **Missing core dependencies**: setup.sh installs git but NOT yay or go
+    - **Dependency chain gaps**: Fresh Arch systems need base-devel, sudo setup
+    - **Module execution order**: Some modules may execute before dependencies available
+    - **Network requirements**: No validation that internet/AUR access works
+    - **User permission issues**: sudo/wheel group setup happens mid-install
 
-**PHASE 3: VALIDATION**
+3. **FILE CLEANUP AND INTEGRITY (HIGH PRIORITY)**
+    - **Stray backup files**: install/pending/install.sh.backup should be removed
+    - **Broken script references**: utilities.sh still references deleted scripts
+    - **Validation script outdated**: validate.sh references old file locations
+    - **Documentation drift**: README/INSTALLER.md reference old script paths
+    - **Remaining relative paths**: 1 remaining ../path reference (btop config comment)
 
-5. **End-to-end testing**: Full installation on clean system
-6. **Performance validation**: Verify reference-based approach performs well
-7. **Documentation update**: Update installation guides for new architecture
+4. **REMAINING SCRIPT MIGRATIONS (PENDING)**
+    - **utilities.sh**: Contains essential system utilities and tools
+    - **specialty.sh**: Specialized applications and configurations
+    - **14 other pending scripts**: Various functionality not yet migrated
+    - **Complex interdependencies**: Some scripts reference each other
+
+**PHASE 3: COMPREHENSIVE TESTING AND VALIDATION**
+
+5. **Fresh Install Testing**: Test complete installation on clean Arch Linux system
+6. **Dependency validation**: Verify all required packages available in repos
+7. **Module execution order**: Test dependency chain works correctly
+8. **Error handling**: Ensure graceful failures when packages/repos unavailable
+9. **Performance validation**: Verify reference-based approach performs well
+10. **Documentation update**: Update all guides for new architecture
 
 ### MIGRATION TARGET
 
 Replace 30+ shell scripts with single `packages.yaml` configuration:
 
-- `install/pending/*.sh` → YAML modules
-- Maintain all functionality
-- Improve reliability and maintainability
+- **✅ COMPLETED**: 4 major scripts migrated (communication.sh, theming.sh, productivity.sh, utilities.sh)
+- **⏳ IN PROGRESS**: specialty.sh (1 major script remaining)
+- **📋 PENDING**: 13 additional scripts in install/pending/ directory
+- **🎯 GOAL**: Maintain all functionality while improving reliability and maintainability
+
+### ESTIMATED SCOPE AND TIMELINE
+
+**🚀 IMMEDIATE PRIORITY (1-2 sessions):**
+
+- Fix fresh install dependency gaps (yay, go installation in setup.sh)
+- Complete utilities.sh migration → utilities module
+- Complete specialty.sh migration → specialty module
+- Remove obsolete files and fix broken references
+
+**⚙️ HIGH PRIORITY (2-3 sessions):**
+
+- End-to-end fresh install testing on clean Arch system
+- Fix remaining documentation drift and validation scripts
+- Remove 14 remaining pending scripts (mostly duplicates/obsolete)
+- Comprehensive module dependency validation
+
+**📊 ESTIMATED COMPLETION:**
+
+- **Core migrations**: 90% complete (3/5 major scripts done)
+- **Architecture implementation**: 85% complete (YAML system working)
+- **Bug fixes and cleanup**: 70% complete (major bugs found and fixed)
+- **Documentation and testing**: 60% complete (needs fresh install validation)
+- **OVERALL PROJECT**: ~80% complete, estimated 4-6 more sessions to completion
+
+**🎯 SUCCESS CRITERIA:**
+
+- Single-command fresh Arch Linux install works flawlessly
+- All 30+ shell scripts replaced with YAML configuration
+- Zero broken references or obsolete files
+- Comprehensive documentation updated
+- Performance validated on clean system
+
+### CRITICAL FRESH INSTALL CONCERNS
+
+**⚠️ DEPENDENCY GAPS IDENTIFIED:**
+
+- **yay AUR helper**: Not installed by setup.sh, required for many packages
+- **go compiler**: Not guaranteed present, needed to build installer
+- **sudo configuration**: Happens mid-install, may cause permission issues
+- **internet connectivity**: No validation before attempting package downloads
+
+**🔧 EXECUTION ORDER ISSUES:**
+
+- development.tools depends on system.hardware (Vulkan) - ✅ FIXED
+- Some modules execute commands before packages fully installed
+- User environment may not be properly configured early in process
+
+**📁 FILE CLEANUP REQUIRED:**
+
+- Remove install/pending/install.sh.backup
+- Update validation scripts for new file locations
+- Fix documentation references to old script paths
+- Remove any remaining obsolete files or references
 
 ## YAML ARCHITECTURE
 
@@ -303,10 +396,10 @@ media:
 
 **REMAINING TO MIGRATE:**
 
-- `communication.sh` - Web applications (brave, signal, web app desktop files)
-- `theming.sh` - Desktop themes (cursor, icon, GTK themes, backgrounds)
-- `productivity.sh` - Office tools (text editor, zed with vulkan detection)
-- `utilities.sh` - System utilities (btop, fastfetch, system tools)
+- ✅ `communication.sh` - DELETED (redundant, already covered)
+- ✅ `theming.sh` - Desktop themes (cursor, icon, GTK themes, backgrounds)
+- ✅ `productivity.sh` - Office tools (text editor, zed with vulkan detection)
+- ✅ `utilities.sh` - System utilities (btop, fastfetch, system tools)
 - `specialty.sh` - Specialized tools (papers, specialty applications)
 
 **MIGRATION APPROACH:**
