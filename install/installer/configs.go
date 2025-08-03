@@ -40,6 +40,14 @@ func CopyConfigs(configs []config.ConfigRule) error {
 	return nil
 }
 
+// expandTildePath expands ~ to the user's home directory
+func expandTildePath(path, homeDir string) string {
+	if strings.HasPrefix(path, "~/") {
+		return filepath.Join(homeDir, path[2:])
+	}
+	return path
+}
+
 // copyConfigPattern copies files matching a config pattern with preservation
 func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) error {
 	// Parse pattern (e.g., "hypr/*" -> source: config/hypr, dest: ~/.config/hypr)
@@ -47,21 +55,23 @@ func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) 
 	var sourcePath, destPath string
 
 	if configRule.Target != "" {
-		// Custom target specified
+		// Custom target specified - expand ~ if present
+		expandedTarget := expandTildePath(configRule.Target, homeDir)
+
 		if strings.HasSuffix(pattern, "/*") {
 			// Directory pattern with custom target
 			dirName := strings.TrimSuffix(pattern, "/*")
 			sourcePath = filepath.Join(sourceDir, dirName)
-			destPath = configRule.Target
+			destPath = expandedTarget
 		} else {
 			// File pattern with custom target
 			sourcePath = filepath.Join(sourceDir, pattern)
-			if strings.HasSuffix(configRule.Target, "/") {
+			if strings.HasSuffix(expandedTarget, "/") {
 				// Target is a directory, append filename
-				destPath = filepath.Join(configRule.Target, filepath.Base(pattern))
+				destPath = filepath.Join(expandedTarget, filepath.Base(pattern))
 			} else {
 				// Target is a full file path
-				destPath = configRule.Target
+				destPath = expandedTarget
 			}
 		}
 	} else if strings.HasSuffix(pattern, "/*") {
