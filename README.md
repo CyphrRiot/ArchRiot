@@ -572,7 +572,7 @@ ArchRiot features a fully integrated CypherRiot theme system with complete consi
 
 **Advanced Customization:**
 
-- **Background location:** `~/.config/archriot/backgrounds/` (consolidated directory)
+- **Background location:** `~/.local/share/archriot/backgrounds/` (consolidated directory)
 - **Custom backgrounds:** Add your own wallpapers to the backgrounds directory
 - **Script integration:** Background cycling integrates with waybar and system status
 - **Application consistency:** CypherRiot theme provides unified styling across all applications

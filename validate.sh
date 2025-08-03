@@ -170,11 +170,11 @@ test_theming_system() {
     print_section "Theming System (CRITICAL)"
 
     # Test consolidated backgrounds directory
-    if [[ -d "$CONFIG_DIR/archriot/backgrounds" ]]; then
+    if [[ -d "$ARCHRIOT_DIR/backgrounds" ]]; then
         test_result "Consolidated backgrounds directory" "PASS"
 
         # Check for background files
-        local bg_count=$(find "$CONFIG_DIR/archriot/backgrounds" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) 2>/dev/null | wc -l)
+        local bg_count=$(find "$ARCHRIOT_DIR/backgrounds" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.jpeg" -o -name "*.webp" \) 2>/dev/null | wc -l)
 
         if [[ $bg_count -gt 0 ]]; then
             test_result "Background files ($bg_count found)" "PASS"
@@ -183,13 +183,13 @@ test_theming_system() {
         fi
 
         # Check for default background
-        if [[ -f "$CONFIG_DIR/archriot/backgrounds/riot_01.jpg" ]]; then
+        if [[ -f "$ARCHRIOT_DIR/backgrounds/riot_01.jpg" ]]; then
             test_result "Default background (riot_01.jpg)" "PASS"
         else
             test_result "Default background" "WARN" "riot_01.jpg not found"
         fi
     else
-        test_result "Consolidated backgrounds directory" "FAIL" "~/.config/archriot/backgrounds not found"
+        test_result "Consolidated backgrounds directory" "FAIL" "~/.local/share/archriot/backgrounds not found"
     fi
 
     # Test cursor theme

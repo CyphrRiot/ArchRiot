@@ -98,9 +98,7 @@ desktop:
             - pattern: Thunar/*
             - pattern: bin/upgrade-system
               target: ~/.local/bin/
-            - pattern: config/applications/*.desktop
-              target: ~/.local/share/applications/
-            - pattern: config/applications/hidden/*
+            - pattern: applications/*
               target: ~/.local/share/applications/
         commands:
             - "chmod +x ~/.local/bin/*"
@@ -128,6 +126,10 @@ desktop:
             - hyprsunset
             - tumbler
             - ffmpegthumbnailer
+            - abiword
+            - papers
+            - unzip
+            - p7zip
             - libwebp
             - libheif
             - libavif
@@ -148,6 +150,24 @@ desktop:
         end: "Desktop applications installed"
         type: "Package"
 
+    editors:
+        packages:
+            - gnome-text-editor
+        configs:
+            - pattern: text-editor/*
+        commands:
+            - "gsettings set org.gnome.TextEditor show-line-numbers true"
+            - "gsettings set org.gnome.TextEditor highlight-current-line true"
+            - "gsettings set org.gnome.TextEditor show-right-margin false"
+            - "gsettings set org.gnome.TextEditor custom-font 'iA Writer Mono S 12'"
+            - "gsettings set org.gnome.TextEditor line-height 1.2"
+            - "gsettings set org.gnome.TextEditor use-system-font false"
+            - "gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'"
+        depends: [core.base]
+        start: "Installing text editors"
+        end: "Text editors configured"
+        type: "Package"
+
 development:
     tools:
         packages:
@@ -157,7 +177,7 @@ development:
             - pattern: zed/*
               preserve_if_exists: [settings.json]
             - pattern: btop/*
-        depends: [core.base]
+        depends: [core.base, system.hardware]
         start: "Installing development tools"
         end: "Development tools installed"
         type: "Package"
@@ -365,6 +385,8 @@ system:
         packages:
             - usbutils
             - pciutils
+            - vulkan-icd-loader
+            - vulkan-tools
 
         commands:
             - "sudo sed -i '/^#\\[multilib\\]/,/^#Include/ s/^#//' /etc/pacman.conf"
@@ -375,6 +397,40 @@ system:
         depends: [core.base]
         start: "Setting up hardware drivers"
         end: "Hardware drivers configured"
+        type: "System"
+
+    themes:
+        packages:
+            - bibata-cursor-theme
+            - kora-icon-theme
+            - tela-icon-theme-purple-git
+            - gnome-themes-extra
+            - kvantum-qt5
+        configs:
+            - pattern: default/icons/*
+              target: ~/.icons/
+            - pattern: gtk-3.0/*
+            - pattern: gtk-4.0/*
+        commands:
+            - 'gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"'
+            - 'gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"'
+            - 'gsettings set org.gnome.desktop.wm.preferences theme "Adwaita-dark"'
+            - 'gsettings set org.gnome.desktop.interface icon-theme "Tela-purple-dark"'
+            - 'gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"'
+            - "gsettings set org.gnome.desktop.interface cursor-size 24"
+            - 'gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"'
+        depends: [core.base]
+        start: "Installing desktop themes"
+        end: "Desktop themes configured"
+        type: "Package"
+
+    backgrounds:
+        commands:
+            - "pkill swaybg 2>/dev/null || true"
+            - "nohup swaybg -i ~/.local/share/archriot/backgrounds/riot_01.jpg -m fill >/dev/null 2>&1 & disown"
+        depends: [desktop.hyprland]
+        start: "Setting up wallpapers"
+        end: "Background service started"
         type: "System"
 
 media:

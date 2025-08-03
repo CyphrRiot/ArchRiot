@@ -130,4 +130,15 @@ fi
 
 # Start installation
 echo -e "\nArchRiot installation starting..."
-source ~/.local/share/archriot/install.sh
+
+# Build and run the Go installer
+cd ~/.local/share/archriot/install
+echo -e "🔨 Building ArchRiot installer..."
+if ! go build -o archriot-installer . 2>/dev/null; then
+    echo -e "❌ Failed to build installer. Ensure Go is installed:"
+    echo -e "   sudo pacman -S go"
+    exit 1
+fi
+
+echo -e "🚀 Running ArchRiot installer..."
+./archriot-installer

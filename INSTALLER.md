@@ -75,7 +75,7 @@ Changes made:
 ls ~/.local/share/archriot/install/modules/
 
 # Verify consolidated backgrounds
-ls ~/.config/archriot/backgrounds/
+ls ~/.local/share/archriot/backgrounds/
 
 # Check waybar config integrity
 grep -i "custom/updates" ~/.config/waybar/config

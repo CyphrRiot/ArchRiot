@@ -23,7 +23,7 @@ theme_name=$(basename "$new_theme")
 echo "🎨 Switching to theme: $theme_name"
 
 # Update theme links
-ln -nsf "$HOME/.config/archriot/backgrounds/$theme_name" "$HOME/.config/archriot/current/backgrounds"
+ln -nsf "$HOME/.local/share/archriot/backgrounds/$theme_name" "$HOME/.config/archriot/current/backgrounds"
 ln -nsf "$new_theme" "$current_link"
 
 # Set background

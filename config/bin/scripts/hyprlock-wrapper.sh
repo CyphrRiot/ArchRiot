@@ -18,7 +18,7 @@ fi
 
 # Ensure background exists for hyprlock (consolidated theme system)
 CURRENT_BACKGROUND_FILE="$HOME/.config/archriot/.current-background"
-BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
+BACKGROUNDS_DIR="$HOME/.local/share/archriot/backgrounds"
 
 # Get current background from state file or fallback to riot_01.jpg
 if [[ -f "$CURRENT_BACKGROUND_FILE" ]]; then

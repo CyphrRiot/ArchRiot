@@ -48,13 +48,21 @@ func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) 
 
 	if configRule.Target != "" {
 		// Custom target specified
-		sourcePath = filepath.Join(sourceDir, pattern)
-		if strings.HasSuffix(configRule.Target, "/") {
-			// Target is a directory, append filename
-			destPath = filepath.Join(configRule.Target, filepath.Base(pattern))
-		} else {
-			// Target is a full file path
+		if strings.HasSuffix(pattern, "/*") {
+			// Directory pattern with custom target
+			dirName := strings.TrimSuffix(pattern, "/*")
+			sourcePath = filepath.Join(sourceDir, dirName)
 			destPath = configRule.Target
+		} else {
+			// File pattern with custom target
+			sourcePath = filepath.Join(sourceDir, pattern)
+			if strings.HasSuffix(configRule.Target, "/") {
+				// Target is a directory, append filename
+				destPath = filepath.Join(configRule.Target, filepath.Base(pattern))
+			} else {
+				// Target is a full file path
+				destPath = configRule.Target
+			}
 		}
 	} else if strings.HasSuffix(pattern, "/*") {
 		// Directory pattern: "hypr/*" -> copy all files from hypr/ to ~/.config/hypr/

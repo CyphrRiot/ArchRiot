@@ -69,6 +69,31 @@ THE FIRST AND MAIN RULE -- LISTEN CLOSELY AND REVIEW EVERYTHING. SLOW DOWN. BE M
 - GTK privacy settings moved from sed commands to proper config files
 - Config preservation system via preserve_if_exists patterns
 
+**✅ theming.sh → system.themes + system.backgrounds (COMPLETE)**
+
+- 598 lines of complex bash reduced to 34 lines of clean YAML
+- All 5 packages migrated: bibata-cursor-theme, kora-icon-theme, tela-icon-theme-purple-git, gnome-themes-extra, kvantum-qt5
+- All gsettings commands migrated for proper GTK theming (dark theme, cursor, icons, window buttons)
+- Background/wallpaper system simplified - eliminated redundant copying, direct path references
+- Applications directory consolidated - hidden desktop files moved to main directory with hidden\_ prefix
+- Fixed Go installer config pattern bug for /\* patterns with custom targets
+- Desktop DPMS bug fixed - conditional DPMS only on laptops to prevent floating window positioning issues
+
+**✅ communication.sh → Already covered by existing YAML (DELETED)**
+
+- All packages (brave-bin, signal-desktop) already in desktop.apps
+- All desktop files already handled by applications/\* pattern
+- Script was completely redundant and removed
+
+**✅ productivity.sh → desktop.editors + existing modules (COMPLETE)**
+
+- Most functionality already existed: zed (development.tools), thunar (desktop.apps), papers (desktop.apps + mimetypes)
+- Added missing packages: gnome-text-editor, abiword, papers, unzip, p7zip to desktop.apps
+- Created new desktop.editors module for text editor configuration (gsettings, themes)
+- Vulkan driver support ensured via system.hardware dependency on development.tools
+- Complex Zed desktop integration simplified - existing patterns handle it
+- Fixed major floating window positioning bug with cross-workspace window recovery
+
 **✅ File Structure Consolidation (COMPLETE)**
 
 - Moved applications/ → config/applications/ (desktop files, icons, hidden menu cleanup)
@@ -166,12 +191,20 @@ For each file type:
 
 ### CRITICAL LESSONS LEARNED
 
+**CRITICAL LESSONS LEARNED**
+
 **❌ REPEATED MISTAKES BY AI:**
 
 1. **False Claims**: Multiple times claimed "100% certainty" about completing work that wasn't done
 2. **Sloppy Verification**: Said "fixed all references" without actually checking every single one
 3. **Incomplete Audits**: Missed obvious issues like applications path patterns in YAML
 4. **Relative Path Issues**: Claimed to remove all `../` paths but left several behind
+5. **Invalid YAML Types**: Created non-existent type "Config" instead of checking valid types
+6. **Doubled Path Patterns**: Added extra config/ prefixes causing source not found errors
+7. **Assumption-Based Fixes**: Making changes without verifying the actual root cause
+8. **Rush to Fix Symptoms**: Focusing on workarounds instead of finding root causes
+9. **Cross-Workspace Ignorance**: Not considering that window fixes need to work across all workspaces
+10. **Hidden File Consolidation Oversight**: Having settings but forgetting to install the actual packages
 
 **✅ SUCCESSFUL PATTERNS:**
 
@@ -179,23 +212,30 @@ For each file type:
 2. **Atomic Changes**: One change at a time with review before proceeding
 3. **Actual Testing**: Running installer revealed real issues vs theoretical fixes
 4. **Architecture Simplification**: Removing unnecessary copying and config noise
+5. **Root Cause Analysis**: Finding DPMS as the actual cause of window positioning bugs
+6. **File Consolidation**: Moving hidden apps to main directory with clear naming
+7. **Direct Path References**: Eliminating unnecessary file duplication
+8. **Multiple Verification Passes**: Going through scripts multiple times to catch missed items
+9. **Cross-Workspace Bug Fixes**: Proper floating window recovery across all workspaces
+10. **Modular Architecture**: Creating focused modules like desktop.editors for clean separation
 
 ### NEXT IMMEDIATE TASKS
 
 **PHASE 1: PENDING SCRIPT MIGRATIONS**
 
 1. Convert remaining pending scripts to YAML modules:
-    - communication.sh → communication module
-    - theming.sh → theming module
-    - productivity.sh → productivity module
+    - ✅ communication.sh → DELETED (redundant, already covered)
+    - ✅ theming.sh → system.themes + system.backgrounds (COMPLETE)
+    - ✅ productivity.sh → desktop.editors + existing modules (COMPLETE)
     - utilities.sh → utilities module
     - specialty.sh → specialty module
 
 **PHASE 2: FINAL CLEANUP**
 
-2. **Remove remaining relative paths**: Actually audit and fix ALL `../` references
-3. **Test installer thoroughly**: Verify all file copying patterns work correctly
-4. **Update documentation**: Reflect new architecture in README and docs
+2. **Complete remaining script migrations**: productivity.sh, utilities.sh, specialty.sh
+3. **Test installer thoroughly**: Verify all patterns work with Go installer fixes
+4. **Remove obsolete shell scripts**: Delete completed migration scripts
+5. **Update documentation**: Reflect new architecture in README and docs
 
 **PHASE 3: VALIDATION**
 

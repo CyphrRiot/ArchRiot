@@ -2,7 +2,7 @@
 
 # Cycles through the background images available in consolidated theme system
 
-BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
+BACKGROUNDS_DIR="$HOME/.local/share/archriot/backgrounds"
 CURRENT_BACKGROUND_FILE="$HOME/.config/archriot/.current-background"
 
 # Check if backgrounds directory exists

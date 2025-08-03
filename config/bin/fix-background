@@ -9,7 +9,7 @@ echo "🖼️  Fixing background and theme issues..."
 
 # Define directories
 THEMES_DIR="$HOME/.config/archriot/themes"
-BACKGROUNDS_DIR="$HOME/.config/archriot/backgrounds"
+BACKGROUNDS_DIR="$HOME/.local/share/archriot/backgrounds"
 CURRENT_DIR="$HOME/.config/archriot/current"
 CURRENT_BACKGROUND_LINK="$CURRENT_DIR/background"
 CURRENT_THEME_LINK="$CURRENT_DIR/theme"
