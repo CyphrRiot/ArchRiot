@@ -12,7 +12,7 @@ if [[ "$1" == "--click" ]]; then
 
     # Show update dialog when clicked (using the correct command)
     if [[ "$remote_version" != "unknown" && "$local_version" != "unknown" && "$remote_version" != "$local_version" ]]; then
-        ~/.local/bin/version-check --gui 2>/dev/null &
+        $HOME/.local/share/archriot/config/bin/version-check --gui 2>/dev/null &
     else
         # Already up to date
         notify-send -t 2000 "ArchRiot Up to Date" "Version $local_version is the latest" &

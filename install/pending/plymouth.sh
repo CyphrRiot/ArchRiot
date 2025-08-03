@@ -30,7 +30,7 @@ needs_reinstall() {
 
     # Check 3: LUKS header content comparison (most important check)
     echo "🔍 Checking if LUKS header content changed..."
-    local new_logo="$HOME/.local/share/archriot/default/plymouth/logo.png"
+    local new_logo="$HOME/.local/share/archriot/config/default/plymouth/logo.png"
     local current_logo="/usr/share/plymouth/themes/archriot/logo.png"
 
     if [[ -f "$new_logo" && -f "$current_logo" ]]; then
@@ -204,9 +204,9 @@ echo "📦 Installing ArchRiot Plymouth theme from local files..."
 sudo mkdir -p /usr/share/plymouth/themes/archriot/
 
 # First try to use local files (preferred - ensures correct logo)
-if [ -d "$HOME/.local/share/archriot/default/plymouth" ] && [ -f "$HOME/.local/share/archriot/default/plymouth/logo.png" ]; then
+if [ -d "$HOME/.local/share/archriot/config/default/plymouth" ] && [ -f "$HOME/.local/share/archriot/config/default/plymouth/logo.png" ]; then
     echo "✓ Using local Plymouth files (ensures correct ArchRiot logo)"
-    sudo cp -r "$HOME/.local/share/archriot/default/plymouth"/* /usr/share/plymouth/themes/archriot/
+    sudo cp -r "$HOME/.local/share/archriot/config/default/plymouth"/* /usr/share/plymouth/themes/archriot/
 
 else
     # Fallback: Download from GitHub only if local files missing
@@ -227,8 +227,8 @@ else
         sudo cp -r "$TEMP_PLYMOUTH_DIR"/* /usr/share/plymouth/themes/archriot/
 
         # Update local installation for future use
-        mkdir -p "$HOME/.local/share/archriot/default/plymouth"
-        cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/archriot/default/plymouth/"
+        mkdir -p "$HOME/.local/share/archriot/config/default/plymouth"
+        cp -r "$TEMP_PLYMOUTH_DIR"/* "$HOME/.local/share/archriot/config/default/plymouth/"
         echo "✓ Updated local Plymouth files"
 
 

@@ -99,7 +99,7 @@ test_background_system() {
     fi
 
     # Check background rotation
-    if [[ -x ~/.local/bin/swaybg-next ]]; then
+    if [[ -x $HOME/.local/share/archriot/config/bin/swaybg-next ]]; then
         test_pass "Background rotation script exists"
     else
         test_fail "Background rotation script missing"
@@ -138,7 +138,7 @@ test_waybar_configuration() {
     fi
 
     # Check waybar scripts
-    local script_count=$(find ~/.local/bin -name "waybar-*.py" -executable 2>/dev/null | wc -l)
+    local script_count=$(find $HOME/.local/share/archriot/config/bin/scripts -name "waybar-*.py" -executable 2>/dev/null | wc -l)
     if [[ $script_count -ge 4 ]]; then
         test_pass "Waybar scripts installed ($script_count found)"
     else
@@ -149,11 +149,11 @@ test_waybar_configuration() {
 test_tomato_timer() {
     print_test "Tomato timer functionality"
 
-    if [[ -x ~/.local/bin/waybar-tomato.py ]]; then
+    if [[ -x $HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py ]]; then
         test_pass "Tomato timer script exists"
 
         # Check for Python syntax
-        if python3 -m py_compile ~/.local/bin/waybar-tomato.py 2>/dev/null; then
+        if python3 -m py_compile $HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py 2>/dev/null; then
             test_pass "Tomato timer script syntax is valid"
         else
             test_fail "Tomato timer script has syntax errors"
@@ -161,7 +161,7 @@ test_tomato_timer() {
 
         # Check for type checker issues
         if command -v mypy >/dev/null; then
-            if mypy ~/.local/bin/waybar-tomato.py 2>/dev/null; then
+            if mypy $HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py 2>/dev/null; then
                 test_pass "Tomato timer passes type checking"
             else
                 test_warn "Tomato timer has type checker warnings"
@@ -257,7 +257,7 @@ test_theme_system() {
     fi
 
     # Check theme switching scripts
-    if [[ -x ~/.local/share/archriot/bin/theme-next ]]; then
+    if [[ -x $HOME/.local/share/archriot/config/bin/theme-next ]]; then
         test_pass "Theme switching script exists"
     else
         test_fail "Theme switching script missing"
@@ -268,11 +268,11 @@ test_keyboard_shortcuts() {
     print_test "Keyboard shortcuts and scripts"
 
     # Check background rotation script
-    if [[ -x ~/.local/bin/swaybg-next ]]; then
+    if [[ -x $HOME/.local/share/archriot/config/bin/swaybg-next ]]; then
         test_pass "Background rotation script (SUPER+CTRL+SPACE) exists"
 
         # Check if it can follow symlinks (the fix)
-        if grep -q "\-L" ~/.local/bin/swaybg-next; then
+        if grep -q "\-L" $HOME/.local/share/archriot/config/bin/swaybg-next; then
             test_pass "Background rotation script has symlink fix"
         else
             test_warn "Background rotation script may not follow symlinks"
@@ -308,7 +308,7 @@ test_fix_scripts() {
     )
 
     for script in "${fix_scripts[@]}"; do
-        if [[ -x ~/.local/share/archriot/bin/$script ]]; then
+        if [[ -x $HOME/.local/share/archriot/config/bin/$script ]]; then
             test_pass "$script is available"
         else
             test_fail "$script is missing"

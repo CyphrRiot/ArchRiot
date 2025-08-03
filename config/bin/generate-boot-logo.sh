@@ -44,7 +44,7 @@ echo -e "${GREEN}✓ ImageMagick available${NC}"
 
 # Automated change detection for logo updates
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_LOGO="$SCRIPT_DIR/../images/logo.png"
+SOURCE_LOGO="$SCRIPT_DIR/../config/images/logo.png"
 LOGO_SCRIPT_PATH="$SCRIPT_DIR/../bin/generate-boot-logo.sh"
 LOGO_CHECKSUM_FILE="$HOME/.config/archriot/logo_checksums.txt"
 
@@ -124,8 +124,8 @@ if [ ! -d "$PLYMOUTH_THEME_DIR" ]; then
     sudo mkdir -p "$PLYMOUTH_THEME_DIR"
 
     # Copy the entire Plymouth theme if it doesn't exist
-    if [ -d "$HOME/.local/share/archriot/default/plymouth" ]; then
-        sudo cp -r "$HOME/.local/share/archriot/default/plymouth/"* "$PLYMOUTH_THEME_DIR/"
+    if [ -d "$HOME/.local/share/archriot/config/default/plymouth" ]; then
+        sudo cp -r "$HOME/.local/share/archriot/config/default/plymouth/"* "$PLYMOUTH_THEME_DIR/"
         echo -e "${GREEN}✓ Plymouth theme installed${NC}"
     else
         echo -e "${RED}❌ Plymouth theme source not found${NC}"

@@ -16,7 +16,7 @@ log_debug() {
 }
 
 # Path to the window fix script
-FIX_SCRIPT="$HOME/.local/bin/scripts/fix-offscreen-windows.sh"
+FIX_SCRIPT="$HOME/.local/share/archriot/config/bin/scripts/fix-offscreen-windows.sh"
 
 log_debug "=== DPMS WAKE FIX STARTED ==="
 

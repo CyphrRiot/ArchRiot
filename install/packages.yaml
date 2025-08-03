@@ -73,7 +73,7 @@ core:
         configs:
             - pattern: fish/*
             - pattern: default/tmux.conf
-              target: ~/.tmux.conf
+              target: ~/.config/tmux/tmux.conf
         commands:
             - "sudo chsh -s /usr/bin/fish $USER"
         depends: [core.base]
@@ -100,20 +100,18 @@ desktop:
               preserve_if_exists: [bookmarks]
             - pattern: gtk-4.0/*
             - pattern: Thunar/*
-            - pattern: bin/scripts/*
-              target: ~/.local/bin/
-            - pattern: bin/*
+            - pattern: bin/upgrade-system
               target: ~/.local/bin/
             - pattern: applications/*.desktop
               target: ~/.local/share/applications/
             - pattern: applications/hidden/*
               target: ~/.local/share/applications/
-            - pattern: applications/icons/*
-              target: ~/.local/share/icons/
+
             - pattern: images/*
               target: ~/.local/share/archriot/images/
         commands:
             - "chmod +x ~/.local/bin/*"
+            - "chmod +x ~/.local/share/archriot/config/bin/* ~/.local/share/archriot/config/bin/scripts/*"
             - "update-desktop-database ~/.local/share/applications/"
             - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"

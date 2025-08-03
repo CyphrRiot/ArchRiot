@@ -230,7 +230,7 @@ setup_cursor_links() {
 
     mkdir -p ~/.icons/default
 
-    local archriot_cursor_index="$HOME/.local/share/archriot/default/icons/default/index.theme"
+    local archriot_cursor_index="$HOME/.local/share/archriot/config/default/icons/default/index.theme"
     if [[ -f "$archriot_cursor_index" ]]; then
         cp "$archriot_cursor_index" ~/.icons/default/index.theme
         echo "✓ Default cursor theme links created"

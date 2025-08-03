@@ -33,7 +33,7 @@
 
 "custom/browser": {
 	"format": " ",
-	"on-click": "$HOME/.local/bin/brave-wayland-fixed",
+	"on-click": "$HOME/.local/share/archriot/config/bin/brave-wayland-fixed",
 	"tooltip": true,
 	"tooltip-format": "Launch Browser",
 },
@@ -101,7 +101,7 @@
 
 "custom/lock": {
 	"format": "󰌾",
-	"on-click": "$HOME/.local/bin/hyprlock-wrapper.sh",
+	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/hyprlock-wrapper.sh",
 	"tooltip": true,
 	"tooltip-format": "󰷛 Screen Lock",
 },
@@ -132,8 +132,8 @@
 	"format": "{}",
 	"return-type": "json",
 	"interval": 2,
-	"exec": "$HOME/.local/bin/waybar-tomato-timer.py",
-	"on-click": "$HOME/.local/bin/waybar-tomato-click.sh",
+	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py",
+	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh",
 	"tooltip": true
 },
 
@@ -142,7 +142,7 @@
 	"format": "{}",
 	"return-type": "json",
 	"interval": 2,
-	"exec": "$HOME/.local/bin/waybar-cpu-aggregate.py",
+	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-cpu-aggregate.py",
 	"on-click": "gnome-system-monitor",
 	"on-click-right": "gnome-system-monitor",
 	"tooltip": true
@@ -184,19 +184,19 @@
 	"format": "{}",
 	"return-type": "json",
 	"interval": 5,
-	"exec": "$HOME/.local/bin/waybar-memory-accurate.py",
+	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-memory-accurate.py",
 	"on-click": "gnome-system-monitor",
 	"on-click-right": "gnome-system-monitor",
 	"tooltip": true
 },
 "custom/tray-open": {
-	"exec": "$HOME/.local/bin/tray-open.sh",
+	"exec": "$HOME/.local/share/archriot/config/bin/tray-open.sh",
 	"interval": 3,
 	"tooltip": false
 },
 
 "custom/tray-close": {
-	"exec": "$HOME/.local/bin/tray-close.sh",
+	"exec": "$HOME/.local/share/archriot/config/bin/tray-close.sh",
 	"interval": 3,
 	"tooltip": false
 },

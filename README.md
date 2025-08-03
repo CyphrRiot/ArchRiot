@@ -44,7 +44,7 @@ _Created by a long-time Linux user, experienced developer, and privacy advocate 
 
 🎉 Thank you to [Vaxryy](https://x.com/vaxryy) for creating Hyprland! ✨
 
-![ArchRiot Screenshot](images/screenshot.png)
+![ArchRiot Screenshot](config/images/screenshot.png)
 
 ---
 
@@ -102,7 +102,7 @@ Once Arch has been installed, pick reboot, login with the user you just setup, a
 curl -fsSL https://archriot.org/setup.sh | bash
 ```
 
-![ArchRiot Upgrade Demo](images/upgrade.gif)
+![ArchRiot Upgrade Demo](config/images/upgrade.gif)
 
 **Note: Upgrading is exactly the same command! Simple!**
 
@@ -187,7 +187,7 @@ This comprehensive verification system tests:
 - **Error handling** - Clear feedback and rollback capability
 - **100% confidence** - Comprehensive testing and validation
 
-![ArchRiot Installation Demo](images/archriot-install.gif)
+![ArchRiot Installation Demo](config/images/archriot-install.gif)
 
 ## Control Panel
 
@@ -195,7 +195,7 @@ ArchRiot includes a comprehensive GTK4-based Control Panel for managing system s
 
 Access it via `SUPER+C` or by running `archriot-control-panel`.
 
-![ArchRiot Control Panel Demo](images/control-panel.gif)
+![ArchRiot Control Panel Demo](config/images/control-panel.gif)
 
 ### 🎛️ **Features**
 
@@ -516,7 +516,7 @@ version-check --reset                # Reset update notification settings
 **Automatic Update Notifications**: ArchRiot now automatically checks for updates every 4 hours and shows a notification dialog when newer versions are available. You can install updates, ignore notifications, or simply close the dialog.
 
 <div align="center">
-<img src="images/upgrade.png" alt="ArchRiot Update Dialog" width="600">
+<img src="config/images/upgrade.png" alt="ArchRiot Update Dialog" width="600">
 <br><em>Waybar update notifications: 󰚰 (new), 󱧘 (seen), - (up-to-date) with one-click upgrade dialog</em>
 </div>
 

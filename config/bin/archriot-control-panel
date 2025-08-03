@@ -100,7 +100,7 @@ def import_config_module():
         return global_vars['ArchRiotConfig']
     else:
         # Try from installed location
-        home_bin = str(Path.home() / '.local' / 'bin' / 'archriot-config')
+        home_bin = str(Path.home() / '.local' / 'share' / 'archriot' / 'config' / 'bin' / 'archriot-config')
         if os.path.exists(home_bin):
             global_vars = {}
             with open(home_bin, 'r') as f:
