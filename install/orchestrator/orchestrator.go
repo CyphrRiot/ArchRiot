@@ -8,6 +8,7 @@ import (
 	"archriot-installer/executor"
 	"archriot-installer/installer"
 	"archriot-installer/logger"
+	"archriot-installer/plymouth"
 	"archriot-installer/tui"
 )
 
@@ -112,6 +113,21 @@ func RunInstallation() {
 	// Execute modules in proper order with progress tracking
 	if err := executor.ExecuteModulesInOrderWithProgress(cfg, progressCallback); err != nil {
 		logger.Log("Error", "System", "Module Exec", "Failed: "+err.Error())
+		return
+	}
+
+	// Install Plymouth boot screen (critical system component)
+	sendStep("Configuring boot screen...")
+	sendProgress(0.95)
+
+	plymouthManager, err := plymouth.NewPlymouthManager()
+	if err != nil {
+		logger.Log("Error", "System", "Plymouth", "Failed to initialize: "+err.Error())
+		return
+	}
+
+	if err := plymouthManager.InstallPlymouth(); err != nil {
+		logger.Log("Error", "System", "Plymouth", "Installation failed: "+err.Error())
 		return
 	}
 

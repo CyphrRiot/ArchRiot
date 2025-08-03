@@ -241,7 +241,7 @@ For each file type:
 
 ### NEXT IMMEDIATE TASKS
 
-**PHASE 1: PENDING SCRIPT MIGRATIONS**
+**PHASE 1: PENDING SCRIPT MIGRATIONS** ✅ COMPLETE
 
 1. Convert remaining pending scripts to YAML modules:
     - ✅ communication.sh → DELETED (redundant, already covered)
@@ -250,14 +250,15 @@ For each file type:
     - ✅ utilities.sh → desktop.utilities + existing modules (COMPLETE)
     - ✅ specialty.sh → DELETED (redundant, already covered)
 
-**PHASE 2: CRITICAL ISSUES REQUIRING IMMEDIATE ATTENTION**
+**PHASE 2: CRITICAL ARCHITECTURE FIXES** ✅ COMPLETE
 
-2. **FRESH INSTALL VALIDATION (CRITICAL)**
-    - **Missing core dependencies**: setup.sh installs git but NOT yay or go
-    - **Dependency chain gaps**: Fresh Arch systems need base-devel, sudo setup
-    - **Module execution order**: Some modules may execute before dependencies available
-    - **Network requirements**: No validation that internet/AUR access works
-    - **User permission issues**: sudo/wheel group setup happens mid-install
+2. **DEPENDENCY SYSTEM IMPLEMENTATION (CRITICAL)**
+    - ✅ **Fixed hardcoded execution order**: Now uses proper dependency resolution
+    - ✅ **Implemented topological sort**: Kahn's algorithm for dependency ordering
+    - ✅ **Dynamic module discovery**: No more hardcoded category lists
+    - ✅ **Dependency validation**: Validates all dependencies exist before execution
+    - ✅ **Circular dependency detection**: Prevents infinite loops with clear errors
+    - ✅ **Plymouth Go implementation**: Replaced shell script with robust Go module
 
 3. **FILE CLEANUP AND INTEGRITY (HIGH PRIORITY)**
     - **Stray backup files**: install/pending/install.sh.backup should be removed
@@ -285,9 +286,10 @@ For each file type:
 
 Replace 30+ shell scripts with single `packages.yaml` configuration:
 
-- **✅ COMPLETED**: 5 major scripts migrated (communication.sh, theming.sh, productivity.sh, utilities.sh, specialty.sh)
-- **⏳ IN PROGRESS**: None (all major scripts complete)
-- **📋 PENDING**: 12 additional scripts in install/pending/ directory
+- **✅ COMPLETED**: 5 major scripts migrated + dependency system implemented
+- **✅ ARCHITECTURE**: Proper dependency resolution with topological sorting
+- **✅ PLYMOUTH**: Critical boot infrastructure migrated to Go
+- **📋 PENDING**: 11 additional scripts in install/pending/ directory (cleanup needed)
 - **🎯 GOAL**: Maintain all functionality while improving reliability and maintainability
 
 ### ESTIMATED SCOPE AND TIMELINE
@@ -397,10 +399,12 @@ media:
 **REMAINING TO MIGRATE:**
 
 - ✅ `communication.sh` - DELETED (redundant, already covered)
-- ✅ `theming.sh` - Desktop themes (cursor, icon, GTK themes, backgrounds)
-- ✅ `productivity.sh` - Office tools (text editor, zed with vulkan detection)
-- ✅ `utilities.sh` - System utilities (btop, fastfetch, system tools)
+- ✅ `theming.sh` - Desktop themes → system.themes + system.backgrounds
+- ✅ `productivity.sh` - Office tools → desktop.editors + existing modules
+- ✅ `utilities.sh` - System utilities → desktop.utilities + existing modules
 - ✅ `specialty.sh` - DELETED (redundant, already covered)
+- ✅ **Dependency System** - Implemented proper topological sorting for module execution
+- ✅ **Plymouth Migration** - Critical boot infrastructure migrated from shell to Go
 
 **MIGRATION APPROACH:**
 

@@ -43,7 +43,14 @@ func CopyConfigs(configs []config.ConfigRule) error {
 // expandTildePath expands ~ to the user's home directory
 func expandTildePath(path, homeDir string) string {
 	if strings.HasPrefix(path, "~/") {
-		return filepath.Join(homeDir, path[2:])
+		// Store if original path was intended as directory (ends with /)
+		wasDirectory := strings.HasSuffix(path, "/")
+		expanded := filepath.Join(homeDir, path[2:])
+		// Only restore trailing slash if original had one (indicating directory intent)
+		if wasDirectory && !strings.HasSuffix(expanded, "/") {
+			expanded += "/"
+		}
+		return expanded
 	}
 	return path
 }
