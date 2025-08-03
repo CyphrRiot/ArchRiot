@@ -248,7 +248,7 @@ For each file type:
     - ✅ theming.sh → system.themes + system.backgrounds (COMPLETE)
     - ✅ productivity.sh → desktop.editors + existing modules (COMPLETE)
     - ✅ utilities.sh → desktop.utilities + existing modules (COMPLETE)
-    - specialty.sh → specialty module
+    - ✅ specialty.sh → DELETED (redundant, already covered)
 
 **PHASE 2: CRITICAL ISSUES REQUIRING IMMEDIATE ATTENTION**
 
@@ -285,9 +285,9 @@ For each file type:
 
 Replace 30+ shell scripts with single `packages.yaml` configuration:
 
-- **✅ COMPLETED**: 4 major scripts migrated (communication.sh, theming.sh, productivity.sh, utilities.sh)
-- **⏳ IN PROGRESS**: specialty.sh (1 major script remaining)
-- **📋 PENDING**: 13 additional scripts in install/pending/ directory
+- **✅ COMPLETED**: 5 major scripts migrated (communication.sh, theming.sh, productivity.sh, utilities.sh, specialty.sh)
+- **⏳ IN PROGRESS**: None (all major scripts complete)
+- **📋 PENDING**: 12 additional scripts in install/pending/ directory
 - **🎯 GOAL**: Maintain all functionality while improving reliability and maintainability
 
 ### ESTIMATED SCOPE AND TIMELINE
@@ -400,7 +400,7 @@ media:
 - ✅ `theming.sh` - Desktop themes (cursor, icon, GTK themes, backgrounds)
 - ✅ `productivity.sh` - Office tools (text editor, zed with vulkan detection)
 - ✅ `utilities.sh` - System utilities (btop, fastfetch, system tools)
-- `specialty.sh` - Specialized tools (papers, specialty applications)
+- ✅ `specialty.sh` - DELETED (redundant, already covered)
 
 **MIGRATION APPROACH:**
 
