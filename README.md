@@ -101,7 +101,7 @@ Once Arch has been installed, pick reboot, login with the user you just setup, a
 curl -fsSL https://archriot.org/setup.sh | bash
 ```
 
-![ArchRiot Upgrade Demo](config/images/archriot-install.gif)
+![ArchRiot Upgrade Demo](config/images/upgrade.gif)
 
 This downloads and runs the pre-built ArchRiot installer binary with YAML-based configuration. The installer automatically handles package installation, configuration deployment, and system setup.
 
