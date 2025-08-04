@@ -160,7 +160,8 @@
 		"4": "4 "
 	},
 	"format-window-separator": "",
-		"window-rewrite-default": "<span font='11'> </span>",
+	"window-rewrite-default": "<span font='11'> </span>",
+	"ignore-workspaces": [],
 	"window-rewrite": {
 		"title<.*amazon.*>": "<span font='11'> </span>",
 
@@ -175,6 +176,8 @@
 		"class<microsoft-edge>": "<span font='11'>󰇩 </span>",
 		"class<Chromium|Thorium|[Cc]hrome>": "<span font='11'>󰊯 </span>",
 		"class<brave-browser|Brave-browser|Brave|brave>": "<span font='11'>󰊯 </span>",
+		"class<brave-x.com.*>": "<span font='11'>𝕏 </span>",
+		"class<twitter-x>": "<span font='11'>𝕏 </span>",
 		"class<cake_wallet>": "<span font='11'>󰿦 </span>",
 		"class<feather>": "<span font='11'>󱟘 </span>",
 		"class<Exodus|exodus>": "<span font='11'>Ⓧ </span>",
@@ -192,6 +195,8 @@
 		"class<claws-mail>": "<span font='11'> </span>",
 		"class<org.gnome.Geary>": "<span font='11'>󰊫 </span>",
 		"title<.*gmail.*>": "<span font='11'>󰊫 </span>",
+		"title<.*proton.*mail.*>": "<span font='11'>󰊫 </span>",
+		"class<brave-mail.proton.me.*>": "<span font='11'>󰊫 </span>",
 
 		"class<[Tt]elegram-desktop|org.telegram.desktop|io.github.tdesktop_x64.TDesktop>": "<span font='11'>󰘦 </span>",
 		"class<discord|[Ww]ebcord|Vesktop>": "<span font='11'> </span>",
