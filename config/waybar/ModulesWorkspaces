@@ -18,8 +18,9 @@
       "*": 4
 	},
 	"format-icons": {
-		"active": " ",
-		"default": " ",
+		"active": "⬤",
+		"default": "◉",
+		"empty": "○",
 	},
 },
 // ROMAN Numerals style
@@ -154,10 +155,9 @@
 	"numeric-first": false,
 	"format": "{icon}{windows}",
 	"format-icons": {
-		"1": "1 ",
-		"2": "2 ",
-		"3": "3 ",
-		"4": "4 "
+		"active": "<span font='14'>⬤</span> ",
+		"default": "<span font='14'>◉</span> ",
+		"empty": "<span font='14'>○</span> "
 	},
 	"format-window-separator": "",
 	"window-rewrite-default": "<span font='11'> </span>",

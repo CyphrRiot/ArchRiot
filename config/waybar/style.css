@@ -66,8 +66,8 @@ tooltip {
     border: none;
     outline: none;
     padding: 2px 3px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 4px;
+    margin-right: 4px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.5s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -81,8 +81,8 @@ tooltip {
     outline: none;
     box-shadow: none;
     padding: 2px 3px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 4px;
+    margin-right: 4px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -96,8 +96,8 @@ tooltip {
     outline: none;
     box-shadow: none;
     padding: 2px 3px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 4px;
+    margin-right: 4px;
     border-radius: 0px;
     animation: gradient_f 20s ease-in infinite;
     transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
@@ -213,7 +213,7 @@ tooltip {
 }
 
 #workspaces > * {
-    margin: 0 6px;
+    margin: 0 2px;
 }
 
 /* If workspaces is the leftmost module, omit left margin */
