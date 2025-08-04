@@ -106,7 +106,7 @@ desktop:
             - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications/"
             - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
-            - "echo -e '[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $SUDO_USER --noclear %I \\$TERM' | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null"
+            - "echo -e '[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $(whoami) --noclear %I \\$TERM' | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null"
         depends: [core.base]
         start: "Installing Hyprland desktop"
         end: "Hyprland desktop installed"
