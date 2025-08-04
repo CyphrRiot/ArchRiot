@@ -84,6 +84,7 @@ desktop:
             - hyprshot
         configs:
             - pattern: hypr/*
+              preserve_if_exists: [monitors.conf]
             - pattern: waybar/*
             - pattern: fuzzel/*
             - pattern: mako/*
