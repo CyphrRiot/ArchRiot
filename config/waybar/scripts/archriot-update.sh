@@ -7,11 +7,10 @@ remote_version=$(timeout 10 curl -s https://ArchRiot.org/VERSION 2>/dev/null || 
 
 # Handle click events
 if [[ "$1" == "--click" ]]; then
-    # Show launching notification immediately
-    notify-send -t 3000 "Launching Upgrade..." "Starting ArchRiot upgrade process..." &
-
     # Show update dialog when clicked (using the correct command)
     if [[ "$remote_version" != "unknown" && "$local_version" != "unknown" && "$remote_version" != "$local_version" ]]; then
+        # Show launching notification only when there's an actual update
+        notify-send -t 3000 "Launching Upgrade..." "Starting ArchRiot upgrade process..." &
         $HOME/.local/share/archriot/config/bin/version-check --gui 2>/dev/null &
     else
         # Already up to date
