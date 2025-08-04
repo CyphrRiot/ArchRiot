@@ -22,6 +22,8 @@ core:
             - "systemctl --user daemon-reload"
             - "systemctl --user enable version-check.timer 2>/dev/null || true"
             - "systemctl --user start version-check.timer 2>/dev/null || true"
+            - "systemctl --user enable battery-monitor.timer 2>/dev/null || true"
+            - "systemctl --user start battery-monitor.timer 2>/dev/null || true"
         depends: []
         start: "Installing base development tools"
         end: "Base tools installed"
@@ -100,6 +102,7 @@ desktop:
             - "chmod +x ~/.local/share/archriot/config/bin/* "
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
             - "chmod +x ~/.config/waybar/scripts/* 2>/dev/null || true"
+            - "~/.local/share/archriot/config/bin/setup-temperature"
             - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications/"
             - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
@@ -447,7 +450,7 @@ system:
             - 'gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"'
             - "gsettings set org.gnome.desktop.interface cursor-size 24"
             - 'gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"'
-            - "mkdir -p ~/.config/gtk-3.0 && [ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\\nfile://$HOME/Videos/Movies\" > ~/.config/gtk-3.0/bookmarks || true"
+            - "mkdir -p ~/.config/gtk-3.0 && [ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\" > ~/.config/gtk-3.0/bookmarks || true"
             - "sudo usermod -a -G video $USER"
         depends: [core.base]
         start: "Installing desktop themes"

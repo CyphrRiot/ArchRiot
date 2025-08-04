@@ -5,7 +5,51 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2025-01-08
+
+### 🌡️ Critical Hardware Compatibility Fix
+
+#### Temperature Sensor Auto-Detection System
+
+- **FIXED**: Missing temperature sensor configuration during installation (HIGH PRIORITY from ROADMAP)
+- **ADDED**: `setup-temperature` script execution to hyprland installation phase
+- **RESOLVED**: Waybar temperature module failures on different hardware configurations
+- **IMPACT**: Temperature monitoring now works correctly across Intel/AMD CPUs and different motherboards
+- **TECHNICAL**: Auto-detects coretemp, x86_pkg_temp, or thermal_zone fallback paths instead of hardcoded hwmon6/hwmon1
+- **RESULT**: 100% hardware compatibility for temperature monitoring in waybar status bar
+
+### 🔧 Installation System Improvements
+
+- **ENHANCED**: Installation process now includes automatic hardware-specific temperature sensor detection
+- **VERIFIED**: Tested and confirmed working on fresh installations with config removal
+
 ## [2.5.0] - 2025-08-03
+
+### 🧹 Script Cleanup and System Optimization
+
+- **REMOVED**: 8 unused/orphaned scripts cluttering the bin directory
+    - `apple-display-brightness` - Niche utility with no keybindings or usage
+    - `asciinema-to-gif` - Terminal recording converter, unused
+    - `fingerprint-setup` - Problematic fingerprint authentication script
+    - `fix-touchpad-config` - Touchpad configuration utility, no active usage
+    - `generate-boot-logo.sh` - Redundant Plymouth logo generator (static PNG preferred)
+    - `signal-wayland` - Comprehensive Wayland script superseded by signal-launcher.sh
+    - `update` - Outdated git-based update script (replaced by binary installer)
+    - `volume-osd` - Volume notification script (superseded by Volume.sh + mako)
+- **FIXED**: Waybar hypridle module by moving `toggle-idle` to `scripts/Hypridle.sh`
+    - **ADDED**: Proper JSON status output for waybar integration
+    - **ADDED**: Support for both `status` and `toggle` arguments
+    - **RESULT**: Functional idle lock toggle in waybar status bar
+- **CLEANED**: Help system references to deleted commands
+- **REMOVED**: 16 unused waybar custom modules with broken script references
+    - `custom/weather`, `custom/file_manager`, `custom/tty`, `custom/browser`
+    - `custom/settings`, `custom/cycle_wall`, `custom/hint`, `custom/hypridle`
+    - `custom/light_dark`, `custom/cava_mviz`, `custom/playerctl`, `custom/reboot`
+    - `custom/quit`, `custom/updater`, `custom/tray-open`, `custom/tray-close`
+    - **ROOT CAUSE**: Copy-pasted waybar config from different rice with non-existent scripts
+    - **RESULT**: All modules referenced scripts in `/config/hypr/scripts/` that never existed
+- **FIXED**: `custom/power` module removed broken right-click reference to `ChangeBlur.sh`
+- **IMPACT**: Cleaner waybar config with only functional, actively used modules
 
 ### 🎉 MAJOR: Complete YAML Migration and Architectural Overhaul
 
@@ -1127,7 +1171,6 @@ This optimization resolves slow package installations (e.g., brave-bin taking 30
 - **Desktop Applications**: Fixed `.desktop` files to use `ghostty` instead of `kitty`
     - `About.desktop`, `Activity.desktop`, `nvim.desktop`
 - **Management Scripts**: Updated bin scripts to reference Ghostty configs
-    - `theme-next`, `validate-system`
 - **Waybar Integration**: Fixed right-click terminal commands in Waybar configs
 - **Theme System**: Fixed main Ghostty config to import themes instead of hardcoded colors
 
