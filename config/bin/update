@@ -79,7 +79,7 @@ print_status "INFO" "The installer is designed to safely update existing install
 echo
 
 # Re-run the installer (it's idempotent and handles updates safely)
-if source install.sh; then
+if ~/.local/share/archriot/install/archriot; then
     echo
     print_status "SUCCESS" "ArchRiot update completed successfully!"
     print_status "INFO" "All packages updated, configurations refreshed, and themes applied"
