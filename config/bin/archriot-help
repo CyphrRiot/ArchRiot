@@ -166,25 +166,25 @@ class DynamicHelpWindow:
             return "File manager (Thunar)"
 
         # Handle ArchRiot bin scripts with specific names
-        if 'archriot/bin/' in command or '.local/share/archriot/bin/' in command:
+        if 'archriot/config/bin/' in command or '.local/share/archriot/config/bin/' in command:
             script_name = command.split('/')[-1]
+
+            # Handle waybar scripts specifically
+            if 'waybar-tomato-click.sh' in script_name:
+                return 'Tomato Timer'
+            elif 'waybar-' in script_name:
+                return script_name.replace('waybar-', '').replace('.sh', '').replace('-', ' ').title()
+
             script_descriptions = {
-                'theme-next': 'Next theme',
                 'swaybg-next': 'Next background',
                 'power-menu': 'Power menu',
                 'fix-background': 'Fix background issues',
-                'fix-thunar-thumbnails': 'Fix thumbnails',
-                'validate-system': 'System health check',
                 'show-keybindings': 'Show keybindings',
-                'toggle-idle': 'Toggle screen lock',
-                'memory-profiler': 'Memory analysis',
-                'performance-analysis': 'Performance check',
-                'startup-profiler': 'Boot analysis',
                 'upgrade-system': 'System upgrade',
                 'welcome': 'Welcome screen',
                 'archriot-help': 'Help system'
             }
-            return script_descriptions.get(script_name, f"{script_name} (utility)")
+            return script_descriptions.get(script_name, script_name)
 
         if command.startswith('hypr'):
             return f"Hyprland: {command}"
@@ -288,7 +288,7 @@ class DynamicHelpWindow:
     def discover_bin_utilities(self):
         """Dynamically discover utilities in /bin/ directory"""
         utilities = []
-        bin_dir = os.path.expanduser("~/.local/share/archriot/bin")
+        bin_dir = os.path.expanduser("~/.local/share/archriot/config/bin")
 
         if not os.path.exists(bin_dir):
             return utilities
@@ -332,21 +332,14 @@ class DynamicHelpWindow:
             # Fallback descriptions based on filename
             name_descriptions = {
                 'fix-background': 'Fix theme/background issues',
-                'fix-thunar-thumbnails': 'Fix file thumbnail generation',
-                'fix-touchpad-config': 'Configure touchpad settings',
-                'validate-system': 'Check system health and configuration',
+
                 'show-keybindings': 'Show searchable keybinding reference',
-                'toggle-idle': 'Toggle screen locking on/off',
                 'setup-temperature': 'Configure CPU temperature monitoring',
                 'power-menu': 'System power options menu',
-                'theme-next': 'Switch to next available theme',
-                'memory-profiler': 'Analyze system memory usage',
-                'performance-analysis': 'System performance diagnostics',
-                'startup-profiler': 'Analyze boot time performance',
                 'upgrade-system': 'Optimized system upgrade utility',
-                'apple-display-brightness': 'Control Apple display brightness',
-                'fingerprint-setup': 'Configure fingerprint authentication',
-                'signal-wayland': 'Launch Signal with Wayland support',
+
+
+
                 'zed-wayland': 'Launch Zed editor with Wayland support',
                 'battery-monitor': 'Monitor battery status and alerts',
                 'welcome': 'Show ArchRiot welcome screen',

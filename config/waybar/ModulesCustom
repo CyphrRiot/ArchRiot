@@ -5,82 +5,19 @@
 /* Custom Modules like weather browser, tty, file manager at the beginning */
 
 {
-"custom/weather": {
-	"format": "{}",
-	"format-alt": "{alt}: {}",
-	"format-alt-click": "click",
-	"interval": 3600,
-	"return-type": "json",
-	// "exec": "$HOME/.config/hypr/UserScripts/Weather.py",
-	"exec": "$HOME/.config/hypr/UserScripts/Weather.sh",
-	//"exec-if": "ping wttr.in -c1",
-	"tooltip": true,
-},
 
-"custom/file_manager": {
-	"format": " ",
-	"on-click": "xdg-open . &",
-	"tooltip": true,
-	"tooltip-format": "File Manager",
-},
 
-"custom/tty": {
-	"format": " ",
-	"on-click": "$HOME/.config/hypr/scripts/WaybarScripts.sh --term",
-	"tooltip": true,
-	"tooltip-format": "Launch Terminal",
-},
 
-"custom/browser": {
-	"format": " ",
-	"on-click": "$HOME/.local/share/archriot/config/bin/brave-wayland-fixed",
-	"tooltip": true,
-	"tooltip-format": "Launch Browser",
-},
 
-"custom/settings": {
-	"format": " ",
-	"on-click": "$HOME/.config/hypr/scripts/Kool_Quick_Settings.sh",
-	"tooltip": true,
-	"tooltip-format": "Launch KooL Hyprland Settings Menu",
-},
 
-"custom/cycle_wall": {
-	"format": " ",
-	"on-click": "$HOME/.config/hypr/UserScripts/WallpaperSelect.sh",
-	"on-click-right": "$HOME/.config/hypr/UserScripts/WallpaperRandom.sh",
-	"on-click-middle": "$HOME/.config/hypr/scripts/WaybarStyles.sh",
-	"tooltip": true,
-	"tooltip-format": "Left Click: Wallpaper Menu\nMiddle Click: Random wallpaper\nRight Click: Waybar Styles Menu",
-},
 
-"custom/hint": {
-	"format": "󰺁 HINT!",
-	"on-click": "$HOME/.config/hypr/scripts/KeyHints.sh",
-	"on-click-right": "$HOME/.config/hypr/scripts/KeyBinds.sh",
-	"tooltip": true,
-	"tooltip-format": "Left Click: Quick Tips\nRight Click: Keybinds",
-},
 
-"custom/archriot-update": {
-	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
-	"return-type": "json",
-	"interval": 300,
-	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
-	"tooltip": true,
-},
 
-// Hypridle inhibitor
-"custom/hypridle": {
-	"format": "󱫗 ",
-	"return-type": "json",
-	"escape": true,
-	"exec-on-event": true,
-	"interval": 60,
-	"exec": "$HOME/.config/hypr/scripts/Hypridle.sh status",
-	"on-click": "$HOME/.config/hypr/scripts/Hypridle.sh toggle",
-	"tooltip": true,
-},
+
+
+
+
+
 
 "custom/archriot-update": {
 	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
@@ -91,14 +28,8 @@
 },
 
 
-"custom/light_dark": {
-	"format": "󰔎 ",
-	"on-click": "$HOME/.config/hypr/scripts/DarkLight.sh",
-	"on-click-right": "$HOME/.config/hypr/scripts/WaybarStyles.sh",
-	"on-click-middle": "$HOME/.config/hypr/UserScripts/WallpaperSelect.sh",
-	"tooltip": true,
-	"tooltip-format": "Left Click: Switch Dark-Light Themes\nMiddle Click: Wallpaper Menu\nRight Click: Waybar Styles Menu",
-},
+
+
 
 "custom/lock": {
 	"format": "󰌾",
@@ -108,25 +39,9 @@
 },
 
 
-// This is a custom cava visualizer
-"custom/cava_mviz": {
-	"exec": "$HOME/.config/hypr/scripts/WaybarCava.sh",
-	"format": "{}"
-},
 
-"custom/playerctl": {
-	"format": "<span>{}</span>",
-	"return-type": "json",
-	"max-length": 25,
-	"exec": "playerctl -a metadata --format '{\"text\": \"{{artist}}  {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F",
-	"on-click-middle": "playerctl play-pause",
-	"on-click": "playerctl previous",
-	"on-click-right": "playerctl next",
-	"scroll-step": 5.0,
-	"on-scroll-up": "$HOME/.config/hypr/scripts/Volume.sh --inc",
-	"on-scroll-down": "$HOME/.config/hypr/scripts/Volume.sh --dec",
-	"smooth-scrolling-threshold": 1
-},
+
+
 
 // Tomato Timer (Pomodoro) - 25 minute work timer
 "custom/tomato-timer": {
@@ -152,34 +67,13 @@
 "custom/power": {
 	"format": " ⏻ ",
 	"on-click": "$HOME/.local/share/archriot/config/bin/power-menu",
-	"on-click-right": "$HOME/.config/hypr/scripts/ChangeBlur.sh",
 	"tooltip": false
 },
 
-"custom/reboot": {
-    "format": "󰜉",
-    "on-click": "systemctl reboot",
-    "tooltip": true,
-	"tooltip-format": "Left Click: Reboot"
-},
 
-"custom/quit": {
-    "format": "󰗼",
-    "on-click": "hyprctl dispatch exit",
-    "tooltip": true,
-	"tooltip-format": "Left Click: Exit Hyprland"
-},
-// NOTE:! This is mainly for Arch and Arch Based Distros  depend: pacman-contrib
-// Other Distro dont have notifications but can use to check for update for any other distro
-"custom/updater": {
-	"format": " {}",
-	"exec": "checkupdates | wc -l",
-	"exec-if": "[[ $(checkupdates | wc -l) ]]",
-	"interval": 43200, // (Arch Linux will try to check 12 hrs interval only
-	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
-	"tooltip": true,
-	"tooltip-format": "Left Click: Update System\nArch (w/ notification)\nFedora, OpenSuse, Debian/Ubuntu click to update"
-},
+
+
+
 // Accurate memory module using same calculation as btop (Total - Available)
 "custom/memory-accurate": {
 	"format": "{}",
@@ -190,17 +84,7 @@
 	"on-click-right": "gnome-system-monitor",
 	"tooltip": true
 },
-"custom/tray-open": {
-	"exec": "$HOME/.local/share/archriot/config/bin/tray-open.sh",
-	"interval": 3,
-	"tooltip": false
-},
 
-"custom/tray-close": {
-	"exec": "$HOME/.local/share/archriot/config/bin/tray-close.sh",
-	"interval": 3,
-	"tooltip": false
-},
 
 // Separators
 "custom/separator#dot": {

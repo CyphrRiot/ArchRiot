@@ -132,8 +132,6 @@ main() {
 
     echo ""
     echo -e "${BLUE}Useful Commands:${NC}"
-    echo -e "  ${BLUE}theme-next${NC}             - Switch to next theme"
-    echo -e "  ${BLUE}validate-system${NC}        - Validate system health"
     echo -e "  ${BLUE}fastfetch${NC}              - Show system info"
 
     echo ""

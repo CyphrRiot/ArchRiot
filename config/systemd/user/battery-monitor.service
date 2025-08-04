@@ -4,5 +4,5 @@ After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/share/archriot/bin/battery-monitor
+ExecStart=%h/.local/share/archriot/config/bin/battery-monitor
 Environment=DISPLAY=:0

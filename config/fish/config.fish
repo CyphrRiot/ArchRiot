@@ -16,7 +16,7 @@ end
 # =============================================================================
 
 # Add local bin directories to PATH (last prepend gets highest priority)
-fish_add_path --prepend $HOME/.local/share/archriot/bin
+fish_add_path --prepend $HOME/.local/share/archriot/config/bin
 fish_add_path --prepend $HOME/.local/bin
 
 # =============================================================================

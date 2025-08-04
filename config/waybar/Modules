@@ -81,7 +81,7 @@
 	"format-time": "{H}h {M}min",
 	"tooltip": true,
 	"tooltip-format": "{timeTo} {power}w",
-	"on-click-right": "$HOME/.local/share/archriot/bin/power-menu",
+	"on-click-right": "$HOME/.local/share/archriot/config/bin/power-menu",
 },
 
 "bluetooth": {

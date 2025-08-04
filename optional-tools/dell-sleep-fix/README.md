@@ -7,11 +7,13 @@
 ## 🚨 Problem Description
 
 Dell XPS laptops with the new Intel Lunar Lake Arc Graphics (130V/140V) using the XE driver can experience system crashes when:
+
 - Closing the laptop lid
 - Entering sleep/suspend mode
 - Waking from sleep
 
 This typically manifests as:
+
 - System completely freezes/crashes instead of sleeping
 - Black screen on wake that requires hard reset
 - System reboots unexpectedly after sleep
@@ -20,12 +22,14 @@ This typically manifests as:
 ## 🔧 What This Tool Fixes
 
 ### Root Causes Addressed:
+
 1. **Intel XE Graphics Driver Issues** - New bleeding-edge driver with sleep bugs
 2. **S2idle Power Management** - Modern standby compatibility problems
 3. **Dell-Specific Hardware Quirks** - Vendor-specific ACPI/power management issues
 4. **Kernel Parameter Conflicts** - Default settings incompatible with new hardware
 
 ### Technical Solutions Applied:
+
 - **XE Driver Stabilization** - Disables problematic features (PSR, FBC, RC6)
 - **Sleep Mode Optimization** - Forces stable s2idle-only mode
 - **Pre/Post Sleep Hooks** - Manages graphics state transitions
@@ -35,17 +39,20 @@ This typically manifests as:
 ## 📋 Prerequisites
 
 ### Hardware Requirements:
+
 - **Dell XPS laptop** with Intel Lunar Lake processor
 - **Intel Arc Graphics 130V or 140V**
 - **UEFI boot mode** (systemd-boot)
 
 ### Software Requirements:
+
 - **ArchRiot installed** and running
 - **Kernel 6.15+** (included in ArchRiot)
 - **XE graphics driver** (automatically detected)
 - **systemd-boot** (ArchRiot default)
 
 ### Before Running:
+
 ```bash
 # Verify you have the right hardware
 lspci | grep VGA
@@ -63,22 +70,27 @@ ls /boot/loader/entries/
 ## 🚀 Installation
 
 ### Step 1: Navigate to Tool
+
 ```bash
 cd /path/to/ArchRiot/optional-tools/dell-sleep-fix
 ```
 
 ### Step 2: Make Executable
+
 ```bash
 chmod +x setup-dell-sleep-fix.sh
 ```
 
 ### Step 3: Run Installation
+
 ```bash
 sudo ./setup-dell-sleep-fix.sh
 ```
 
 ### Step 4: Reboot
+
 **IMPORTANT:** You MUST reboot for changes to take effect
+
 ```bash
 sudo reboot
 ```
@@ -86,6 +98,7 @@ sudo reboot
 ## 🔍 What Gets Modified
 
 ### System Files Created/Modified:
+
 ```
 /etc/modprobe.d/xe-graphics-fix.conf          # XE driver parameters
 /etc/systemd/sleep.conf.d/dell-sleep-fix.conf # Sleep configuration
@@ -95,12 +108,11 @@ sudo reboot
 ```
 
 ### Utilities Installed:
-```
-/usr/local/bin/check-sleep-blockers  # Diagnostic tool
-/usr/local/bin/force-sleep-fix       # Emergency fix tool
-```
+
+None - all fixes are applied via configuration files and kernel parameters.
 
 ### Kernel Parameters Added:
+
 ```
 intel_iommu=off          # Disable IOMMU for stability
 xe.enable_guc=3          # Enable GuC for power management
@@ -112,38 +124,40 @@ mem_sleep_default=s2idle # Force s2idle sleep mode
 ## 🧪 Testing
 
 ### After Installation:
+
 1. **Reboot the system**
 2. **Test lid close/open**:
-   - Close laptop lid
-   - Wait 30 seconds
-   - Open lid
-   - System should wake properly
+    - Close laptop lid
+    - Wait 30 seconds
+    - Open lid
+    - System should wake properly
 
 3. **Test manual suspend**:
-   ```bash
-   systemctl suspend
-   ```
+    ```bash
+    systemctl suspend
+    ```
 
 ### If Problems Persist:
-```bash
-# Run diagnostic tool
-check-sleep-blockers
 
+```bash
 # Check what's preventing sleep
 journalctl -f &
 # Then try to sleep and watch logs
-
-# Emergency fix if stuck
-force-sleep-fix
 ```
 
 ## 📊 Diagnostic Tools
 
 ### Check Sleep Blockers
+
+**Manual Check:**
+
 ```bash
-check-sleep-blockers
+# Check what's blocking sleep
+systemd-inhibit --list
+# Check systemd sleep state
+systemctl status sleep.target
 ```
-**Shows:**
+
 - Current sleep state capabilities
 - Wake-enabled devices
 - Recent sleep/wake events
@@ -151,16 +165,17 @@ check-sleep-blockers
 - Graphics power states
 
 ### Force Sleep Fix
+
+**Manual Emergency Actions:**
+
 ```bash
-force-sleep-fix
+# Force reload sleep configuration
+sudo systemctl daemon-reload
+sudo systemctl restart systemd-logind
 ```
-**Emergency Actions:**
-- Reloads XE graphics driver
-- Restarts systemd-logind
-- Kills problematic processes
-- Forces graphics reset
 
 ### Manual Diagnostics
+
 ```bash
 # Check sleep capabilities
 cat /sys/power/state
@@ -179,11 +194,13 @@ cat /sys/class/drm/card*/device/power/runtime_status
 ## 📝 Logs
 
 ### Automatic Logging:
+
 - **Sleep Events:** `/var/log/dell-sleep.log`
 - **Installation:** `/var/log/dell-sleep-fix.log`
 - **System Events:** `journalctl | grep sleep`
 
 ### Log Rotation:
+
 - Logs rotate weekly
 - 4 weeks retention
 - Compressed after rotation
@@ -191,11 +208,13 @@ cat /sys/class/drm/card*/device/power/runtime_status
 ## 🔄 Maintenance
 
 ### Automatic:
+
 - **No maintenance required** - hooks run automatically
 - **Kernel updates** - kernel parameters persist
 - **Log rotation** - handled automatically
 
 ### Manual Checks:
+
 ```bash
 # Verify configurations are still in place
 ls -la /etc/modprobe.d/xe-graphics-fix.conf
@@ -209,17 +228,20 @@ cat /proc/cmdline | grep xe.enable_psr=0
 ## ⚠️ Known Issues & Limitations
 
 ### May Not Work For:
+
 - **Non-Dell laptops** (Dell-specific workarounds)
 - **Older Intel graphics** (XE driver specific)
 - **AMD graphics** (Intel-specific fixes)
 - **NVIDIA primary graphics** (different power management)
 
 ### Side Effects:
+
 - **Slightly higher power consumption** (disabled power saving features)
 - **No hibernation** (disabled for stability)
 - **Longer boot times** (additional kernel parameters)
 
 ### If It Doesn't Work:
+
 1. **Check hardware compatibility** - must be Intel Lunar Lake Arc Graphics
 2. **Verify XE driver** - older systems use i915 driver
 3. **Update BIOS** - Dell may have fixed issues in newer BIOS
@@ -228,6 +250,7 @@ cat /proc/cmdline | grep xe.enable_psr=0
 ## 🔙 Uninstall
 
 ### To Remove All Changes:
+
 ```bash
 # Remove configuration files
 sudo rm -f /etc/modprobe.d/xe-graphics-fix.conf
@@ -254,13 +277,15 @@ sudo reboot
 ## 🤝 Support
 
 ### Getting Help:
+
 1. **Check logs first** - `/var/log/dell-sleep.log`
-2. **Run diagnostics** - `check-sleep-blockers`
-3. **Search issues** - ArchRiot GitHub issues
-4. **Dell forums** - Dell-specific hardware issues
+2. **Search issues** - ArchRiot GitHub issues
+3. **Dell forums** - Dell-specific hardware issues
 
 ### Reporting Bugs:
+
 Include this information:
+
 ```bash
 # Hardware info
 lspci | grep VGA
@@ -278,6 +303,7 @@ tail -20 /var/log/dell-sleep.log
 ## 📚 Technical Details
 
 ### Why This Happens:
+
 - **Intel Arc Graphics** is bleeding-edge hardware (2024/2025)
 - **XE driver** is newer than i915, still has bugs
 - **Dell power management** has vendor-specific quirks
@@ -285,6 +311,7 @@ tail -20 /var/log/dell-sleep.log
 - **ACPI implementation** varies between manufacturers
 
 ### Why These Fixes Work:
+
 - **Disable PSR/FBC** - Known to cause crashes on new Intel graphics
 - **Force s2idle** - Most compatible sleep mode for modern hardware
 - **Power state management** - Prevents graphics from getting stuck

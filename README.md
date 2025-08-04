@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.5.0-4c1d95)
+![Version](https://img.shields.io/badge/version-2.5.1-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -27,38 +27,46 @@
 
 </div>
 
-## **ArchRiot: A Modern & Beautiful, Opinionated Arch Linux System**
+## **ArchRiot: The (Arch) Linux System You've Always Wanted**
 
-ArchRiot is a privacy-focused Arch Linux setup that delivers a complete, functional environment with a single command. Built around the Hyprland tiling window manager for fast, keyboard-driven workflows.
+**One Command. Complete Environment. Zero Compromises.**
 
-**What You Get:**
+ArchRiot isn't just another Linux distribution -- it's the answer to every time you've thought "why can't Linux just work flawlessly from the start?" We obsess over speed, security, and getting every detail perfect so you don't have to.
 
-- **One-Command Install:** Complete setup in minutes
-- **Hyprland Tiling:** Efficient window management that enhances productivity
-- **Development Ready:** Preconfigured with Zed IDE, nvim, and CypherRiot theming
-- **Beautiful Aesthetics:** CypherRiot theme with adaptive backgrounds for focused work
-- **Privacy First:** No telemetry, no data collection, privacy-respecting applications
-- **Fully Customizable:** Modify, extend, or strip down to your exact needs
+**This is what perfect looks like:**
 
-_Created by a long-time Linux user, experienced developer, and privacy advocate - this is the Linux system I've always wanted to use._
+- **Hyprland Tiling WM** - Because floating windows are chaos
+- **Go Binary Installer** - Atomic operations, zero failures, complete rollback
+- **Privacy by Design** - No telemetry, no tracking, no corporate surveillance
+- **CypherRiot Aesthetics** - Dark themes that don't hurt your eyes at 3 AM
+- **Development-First** - Zed, nvim, containers, and tools that just work
 
-🎉 Thank you to [Vaxryy](https://x.com/vaxryy) for creating Hyprland! ✨
+_Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, every time, because broken Linux systems are an insult to what computing should be._
+
+🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
-
----
 
 ## Table of Contents
 
 - [Installation](#-installation)
-- [VM Installation Notes](#️-vm-installation-notes)
 - [Installation Features](#installation-features)
 - [Control Panel](#control-panel)
 - [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
 - [Essential Commands](#️-essential-commands)
 - [Key Customizations](#-key-customizations)
+- [System Management](#-system-management)
+- [CypherRiot Theme System](#-cypherriot-theme-system)
+- [Understanding the YAML Configuration](#understanding-the-yaml-configuration)
+- [Key Features & Performance](#-key-features--performance)
+- [Differences from Original Omarchy](#-differences-from-original-omarchy)
+- [Installation Verification System](#-installation-verification-system)
+- [Validation & Testing](#-validation--testing)
+- [Management Tools](#️-management-tools)
+- [Repository Information](#-repository-information)
+- [System Requirements](#-system-requirements)
 - [Optional Advanced Tools](#-optional-advanced-tools)
-- [Secure Boot Setup](#️-secure-boot-setup)
+- [VM & Hardware Notes](#️-vm--hardware-notes)
 - [Changelog](CHANGELOG.md)
 
 ## 🚀 Installation
@@ -129,113 +137,6 @@ ArchRiot has evolved beyond the fragile, error-prone shell script installations 
 - No validation of configuration before execution
 
 The result: **100% reliable installations** with **complete system state management** that shell scripts could never achieve. This isn't just an upgrade—it's architectural superiority.
-
-### Method 2: Manual Clone (Only if You Need to Customize Configuration)
-
-Use this method only if you want to modify the YAML configuration before running the installer:
-
-```bash
-git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
-~/.local/share/archriot/install/archriot
-```
-
-#### Understanding the YAML Configuration System
-
-ArchRiot uses a modern YAML-based configuration system that replaces traditional shell scripts. The entire system is defined in `install/packages.yaml`, which contains:
-
-**Structure:**
-
-- **Categories** (core, desktop, development, system, media)
-- **Modules** within each category (base, hyprland, tools, etc.)
-- **Each module defines:**
-    - `packages:` - List of packages to install
-    - `configs:` - Configuration files to deploy with patterns and targets
-    - `commands:` - Post-installation commands to run
-    - `depends:` - Dependencies on other modules
-    - `type:` - Installation type (pacman, yay, flatpak, etc.)
-
-**Example module:**
-
-```yaml
-desktop:
-    hyprland:
-        packages: [hyprland, waybar, wofi, hyprpaper]
-        configs:
-            - pattern: "config/hypr/*"
-              target: "~/.config/hypr/"
-            - pattern: "config/waybar/*"
-              target: "~/.config/waybar/"
-        commands: ["systemctl --user enable hyprland"]
-        type: pacman
-```
-
-This YAML system provides clean separation of packages, configurations, and commands while maintaining full dependency resolution and proper installation ordering.
-
-**Note:** Most users should use Method 1 above. This manual method is only for advanced users who need to customize the YAML configuration before installation.
-
-## 🖥️ VM Installation Notes
-
-_Thanks to [DTWaling on X](https://x.com/DTWaling) for VM installation guidance._
-
-### Disk Partitioning in VirtualBox
-
-The Arch Linux installer's auto partitioning might not detect the full disk space allocated by VirtualBox. If this happens, archinstall will partition based on the actual space pre-allocated by VirtualBox rather than the full virtual disk size.
-
-**Solutions:**
-
-1. **Pre-allocate full space:** In VirtualBox disk settings, pre-allocate the full disk space before installation
-2. **Manual partitioning:** Use `gdisk` to create your own EFI boot and root partitions, then configure archinstall to use your pre-configured partitions
-
-### Plymouth Installation Issues
-
-If installation stops at the "running: plymouth" step (95% progress) and returns to command prompt:
-
-**The installation is likely 99% complete!** Plymouth is a boot splash screen and not essential for desktop functionality.
-
-**To complete installation:**
-
-```bash
-# Complete remaining steps
-sudo updatedb && fc-cache -fv
-
-# Verify core components
-which waybar && echo "✓ Waybar OK" || echo "❌ Waybar missing"
-which hyprland && echo "✓ Hyprland OK" || echo "❌ Hyprland missing"
-
-# Run system validation
-~/.local/share/archriot/config/bin/validate-system
-
-# Reboot to apply all configurations
-reboot
-```
-
-**To install Plymouth later:**
-
-```bash
-# Re-run installer to complete Plymouth installation
-curl -fsSL https://archriot.org/setup.sh | bash
-```
-
-### Installation Health Verification
-
-After installation, verify everything is working correctly with the comprehensive validation system:
-
-```bash
-# Run comprehensive system validation
-~/.local/share/archriot/config/bin/validate-system
-# Or use the installer's built-in validation
-~/.local/share/archriot/install/archriot --validate
-```
-
-This comprehensive verification system tests:
-
-- System requirements (Arch Linux, internet, disk space)
-- Package availability (Hyprland, Waybar, etc.)
-- GPU compatibility and Wayland support
-- Repository accessibility and theme integrity
-- User environment and permissions
-
-**Results**: Pass/fail report with specific guidance before you commit to installation.
 
 ### Installation Features
 
@@ -358,7 +259,6 @@ Kooha                                # GUI screen recorder (launch from SUPER+D)
 ### Background Management
 
 ```bash
-swaybg-next                          # Cycle through backgrounds
 SUPER + CTRL + SPACE                 # Cycle through backgrounds (keybind)
 ```
 
@@ -398,8 +298,7 @@ Click network icon                   # Open network manager
 ### Fix Scripts (If Needed)
 
 ```bash
-~/.local/share/archriot/config/bin/validate-system     # System health check
-~/.local/share/archriot/install/archriot --validate    # Full validation
+curl -fsSL https://archriot.org/setup.sh | bash           # Re-run installer if broken
 ```
 
 ### 🔧 Troubleshooting
@@ -407,10 +306,10 @@ Click network icon                   # Open network manager
 Quick fixes for common issues:
 
 - **Installation errors**: ArchRiot binary provides detailed logging and error diagnostics
-- **Configuration issues**: Run validation to check YAML integrity and module dependencies
+- **Configuration issues**: The installer either works or it fails - no gray area
 - **Reliable installer**: Go binary with atomic operations and proper rollback capabilities
-- **System validation**: Use `validate-system` for comprehensive health checks
-- **Re-run installation**: Same command as initial install - safe and idempotent
+- **Something broken?**: Re-run the installer - it's idempotent and safe
+- **No validation needed**: The installer IS the validation
 
 ## 🎯 Key Customizations
 
@@ -573,9 +472,7 @@ migrate
 
 ## 🎨 CypherRiot Theme System
 
-### Unified Theme Integration
-
-ArchRiot features a fully integrated CypherRiot theme system with complete consistency across all applications:
+There is one theme: **CypherRiot**, a beautiful Neo Tokyo Dark inspired theme. If you don't like it, the theme files are at `~/.local/share/archriot/config/` and can be edited.
 
 **Visual Design:**
 
@@ -593,7 +490,6 @@ ArchRiot features a fully integrated CypherRiot theme system with complete consi
 
 ### Background Management
 
-- **Background cycling:** `swaybg-next` command cycles through available backgrounds
 - **Instant application:** Background changes apply immediately
 - **Persistent settings:** Background preferences survive reboots and updates
 
@@ -610,6 +506,50 @@ ArchRiot features a fully integrated CypherRiot theme system with complete consi
 - **Custom backgrounds:** Add your own wallpapers to the backgrounds directory
 - **Script integration:** Background cycling integrates with waybar and system status
 - **Application consistency:** CypherRiot theme provides unified styling across all applications
+
+## Understanding the YAML Configuration
+
+**For developers and power users who want to customize the system before installation:**
+
+```bash
+git clone https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot
+# Edit install/packages.yaml to customize
+~/.local/share/archriot/install/archriot
+```
+
+### YAML Architecture
+
+ArchRiot uses a modern YAML-based configuration system that replaces traditional shell scripts. The entire system is defined in `install/packages.yaml`, which contains:
+
+**Structure:**
+
+- **Categories** (core, desktop, development, system, media)
+- **Modules** within each category (base, hyprland, tools, etc.)
+- **Each module defines:**
+    - `packages:` - List of packages to install
+    - `configs:` - Configuration files to deploy with patterns and targets
+    - `commands:` - Post-installation commands to run
+    - `depends:` - Dependencies on other modules
+    - `type:` - Installation type (pacman, yay, flatpak, etc.)
+
+**Example module:**
+
+```yaml
+desktop:
+    hyprland:
+        packages: [hyprland, waybar, wofi, hyprpaper]
+        configs:
+            - pattern: "config/hypr/*"
+              target: "~/.config/hypr/"
+              preserve_if_exists: [monitors.conf]
+            - pattern: "config/waybar/*"
+              target: "~/.config/waybar/"
+        commands: ["systemctl --user enable hyprland"]
+        depends: [core.base]
+        type: pacman
+```
+
+This YAML system provides clean separation of packages, configurations, and commands while maintaining full dependency resolution and proper installation ordering.
 
 ## ⚡ Key Features & Performance
 
@@ -687,76 +627,29 @@ ArchRiot transforms Omarchy from a general productivity setup into a specialized
 
 ArchRiot includes a comprehensive verification system to ensure everything is working correctly:
 
-### Comprehensive Health Check
+### What the Installer Actually Does
 
-```bash
-# Run comprehensive system validation
-~/.local/share/archriot/config/bin/validate-system
-# Or use the installer's built-in validation
-~/.local/share/archriot/install/archriot --validate
-```
+The ArchRiot installer validates everything automatically as it runs. You don't need separate validation because the installer IS the validation system:
 
-**What it checks:**
+**Real-time validation during installation:**
 
 - YAML configuration integrity and module dependencies
 - Essential packages (yay, git, base-devel)
-- Desktop environment (Hyprland, Waybar, gum, Fuzzel)
+- Desktop environment (Hyprland, Waybar, fuzzel, mako)
 - Configuration file deployment verification
 - Applications (terminal, file manager, browser, text editor)
 - System services (audio, network, bluetooth)
-- Binary installer functionality and rollback capability
-- Performance checks (memory, disk space, network)
-- Dependency resolution validation
+- Network connectivity and repository accessibility
+- Memory, disk space, and system requirements
 
-**Results:**
+**If anything fails:** The installer stops immediately with clear error messages and diagnostic information. Fix the issue and re-run - it's completely safe and idempotent.
 
-- **Total tests run** with pass/fail/warning counts
-- **Success rate percentage**
 - **Detailed failure analysis** with specific recommendations
 - **Fix suggestions** for failed components
 
-**Example output:**
+### Verification
 
-```
-==================================
-📊 Verification Summary
-==================================
-
-Total Tests: 33
-✅ Passed: 30
-⚠️  Warnings: 2
-❌ Failed: 1
-
-⚠️  Minor issues detected. System should be mostly functional.
-Success Rate: 90%
-```
-
-### Manual Verification
-
-The installer automatically runs a post-installation check. If you need to run it manually:
-
-```bash
-~/.local/share/archriot/bin/post-install-check
-```
-
-### Manual Verification
-
-Check these key components:
-
-```bash
-# Verify theme system
-ls ~/.config/archriot/current/theme     # Should show active theme
-ls ~/.config/archriot/current/background # Should show escape_velocity.jpg
-
-# Test background cycling
-SUPER + CTRL + SPACE                   # Should cycle through 6 backgrounds
-
-# Test theme switching
-theme-next                             # Should switch to next theme
-
-# Verify waybar
-pgrep waybar                          # Should show running process
-```
+Installation logs are in `~/.cache/archriot/install.log` and can be reviewed for the full installation details or any errors during the installation process.
 
 ### Expected Defaults
 
@@ -772,41 +665,25 @@ After fresh installation, you should see:
 
 ### System Health Validation
 
-The ArchRiot binary includes built-in validation and diagnostic capabilities:
+The ArchRiot installer performs comprehensive validation automatically:
 
-```bash
-# Run the installer in validation mode
-~/.local/share/archriot/install/archriot --validate
+**Built-in validation includes:**
 
-# Or use the dedicated validation script
-~/.local/share/archriot/config/bin/validate-system
-```
-
-**What it tests:**
-
-- YAML configuration integrity and module dependencies
+- YAML configuration integrity and module dependency resolution
 - System compatibility (Arch Linux, hardware, drivers)
 - Package availability and repository accessibility
-- Wayland/Hyprland functionality
-- Configuration file deployment verification
-- Theme and asset file integrity
+- Network connectivity and download verification
+- Configuration file deployment and permissions
+- Service startup and functionality testing
+- Complete dependency tree validation
 
-**Advanced Validation:**
-
-- **Dependency resolution**: Validates the entire YAML module dependency tree before installation
-- **Configuration conflicts**: Detects potential conflicts between config patterns and existing files
-- **Rollback verification**: Ensures system can be restored if installation fails
-- **Performance checks**: Memory, disk space, and network connectivity validation
-
-**Results**: Comprehensive pass/fail report with detailed diagnostics, dependency graphs, and specific remediation steps for any issues detected.
+**Real-time feedback:** Progress bars, status updates, and immediate error reporting if anything goes wrong. The installer won't continue if any validation step fails.
 
 ## 🛠️ Management Tools
 
 ```bash
 # ArchRiot Management
-~/.local/share/archriot/install/archriot --validate    # Validate system health
-~/.local/share/archriot/config/bin/validate-system     # Quick system check
-~/.local/share/archriot/config/bin/version             # Show ArchRiot version
+cat ~/.local/share/archriot/VERSION                   # Show ArchRiot version
 
 # System Management
 sudo pacman -Syu                     # Update system packages
@@ -815,7 +692,6 @@ migrate                              # Backup/restore system (TUI)
 
 # Development Tools
 make                                 # Build ArchRiot from source (in repo)
-make install                         # Install from source build
 make test                            # Run test suite
 ```
 
@@ -848,10 +724,7 @@ ArchRiot includes optional tools for advanced users who need additional function
 - **Status:** ✅ **Available and Ready**
 
 ```bash
-# Access optional tools through ArchRiot installer
-~/.local/share/archriot/install/archriot --tools
-
-# Or navigate to optional tools directory
+# Navigate to optional tools directory
 cd ~/.local/share/archriot/optional-tools
 ```
 
@@ -893,6 +766,65 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 > Boot and run `archriot-install` from the prompt!
 
 **⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
+
+## 🖥️ VM & Hardware Notes
+
+**ArchRiot is designed for bare metal hardware.** While it can run in VMs, you're missing the point—this system is built to replace whatever disappointing Linux distribution you're currently stuck with. Install it on real hardware where it belongs.
+
+**That said, if you insist on VMs:**
+
+_Thanks to [DTWaling on X](https://x.com/DTWaling) for VM installation guidance._
+
+### Disk Partitioning in VirtualBox
+
+The Arch Linux installer's auto partitioning might not detect the full disk space allocated by VirtualBox. If this happens, archinstall will partition based on the actual space pre-allocated by VirtualBox rather than the full virtual disk size.
+
+**Solutions:**
+
+1. **Pre-allocate full space:** In VirtualBox disk settings, pre-allocate the full disk space before installation
+2. **Manual partitioning:** Use `gdisk` to create your own EFI boot and root partitions, then configure archinstall to use your pre-configured partitions
+
+### Plymouth Installation Issues
+
+If installation stops at the "running: plymouth" step (95% progress) and returns to command prompt:
+
+**The installation is likely 99% complete!** Plymouth is a boot splash screen and not essential for desktop functionality.
+
+**To complete installation:**
+
+```bash
+# Complete remaining steps
+sudo updatedb && fc-cache -fv
+
+# Verify core components
+which waybar && echo "✓ Waybar OK" || echo "❌ Waybar missing"
+which hyprland && echo "✓ Hyprland OK" || echo "❌ Hyprland missing"
+
+# Check if key components are working
+
+# Reboot to apply all configurations
+reboot
+```
+
+**To install Plymouth later:**
+
+```bash
+# Re-run installer to complete Plymouth installation
+curl -fsSL https://archriot.org/setup.sh | bash
+```
+
+### Post-Installation
+
+If the installer completes successfully, your system is fully functional. The installer validates every component during installation - if it finishes, everything works.
+
+**No separate verification needed.** The installer already validated:
+
+- All packages installed correctly
+- All configurations deployed properly
+- All services started successfully
+- All dependencies resolved
+
+**Issues after installation?** Re-run the installer - it's designed to fix problems and maintain your system.
 
 ## 📄 License
 
