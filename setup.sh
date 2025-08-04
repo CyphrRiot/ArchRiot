@@ -131,14 +131,15 @@ fi
 # Start installation
 echo -e "\nArchRiot installation starting..."
 
-# Build and run the Go installer
-cd ~/.local/share/archriot/install
-echo -e "🔨 Building ArchRiot installer..."
-if ! go build -o archriot-installer . 2>/dev/null; then
-    echo -e "❌ Failed to build installer. Ensure Go is installed:"
-    echo -e "   sudo pacman -S go"
+# Check if pre-built installer exists
+if [[ ! -f ~/.local/share/archriot/install/archriot ]]; then
+    echo -e "❌ Pre-built installer not found. This may be a development version."
+    echo -e "   Expected: ~/.local/share/archriot/install/archriot"
     exit 1
 fi
 
+# Make sure installer is executable
+chmod +x ~/.local/share/archriot/install/archriot
+
 echo -e "🚀 Running ArchRiot installer..."
-./archriot-installer
+~/.local/share/archriot/install/archriot

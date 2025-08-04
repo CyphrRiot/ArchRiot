@@ -41,13 +41,8 @@ get_install_date() {
 
 # Get current theme
 get_current_theme() {
-    local theme_link="$HOME/.config/archriot/current/theme"
-
-    if [[ -L "$theme_link" ]]; then
-        basename "$(readlink "$theme_link" 2>/dev/null)" || echo "unknown"
-    else
-        echo "not set"
-    fi
+    # Theme system removed - simple background cycling only
+    echo "simple backgrounds"
 }
 
 # Check if components are working

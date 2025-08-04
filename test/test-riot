@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo
+echo "Testing ArchRiot"
+echo
+
+# Build the installer binary
+echo "Building installer..."
+make build
+
+# Ask about config removal
+read -p "Remove all config? [y/N]: " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    ./test/cleanup-for-testing.sh
+fi
+
+# Sync repo to installation location
+echo "Syncing repo..."
+rm -rf ~/.local/share/archriot/*
+rsync -a --info=progress2 ~/Code/ArchRiot/* ~/.local/share/archriot/
+
+# Run the installer
+echo "Running installer..."
+~/.local/share/archriot/install/archriot

@@ -1,0 +1,18 @@
+# ArchRiot XCompose sequences
+# Custom compose key sequences for ArchRiot
+
+# Email and name shortcuts
+<Multi_key> <space> <n> : "Cypher Riot"
+<Multi_key> <space> <e> : "CypherRiot@protonmail.com"
+
+# Common symbols
+<Multi_key> <minus> <greater> : "→"
+<Multi_key> <less> <minus> : "←"
+<Multi_key> <minus> <minus> : "—"
+<Multi_key> <period> <period> <period> : "…"
+
+# Arrows
+<Multi_key> <Up> : "↑"
+<Multi_key> <Down> : "↓"
+<Multi_key> <Left> : "←"
+<Multi_key> <Right> : "→"

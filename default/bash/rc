@@ -1,6 +1,0 @@
-source ~/.local/share/archriot/default/bash/shell
-source ~/.local/share/archriot/default/bash/aliases
-source ~/.local/share/archriot/default/bash/functions
-source ~/.local/share/archriot/default/bash/prompt
-source ~/.local/share/archriot/default/bash/init
-source ~/.local/share/archriot/default/bash/envs

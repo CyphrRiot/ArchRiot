@@ -1,16 +1,6 @@
 # ArchRiot YAML Package Configuration
 
 core:
-    sudo:
-        commands:
-            - "sudo -n true || (echo 'Setting up passwordless sudo...' && sudo usermod -aG wheel $USER)"
-            - "sudo grep -q '^%wheel.*NOPASSWD.*ALL' /etc/sudoers || echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers"
-            - "sudo -k && sudo -n true"
-        depends: []
-        start: "Setting up passwordless sudo"
-        end: "Sudo configured"
-        type: "System"
-
     base:
         packages:
             - base-devel
@@ -21,8 +11,9 @@ core:
             - python
             - python-psutil
             - fastfetch
+            - linux-firmware
+            - efibootmgr
         configs:
-            - pattern: fish/*
             - pattern: environment.d/*
             - pattern: fastfetch/*
             - pattern: systemd/*
@@ -31,7 +22,7 @@ core:
             - "systemctl --user daemon-reload"
             - "systemctl --user enable version-check.timer 2>/dev/null || true"
             - "systemctl --user start version-check.timer 2>/dev/null || true"
-        depends: [core.sudo]
+        depends: []
         start: "Installing base development tools"
         end: "Base tools installed"
         type: "Package"
@@ -70,6 +61,7 @@ core:
             - plocate
         configs:
             - pattern: fish/*
+            - pattern: nvim/*
             - pattern: default/tmux.conf
               target: ~/.config/tmux/tmux.conf
         commands:
@@ -89,24 +81,25 @@ desktop:
             - hyprlock
             - hypridle
             - swaybg
+            - hyprshot
         configs:
             - pattern: hypr/*
             - pattern: waybar/*
             - pattern: fuzzel/*
             - pattern: mako/*
-            - pattern: gtk-3.0/*
-              preserve_if_exists: [bookmarks]
-            - pattern: gtk-4.0/*
+
             - pattern: Thunar/*
+              preserve_if_exists: [accels.scm]
             - pattern: bin/upgrade-system
               target: ~/.local/bin/
             - pattern: applications/*
               target: ~/.local/share/applications/
         commands:
-            - "chmod +x ~/.local/bin/*"
+            - "mkdir -p ~/.local/bin && chmod +x ~/.local/bin/* 2>/dev/null || true"
             - "chmod +x ~/.local/share/archriot/config/bin/* "
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
-            - "update-desktop-database ~/.local/share/applications/"
+            - "chmod +x ~/.config/waybar/scripts/* 2>/dev/null || true"
+            - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications/"
             - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
             - "echo -e '[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $USER --noclear %I \\$TERM' | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null"
@@ -142,6 +135,15 @@ desktop:
             - nwg-drawer
             - imv
             - mullvad-vpn-bin
+            - ufw
+            - kooha
+            - gst-plugins-good
+            - gst-plugins-bad
+            - gst-plugins-ugly
+            - gst-libav
+            - gst-plugin-pipewire
+            - gstreamer-vaapi
+            - gst-plugins-base
         configs:
             - pattern: ghostty/*
             - pattern: xdg-desktop-portal/*
@@ -184,7 +186,7 @@ desktop:
         configs:
             - pattern: applications/*
         commands:
-            - "update-desktop-database ~/.local/share/applications/"
+            - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications/"
         depends: [core.base]
         start: "Installing desktop utilities"
         end: "Desktop utilities installed"
@@ -195,6 +197,7 @@ development:
         packages:
             - zed
             - tree
+            - btop
         configs:
             - pattern: zed/*
               preserve_if_exists: [settings.json]
@@ -361,7 +364,7 @@ system:
 
     mimetypes:
         commands:
-            - "update-desktop-database ~/.local/share/applications"
+            - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications"
             - "xdg-mime default imv.desktop image/png"
             - "xdg-mime default imv.desktop image/jpeg"
             - "xdg-mime default imv.desktop image/gif"
@@ -443,6 +446,8 @@ system:
             - 'gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"'
             - "gsettings set org.gnome.desktop.interface cursor-size 24"
             - 'gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"'
+            - "mkdir -p ~/.config/gtk-3.0 && [ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\\nfile://$HOME/Videos/Movies\" > ~/.config/gtk-3.0/bookmarks || true"
+            - "sudo usermod -a -G video $USER"
         depends: [core.base]
         start: "Installing desktop themes"
         end: "Desktop themes configured"
@@ -452,6 +457,9 @@ system:
         commands:
             - "pkill swaybg 2>/dev/null || true"
             - "nohup swaybg -i ~/.local/share/archriot/backgrounds/riot_01.jpg -m fill >/dev/null 2>&1 & disown"
+            - "pkill waybar 2>/dev/null || true"
+            - "nohup waybar >/dev/null 2>&1 & disown"
+            - "hyprctl reload"
         depends: [desktop.hyprland]
         start: "Setting up wallpapers"
         end: "Background service started"

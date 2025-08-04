@@ -269,8 +269,7 @@
 		"class<org.gnome.TextEditor>": "<span font='11'>󰷈 </span>",
 		"class<org.gnome.Nautilus|nautilus>": "<span font='11'>󰝰 </span>",
 		"class<org.gnome.Contacts>": "<span font='11'>󰀉 </span>",
-    "class<org.pwmt.zathura>": "<span font='11'>󰈦 </span>",
-		"class<org.gnome.TextEditor>": "<span font='11'>󰍔 </span>",
+    "class<org.pwmt.zathura>": "<span font='11'>󰈦 </span>"
 		}
 	},
 }

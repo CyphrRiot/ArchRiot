@@ -62,11 +62,12 @@
 	"tooltip-format": "Left Click: Quick Tips\nRight Click: Keybinds",
 },
 
-"custom/dot_update": {
-	"format": " 󰁈 ",
-	"on-click": "$HOME/.config/hypr/scripts/KooLsDotsUpdate.sh",
+"custom/archriot-update": {
+	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
+	"return-type": "json",
+	"interval": 300,
+	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
 	"tooltip": true,
-	"tooltip-format": "Check KooL Dots update\nIf available",
 },
 
 // Hypridle inhibitor
@@ -150,7 +151,7 @@
 
 "custom/power": {
 	"format": " ⏻ ",
-	"on-click": "$HOME/.local/share/archriot/bin/power-menu",
+	"on-click": "$HOME/.local/share/archriot/config/bin/power-menu",
 	"on-click-right": "$HOME/.config/hypr/scripts/ChangeBlur.sh",
 	"tooltip": false
 },
@@ -175,7 +176,7 @@
 	"exec": "checkupdates | wc -l",
 	"exec-if": "[[ $(checkupdates | wc -l) ]]",
 	"interval": 43200, // (Arch Linux will try to check 12 hrs interval only
-	"on-click": "$HOME/.config/hypr/scripts/Distro_update.sh",
+	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
 	"tooltip": true,
 	"tooltip-format": "Left Click: Update System\nArch (w/ notification)\nFedora, OpenSuse, Debian/Ubuntu click to update"
 },
