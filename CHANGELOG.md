@@ -5,6 +5,22 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.4] - 2025-01-13
+
+### 🚨 CRITICAL AUTO-LOGIN FIX
+
+#### Emergency Patch for Broken Auto-Login
+
+- **CRITICAL FIX**: Auto-login broken during installation causing endless `--noclear (automatic login)` loop
+- **ROOT CAUSE**: Installer using `$SUDO_USER` variable which is unreliable during installation context
+- **SOLUTION**: Changed to `$(whoami)` for proper user detection in getty configuration
+- **IMPACT**: Prevents systems from being locked out at login prompt after fresh installation
+- **AFFECTED**: All v2.5.0+ installations where auto-login was configured
+- **EMERGENCY**: Added `fix-autologin.sh` script for immediate repair of affected systems
+- **REGRESSION**: Introduced in v2.5.0 during shell→Go installer transition
+
+This was a **HIGH SEVERITY** regression that could render systems unusable after installation.
+
 ## [2.5.1] - 2025-01-08
 
 ### 🌡️ Critical Hardware Compatibility Fix
