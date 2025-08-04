@@ -45,7 +45,6 @@
 "hyprland/workspaces#pacman": {
 	"active-only": false,
 	"all-outputs": true,
-	"format": "{icon} ",
 	"on-click": "activate ",
 	"on-scroll-up": "hyprctl dispatch workspace e+1 ",
 	"on-scroll-down": "hyprctl dispatch workspace e-1 ",
@@ -98,7 +97,6 @@
 
 //  NUMBERS and ICONS style
 "hyprland/workspaces#4": {
-	"format": "{name} ",
 	"format": "{name} {icon} ",
 	//"format": "{icon} ",
 	"show-special": false,
@@ -165,7 +163,6 @@
 		"window-rewrite-default": "<span font='11'> </span>",
 	"window-rewrite": {
 		"title<.*amazon.*>": "<span font='11'> </span>",
-		"title<.*reddit.*>": "<span font='11'> </span>",
 
 		"class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>": "<span font='11'>󰈹 </span>",
 		"class<signal>": "<span font='11'>󰍡 </span>",

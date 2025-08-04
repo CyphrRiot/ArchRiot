@@ -5,170 +5,141 @@
 /* Custom Modules like weather browser, tty, file manager at the beginning */
 
 {
+    "custom/archriot-update": {
+    	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
+    	"return-type": "json",
+    	"interval": 300,
+    	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
+    	"tooltip": true,
+    },
 
+    "custom/lock": {
+    	"format": "󰌾",
+    	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/hyprlock-wrapper.sh",
+    	"tooltip": true,
+    	"tooltip-format": "󰷛 Screen Lock",
+    },
 
+    // Tomato Timer (Pomodoro) - 25 minute work timer
+    "custom/tomato-timer": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 2,
+    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py",
+    	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh",
+    	"tooltip": true
+    },
 
+    // Custom CPU meter showing aggregate usage across all cores (Python version)
+    "custom/cpu-aggregate": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 2,
+    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-cpu-aggregate.py",
+    	"on-click": "gnome-system-monitor",
+    	"on-click-right": "gnome-system-monitor",
+    	"tooltip": true
+    },
 
+    "custom/power": {
+    	"format": " ⏻ ",
+    	"on-click": "$HOME/.local/share/archriot/config/bin/power-menu",
+    	"tooltip": false
+    },
 
+    // Accurate memory module using same calculation as btop (Total - Available)
+    "custom/memory-accurate": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 5,
+    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-memory-accurate.py",
+    	"on-click": "gnome-system-monitor",
+    	"on-click-right": "gnome-system-monitor",
+    	"tooltip": true
+    },
+    // Separators
+    "custom/separator#dot": {
+    	"format": "",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#dot-line": {
+    	"format": "",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#line": {
+    	"format": "|",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#line-tray": {
+    	"format": "|",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#blank": {
+    	"format": "",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#blank_2": {
+    	"format": "  ",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#blank_3": {
+    	"format": "   ",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/arrow1": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow2": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow3": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow4": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow5": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow6": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow7": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow8": {
+    	"format": "",
+    	"tooltip": false
+    },
 
+    "custom/arrow9": {
+    	"format": "",
+    	"tooltip": false
+    },
 
-"custom/archriot-update": {
-	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
-	"return-type": "json",
-	"interval": 300,
-	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
-	"tooltip": true,
-},
-
-
-
-
-
-"custom/lock": {
-	"format": "󰌾",
-	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/hyprlock-wrapper.sh",
-	"tooltip": true,
-	"tooltip-format": "󰷛 Screen Lock",
-},
-
-
-
-
-
-
-// Tomato Timer (Pomodoro) - 25 minute work timer
-"custom/tomato-timer": {
-	"format": "{}",
-	"return-type": "json",
-	"interval": 2,
-	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py",
-	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh",
-	"tooltip": true
-},
-
-// Custom CPU meter showing aggregate usage across all cores (Python version)
-"custom/cpu-aggregate": {
-	"format": "{}",
-	"return-type": "json",
-	"interval": 2,
-	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-cpu-aggregate.py",
-	"on-click": "gnome-system-monitor",
-	"on-click-right": "gnome-system-monitor",
-	"tooltip": true
-},
-
-"custom/power": {
-	"format": " ⏻ ",
-	"on-click": "$HOME/.local/share/archriot/config/bin/power-menu",
-	"tooltip": false
-},
-
-
-
-
-
-// Accurate memory module using same calculation as btop (Total - Available)
-"custom/memory-accurate": {
-	"format": "{}",
-	"return-type": "json",
-	"interval": 5,
-	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-memory-accurate.py",
-	"on-click": "gnome-system-monitor",
-	"on-click-right": "gnome-system-monitor",
-	"tooltip": true
-},
-
-
-// Separators
-"custom/separator#dot": {
-	"format": "",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/separator#dot-line": {
-	"format": "",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/separator#line": {
-	"format": "|",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/separator#line-tray": {
-	"format": "|",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/separator#blank": {
-	"format": "",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/separator#blank_2": {
-	"format": "  ",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/separator#blank_3": {
-	"format": "   ",
-	"interval": "once",
-	"tooltip": false
-},
-"custom/arrow1": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow2": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow3": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow4": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow5": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow6": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow7": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow8": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow9": {
-	"format": "",
-	"tooltip": false
-},
-
-"custom/arrow10": {
-	"format": "",
-	"tooltip": false
-}
+    "custom/arrow10": {
+    	"format": "",
+    	"tooltip": false
+    }
 }
