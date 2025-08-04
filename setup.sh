@@ -84,8 +84,8 @@ if [[ -d ~/.local/share/archriot/.git ]]; then
         }
 
         # Verify clone contains required files
-        if [[ ! -f ~/.local/share/archriot/install.sh ]]; then
-            echo "❌ CRITICAL: Clone incomplete - install.sh missing"
+        if [[ ! -f ~/.local/share/archriot/install/archriot ]]; then
+            echo "❌ CRITICAL: Clone incomplete - archriot binary missing"
             echo "   Repository may be corrupted or incomplete"
             rm -rf ~/.local/share/archriot
             exit 1
@@ -105,8 +105,8 @@ else
     }
 
     # Verify clone contains required files
-    if [[ ! -f ~/.local/share/archriot/install.sh ]]; then
-        echo "❌ CRITICAL: Clone incomplete - install.sh missing"
+    if [[ ! -f ~/.local/share/archriot/install/archriot ]]; then
+        echo "❌ CRITICAL: Clone incomplete - archriot binary missing"
         echo "   Repository may be corrupted or incomplete"
         rm -rf ~/.local/share/archriot
         exit 1
