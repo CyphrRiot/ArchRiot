@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Name=Activity
-Comment=System activity from btop
-Exec=ghostty --class=Activity --title=Activity -e btop
+Comment=System processes and activity
+Exec=gnome-system-monitor --show-processes-tab
 Terminal=false
 Type=Application
 Icon=org.gnome.SystemMonitor

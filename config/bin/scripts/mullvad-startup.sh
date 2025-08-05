@@ -65,6 +65,20 @@ check_mullvad_running() {
 start_mullvad_gui() {
     log_message "Starting Mullvad GUI minimized to tray"
 
+    # Ensure GUI settings are configured to start minimized
+    local settings_file="$HOME/.config/Mullvad VPN/gui_settings.json"
+    if [ -f "$settings_file" ]; then
+        # Update startMinimized to true in the JSON settings
+        if command -v jq &>/dev/null; then
+            log_message "Updating Mullvad GUI settings to start minimized"
+            jq '.startMinimized = true' "$settings_file" > "${settings_file}.tmp" && mv "${settings_file}.tmp" "$settings_file"
+        else
+            # Fallback: use sed to update the setting
+            log_message "Updating Mullvad GUI settings to start minimized (fallback method)"
+            sed -i 's/"startMinimized":false/"startMinimized":true/g' "$settings_file"
+        fi
+    fi
+
     # Start GUI with minimize flag and redirect output to avoid console spam
     "/opt/Mullvad VPN/mullvad-gui" --minimize-to-tray &>/dev/null & disown
 

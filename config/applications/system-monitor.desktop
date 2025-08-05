@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Name=System Monitor
-Comment=View current processes and monitor system state
-Exec=gnome-system-monitor
+Comment=View system resources and performance
+Exec=gnome-system-monitor --show-resources-tab
 Icon=org.gnome.SystemMonitor
 Terminal=false
 Type=Application
