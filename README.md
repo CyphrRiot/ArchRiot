@@ -33,7 +33,7 @@
 
 ArchRiot isn't just another Linux distribution -- it's the answer to every time you've thought "why can't Linux just work flawlessly from the start?" We obsess over speed, security, and getting every detail perfect so you don't have to.
 
-**This is what perfect looks like:**
+**Curated to be correct:**
 
 - **Hyprland Tiling WM** - Because floating windows are chaos
 - **Go Binary Installer** - Atomic operations, zero failures, complete rollback
