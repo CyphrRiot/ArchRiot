@@ -5,6 +5,25 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.7] - 2025-01-08
+
+### 🚨 CRITICAL SUDO CHECK FIX
+
+#### Emergency Patch for False Positive Sudo Detection
+
+- **CRITICAL FIX**: Passwordless sudo check giving false positives due to cached credentials
+- **ROOT CAUSE**: `testSudo()` function succeeded when sudo timestamp cache was active, even without passwordless sudo configured
+- **SOLUTION**: Clear sudo timestamp cache with `sudo -k` before testing actual passwordless sudo configuration
+- **IMPACT**: Prevents installation failures when sudo cache expires during installation process
+- **AFFECTED**: All users who recently ran sudo commands before installing ArchRiot
+- **SYMPTOM**: Installer showed "✅ Passwordless sudo is already working" but failed later during installation
+
+#### Technical Details
+
+- Added `exec.Command("sudo", "-k").Run()` to clear timestamp cache before testing
+- Ensures `sudo -n true` tests actual sudoers configuration, not cached credentials
+- Eliminates false positives that caused delayed installation failures
+
 ## [2.5.4] - 2025-01-13
 
 ### 🚨 CRITICAL AUTO-LOGIN FIX
@@ -16,7 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **SOLUTION**: Changed to `$(whoami)` for proper user detection in getty configuration
 - **IMPACT**: Prevents systems from being locked out at login prompt after fresh installation
 - **AFFECTED**: All v2.5.0+ installations where auto-login was configured
-- **EMERGENCY**: Added `fix-autologin.sh` script for immediate repair of affected systems
 - **REGRESSION**: Introduced in v2.5.0 during shell→Go installer transition
 
 This was a **HIGH SEVERITY** regression that could render systems unusable after installation.

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.5.6-4c1d95)
+![Version](https://img.shields.io/badge/version-2.5.7-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -85,19 +85,18 @@ Download the [Arch Linux ISO](https://archlinux.org/download), put it on a USB s
 
 Run `archinstall` and pick these options (and leave anything not mentioned as-is):
 
-| Section                  | Option                                                                         |
-| ------------------------ | ------------------------------------------------------------------------------ |
-| Mirrors and repositories | Select regions > Your country                                                  |
-| Disk configuration       | Partitioning > Default partitioning layout > Select disk (with space + return) |
-| Disk > File system       | btrfs (default structure: yes + use compression)                               |
-| Disk > Disk encryption   | Encryption type: LUKS + Encryption password + Partitions (select the one)      |
-| Hostname                 | Give your computer a name                                                      |
-| Root password            | Set yours                                                                      |
-| User account             | Add a user > Superuser: Yes > Confirm and exit                                 |
-| Audio                    | pipewire                                                                       |
-| Network configuration    | Copy ISO network config                                                        |
-| Additional packages      | Add wget (type "/wget" to filter list)                                         |
-| Timezone                 | Set yours                                                                      |
+| Section                  | Option                                                                  |
+| ------------------------ | ----------------------------------------------------------------------- |
+| Mirrors and repositories | Select regions > Your country                                           |
+| Disk configuration       | Partitioning > Default partitioning layout > Select disk (SPACE+RETURN) |
+| Disk > File system       | btrfs (default structure: yes + use compression)                        |
+| Disk > Disk encryption   | Encryption type: LUKS + Encryption password + Partitions (select)       |
+| Hostname                 | Give your computer a name                                               |
+| Root password            | Set yours                                                               |
+| User account             | Add a user > Superuser: Yes > Confirm and exit                          |
+| Audio                    | pipewire                                                                |
+| Network configuration    | Copy ISO network config                                                 |
+| Timezone                 | Set yours                                                               |
 
 **⚠️ Important:** You must setup disk encryption to use ArchRiot as designed! The setup relies exclusively on disk encryption to secure your device, as it'll auto-login the user after the disk has been decrypted at boot.
 

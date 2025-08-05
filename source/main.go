@@ -3,18 +3,20 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"archriot-installer/executor"
 	"archriot-installer/git"
 	"archriot-installer/installer"
 	"archriot-installer/logger"
+	"archriot-installer/orchestrator"
+	"archriot-installer/tools"
 	"archriot-installer/tui"
 	"archriot-installer/version"
-	"archriot-installer/executor"
-	"archriot-installer/orchestrator"
 )
 
 // Global program reference for TUI
@@ -64,11 +66,49 @@ func setupSudo() error {
 
 // testSudo tests if passwordless sudo is working
 func testSudo() bool {
+	// Clear sudo timestamp cache to avoid false positives from cached credentials
+	exec.Command("sudo", "-k").Run()
+
+	// Now test for actual passwordless sudo configuration
 	cmd := exec.Command("sudo", "-n", "true")
 	return cmd.Run() == nil
 }
 
 func main() {
+	// Handle command line arguments
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "--tools", "-t":
+			// Initialize basic logging for tools
+			if err := logger.InitLogging(); err != nil {
+				log.Fatalf("❌ Failed to initialize logging: %v", err)
+			}
+			defer logger.CloseLogging()
+
+			// Run tools interface
+			if err := tools.RunToolsInterface(); err != nil {
+				log.Fatalf("❌ Tools interface failed: %v", err)
+			}
+			return
+
+		case "--version", "-v":
+			if err := version.ReadVersion(); err != nil {
+				log.Fatalf("❌ Failed to read version: %v", err)
+			}
+			fmt.Printf("ArchRiot version %s\n", version.Get())
+			return
+
+		case "--help", "-h":
+			showHelp()
+			return
+
+		default:
+			fmt.Printf("Unknown option: %s\n\n", os.Args[1])
+			showHelp()
+			os.Exit(1)
+		}
+	}
+
 	// STEP 1: Setup passwordless sudo (critical for installation)
 	if err := setupSudo(); err != nil {
 		log.Fatalf("❌ Sudo setup failed: %v", err)
@@ -172,4 +212,27 @@ func main() {
 			exec.Command("sudo", "systemctl", "reboot").Run()
 		}
 	}
+}
+
+// showHelp displays the help message
+func showHelp() {
+	fmt.Printf(`ArchRiot - The (Arch) Linux System You've Always Wanted
+
+Usage:
+  archriot              Run the main installer
+  archriot --tools      Launch optional tools interface
+  archriot --version    Show version information
+  archriot --help       Show this help message
+
+Options:
+  -t, --tools          Access optional advanced tools (Secure Boot, etc.)
+  -v, --version        Display version information
+  -h, --help           Display this help message
+
+Examples:
+  archriot             # Start installation
+  archriot --tools     # Open tools menu
+
+For more information, visit: https://github.com/CyphrRiot/ArchRiot
+`)
 }
