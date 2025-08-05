@@ -139,7 +139,7 @@ The result: **100% reliable installations** with **complete system state managem
 
 ### Installation Features
 
-- **Automatic backup** - Creates timestamped backup of existing configs
+- **Preserves Critical Configs** - Won't overwrite your key configurations
 - **Dependency verification** - Ensures Python3 and required packages
 - **Script validation** - Verifies all waybar modules are functional
 - **Error handling** - Clear feedback and rollback capability
@@ -203,63 +203,64 @@ migrate                              # Launch interactive backup/restore interfa
 
 ### Getting Started
 
-```bash
-SUPER + H                            # Show HELP (SUPER Key Bindings)
-SUPER + D  or  SUPER + SPACE         # App launcher (fuzzel)
-SUPER + RETURN                       # Open terminal (Ghostty)
-SUPER + L                            # Lock screen (integrated CypherRiot styling)
-SUPER + ESCAPE                       # Power menu
-```
+| Keybinding                     | Action                                      |
+| ------------------------------ | ------------------------------------------- |
+| `SUPER + H`                    | Show HELP (SUPER Key Bindings)              |
+| `SUPER + D` or `SUPER + SPACE` | App launcher (fuzzel)                       |
+| `SUPER + RETURN`               | Open terminal (Ghostty)                     |
+| `SUPER + SHIFT + RETURN`       | Open floating terminal (Ghostty)            |
+| `SUPER + L`                    | Lock screen (integrated CypherRiot styling) |
+| `SUPER + ESCAPE`               | Power menu                                  |
 
 ### Window Management (Most Used)
 
-```bash
-SUPER + W  or  SUPER + Q             # Close window
-SUPER + V                            # Toggle floating
-SUPER + J                            # Toggle split
-SUPER + Arrow Keys                   # Move focus
-SUPER + SHIFT + Arrow Keys           # Swap windows
-SUPER + CTRL + Arrow Keys            # Smart window movement
-SUPER + 1-4                          # Switch workspace
-SUPER + SHIFT + 1-4                  # Move window to workspace
-```
+| Keybinding                   | Action                   |
+| ---------------------------- | ------------------------ |
+| `SUPER + W` or `SUPER + Q`   | Close window             |
+| `SUPER + V`                  | Toggle floating          |
+| `SUPER + J`                  | Toggle split             |
+| `SUPER + Arrow Keys`         | Move focus               |
+| `SUPER + SHIFT + Arrow Keys` | Swap windows             |
+| `SUPER + CTRL + Arrow Keys`  | Smart window movement    |
+| `SUPER + 1-4`                | Switch workspace         |
+| `SUPER + SHIFT + 1-4`        | Move window to workspace |
 
 ### Core Applications
 
-```bash
-SUPER + F                            # File manager (Thunar)
-SUPER + B                            # Browser (Brave)
-SUPER + Z                            # Code editor (Zed)
-SUPER + N                            # Text editor (Neovim)
-SUPER + O                            # Text editor (Gnome Text Editor)
-SUPER + T                            # System monitor (btop)
-SUPER + SHIFT + RETURN               # Centered floating terminal
-```
+| Keybinding               | Action                          |
+| ------------------------ | ------------------------------- |
+| `SUPER + F`              | File manager (Thunar)           |
+| `SUPER + B`              | Browser (Brave)                 |
+| `SUPER + Z`              | Code editor (Zed)               |
+| `SUPER + N`              | Text editor (Neovim)            |
+| `SUPER + O`              | Text editor (Gnome Text Editor) |
+| `SUPER + T`              | System monitor (btop)           |
+| `SUPER + SHIFT + RETURN` | Centered floating terminal      |
 
 ### Communication & Social
 
-```bash
-SUPER + E                            # Email (Proton Mail)
-SUPER + G                            # Signal messenger (smart launcher)
-SUPER + M                            # Google Messages
-SUPER + X                            # X/Twitter
-```
+| Keybinding  | Action                            |
+| ----------- | --------------------------------- |
+| `SUPER + E` | Email (Proton Mail)               |
+| `SUPER + G` | Signal messenger (smart launcher) |
+| `SUPER + M` | Google Messages                   |
+| `SUPER + X` | X/Twitter                         |
 
 ### Screenshots & Recording
 
-```bash
-SUPER + SHIFT + S                    # Region screenshot
-SUPER + SHIFT + W                    # Window screenshot
-SUPER + SHIFT + F                    # Full screen screenshot
-SUPER + PRINT                        # Color picker
-Kooha                                # GUI screen recorder (launch from SUPER+D)
-```
+| Keybinding          | Action                                    |
+| ------------------- | ----------------------------------------- |
+| `SUPER + SHIFT + S` | Region screenshot                         |
+| `SUPER + SHIFT + W` | Window screenshot                         |
+| `SUPER + SHIFT + F` | Full screen screenshot                    |
+| `SUPER + PRINT`     | Color picker                              |
+| `Kooha`             | GUI screen recorder (launch from SUPER+D) |
 
 ### Background Management
 
-```bash
-SUPER + CTRL + SPACE                 # Cycle through backgrounds (keybind)
-```
+| Keybinding             | Action                              |
+| ---------------------- | ----------------------------------- |
+| `SUPER + CTRL + SPACE` | Cycle through backgrounds (keybind) |
 
 ### System Management
 
