@@ -41,7 +41,7 @@ ArchRiot isn't just another Linux distribution -- it's the answer to every time 
 - **CypherRiot Aesthetics** - Dark themes that don't hurt your eyes at 3 AM
 - **Development-First** - Zed, nvim, containers, and tools that just work
 
-_Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, every time, because broken Linux systems are an insult to what computing should be._
+_Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
 
 🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
