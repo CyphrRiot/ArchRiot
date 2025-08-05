@@ -51,9 +51,9 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 - [Installation](#-installation)
 - [Installation Features](#installation-features)
+- [Essential Commands](#️-essential-commands)
 - [Control Panel](#control-panel)
 - [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
-- [Essential Commands](#️-essential-commands)
 - [Key Customizations](#-key-customizations)
 - [System Management](#-system-management)
 - [CypherRiot Theme System](#-cypherriot-theme-system)
