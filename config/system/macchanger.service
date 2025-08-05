@@ -7,9 +7,7 @@ After=sys-subsystem-net-devices-%i.device
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/ip link set dev %I down
 ExecStart=/usr/bin/macchanger -A %I
-ExecStart=/usr/bin/ip link set dev %I up
 RemainAfterExit=yes
 
 [Install]
