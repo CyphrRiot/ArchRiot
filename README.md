@@ -35,7 +35,7 @@ ArchRiot isn't just another Linux distribution -- it's the answer to every time 
 
 **Curated to be correct:**
 
-- **Hyprland Tiling WM** - Because floating windows are chaos
+- **Hyprland Tiling WM** - Because most floating windows are chaos
 - **Go Binary Installer** - Atomic operations, zero failures, complete rollback
 - **Privacy by Design** - No telemetry, no tracking, no corporate surveillance
 - **CypherRiot Aesthetics** - Dark themes that don't hurt your eyes at 3 AM
