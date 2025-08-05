@@ -151,7 +151,7 @@ ArchRiot includes a comprehensive GTK4-based Control Panel for managing system s
 
 Access it via `SUPER+C` or by running `archriot-control-panel`.
 
-![ArchRiot Control Panel Demo](config/images/control-panel.gif)
+![ArchRiot Control Panel Demo](config/images/control-panel.png)
 
 ### 🎛️ **Features**
 
