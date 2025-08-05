@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.5.8-4c1d95)
+![Version](https://img.shields.io/badge/version-2.5.9-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
@@ -323,7 +323,7 @@ Quick fixes for common issues:
 - **Applications:** All major apps now run native Wayland (no more XWayland issues)
 - **Migrate Backup Tool:** CyphrRiot's comprehensive system backup/restore solution (built-in)
 - **Memory Optimization:** Intelligent memory management that actually works
-- **Blue Light Filter:** Optional hyprsunset at 3500K for reduced eye strain (configurable during install)
+- **Blue Light Filter:** hyprsunset at 3500K for reduced eye strain (configurable)
 - **GTK Theming:** Dark theme everywhere - no more jarring white dialogs
 - **DPI Scaling:** Fixed scaling issues for consistent UI across all applications
 
