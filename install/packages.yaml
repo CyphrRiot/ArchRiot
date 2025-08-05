@@ -49,6 +49,7 @@ core:
             - inetutils
             - neovim
             - kitty
+            - pv
             - fd
             - fzf
             - ripgrep
@@ -478,7 +479,8 @@ media:
             - yt-dlp
             - python-opencv
             - spotdl
-
+        configs:
+            - pattern: yt-dlp/*
         commands:
             - "yay -S --noconfirm --needed --mflags --nocheck spotdl"
         depends: [desktop.hyprland]
