@@ -405,12 +405,18 @@ system:
         type: "System"
 
     privacy:
+        packages:
+            - macchanger
+
         commands:
             - "gsettings set org.gnome.desktop.privacy remember-recent-files false || true"
             - "rm -f ~/.local/share/recently-used.xbel"
+            - "sudo cp ~/.local/share/archriot/config/system/macchanger.service /etc/systemd/system/macchanger@.service"
+            - "sudo systemctl daemon-reload"
+            - "sudo systemctl enable macchanger@$(ip route | grep '^default' | grep -o 'dev [^ ]*' | cut -d' ' -f2).service"
         depends: [core.base]
-        start: "Configuring desktop privacy"
-        end: "Privacy settings applied"
+        start: "Configuring privacy and MAC randomization"
+        end: "Privacy settings and MAC randomization enabled"
         type: "System"
 
     hardware:
