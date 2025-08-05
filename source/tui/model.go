@@ -31,40 +31,42 @@ const ArchRiotASCII = `
 
 // InstallModel represents the TUI model
 type InstallModel struct {
-	progress    float64
-	message     string
-	logs        []string
-	maxLogs     int
-	width       int
-	height      int
-	done        bool
-	operation   string
-	currentStep string
-	inputMode   string // "git-username", "git-email", "reboot", ""
-	inputValue  string // current typed input
-	inputPrompt string // what we're asking for
-	showConfirm    bool   // show YES/NO confirmation
-	confirmPrompt  string // confirmation prompt text
-	cursor         int    // 0 = YES, 1 = NO
-	scrollOffset   int    // scroll position in logs
+	progress           float64
+	message            string
+	logs               []string
+	maxLogs            int
+	width              int
+	height             int
+	done               bool
+	operation          string
+	currentStep        string
+	inputMode          string // "git-username", "git-email", "reboot", ""
+	inputValue         string // current typed input
+	inputPrompt        string // what we're asking for
+	showConfirm        bool   // show YES/NO confirmation
+	confirmPrompt      string // confirmation prompt text
+	cursor             int    // 0 = YES, 1 = NO
+	scrollOffset       int    // scroll position in logs
+	confirmationResult bool   // stores confirmation result
+	isConfirmationMode bool   // true if in confirmation-only mode
 }
 
 // NewInstallModel creates a new installation model
 func NewInstallModel() *InstallModel {
 	return &InstallModel{
-		logs:        make([]string, 0),
-		maxLogs:     12,
-		width:       80,
-		height:      24,
-		operation:   "ArchRiot Installation",
-		currentStep: "Initializing...",
-		inputMode:   "",
-		inputValue:  "",
-		inputPrompt: "",
+		logs:          make([]string, 0),
+		maxLogs:       12,
+		width:         80,
+		height:        24,
+		operation:     "ArchRiot Installation",
+		currentStep:   "Initializing...",
+		inputMode:     "",
+		inputValue:    "",
+		inputPrompt:   "",
 		showConfirm:   false,
 		confirmPrompt: "",
 		cursor:        1, // Default to NO
-		scrollOffset:   0,
+		scrollOffset:  0,
 	}
 }
 
@@ -196,7 +198,6 @@ func (m *InstallModel) View() string {
 	// Clear screen on startup
 	s.WriteString("\033[2J\033[H")
 
-
 	// Header - ASCII + title + version (like Migrate) with spacing
 	s.WriteString("\n") // Blank line before ASCII logo
 	asciiStyle := lipgloss.NewStyle().Foreground(accentColor).Bold(true)
@@ -204,7 +205,7 @@ func (m *InstallModel) View() string {
 	s.WriteString(ascii + "\n")
 
 	titleStyle := lipgloss.NewStyle().Foreground(primaryColor).Bold(true)
-	title := titleStyle.Render("-=-  ArchRiot Installer v"+GetVersion()+"  -=-")
+	title := titleStyle.Render("-=-  ArchRiot Installer v" + GetVersion() + "  -=-")
 	s.WriteString(title + "\n")
 
 	versionStyle := lipgloss.NewStyle().Foreground(dimColor)
@@ -338,7 +339,7 @@ func (m *InstallModel) renderScrollWindow() string {
 		actualLogCount = 0
 	}
 
-	for i := start; i < start + actualLogCount; i++ {
+	for i := start; i < start+actualLogCount; i++ {
 		line := m.logs[i]
 		maxLineWidth := contentWidth - 4 // Account for padding
 		if maxLineWidth < 10 {
@@ -366,7 +367,6 @@ func (m *InstallModel) renderScrollWindow() string {
 		scrollInfo := fmt.Sprintf(" [%d-%d/%d] ↑↓ to scroll ", scrollPos, scrollEnd, totalLogs)
 		content.WriteString(lipgloss.NewStyle().Foreground(dimColor).Render(scrollInfo))
 	}
-
 
 	return boxStyle.Render(content.String())
 }
@@ -430,6 +430,10 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 			gitCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
 		}
 		return m, nil
+	} else if m.isConfirmationMode {
+		// Initial installation confirmation - store result and quit
+		m.confirmationResult = (m.cursor == 0) // YES = 0, NO = 1
+		return m, tea.Quit
 	}
 	return m, nil
 }
@@ -481,4 +485,17 @@ func (m *InstallModel) SetInputMode(mode, prompt string) {
 
 func (m *InstallModel) IsDone() bool {
 	return m.done
+}
+
+// SetConfirmationMode sets up the model for initial confirmation dialog
+func (m *InstallModel) SetConfirmationMode(mode, prompt string) {
+	m.isConfirmationMode = true
+	m.showConfirm = true
+	m.confirmPrompt = prompt
+	m.cursor = 0 // Default to YES
+}
+
+// GetConfirmationResult returns the result of the confirmation dialog
+func (m *InstallModel) GetConfirmationResult() bool {
+	return m.confirmationResult
 }

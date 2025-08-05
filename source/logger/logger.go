@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"archriot-installer/tui"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
@@ -25,7 +26,7 @@ var typeEmojis = map[string]string{
 	"Database": "🗄️",
 	"Module":   "🏗️",
 	"File":     "📁",
-	"System":   "🚀",
+	"System":   "💫",
 }
 
 // getStatusEmoji returns emoji based on context automatically

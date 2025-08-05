@@ -33,6 +33,31 @@ var model *tui.InstallModel
 // Global reboot flag
 var shouldReboot bool
 
+// confirmInstallation shows initial installation confirmation using TUI
+func confirmInstallation() bool {
+	// Set up TUI helper functions before creating model
+	tui.SetVersionGetter(func() string { return version.Get() })
+
+	// Create confirmation model
+	model := tui.NewInstallModel()
+	model.SetConfirmationMode("install", fmt.Sprintf("λ Install ArchRiot v%s?", version.Get()))
+
+	program := tea.NewProgram(model)
+
+	// Run the confirmation TUI
+	finalModel, err := program.Run()
+	if err != nil {
+		log.Fatalf("❌ Confirmation failed: %v", err)
+	}
+
+	// Extract the result
+	if m, ok := finalModel.(*tui.InstallModel); ok {
+		return m.GetConfirmationResult()
+	}
+
+	return false
+}
+
 // setupSudo ensures passwordless sudo is configured
 func setupSudo() error {
 	log.Printf("🔐 Checking sudo configuration...")
@@ -119,7 +144,18 @@ func main() {
 		log.Fatalf("❌ Failed to read version: %v", err)
 	}
 
-	// Initialize logging first
+	// STEP 1: Initial installation confirmation
+	if !confirmInstallation() {
+		fmt.Println("❌ Installation cancelled by user")
+		os.Exit(0)
+	}
+
+	// STEP 2: Setup passwordless sudo (critical for installation)
+	if err := setupSudo(); err != nil {
+		log.Fatalf("❌ Sudo setup failed: %v", err)
+	}
+
+	// STEP 3: Initialize logging
 	if err := logger.InitLogging(); err != nil {
 		log.Fatalf("❌ Failed to initialize logging: %v", err)
 	}

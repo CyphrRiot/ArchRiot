@@ -49,7 +49,7 @@ func GetVersion() string {
 	if versionGetter != nil {
 		return versionGetter()
 	}
-	return "2.5.0"
+	return "unknown"
 }
 
 // GetLogPath returns the current log path
