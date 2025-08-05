@@ -149,27 +149,27 @@ The result: **100% reliable installations** with **complete system state managem
 
 ### Getting Started
 
-| Keybinding                     | Action                                      |
-| ------------------------------ | ------------------------------------------- |
-| `SUPER + H`                    | Show HELP (SUPER Key Bindings)              |
-| `SUPER + D` or `SUPER + SPACE` | App launcher (fuzzel)                       |
-| `SUPER + RETURN`               | Open terminal (Ghostty)                     |
-| `SUPER + SHIFT + RETURN`       | Open floating terminal (Ghostty)            |
-| `SUPER + L`                    | Lock screen (integrated CypherRiot styling) |
-| `SUPER + ESCAPE`               | Power menu                                  |
+| Keybinding       | Action                                      |
+| ---------------- | ------------------------------------------- |
+| `SUPER + H`      | Show HELP (SUPER Key Bindings)              |
+| `SUPER + D`      | App launcher (fuzzel)                       |
+| `SUPER + RETURN` | Open terminal (Ghostty)                     |
+| `SUPER + L`      | Lock screen (integrated CypherRiot styling) |
+| `SUPER + ESCAPE` | Power menu                                  |
 
 ### Window Management (Most Used)
 
-| Keybinding                   | Action                   |
-| ---------------------------- | ------------------------ |
-| `SUPER + W` or `SUPER + Q`   | Close window             |
-| `SUPER + V`                  | Toggle floating          |
-| `SUPER + J`                  | Toggle split             |
-| `SUPER + Arrow Keys`         | Move focus               |
-| `SUPER + SHIFT + Arrow Keys` | Swap windows             |
-| `SUPER + CTRL + Arrow Keys`  | Smart window movement    |
-| `SUPER + 1-4`                | Switch workspace         |
-| `SUPER + SHIFT + 1-4`        | Move window to workspace |
+| Keybinding                   | Action                           |
+| ---------------------------- | -------------------------------- |
+| `SUPER + W` or `SUPER + Q`   | Close window                     |
+| `SUPER + V`                  | Toggle floating                  |
+| `SUPER + J`                  | Toggle split                     |
+| `SUPER + Arrow Keys`         | Move focus                       |
+| `SUPER + SHIFT + Arrow Keys` | Swap windows                     |
+| `SUPER + CTRL + Arrow Keys`  | Smart window movement            |
+| `SUPER + 1-4`                | Switch workspace                 |
+| `SUPER + SHIFT + 1-4`        | Move window to workspace         |
+| `SUPER + SHIFT + RETURN`     | Open floating terminal (Ghostty) |
 
 ### Core Applications
 
