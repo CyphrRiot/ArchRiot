@@ -145,60 +145,6 @@ The result: **100% reliable installations** with **complete system state managem
 - **Error handling** - Clear feedback and rollback capability
 - **100% confidence** - Comprehensive testing and validation
 
-## Control Panel
-
-ArchRiot includes a comprehensive GTK4-based Control Panel for managing system settings through an intuitive graphical interface.
-
-Access it via `SUPER+C` or by running `archriot-control-panel`.
-
-![ArchRiot Control Panel Demo](config/images/control-panel.png)
-
-### 🎛️ **Features**
-
-- **🍅 Pomodoro Timer** - Waybar-integrated productivity timer with 5-60 minute intervals
-- **💡 Blue Light Filter** - Real-time screen temperature control (2500K-5000K) via hyprsunset
-- **🛡️ Mullvad VPN** - Account management with privacy controls and auto-connect
-- **🔊 Audio System** - Safe mute/unmute controls without breaking services
-- **📷 Camera Control** - Device permissions, resolution settings, and live preview testing
-- **🖥️ Display Settings** - Monitor resolution and scaling with live preview
-- **🔋 Power Management** - Battery profiles (Power Saver, Balanced, Performance)
-
-### 🛡️ **Privacy & Safety**
-
-- **Account Privacy** - Sensitive information hidden by default with show/hide toggle
-- **Safe Controls** - Mute instead of killing services, permissions instead of breaking devices
-- **Live Preview** - Real-time system changes with "Exit without Saving" option
-- **Educational Content** - "Learn More" dialogs with comprehensive feature explanations
-
-### 🎨 **Technical Excellence**
-
-- **GTK4 Application** - Modern interface with ArchRiot CypherRiot theming
-- **Real-time Integration** - All changes apply immediately to running system
-- **Persistent Settings** - Configuration survives reboot and system changes
-- **Modular Architecture** - Clean, maintainable widget-based design
-
-## 💾 **Built-in Backup & Recovery with Migrate**
-
-ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
-
-### 🛡️ **Why Migrate Matters**
-
-- **Complete System Backup** - Captures all your dotfiles, configurations, and customizations
-- **Interactive TUI** - Beautiful text interface makes backup/restore simple
-- **Live System Recovery** - Restore without reinstalling your entire system
-- **Cross-Installation Migration** - Move your setup between different machines
-- **Automatic Updates** - Always gets the latest version during ArchRiot installation
-
-### 🔥 **Quick Start**
-
-```bash
-migrate                              # Launch interactive backup/restore interface
-```
-
-**No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
-
-[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
-
 ## ⌨️ Essential Commands
 
 ### Getting Started
@@ -300,6 +246,60 @@ Click network icon                   # Open network manager
 ```bash
 curl -fsSL https://archriot.org/setup.sh | bash           # Re-run installer if broken
 ```
+
+## Control Panel
+
+ArchRiot includes a comprehensive GTK4-based Control Panel for managing system settings through an intuitive graphical interface.
+
+Access it via `SUPER+C` or by running `archriot-control-panel`.
+
+![ArchRiot Control Panel Demo](config/images/control-panel.png)
+
+### 🎛️ **Features**
+
+- **🍅 Pomodoro Timer** - Waybar-integrated productivity timer with 5-60 minute intervals
+- **💡 Blue Light Filter** - Real-time screen temperature control (2500K-5000K) via hyprsunset
+- **🛡️ Mullvad VPN** - Account management with privacy controls and auto-connect
+- **🔊 Audio System** - Safe mute/unmute controls without breaking services
+- **📷 Camera Control** - Device permissions, resolution settings, and live preview testing
+- **🖥️ Display Settings** - Monitor resolution and scaling with live preview
+- **🔋 Power Management** - Battery profiles (Power Saver, Balanced, Performance)
+
+### 🛡️ **Privacy & Safety**
+
+- **Account Privacy** - Sensitive information hidden by default with show/hide toggle
+- **Safe Controls** - Mute instead of killing services, permissions instead of breaking devices
+- **Live Preview** - Real-time system changes with "Exit without Saving" option
+- **Educational Content** - "Learn More" dialogs with comprehensive feature explanations
+
+### 🎨 **Technical Excellence**
+
+- **GTK4 Application** - Modern interface with ArchRiot CypherRiot theming
+- **Real-time Integration** - All changes apply immediately to running system
+- **Persistent Settings** - Configuration survives reboot and system changes
+- **Modular Architecture** - Clean, maintainable widget-based design
+
+## 💾 **Built-in Backup & Recovery with Migrate**
+
+ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
+
+### 🛡️ **Why Migrate Matters**
+
+- **Complete System Backup** - Captures all your dotfiles, configurations, and customizations
+- **Interactive TUI** - Beautiful text interface makes backup/restore simple
+- **Live System Recovery** - Restore without reinstalling your entire system
+- **Cross-Installation Migration** - Move your setup between different machines
+- **Automatic Updates** - Always gets the latest version during ArchRiot installation
+
+### 🔥 **Quick Start**
+
+```bash
+migrate                              # Launch interactive backup/restore interface
+```
+
+**No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
+
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
 ### 🔧 Troubleshooting
 
