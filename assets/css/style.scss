@@ -7,391 +7,454 @@
 /* Inspired by CypherRiot purple/blue aesthetic */
 
 :root {
-  --archriot-dark-bg: #0a0a0f;
-  --archriot-darker-bg: #05050a;
-  --archriot-purple: #8b5cf6;
-  --archriot-purple-light: #a78bfa;
-  --archriot-purple-dark: #7c3aed;
-  --archriot-blue: #3b82f6;
-  --archriot-cyan: #06b6d4;
-  --archriot-text: #e5e7eb;
-  --archriot-text-dim: #9ca3af;
-  --archriot-border: #374151;
-  --archriot-code-bg: #1f2937;
-  --archriot-accent: #f59e0b;
+    --archriot-dark-bg: #0a0a0f;
+    --archriot-darker-bg: #05050a;
+    --archriot-purple: #8b5cf6;
+    --archriot-purple-light: #a78bfa;
+    --archriot-purple-dark: #7c3aed;
+    --archriot-blue: #3b82f6;
+    --archriot-cyan: #06b6d4;
+    --archriot-text: #e5e7eb;
+    --archriot-text-dim: #9ca3af;
+    --archriot-border: #374151;
+    --archriot-code-bg: #1f2937;
+    --archriot-accent: #f59e0b;
 }
 
 /* Global dark background */
 body {
-  background: linear-gradient(135deg, var(--archriot-dark-bg) 0%, var(--archriot-darker-bg) 100%) !important;
-  color: var(--archriot-text) !important;
-  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 18px;
-  line-height: 1.6;
+    background: linear-gradient(
+        135deg,
+        var(--archriot-dark-bg) 0%,
+        var(--archriot-darker-bg) 100%
+    ) !important;
+    color: var(--archriot-text) !important;
+    font-family:
+        "JetBrains Mono", "Fira Code", "SF Mono", "Monaco", "Inconsolata",
+        "Roboto Mono", monospace;
+    font-size: 18px;
+    line-height: 1.6;
 }
 
 /* Container and wrapper styling */
-.container, .wrapper {
-  background: rgba(10, 10, 15, 0.95) !important;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--archriot-border);
-  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0;
+.container,
+.wrapper {
+    background: rgba(10, 10, 15, 0.95) !important;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--archriot-border);
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0;
 }
 
 /* Remove ugly header styling */
 
 /* Main content area - centered and properly aligned */
-.main-content, #main_content_wrap {
-  background: var(--archriot-dark-bg) !important;
-  color: var(--archriot-text) !important;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 1200px;
-  margin: 0 auto;
+.main-content,
+#main_content_wrap {
+    background: var(--archriot-dark-bg) !important;
+    color: var(--archriot-text) !important;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 #main_content {
-  max-width: none;
-  padding: 2rem 3rem;
-  text-align: left;
-  line-height: 1.7;
+    max-width: none;
+    padding: 2rem 3rem;
+    text-align: left;
+    line-height: 1.7;
 }
 
 /* Headings with purple gradient */
-h1, h2, h3, h4, h5, h6 {
-  background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-cyan));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    background: linear-gradient(
+        45deg,
+        var(--archriot-purple),
+        var(--archriot-cyan)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+h3 {
+    font-size: 1.3em;
 }
 
 /* Override for the main title */
 h1:first-child {
-  color: var(--archriot-purple-light) !important;
-  -webkit-text-fill-color: var(--archriot-purple-light) !important;
-  font-size: 2.5rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  margin-top: 1rem;
+    color: var(--archriot-purple-light) !important;
+    -webkit-text-fill-color: var(--archriot-purple-light) !important;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
 }
 
 /* Paragraph and text styling */
-p, li, td {
-  color: var(--archriot-text) !important;
-  font-size: 18px;
-  line-height: 1.7;
+p,
+li,
+td {
+    color: var(--archriot-text) !important;
+    font-size: 18px;
+    line-height: 1.7;
 }
 
 /* Links with purple theme */
 a {
-  color: var(--archriot-purple-light) !important;
-  text-decoration: none;
-  transition: all 0.3s ease;
+    color: var(--archriot-purple-light) !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
 
 a:hover {
-  color: var(--archriot-cyan) !important;
-  text-shadow: 0 0 8px var(--archriot-cyan);
+    color: var(--archriot-cyan) !important;
+    text-shadow: 0 0 8px var(--archriot-cyan);
 }
 
 /* Code blocks and inline code */
 code {
-  background: var(--archriot-code-bg) !important;
-  color: var(--archriot-purple-light) !important;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  border: 1px solid var(--archriot-border);
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 16px;
+    background: var(--archriot-code-bg) !important;
+    color: var(--archriot-purple-light) !important;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid var(--archriot-border);
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 16px;
 }
 
 pre {
-  background: var(--archriot-darker-bg) !important;
-  border: 1px solid var(--archriot-border) !important;
-  border-radius: 8px;
-  padding: 1.5rem;
-  overflow-x: auto;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: var(--archriot-darker-bg) !important;
+    border: 1px solid var(--archriot-border) !important;
+    border-radius: 8px;
+    padding: 1.5rem;
+    overflow-x: auto;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 pre code {
-  background: none !important;
-  color: var(--archriot-text) !important;
-  border: none;
-  padding: 0;
+    background: none !important;
+    color: var(--archriot-text) !important;
+    border: none;
+    padding: 0;
 }
 
 /* Tables with dark theme */
 table {
-  background: var(--archriot-darker-bg) !important;
-  border-collapse: collapse;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: var(--archriot-darker-bg) !important;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 th {
-  background: var(--archriot-purple-dark) !important;
-  color: white !important;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
+    background: var(--archriot-purple-dark) !important;
+    color: white !important;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
 }
 
 td {
-  background: var(--archriot-dark-bg) !important;
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--archriot-border);
+    background: var(--archriot-dark-bg) !important;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--archriot-border);
 }
 
 tr:hover td {
-  background: rgba(139, 92, 246, 0.1) !important;
+    background: rgba(139, 92, 246, 0.1) !important;
 }
 
 /* Badges and shields.io images */
-img[src*="shields.io"], img[src*="badge"] {
-  filter: brightness(1.1) contrast(1.1);
-  margin: 0.2rem;
+img[src*="shields.io"],
+img[src*="badge"] {
+    filter: brightness(1.1) contrast(1.1);
+    margin: 0.2rem;
 }
 
 /* Blockquotes */
 blockquote {
-  background: var(--archriot-code-bg) !important;
-  border-left: 4px solid var(--archriot-purple) !important;
-  color: var(--archriot-text) !important;
-  padding: 1rem 1.5rem;
-  margin: 1rem 0;
-  border-radius: 0 8px 8px 0;
+    background: var(--archriot-code-bg) !important;
+    border-left: 4px solid var(--archriot-purple) !important;
+    color: var(--archriot-text) !important;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    border-radius: 0 8px 8px 0;
 }
 
 /* Lists */
-ul, ol {
-  color: var(--archriot-text) !important;
+ul,
+ol {
+    color: var(--archriot-text) !important;
 }
 
 li::marker {
-  color: var(--archriot-purple-light);
+    color: var(--archriot-purple-light);
 }
 
 /* Horizontal rules */
 hr {
-  border: none;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--archriot-purple), transparent);
-  margin: 2rem 0;
+    border: none;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--archriot-purple),
+        transparent
+    );
+    margin: 2rem 0;
 }
 
 /* Download buttons and CTAs */
-.btn, .button, a[href*="download"]:not([href^="#"]), a[href*="install"]:not([href^="#"]) {
-  background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-blue)) !important;
-  color: white !important;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-  transition: all 0.3s ease;
-  border: none;
-  display: inline-block;
-  margin: 0.5rem 0.5rem 0.5rem 0;
+.btn,
+.button,
+a[href*="download"]:not([href^="#"]),
+a[href*="install"]:not([href^="#"]) {
+    background: linear-gradient(
+        45deg,
+        var(--archriot-purple),
+        var(--archriot-blue)
+    ) !important;
+    color: white !important;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-block;
+    margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
-.btn:hover, .button:hover, a[href*="download"]:not([href^="#"]):hover, a[href*="install"]:not([href^="#"]):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
-  color: white !important;
+.btn:hover,
+.button:hover,
+a[href*="download"]:not([href^="#"]):hover,
+a[href*="install"]:not([href^="#"]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
+    color: white !important;
 }
 
 /* Footer */
 footer {
-  background: var(--archriot-darker-bg) !important;
-  color: var(--archriot-text-dim) !important;
-  border-top: 2px solid var(--archriot-purple);
-  padding: 2rem 0;
-  text-align: center;
+    background: var(--archriot-darker-bg) !important;
+    color: var(--archriot-text-dim) !important;
+    border-top: 2px solid var(--archriot-purple);
+    padding: 2rem 0;
+    text-align: center;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .container, .wrapper {
-    margin: 1rem;
-    padding: 0;
-  }
+    .container,
+    .wrapper {
+        margin: 1rem;
+        padding: 0;
+    }
 
-  #main_content {
-    padding: 1.5rem;
-  }
+    #main_content {
+        padding: 1.5rem;
+    }
 
-  h1:first-child {
-    font-size: 2rem;
-  }
+    h1:first-child {
+        font-size: 2rem;
+    }
 
-  pre {
-    padding: 1rem;
-    font-size: 0.9rem;
-  }
+    pre {
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
 }
 
 /* Scrollbar styling for webkit browsers */
 ::-webkit-scrollbar {
-  width: 12px;
+    width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--archriot-darker-bg);
+    background: var(--archriot-darker-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, var(--archriot-purple), var(--archriot-blue));
-  border-radius: 6px;
+    background: linear-gradient(
+        45deg,
+        var(--archriot-purple),
+        var(--archriot-blue)
+    );
+    border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, var(--archriot-purple-light), var(--archriot-cyan));
+    background: linear-gradient(
+        45deg,
+        var(--archriot-purple-light),
+        var(--archriot-cyan)
+    );
 }
 
 /* Selection styling */
 ::selection {
-  background: var(--archriot-purple);
-  color: white;
+    background: var(--archriot-purple);
+    color: white;
 }
 
 ::-moz-selection {
-  background: var(--archriot-purple);
-  color: white;
+    background: var(--archriot-purple);
+    color: white;
 }
 
 /* Animation for smooth transitions */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
 }
 
 /* Special styling for important warnings */
-strong:contains("⚠️"), strong:contains("Important") {
-  color: var(--archriot-accent) !important;
-  font-weight: 700;
+strong:contains("⚠️"),
+strong:contains("Important") {
+    color: var(--archriot-accent) !important;
+    font-weight: 700;
 }
 
 /* GitHub corner ribbon (if present) */
 .github-corner svg {
-  fill: var(--archriot-purple);
-  color: var(--archriot-dark-bg);
+    fill: var(--archriot-purple);
+    color: var(--archriot-dark-bg);
 }
 
 /* Tooltip functionality for hover definitions */
 .tooltip {
-  position: relative;
-  display: inline;
-  cursor: help;
-  color: var(--archriot-purple-light) !important;
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-underline-offset: 3px;
+    position: relative;
+    display: inline;
+    cursor: help;
+    color: var(--archriot-purple-light) !important;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
 }
 
 .tooltip:hover {
-  color: var(--archriot-cyan) !important;
+    color: var(--archriot-cyan) !important;
 }
 
 .tooltip .tooltiptext {
-  visibility: hidden;
-  opacity: 0;
-  display: none;
-  position: absolute;
-  top: -9999px;
-  left: -9999px;
-  width: 400px;
-  height: 0 !important;
-  font-size: 0 !important;
-  line-height: 0 !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  background: var(--archriot-darker-bg);
-  color: var(--archriot-text);
-  text-align: left;
-  border-radius: 8px;
-  padding: 1rem;
-  border: 1px solid var(--archriot-purple);
-  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+    visibility: hidden;
+    opacity: 0;
+    display: none;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    width: 400px;
+    height: 0 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    background: var(--archriot-darker-bg);
+    color: var(--archriot-text);
+    text-align: left;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid var(--archriot-purple);
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
 
-  /* Position the tooltip */
-  z-index: 999;
+    /* Position the tooltip */
+    z-index: 999;
 
-  /* Fade in animation */
-  transition: opacity 0.3s ease, visibility 0.3s ease, top 0s ease 0.3s, left 0s ease 0.3s;
+    /* Fade in animation */
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease,
+        top 0s ease 0.3s,
+        left 0s ease 0.3s;
 
-  /* Typography */
-  font-size: 14px;
-  line-height: 1.5;
-  font-weight: normal;
-  text-decoration: none;
+    /* Typography */
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: normal;
+    text-decoration: none;
 }
 
 .tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -8px;
-  border-width: 8px;
-  border-style: solid;
-  border-color: var(--archriot-purple) transparent transparent transparent;
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: var(--archriot-purple) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-  display: block;
-  height: auto !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-  overflow: visible !important;
-  white-space: normal !important;
-  top: auto;
-  left: 50%;
-  bottom: 125%;
-  margin-left: -200px;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+    visibility: visible;
+    opacity: 1;
+    display: block;
+    height: auto !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    top: auto;
+    left: 50%;
+    bottom: 125%;
+    margin-left: -200px;
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
 }
 
 /* Comprehensive footnote styling for all Jekyll/Kramdown formats */
 .footnotes {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--archriot-border);
-  font-size: 0.9em;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--archriot-border);
+    font-size: 0.9em;
 }
 
 .footnotes ol {
-  padding-left: 1.5rem;
+    padding-left: 1.5rem;
 }
 
 .footnotes li {
-  margin-bottom: 0.5rem;
-  line-height: 1.6;
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
 }
 
 /* Footnote definitions */
 .footnotes li:target {
-  background: rgba(139, 92, 246, 0.1);
-  border-radius: 4px;
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  animation: highlight-footnote 2s ease-out;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    animation: highlight-footnote 2s ease-out;
 }
 
 @keyframes highlight-footnote {
-  0% { background: rgba(139, 92, 246, 0.3); }
-  100% { background: rgba(139, 92, 246, 0.1); }
+    0% {
+        background: rgba(139, 92, 246, 0.3);
+    }
+    100% {
+        background: rgba(139, 92, 246, 0.1);
+    }
 }
 
 /* Footnote reference links - extremely specific targeting */
@@ -401,18 +464,18 @@ sup a[href^="#fn:"],
 sup a[href^="#fn"][href*=":"],
 .footnote-ref a,
 .footnote a {
-  color: var(--archriot-purple-light) !important;
-  text-decoration: none;
-  font-weight: normal;
-  position: relative;
-  top: -0.4em;
-  font-size: 0.65em !important;
-  padding: 0.1em 0.25em;
-  background: rgba(139, 92, 246, 0.1);
-  border-radius: 2px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  vertical-align: super;
+    color: var(--archriot-purple-light) !important;
+    text-decoration: none;
+    font-weight: normal;
+    position: relative;
+    top: -0.4em;
+    font-size: 0.65em !important;
+    padding: 0.1em 0.25em;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    vertical-align: super;
 }
 
 a[href^="#fn:"]:hover,
@@ -421,44 +484,44 @@ sup a[href^="#fn:"]:hover,
 sup a[href^="#fn"][href*=":"]:hover,
 .footnote-ref a:hover,
 .footnote a:hover {
-  color: var(--archriot-cyan) !important;
-  background: rgba(139, 92, 246, 0.2);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+    color: var(--archriot-cyan) !important;
+    background: rgba(139, 92, 246, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
 }
 
 /* Footnote backlinks - all possible formats */
 a[href^="#fnref:"],
 a[href^="#fnref"],
 .footnote-backref {
-  color: var(--archriot-purple-light) !important;
-  text-decoration: none;
-  margin-left: 0.5em;
-  font-size: 0.9em;
-  opacity: 0.8;
+    color: var(--archriot-purple-light) !important;
+    text-decoration: none;
+    margin-left: 0.5em;
+    font-size: 0.9em;
+    opacity: 0.8;
 }
 
 a[href^="#fnref:"]:hover,
 a[href^="#fnref"]:hover,
 .footnote-backref:hover {
-  color: var(--archriot-cyan) !important;
-  opacity: 1;
+    color: var(--archriot-cyan) !important;
+    opacity: 1;
 }
 
 /* Special handling for superscript footnotes - only actual footnote links */
 sup a[href^="#fn:"],
 sup a[href^="#fn"][href*=":"] {
-  line-height: 0;
-  font-size: 0.65em !important;
-  top: 0;
-  vertical-align: super;
+    line-height: 0;
+    font-size: 0.65em !important;
+    top: 0;
+    vertical-align: super;
 }
 
 /* Responsive tooltip for mobile */
 @media (max-width: 768px) {
-  .tooltip .tooltiptext {
-    width: 280px;
-    margin-left: -140px;
-    font-size: 13px;
-  }
+    .tooltip .tooltiptext {
+        width: 280px;
+        margin-left: -140px;
+        font-size: 13px;
+    }
 }
