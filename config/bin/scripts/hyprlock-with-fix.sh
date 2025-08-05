@@ -32,8 +32,8 @@ if lspci | grep -i "amd.*vga\|amd.*display\|vga.*amd\|display.*amd" >/dev/null 2
     log_debug "AMD GPU detected, proceeding with window fix"
 
     # Small delay to let windows settle after unlock
-    log_debug "Waiting 0.5s for windows to settle..."
-    sleep 0.5
+    log_debug "Waiting 2s for windows to settle..."
+    sleep 2
 
     # Run the window fix script if it exists
     if [[ -x "$FIX_SCRIPT" ]]; then

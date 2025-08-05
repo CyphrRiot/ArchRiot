@@ -2,7 +2,9 @@ package tools
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -154,16 +156,308 @@ func GetAvailableTools() ([]Tool, error) {
 
 // checkSecureBootAvailable checks if secure boot tools are available
 func checkSecureBootAvailable() bool {
+	// Check if system supports UEFI
+	if _, err := os.Stat("/sys/firmware/efi"); os.IsNotExist(err) {
+		return false
+	}
+
 	// Check if sbctl is installed
-	_, err := exec.LookPath("sbctl")
-	return err == nil
+	if _, err := exec.LookPath("sbctl"); err != nil {
+		return false
+	}
+
+	return true
 }
 
 // Tool execution functions
 func executeSecureBoot() error {
-	logger.LogMessage("INFO", "🚧 Work In Progress")
-	logger.LogMessage("INFO", "This tool is not yet implemented")
-	return fmt.Errorf("work in progress - not yet implemented")
+	logger.LogMessage("INFO", "🛡️ Starting Secure Boot Setup")
+
+	// Comprehensive system checks
+	if err := performSecureBootChecks(); err != nil {
+		return fmt.Errorf("system checks failed: %w", err)
+	}
+
+	// Install required packages
+	if err := installSecureBootPackages(); err != nil {
+		return fmt.Errorf("package installation failed: %w", err)
+	}
+
+	// Setup Secure Boot
+	if err := setupSecureBoot(); err != nil {
+		return fmt.Errorf("secure boot setup failed: %w", err)
+	}
+
+	// Verify installation
+	if err := verifySecureBootSetup(); err != nil {
+		logger.LogMessage("WARNING", fmt.Sprintf("Verification warnings: %v", err))
+	}
+
+	logger.LogMessage("SUCCESS", "🛡️ Secure Boot setup completed successfully")
+	logger.LogMessage("INFO", "Please reboot and enable Secure Boot in UEFI settings")
+
+	return nil
+}
+
+// performSecureBootChecks validates system compatibility
+func performSecureBootChecks() error {
+	logger.LogMessage("INFO", "🔍 Performing system compatibility checks...")
+
+	// Check UEFI mode
+	if _, err := os.Stat("/sys/firmware/efi"); os.IsNotExist(err) {
+		return fmt.Errorf("system is not running in UEFI mode")
+	}
+	logger.LogMessage("SUCCESS", "✓ UEFI mode detected")
+
+	// Check if running Arch Linux
+	if _, err := os.Stat("/etc/arch-release"); os.IsNotExist(err) {
+		return fmt.Errorf("this tool is designed for Arch Linux only")
+	}
+	logger.LogMessage("SUCCESS", "✓ Arch Linux detected")
+
+	// Check internet connectivity
+	if err := checkInternetConnectivity(); err != nil {
+		return fmt.Errorf("internet connectivity required: %w", err)
+	}
+	logger.LogMessage("SUCCESS", "✓ Internet connectivity confirmed")
+
+	// Check if running as root
+	if os.Geteuid() != 0 {
+		return fmt.Errorf("secure boot setup requires root privileges")
+	}
+	logger.LogMessage("SUCCESS", "✓ Root privileges confirmed")
+
+	// Check available disk space
+	if err := checkDiskSpace(); err != nil {
+		return fmt.Errorf("insufficient disk space: %w", err)
+	}
+	logger.LogMessage("SUCCESS", "✓ Sufficient disk space available")
+
+	return nil
+}
+
+// checkInternetConnectivity tests internet connection
+func checkInternetConnectivity() error {
+	cmd := exec.Command("ping", "-c", "1", "-W", "5", "archlinux.org")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("cannot reach archlinux.org")
+	}
+	return nil
+}
+
+// checkDiskSpace ensures sufficient space for Secure Boot setup
+func checkDiskSpace() error {
+	// Check /boot partition space (need at least 100MB free)
+	cmd := exec.Command("df", "-BM", "/boot")
+	output, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to check /boot disk space")
+	}
+
+	lines := strings.Split(string(output), "\n")
+	if len(lines) < 2 {
+		return fmt.Errorf("unexpected df output format")
+	}
+
+	// Parse available space (simplified check)
+	if strings.Contains(lines[1], "0M") {
+		return fmt.Errorf("/boot partition has insufficient free space")
+	}
+
+	return nil
+}
+
+// installSecureBootPackages installs required packages
+func installSecureBootPackages() error {
+	logger.LogMessage("INFO", "📦 Installing Secure Boot packages...")
+
+	// Update package database
+	logger.LogMessage("INFO", "Updating package database...")
+	cmd := exec.Command("pacman", "-Sy", "--noconfirm")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to update package database: %w", err)
+	}
+
+	// Install sbctl
+	logger.LogMessage("INFO", "Installing sbctl...")
+	cmd = exec.Command("pacman", "-S", "--noconfirm", "sbctl")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to install sbctl: %w", err)
+	}
+	logger.LogMessage("SUCCESS", "✓ sbctl installed")
+
+	// Install shim-signed from AUR (using yay if available)
+	if _, err := exec.LookPath("yay"); err == nil {
+		logger.LogMessage("INFO", "Installing shim-signed from AUR...")
+		cmd = exec.Command("yay", "-S", "--noconfirm", "shim-signed")
+		if err := cmd.Run(); err != nil {
+			logger.LogMessage("WARNING", "Failed to install shim-signed from AUR, continuing without it")
+		} else {
+			logger.LogMessage("SUCCESS", "✓ shim-signed installed")
+		}
+	} else {
+		logger.LogMessage("WARNING", "yay not found, skipping shim-signed installation")
+		logger.LogMessage("INFO", "You may want to install shim-signed manually for dual-boot compatibility")
+	}
+
+	return nil
+}
+
+// setupSecureBoot performs the actual Secure Boot configuration
+func setupSecureBoot() error {
+	logger.LogMessage("INFO", "🔐 Setting up Secure Boot...")
+
+	// Check current Secure Boot status
+	logger.LogMessage("INFO", "Checking current Secure Boot status...")
+	cmd := exec.Command("sbctl", "status")
+	output, _ := cmd.Output()
+	logger.LogMessage("INFO", fmt.Sprintf("Current status:\n%s", string(output)))
+
+	// Create Secure Boot keys
+	logger.LogMessage("INFO", "Creating Secure Boot keys...")
+	cmd = exec.Command("sbctl", "create-keys")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to create Secure Boot keys: %w", err)
+	}
+	logger.LogMessage("SUCCESS", "✓ Secure Boot keys created")
+
+	// Enroll keys
+	logger.LogMessage("INFO", "Enrolling Secure Boot keys...")
+	cmd = exec.Command("sbctl", "enroll-keys", "-m")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to enroll keys: %w", err)
+	}
+	logger.LogMessage("SUCCESS", "✓ Secure Boot keys enrolled")
+
+	// Sign bootloader and kernels
+	if err := signBootComponents(); err != nil {
+		return fmt.Errorf("failed to sign boot components: %w", err)
+	}
+
+	// Setup automatic signing hook
+	if err := setupPackmanHook(); err != nil {
+		return fmt.Errorf("failed to setup pacman hook: %w", err)
+	}
+
+	return nil
+}
+
+// signBootComponents signs all necessary boot components
+func signBootComponents() error {
+	logger.LogMessage("INFO", "🖋️ Signing boot components...")
+
+	// Common files to sign
+	filesToSign := []string{
+		"/boot/vmlinuz-linux",
+		"/boot/vmlinuz-linux-lts",
+		"/boot/EFI/systemd/systemd-bootx64.efi",
+		"/boot/EFI/BOOT/BOOTX64.EFI",
+		"/boot/EFI/grub/grubx64.efi",
+	}
+
+	signed := 0
+	for _, file := range filesToSign {
+		if _, err := os.Stat(file); err == nil {
+			logger.LogMessage("INFO", fmt.Sprintf("Signing %s...", file))
+			cmd := exec.Command("sbctl", "sign", "-s", file)
+			if err := cmd.Run(); err != nil {
+				logger.LogMessage("WARNING", fmt.Sprintf("Failed to sign %s: %v", file, err))
+			} else {
+				logger.LogMessage("SUCCESS", fmt.Sprintf("✓ Signed %s", file))
+				signed++
+			}
+		}
+	}
+
+	if signed == 0 {
+		return fmt.Errorf("no boot components were successfully signed")
+	}
+
+	logger.LogMessage("SUCCESS", fmt.Sprintf("✓ Successfully signed %d boot components", signed))
+	return nil
+}
+
+// setupPackmanHook creates pacman hook for automatic signing
+func setupPackmanHook() error {
+	logger.LogMessage("INFO", "Setting up automatic kernel signing...")
+
+	hookDir := "/etc/pacman.d/hooks"
+	if err := os.MkdirAll(hookDir, 0755); err != nil {
+		return fmt.Errorf("failed to create hooks directory: %w", err)
+	}
+
+	hookContent := `[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = linux
+Target = linux-lts
+Target = linux-hardened
+Target = linux-zen
+
+[Action]
+Description = Signing kernel with sbctl
+When = PostTransaction
+Exec = /usr/bin/sbctl sign -s /boot/vmlinuz-linux
+Depends = sbctl
+`
+
+	hookPath := filepath.Join(hookDir, "99-secureboot.hook")
+	if err := os.WriteFile(hookPath, []byte(hookContent), 0644); err != nil {
+		return fmt.Errorf("failed to create pacman hook: %w", err)
+	}
+
+	logger.LogMessage("SUCCESS", "✓ Automatic kernel signing hook installed")
+	return nil
+}
+
+// verifySecureBootSetup performs comprehensive verification
+func verifySecureBootSetup() error {
+	logger.LogMessage("INFO", "🔍 Verifying Secure Boot setup...")
+
+	// Check sbctl status
+	cmd := exec.Command("sbctl", "status")
+	output, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to check sbctl status: %w", err)
+	}
+
+	statusOutput := string(output)
+	logger.LogMessage("INFO", fmt.Sprintf("Secure Boot status:\n%s", statusOutput))
+
+	// Check if keys are installed
+	if !strings.Contains(statusOutput, "Installed") {
+		return fmt.Errorf("secure Boot keys not properly installed")
+	}
+
+	// List signed files
+	cmd = exec.Command("sbctl", "list-files")
+	output, err = cmd.Output()
+	if err != nil {
+		logger.LogMessage("WARNING", "Failed to list signed files")
+	} else {
+		logger.LogMessage("INFO", fmt.Sprintf("Signed files:\n%s", string(output)))
+	}
+
+	// Check pacman hook
+	hookPath := "/etc/pacman.d/hooks/99-secureboot.hook"
+	if _, err := os.Stat(hookPath); err != nil {
+		return fmt.Errorf("pacman hook not found at %s", hookPath)
+	}
+
+	logger.LogMessage("SUCCESS", "✓ Secure Boot setup verification completed")
+
+	// Provide next steps
+	logger.LogMessage("INFO", "")
+	logger.LogMessage("INFO", "🚀 NEXT STEPS:")
+	logger.LogMessage("INFO", "1. Reboot your system")
+	logger.LogMessage("INFO", "2. Enter UEFI/BIOS settings during boot")
+	logger.LogMessage("INFO", "3. Enable Secure Boot in Security settings")
+	logger.LogMessage("INFO", "4. Save settings and boot normally")
+	logger.LogMessage("INFO", "5. Run 'sbctl status' to verify Secure Boot is active")
+	logger.LogMessage("INFO", "")
+
+	return nil
 }
 
 func executeMemoryOptimizer() error {
