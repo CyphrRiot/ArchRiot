@@ -752,8 +752,8 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 >
 > ### **Downloads**
 
-- [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.iso){:target="\_blank"}
-- [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/1.2.5/archriot-2025.sha256){:target="\_blank"}
+- [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.iso){:target="\_blank"}
+- [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.sha256){:target="\_blank"}
     > ### **SHA256 Checksum**
     >
     > **Verify the Download**:
