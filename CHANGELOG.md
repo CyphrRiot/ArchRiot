@@ -5,6 +5,29 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.19] - 2025-01-08
+
+### 🎮 GPU-SPECIFIC GRAPHICS CONFIGURATION
+
+#### Intelligent Graphics Driver Detection and Configuration
+
+- **NEW**: GPU-specific graphics configuration system for optimal compatibility
+- **ADDED**: Automatic GPU detection during installation (AMD/Intel/NVIDIA)
+- **CREATED**: `graphics-amd.conf` - Forces software rendering to fix AMD artifacts and flashing
+- **CREATED**: `graphics-nvidia.conf` - Hardware acceleration with NVIDIA optimizations
+- **CREATED**: `graphics-intel.conf` - Minimal configuration for Intel integrated graphics
+- **FIXED**: AMD Barcelo GPU flashing/artifacts in Thunar and GTK4 applications
+- **IMPROVED**: Installation process automatically selects correct graphics config
+- **REMOVED**: Static graphics.conf with non-functional shell conditionals
+- **IMPACT**: Eliminates graphics issues across different GPU vendors automatically
+
+#### Technical Details
+
+- **AMD Systems**: Uses `LIBGL_ALWAYS_SOFTWARE=1` to force stable software rendering
+- **NVIDIA Systems**: Maintains hardware acceleration with threading optimizations
+- **Intel Systems**: Conservative approach with minimal changes to preserve performance
+- **Detection**: Uses `lspci` GPU vendor detection during hardware setup phase
+
 ## [2.5.7] - 2025-01-08
 
 ### 🚨 CRITICAL SUDO CHECK FIX

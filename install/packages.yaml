@@ -426,6 +426,10 @@ system:
             - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon; fi"
             - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver; fi"
             - "if command -v lsusb >/dev/null 2>&1 && lsusb | grep -i apple | grep -qi keyboard; then echo 'options hid_apple fnmode=2' | sudo tee /etc/modprobe.d/hid_apple.conf >/dev/null; fi"
+            - "mkdir -p ~/.config/environment.d"
+            - "if lspci | grep -qi -E 'amd|radeon'; then cp config/environment.d/graphics-amd.conf ~/.config/environment.d/graphics.conf; fi"
+            - "if lspci | grep -qi nvidia; then cp config/environment.d/graphics-nvidia.conf ~/.config/environment.d/graphics.conf; fi"
+            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then cp config/environment.d/graphics-intel.conf ~/.config/environment.d/graphics.conf; fi"
         depends: [core.base]
         start: "Setting up hardware drivers"
         end: "Hardware drivers configured"
