@@ -43,14 +43,7 @@ func CopyConfigs(configs []config.ConfigRule) error {
 // expandTildePath expands ~ to the user's home directory
 func expandTildePath(path, homeDir string) string {
 	if strings.HasPrefix(path, "~/") {
-		// Store if original path was intended as directory (ends with /)
-		wasDirectory := strings.HasSuffix(path, "/")
-		expanded := filepath.Join(homeDir, path[2:])
-		// Only restore trailing slash if original had one (indicating directory intent)
-		if wasDirectory && !strings.HasSuffix(expanded, "/") {
-			expanded += "/"
-		}
-		return expanded
+		return filepath.Join(homeDir, path[2:])
 	}
 	return path
 }
@@ -73,7 +66,7 @@ func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) 
 		} else {
 			// File pattern with custom target
 			sourcePath = filepath.Join(sourceDir, pattern)
-			if strings.HasSuffix(expandedTarget, "/") {
+			if strings.HasSuffix(configRule.Target, "/") {
 				// Target is a directory, append filename
 				destPath = filepath.Join(expandedTarget, filepath.Base(pattern))
 			} else {
@@ -98,8 +91,22 @@ func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) 
 	}
 
 	// Create destination directory
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
-		return fmt.Errorf("creating dest directory: %w", err)
+	// For file targets, create parent directory; for directory targets, create the directory itself
+	targetInfo, err := os.Stat(sourcePath)
+	if err != nil {
+		return fmt.Errorf("checking source: %w", err)
+	}
+
+	if targetInfo.IsDir() {
+		// Source is a directory, ensure dest directory exists
+		if err := os.MkdirAll(destPath, 0755); err != nil {
+			return fmt.Errorf("creating dest directory: %w", err)
+		}
+	} else {
+		// Source is a file, ensure parent directory exists
+		if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+			return fmt.Errorf("creating dest directory: %w", err)
+		}
 	}
 
 	// Copy files

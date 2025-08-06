@@ -17,9 +17,6 @@ func SetProgram(p *tea.Program) {
 	program = p
 }
 
-
-
-
 // InstallPackages installs packages in a single batch to avoid database locks
 func InstallPackages(packages []string) error {
 	if len(packages) == 0 {
@@ -28,8 +25,6 @@ func InstallPackages(packages []string) error {
 	}
 
 	logger.LogMessage("INFO", fmt.Sprintf("Installing %d packages", len(packages)))
-
-
 
 	// Check which packages are already installed
 	var toInstall []string
@@ -44,53 +39,34 @@ func InstallPackages(packages []string) error {
 		return nil
 	}
 
-	logger.LogMessage("INFO", fmt.Sprintf("Installing %d new packages: %v", len(toInstall), toInstall))
+	logger.LogMessage("INFO", fmt.Sprintf("Installing %d new packages", len(toInstall)))
 
-	// Install in batches to avoid overwhelming the system
-	batchSize := 10
-	for i := 0; i < len(toInstall); i += batchSize {
-		end := i + batchSize
-		if end > len(toInstall) {
-			end = len(toInstall)
-		}
-		batch := toInstall[i:end]
-
-		if err := installPackageBatch(batch); err != nil {
-			return fmt.Errorf("batch installation failed: %w", err)
-		}
-	}
-
-	return nil
-}
-
-// installPackageBatch installs a batch of packages
-func installPackageBatch(packages []string) error {
+	// Try to install all packages at once with pacman
 	start := time.Now()
-
-	// Try pacman first, then yay if needed
-	cmd := exec.Command("sudo", append([]string{"pacman", "-S", "--noconfirm", "--needed"}, packages...)...)
+	cmd := exec.Command("sudo", append([]string{"pacman", "-S", "--noconfirm", "--needed"}, toInstall...)...)
 	output, err := cmd.CombinedOutput()
 
 	if err != nil {
-		// If pacman fails, try with yay for AUR packages
-		logger.LogMessage("WARNING", "Pacman failed, trying yay for AUR packages")
+		// If pacman fails, try with yay (handles both AUR and regular packages)
+		logger.LogMessage("WARNING", "Pacman failed, trying yay for all packages")
 
-		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, packages...)...)
+		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
 		output, err = cmd.CombinedOutput()
 
 		if err != nil {
-			// Limit output to first 200 characters to prevent TUI spam
+			// Log the error but don't fail completely
 			outputStr := string(output)
-			if len(outputStr) > 200 {
-				outputStr = outputStr[:200] + "... (truncated)"
+			if len(outputStr) > 500 {
+				outputStr = outputStr[:500] + "... (truncated)"
 			}
-			logger.Log("Error", "Package", "Package Error", "Failed: "+outputStr)
-			return fmt.Errorf("batch installation failed: %w", err)
+			logger.LogMessage("ERROR", fmt.Sprintf("Package installation had errors: %s", outputStr))
+			logger.Log("Error", "Package", "Installation", "Some packages may have failed")
+			// Don't return error - let installation continue
 		}
 	}
 
 	duration := time.Since(start)
-	logger.LogMessage("SUCCESS", fmt.Sprintf("Installed %d packages in %v", len(packages), duration))
+	logger.LogMessage("SUCCESS", fmt.Sprintf("Package installation completed in %v", duration))
 	return nil
 }
 

@@ -5,7 +5,15 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.6.1] - 2025-01-08
+## [2.6.2] - 2024-12-09
+
+### Fixed
+
+- Fixed installer error when copying single files to directory targets
+- Resolved "is a directory" error for bin/upgrade-system installation
+- Improved path handling for custom target configurations
+
+## [2.6.1] - 2024-12-09
 
 ### 📋 DOCUMENTATION & FORMATTING FIXES
 

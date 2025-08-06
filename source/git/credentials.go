@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -57,8 +58,6 @@ func SetGitEmail(email string) {
 	GitEmail = email
 }
 
-
-
 // HandleGitConfiguration applies Git configuration with beautiful styling
 func HandleGitConfiguration() error {
 	logger.LogMessage("INFO", "🔧 Applying Git configuration...")
@@ -85,8 +84,14 @@ func HandleGitConfiguration() error {
 			Program.Send(tui.InputRequestMsg{Mode: "git-confirm", Prompt: ""})
 		}
 
-		// Wait for confirmation
-		<-GitInputDone
+		// Wait for confirmation with timeout
+		select {
+		case <-GitInputDone:
+			// Continue normally
+		case <-time.After(5 * time.Minute):
+			logger.Log("Error", "Git", "Timeout", "Git configuration timed out")
+			return fmt.Errorf("git configuration timed out after 5 minutes")
+		}
 
 		if GitConfirmUse {
 			userName = existingName
@@ -99,8 +104,14 @@ func HandleGitConfiguration() error {
 				Program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 			}
 
-			// Wait for new credentials
-			<-GitInputDone
+			// Wait for new credentials with timeout
+			select {
+			case <-GitInputDone:
+				// Continue normally
+			case <-time.After(5 * time.Minute):
+				logger.Log("Error", "Git", "Timeout", "Git credential input timed out")
+				return fmt.Errorf("git credential input timed out after 5 minutes")
+			}
 
 			userName = GitUsername
 			userEmail = GitEmail
@@ -112,8 +123,14 @@ func HandleGitConfiguration() error {
 			Program.Send(tui.InputRequestMsg{Mode: "git-username", Prompt: "Git Username: "})
 		}
 
-		// Wait for credentials to be entered
-		<-GitInputDone
+		// Wait for credentials to be entered with timeout
+		select {
+		case <-GitInputDone:
+			// Continue normally
+		case <-time.After(5 * time.Minute):
+			logger.Log("Error", "Git", "Timeout", "Git credential input timed out")
+			return fmt.Errorf("git credential input timed out after 5 minutes")
+		}
 
 		userName = GitUsername
 		userEmail = GitEmail

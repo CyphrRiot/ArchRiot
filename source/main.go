@@ -93,7 +93,8 @@ func setupSudo() error {
 // testSudo checks if passwordless sudo is properly configured
 func testSudo() bool {
 	// Clear sudo timestamp cache to avoid false positives from cached credentials
-	exec.Command("sudo", "-k").Run()
+	// Ignore error as this might fail if user never used sudo
+	_ = exec.Command("sudo", "-k").Run()
 
 	// Now test for actual passwordless sudo configuration
 	cmd := exec.Command("sudo", "-n", "true")

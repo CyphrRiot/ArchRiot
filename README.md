@@ -16,7 +16,6 @@
 ![Maintained](https://img.shields.io/maintenance/yes/2025?color=4c1d95)
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=3730a3)
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=1e40af)
-![Issues](https://img.shields.io/github/issues/CyphrRiot/ArchRiot?color=64748b)
 
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
@@ -124,8 +123,10 @@ echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
 ### Method 1: One-Line Install or Upgrade (Recommended for Most Users)
 
 ```bash
-curl -fsSL https://archriot.org/setup.sh | bash
+curl -fsSL https://ArchRiot.org/setup.sh | bash
 ```
+
+**Current Version: 2.6.2**
 
 ![ArchRiot Upgrade Demo](config/images/upgrade.gif)
 
