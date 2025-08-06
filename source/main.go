@@ -90,13 +90,16 @@ func setupSudo() error {
 }
 
 // testSudo tests if passwordless sudo is working
+// testSudo checks if passwordless sudo is properly configured
 func testSudo() bool {
-	// Clear sudo timestamp cache to avoid false positives from cached credentials
-	exec.Command("sudo", "-k").Run()
-
-	// Now test for actual passwordless sudo configuration
-	cmd := exec.Command("sudo", "-n", "true")
-	return cmd.Run() == nil
+	// Check if the actual sudoers file contains NOPASSWD rule for wheel group
+	cmd := exec.Command("sudo", "grep", "-q", "^%wheel.*NOPASSWD.*ALL", "/etc/sudoers")
+	if cmd.Run() != nil {
+		// Also check sudoers.d directory for NOPASSWD rules
+		cmd = exec.Command("sudo", "grep", "-rq", "^%wheel.*NOPASSWD.*ALL", "/etc/sudoers.d/")
+		return cmd.Run() == nil
+	}
+	return true
 }
 
 func main() {
