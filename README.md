@@ -19,10 +19,10 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=1e40af)
 ![Issues](https://img.shields.io/github/issues/CyphrRiot/ArchRiot?color=64748b)
 
-[![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot){:target="\_blank"}
-[![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot){:target="\_blank"}
+[![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
+[![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 
-[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate){:target="\_blank"}
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 [![Changelog](https://img.shields.io/badge/📋_Changelog-View_Releases-4c1d95?style=for-the-badge)](CHANGELOG.md)
 
 </div>
@@ -43,7 +43,7 @@ ArchRiot isn't just another Linux distribution -- it's the answer to every time 
 
 _Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
 
-🎉 Thank you [Vaxryy](https://x.com/vaxryy){:target="\_blank"} for creating Hyprland—the compositor that doesn't suck.
+🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
@@ -73,7 +73,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ### Prerequisites: Fresh Arch Linux Setup
 
-Download the [Arch Linux ISO](https://archlinux.org/download){:target="\_blank"}, put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick. You can also use [Ventoy](https://www.ventoy.net/en/index.html){:target="\_blank"} which is quite simple compared to other options.
+Download the [Arch Linux ISO](https://archlinux.org/download), put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick. You can also use [Ventoy](https://www.ventoy.net/en/index.html) which is quite simple compared to other options.
 
 **WiFi Setup** (skip if using ethernet):
 
@@ -219,7 +219,6 @@ The result: **100% reliable installations** with **complete system state managem
 | `SUPER + SHIFT + S` | Region screenshot                         |
 | `SUPER + SHIFT + W` | Window screenshot                         |
 | `SUPER + SHIFT + F` | Full screen screenshot                    |
-| `SUPER + PRINT`     | Color picker                              |
 | `Kooha`             | GUI screen recorder (launch from SUPER+D) |
 
 ### Background Management
@@ -301,7 +300,7 @@ Access it via `SUPER+C` or by running `archriot-control-panel`.
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 
-ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate){:target="\_blank"}** - a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
+ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
 
 ### 🛡️ **Why Migrate Matters**
 
@@ -319,7 +318,7 @@ migrate                              # Launch interactive backup/restore interfa
 
 **No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
 
-[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate){:target="\_blank"}
+[![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
 
 ### 🔧 Troubleshooting
 
@@ -488,7 +487,7 @@ migrate
 - Migrate configurations between installations
 - Preserve all your customizations
 
-**Integration Details:** ArchRiot automatically downloads and installs the latest version of Migrate from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate){:target="\_blank"} during installation, ensuring you always have the most current backup capabilities without any manual setup.
+**Integration Details:** ArchRiot automatically downloads and installs the latest version of Migrate from [CypherRiot/Migrate](https://github.com/CyphrRiot/Migrate) during installation, ensuring you always have the most current backup capabilities without any manual setup.
 
 ## 🎨 CypherRiot Theme System
 
@@ -758,7 +757,7 @@ cd ~/.local/share/archriot/optional-tools
 
 **⚠️ Important:** These tools modify critical system components. Always have a backup plan and test thoroughly. Read `optional-tools/README.md` for complete documentation.
 
-_Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/){:target="\_blank"} installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
+_Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
 
@@ -772,8 +771,8 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 ### **Downloads**
 
-- [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.iso){:target="\_blank"}
-- [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.sha256){:target="\_blank"}
+- [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.iso)
+- [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.sha256)
 
 ### **SHA256 Checksum**
 
@@ -793,7 +792,7 @@ Boot and run `riot-install` from the prompt!
 
 **That said, if you insist on VMs:**
 
-_Thanks to [DTWaling on X](https://x.com/DTWaling){:target="\_blank"} for VM installation guidance._
+_Thanks to [DTWaling on X](https://x.com/DTWaling) for VM installation guidance._
 
 ### Disk Partitioning in VirtualBox
 
@@ -804,7 +803,7 @@ The Arch Linux installer's auto partitioning might not detect the full disk spac
 1. **Pre-allocate full space:** In VirtualBox disk settings, pre-allocate the full disk space before installation
 2. **Manual partitioning:** Use `gdisk` to create your own EFI boot and root partitions, then configure archinstall to use your pre-configured partitions
 
-### Plymouth Installation Issues
+#### Plymouth Installation Issues
 
 If installation stops at the "running: plymouth" step (95% progress) and returns to command prompt:
 
@@ -848,6 +847,6 @@ If the installer completes successfully, your system is fully functional. The in
 
 ## 📄 License
 
-ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT){:target="\_blank"}, maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
+ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
 
 # 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
