@@ -5,6 +5,23 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2025-01-08
+
+### 📋 DOCUMENTATION & FORMATTING FIXES
+
+#### README.md Improvements
+
+- **FIXED**: Removed 8 instances of non-functional `{:target="_blank"}` markdown syntax
+- **IMPROVED**: GitHub rendering by cleaning up all target attribute remnants
+- **CORRECTED**: Header hierarchy - Plymouth section now properly nested under VM guidance
+- **ENHANCED**: Overall markdown formatting for better GitHub compatibility
+
+#### Technical Notes
+
+- **GitHub Compatibility**: Target attributes are stripped by GitHub for security, making the syntax non-functional
+- **Formatting Consistency**: All section headers now follow proper markdown hierarchy
+- **User Experience**: Links work correctly without broken syntax cluttering the README
+
 ## [2.6.0] - 2025-01-08
 
 ### 🚀 MAJOR RELEASE: INTELLIGENT GRAPHICS & DYNAMIC UPGRADE SYSTEM
