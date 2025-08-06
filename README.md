@@ -766,23 +766,24 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 ### ArchRiot Linux ISO (Beta)
 
-> ## 🚀 **BETA ArchRiot Linux ISO Available!**
->
+## 🚀 **BETA ArchRiot Linux ISO Available!**
+
 > Skip the manual Arch installation entirely with our custom ArchRiot Linux ISO!
->
-> ### **Downloads**
+
+### **Downloads**
 
 - [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.iso){:target="\_blank"}
 - [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.sha256){:target="\_blank"}
-    > ### **SHA256 Checksum**
-    >
-    > **Verify the Download**:
-    >
-    > ```bash
-    > sha256sum -c archriot_2025.sha256
-    > ```
-    >
-    > Boot and run `archriot-install` from the prompt!
+
+### **SHA256 Checksum**
+
+**Verify the Download**:
+
+```bash
+    sha256sum -c archriot_2025.sha256
+```
+
+Boot and run `riot-install` from the prompt!
 
 **⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
 
