@@ -102,6 +102,26 @@ Run `archinstall` and pick these options (and leave anything not mentioned as-is
 
 Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install ArchRiot.
 
+### Important: Sudo Configuration
+
+**The ArchRiot installer requires passwordless sudo to function.** If it's not configured, the installer will detect this and provide you with the exact commands needed to set it up properly. You'll just need to run those commands, log out/log back in, and run the installer again.
+
+This is necessary because the installer needs to install packages and configure system services automatically.
+
+**Quick Setup (if needed):**
+
+```bash
+# Add your user to wheel group
+sudo usermod -aG wheel $USER
+
+# Enable passwordless sudo for wheel group
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
+
+# Log out and log back in, then run the installer
+```
+
+**Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
+
 ### Method 1: One-Line Install or Upgrade (Recommended for Most Users)
 
 ```bash
