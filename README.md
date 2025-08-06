@@ -5,14 +5,13 @@
 ![Version](https://img.shields.io/badge/version-2.6.1-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
+
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
 
 ![Language](https://img.shields.io/badge/language-Go-00ADD8)
 ![Language](https://img.shields.io/badge/language-YAML-CB171E)
 ![Language](https://img.shields.io/badge/language-Python-313244)
-![Language](https://img.shields.io/badge/language-CSS-45475a)
-![Language](https://img.shields.io/badge/language-Lua-585b70)
 
 ![Maintained](https://img.shields.io/maintenance/yes/2025?color=4c1d95)
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=3730a3)
@@ -208,7 +207,8 @@ The result: **100% reliable installations** with **complete system state managem
 | Keybinding  | Action                            |
 | ----------- | --------------------------------- |
 | `SUPER + E` | Email (Proton Mail)               |
-| `SUPER + G` | Signal messenger (smart launcher) |
+| `SUPER + G` | Signal messenger                  |
+| `SUPER + S` | Signal messenger (smart launcher) |
 | `SUPER + M` | Google Messages                   |
 | `SUPER + X` | X/Twitter                         |
 
