@@ -5,6 +5,39 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2025-01-08
+
+### 🚀 MAJOR RELEASE: INTELLIGENT GRAPHICS & DYNAMIC UPGRADE SYSTEM
+
+#### GPU-Specific Graphics Configuration System
+
+- **NEW**: Automatic GPU detection and optimal configuration during installation
+- **CREATED**: `graphics-amd.conf` - Forces software rendering to eliminate AMD artifacts
+- **CREATED**: `graphics-nvidia.conf` - Hardware acceleration with NVIDIA optimizations
+- **CREATED**: `graphics-intel.conf` - Minimal configuration for Intel integrated graphics
+- **FIXED**: AMD Barcelo GPU flashing and artifacts in Thunar and GTK4 applications
+- **IMPROVED**: Installation process automatically selects correct graphics configuration
+- **ELIMINATED**: Non-functional shell conditionals in environment.d files
+
+#### Dynamic Upgrade GUI with Real-Time Commit Information
+
+- **REVOLUTIONARY**: Upgrade dialog now shows actual commit messages instead of static text
+- **ADDED**: GitHub API integration to fetch recent changes between versions
+- **IMPROVED**: Compact single-line version display (`Update: v2.5.x → v2.6.0`)
+- **ENHANCED**: Proper text wrapping with hanging indentation for bullet points
+- **ADDED**: Scrollable content area to handle long commit lists
+- **FIXED**: Deprecated GTK font styling with modern CSS approach
+- **OPTIMIZED**: Intelligent fallback system when version tags unavailable
+- **REMOVED**: Auto-timeout behavior for better user experience
+
+#### Technical Excellence Improvements
+
+- **MODERNIZED**: GTK styling system eliminates deprecation warnings
+- **ROBUST**: Multiple fallback mechanisms for network/API failures
+- **INTELLIGENT**: Hardware detection works across AMD/Intel/NVIDIA systems
+- **RELIABLE**: Graceful degradation when remote services unavailable
+- **USER-FRIENDLY**: No more static upgrade messages, real information every time
+
 ## [2.5.19] - 2025-01-08
 
 ### 🎮 GPU-SPECIFIC GRAPHICS CONFIGURATION

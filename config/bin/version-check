@@ -17,9 +17,11 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, Pango
 
 class UpdateDialog:
-    def __init__(self, local_version, remote_version):
+    def __init__(self, local_version, remote_version, commit_messages=None, disable_timeout=False):
         self.local_version = local_version
         self.remote_version = remote_version
+        self.commit_messages = commit_messages or []
+        self.disable_timeout = disable_timeout
         self.home_dir = os.path.expanduser('~')
         self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
         self.config_file = os.path.join(self.config_dir, 'versions.cfg')
@@ -32,7 +34,7 @@ class UpdateDialog:
 
         self.window = Gtk.Window()
         self.window.set_title("ArchRiot Update Available")
-        self.window.set_default_size(600, 400)
+        self.window.set_default_size(500, 350)
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.set_resizable(False)
 
@@ -76,8 +78,13 @@ class UpdateDialog:
         self.log_dialog_state(f"Dialog created for update {local_version} -> {remote_version}")
 
         # Set up timeout to check if dialog is actually visible to user
-        # If no interaction after 30 seconds, send fallback notification
-        self.dialog_timeout_id = GLib.timeout_add_seconds(30, self.on_dialog_timeout)
+        # Skip timeout if explicitly disabled (for GUI mode)
+        if not self.disable_timeout:
+            # If no interaction after 5 minutes, send fallback notification
+            self.dialog_timeout_id = GLib.timeout_add_seconds(300, self.on_dialog_timeout)
+        else:
+            self.dialog_timeout_id = None
+            self.log_dialog_state("Timeout disabled for explicit GUI mode")
 
     def create_lock_file(self):
         """Create lock file with PID and cleanup handling"""
@@ -131,29 +138,48 @@ class UpdateDialog:
         version_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         version_box.set_halign(Gtk.Align.CENTER)
 
-        current_label = Gtk.Label()
-        current_label.set_markup(f'<span size="14000">Current Version: <b>{self.local_version}</b></span>')
-        current_label.set_halign(Gtk.Align.CENTER)
-        version_box.pack_start(current_label, False, False, 0)
-
-        arrow_label = Gtk.Label()
-        arrow_label.set_markup('<span size="16000">→</span>')
-        arrow_label.set_halign(Gtk.Align.CENTER)
-        version_box.pack_start(arrow_label, False, False, 0)
-
-        new_label = Gtk.Label()
-        new_label.set_markup(f'<span size="14000" foreground="#89b4fa">Available Version: <b>{self.remote_version}</b></span>')
-        new_label.set_halign(Gtk.Align.CENTER)
-        version_box.pack_start(new_label, False, False, 0)
+        version_label = Gtk.Label()
+        version_label.set_markup(f'<span size="14000">Update: <b>{self.local_version}</b> → <b><span foreground="#89b4fa">v{self.remote_version}</span></b></span>')
+        version_label.set_halign(Gtk.Align.CENTER)
+        version_box.pack_start(version_label, False, False, 0)
 
         container.pack_start(version_box, False, False, 0)
 
     def add_instructions(self, container):
-        """Add update instructions"""
+        """Add update instructions with dynamic commit messages"""
         instructions_label = Gtk.Label()
-        instructions_text = f"""A new version of ArchRiot ({self.remote_version}) is available!
 
-    The update process will:
+        # Build dynamic content based on commit messages
+        if self.commit_messages:
+            # Format commit messages with proper hanging indentation
+            formatted_messages = []
+            for msg in self.commit_messages[:8]:
+                # Split long messages and add hanging indent for continuation lines
+                if len(msg) > 50:
+                    words = msg.split()
+                    lines = []
+                    current_line = "    • " + words[0]
+                    for word in words[1:]:
+                        if len(current_line + " " + word) <= 50:
+                            current_line += " " + word
+                        else:
+                            lines.append(current_line)
+                            current_line = "      " + word  # 6 spaces for hanging indent
+                    lines.append(current_line)
+                    formatted_messages.append("\n".join(lines))
+                else:
+                    formatted_messages.append(f"    • {msg}")
+
+            changes_text = "\n".join(formatted_messages)
+            instructions_text = f"""Recent Changes:
+{changes_text}
+
+The update process will backup your configuration and preserve your settings.
+
+Choose an option below to proceed."""
+        else:
+            # Fallback to static message if no commit messages available
+            instructions_text = f"""The update process will:
 
     • Download the latest ArchRiot setup script
     • Backup your current configuration
@@ -165,6 +191,7 @@ Choose an option below to proceed."""
         instructions_label.set_text(instructions_text)
         instructions_label.set_line_wrap(True)
         instructions_label.set_line_wrap_mode(Pango.WrapMode.WORD)
+        instructions_label.set_max_width_chars(60)
         instructions_label.set_halign(Gtk.Align.START)
         instructions_label.set_valign(Gtk.Align.CENTER)
         instructions_label.set_justify(Gtk.Justification.LEFT)
@@ -173,13 +200,25 @@ Choose an option below to proceed."""
         instructions_label.set_margin_top(15)
         instructions_label.set_margin_bottom(15)
 
-        # Set font to match original dialog
-        font_desc = Pango.FontDescription()
-        font_desc.set_family("Hack Nerd Font Mono")
-        font_desc.set_size(13 * Pango.SCALE)
-        instructions_label.override_font(font_desc)
+        # Set font using CSS styling (modern approach)
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(b"""
+        label {
+            font-family: "Hack Nerd Font Mono";
+            font-size: 14px;
+        }
+        """)
+        style_context = instructions_label.get_style_context()
+        style_context.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
-        container.pack_start(instructions_label, True, True, 0)
+        # Wrap in scrolled window to handle tall content
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_max_content_height(200)
+        scrolled_window.set_propagate_natural_height(True)
+        scrolled_window.add(instructions_label)
+
+        container.pack_start(scrolled_window, True, True, 0)
 
     def add_buttons(self, container):
         """Add action buttons"""
@@ -573,6 +612,62 @@ class VersionChecker:
         # Don't notify again for the same version
         return last_notified != remote_version
 
+    def get_commits_between_versions(self, local_version, remote_version):
+        """Fetch commit messages between two versions using GitHub API"""
+        try:
+            # First try with version tags
+            url = f"https://api.github.com/repos/CyphrRiot/ArchRiot/compare/v{local_version}...v{remote_version}"
+            req = urllib.request.Request(url)
+            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
+            req.add_header('Accept', 'application/vnd.github.v3+json')
+
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode())
+
+                commits = data.get('commits', [])
+                commit_messages = []
+
+                for commit in commits:
+                    message = commit.get('commit', {}).get('message', '').strip()
+                    if message:
+                        # Take only the first line (title) of commit message
+                        title = message.split('\n')[0].strip()
+                        if title and not title.startswith('Merge'):  # Skip merge commits
+                            commit_messages.append(title)
+
+                return commit_messages[:10]  # Limit to 10 most recent commits
+
+        except urllib.error.HTTPError as e:
+            print(f"Version tag comparison failed ({e}), trying recent commits fallback")
+
+        except Exception as e:
+            print(f"Error fetching version commits: {e}")
+
+        # Fallback: Get recent commits from master branch
+        try:
+            url = "https://api.github.com/repos/CyphrRiot/ArchRiot/commits?per_page=10"
+            req = urllib.request.Request(url)
+            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
+            req.add_header('Accept', 'application/vnd.github.v3+json')
+
+            with urllib.request.urlopen(req, timeout=10) as response:
+                commits = json.loads(response.read().decode())
+                commit_messages = []
+
+                for commit in commits:
+                    message = commit.get('commit', {}).get('message', '').strip()
+                    if message:
+                        # Take only the first line (title) of commit message
+                        title = message.split('\n')[0].strip()
+                        if title and not title.startswith('Merge'):  # Skip merge commits
+                            commit_messages.append(title)
+
+                print(f"Fallback: fetched {len(commit_messages)} recent commits")
+                return commit_messages[:8]  # Limit to 8 recent commits
+
+        except Exception as e:
+            print(f"Fallback commit fetch failed: {e}")
+            return []
 
     def launch_update_dialog(self, local_version, remote_version):
         """Launch the update notification dialog directly"""
@@ -595,8 +690,16 @@ class VersionChecker:
         try:
             print(f"Launching direct GTK dialog with LOCAL={local_version}, REMOTE={remote_version}")
 
+            # Fetch commit messages for dynamic content
+            commit_messages = self.get_commits_between_versions(local_version, remote_version)
+            print(f"Fetched {len(commit_messages)} commit messages")
+            if commit_messages:
+                print("Commit messages to display:")
+                for i, msg in enumerate(commit_messages[:8], 1):
+                    print(f"  {i}. {msg}")
+
             # Create and show dialog directly - no subprocess needed!
-            dialog = UpdateDialog(local_version, remote_version)
+            dialog = UpdateDialog(local_version, remote_version, commit_messages, disable_timeout=True)
 
             # Run GTK main loop
             Gtk.main()
@@ -768,8 +871,17 @@ def main():
                         with open(update_flag_file, 'w') as f:
                             f.write(f"UPDATE_AVAILABLE:{local_version}->{remote_version}\n")
 
+                        # Fetch commit messages for dynamic content
+                        checker = VersionChecker()
+                        commit_messages = checker.get_commits_between_versions(local_version, remote_version)
+                        print(f"Fetched {len(commit_messages)} commit messages for waybar dialog")
+                        if commit_messages:
+                            print("Commit messages to display:")
+                            for i, msg in enumerate(commit_messages[:8], 1):
+                                print(f"  {i}. {msg}")
+
                         # Launch dialog
-                        dialog = UpdateDialog(local_version, remote_version)
+                        dialog = UpdateDialog(local_version, remote_version, commit_messages, disable_timeout=True)
                         dialog.waybar_managed = True
                         Gtk.main()
                     else:
