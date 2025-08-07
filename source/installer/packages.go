@@ -50,18 +50,24 @@ func InstallPackages(packages []string) error {
 		// If pacman fails, try with yay (handles both AUR and regular packages)
 		logger.LogMessage("WARNING", "Pacman failed, trying yay for all packages")
 
+		// Check if yay is available
+		if !CommandExists("yay") {
+			logger.LogMessage("ERROR", "Yay not available for AUR packages")
+			return fmt.Errorf("package installation failed: pacman failed and yay not available")
+		}
+
 		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
 		output, err = cmd.CombinedOutput()
 
 		if err != nil {
-			// Log the error but don't fail completely
+			// Log the error and fail for critical packages
 			outputStr := string(output)
 			if len(outputStr) > 500 {
 				outputStr = outputStr[:500] + "... (truncated)"
 			}
-			logger.LogMessage("ERROR", fmt.Sprintf("Package installation had errors: %s", outputStr))
-			logger.Log("Error", "Package", "Installation", "Some packages may have failed")
-			// Don't return error - let installation continue
+			logger.LogMessage("ERROR", fmt.Sprintf("Package installation failed: %s", outputStr))
+			logger.Log("Error", "Package", "Installation", "Critical packages failed to install")
+			return fmt.Errorf("package installation failed: %w", err)
 		}
 	}
 

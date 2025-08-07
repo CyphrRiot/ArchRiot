@@ -1,5 +1,8 @@
 #!/bin/bash
-# Simple ArchRiot Update Check for Waybar - No Cache Nonsense
+# ArchRiot Update Check for Waybar - Three State System
+
+STATE_FILE="$HOME/.cache/archriot/update-state"
+mkdir -p "$(dirname "$STATE_FILE")"
 
 # Get versions directly
 local_version=$(cat ~/.local/share/archriot/VERSION 2>/dev/null || echo "unknown")
@@ -33,9 +36,11 @@ is_newer_version() {
 
 # Handle click events
 if [[ "$1" == "--click" ]]; then
-    # Show update dialog when clicked (using the correct command)
     if [[ "$remote_version" != "unknown" && "$local_version" != "unknown" ]] && is_newer_version "$local_version" "$remote_version"; then
-        # Show launching notification only when there's an actual update
+        # Mark as clicked/seen
+        echo "$remote_version" > "$STATE_FILE"
+
+        # Show launching notification and start upgrade
         notify-send -t 5000 "Launching Upgrade..." "Starting ArchRiot upgrade process..." &
         $HOME/.local/share/archriot/config/bin/version-check --gui 2>/dev/null &
     else
@@ -45,14 +50,23 @@ if [[ "$1" == "--click" ]]; then
     exit 0
 fi
 
-# Compare versions and output for waybar
+# Three-state logic
 if [[ "$remote_version" == "unknown" || "$local_version" == "unknown" ]]; then
-    # Network/file error - show nothing
+    # Network/file error - show dash
     echo '{"text":"-","tooltip":"Update check unavailable","class":"update-none"}'
 elif is_newer_version "$local_version" "$remote_version"; then
-    # Update available - show icon
-    echo '{"text":"󰚰","tooltip":"ArchRiot update available!\nCurrent: '$local_version'\nAvailable: '$remote_version'","class":"update-available"}'
+    # Update available - check if user has seen it
+    seen_version=$(cat "$STATE_FILE" 2>/dev/null || echo "")
+
+    if [[ "$seen_version" == "$remote_version" ]]; then
+        # User has seen this version - show package icon
+        echo '{"text":"󰏖","tooltip":"ArchRiot update available (seen)\nCurrent: '$local_version'\nAvailable: '$remote_version'","class":"update-seen"}'
+    else
+        # New version not seen yet - show circle icon
+        echo '{"text":"󰚰","tooltip":"ArchRiot update available!\nCurrent: '$local_version'\nAvailable: '$remote_version'","class":"update-available"}'
+    fi
 else
-    # Up to date - show nothing
+    # Up to date - clear state file and show dash
+    rm -f "$STATE_FILE"
     echo '{"text":"-","tooltip":"ArchRiot is up to date\nCurrent: '$local_version'","class":"update-none"}'
 fi

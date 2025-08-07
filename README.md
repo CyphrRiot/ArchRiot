@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.6.13-4c1d95)
+![Version](https://img.shields.io/badge/version-2.6.14-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
