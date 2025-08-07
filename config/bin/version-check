@@ -133,6 +133,7 @@ def save_config(config_file, config_dir, config):
         log_with_timestamp(f"Error saving config: {e}", "ERROR")
 
 class UpdateDialog:
+    """Handles the GUI dialog for displaying update information and user interactions."""
     def __init__(self, local_version, remote_version, commit_messages=None, disable_timeout=False):
         self.local_version = local_version
         self.remote_version = remote_version
@@ -193,7 +194,7 @@ class UpdateDialog:
         self.window.show_all()
 
         # Log dialog creation for debugging
-        self.log_dialog_state(f"Dialog created for update {local_version} -> {remote_version}")
+        log_with_timestamp(f"Dialog created for update {local_version} -> {remote_version}", "DIALOG", self.config_dir)
 
         # Set up timeout to check if dialog is actually visible to user
         # Skip timeout if explicitly disabled (for GUI mode)
@@ -202,7 +203,7 @@ class UpdateDialog:
             self.dialog_timeout_id = GLib.timeout_add_seconds(300, self.on_dialog_timeout)
         else:
             self.dialog_timeout_id = None
-            self.log_dialog_state("Timeout disabled for explicit GUI mode")
+            log_with_timestamp("Timeout disabled for explicit GUI mode", "DIALOG", self.config_dir)
 
     def create_lock_file(self):
         """Create lock file with PID and cleanup handling using atomic operations"""
@@ -314,7 +315,7 @@ class UpdateDialog:
                 formatted_messages.append("\n".join(formatted_msg_lines))
 
             changes_text = "\n\n".join(formatted_messages)
-            instructions_text = f"""Recent Changes:
+            instructions_text = f"""Recent Changes:\n
 {changes_text}
 
 The update process will backup your configuration and preserve your settings.
@@ -393,7 +394,7 @@ Choose an option below to proceed."""
     def on_install_clicked(self, button):
         """Handle install button click - open terminal and run update command"""
         self.user_interacted = True  # Mark that user interacted
-        self.log_dialog_state("User clicked Install button")
+        log_with_timestamp("User clicked Install button", "DIALOG", self.config_dir)
 
         # Cancel timeout since user interacted
         if self.dialog_timeout_id:
@@ -433,16 +434,16 @@ Choose an option below to proceed."""
     def on_ignore_clicked(self, button):
         """Handle ignore notifications button click"""
         self.user_interacted = True  # Mark that user interacted
-        self.log_dialog_state("User clicked Ignore button")
+        log_with_timestamp("User clicked Ignore button", "DIALOG", self.config_dir)
 
         # Cancel timeout since user interacted
         if self.dialog_timeout_id:
             GLib.source_remove(self.dialog_timeout_id)
             self.dialog_timeout_id = None
         try:
-            config = self.load_config()
+            config = load_config(self.config_file)
             config['ignore_notifications'] = True
-            self.save_config(config)
+            save_config(self.config_file, self.config_dir, config)
 
             dialog = Gtk.MessageDialog(
                 transient_for=self.window,
@@ -464,7 +465,7 @@ Choose an option below to proceed."""
     def on_close_clicked(self, button):
         """Handle close button click"""
         self.user_interacted = True  # Mark that user interacted
-        self.log_dialog_state("User clicked Close button")
+        log_with_timestamp("User clicked Close button", "DIALOG", self.config_dir)
 
         # Cancel timeout since user interacted
         if self.dialog_timeout_id:
@@ -481,7 +482,7 @@ Choose an option below to proceed."""
             self.dialog_timeout_id = None
 
         # Log dialog destruction
-        self.log_dialog_state(f"Dialog destroyed (user_interacted: {self.user_interacted})")
+        log_with_timestamp(f"Dialog destroyed (user_interacted: {self.user_interacted})", "DIALOG", self.config_dir)
 
         # Only mark as interacted if dialog was visible for reasonable time
         # This prevents marking as interacted when dialog fails to show
@@ -491,7 +492,7 @@ Choose an option below to proceed."""
     def on_dialog_timeout(self):
         """Handle dialog timeout - send fallback notification if no user interaction"""
         if not self.user_interacted:
-            self.log_dialog_state("Dialog timeout - no user interaction detected")
+            log_with_timestamp("Dialog timeout - no user interaction detected", "DIALOG", self.config_dir)
             print("Dialog timeout - user may not have seen GTK dialog, sending fallback notification")
             # Send system notification as fallback
             try:
@@ -514,21 +515,7 @@ Choose an option below to proceed."""
         self.dialog_timeout_id = None
         return False  # Don't repeat timeout
 
-    def log_dialog_state(self, message):
-        """Log dialog state for debugging"""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_message = f"[{timestamp}] DIALOG: {message}"
-        print(log_message)
 
-        # Also log to file for persistent debugging
-        try:
-            log_dir = os.path.join(self.config_dir, 'logs')
-            os.makedirs(log_dir, exist_ok=True)
-            log_file = os.path.join(log_dir, 'version-check.log')
-            with open(log_file, 'a') as f:
-                f.write(log_message + '\n')
-        except Exception:
-            pass  # Don't let logging errors break the dialog
 
     def load_config(self):
         """Load version check configuration"""
@@ -549,6 +536,7 @@ Choose an option below to proceed."""
         Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
 class VersionChecker:
+    """Manages version checking, comparison, and notification logic for ArchRiot updates."""
     def __init__(self):
         self.home_dir = os.path.expanduser('~')
         self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
@@ -712,44 +700,13 @@ class VersionChecker:
                 return commit_messages[:10]  # Limit to 10 most recent commits
 
         except urllib.error.HTTPError as e:
-            print(f"Version tag comparison failed ({e}), trying recent commits fallback")
-
+            if e.code == 404:
+                log_with_timestamp(f"Version tags not found for comparison (local: v{local_version}, remote: v{remote_version}) - commits unavailable", "WARNING")
+            else:
+                log_with_timestamp(f"HTTP error fetching commits ({e.code}): {e}", "WARNING")
+            return []
         except Exception as e:
             log_with_timestamp(f"Error fetching version commits: {e}", "WARNING")
-
-        # Fallback: Get recent commits from master branch
-        try:
-            url = "https://api.github.com/repos/CyphrRiot/ArchRiot/commits?per_page=10"
-            req = urllib.request.Request(url)
-            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
-            req.add_header('Accept', 'application/vnd.github.v3+json')
-
-            with urllib.request.urlopen(req, timeout=10) as response:
-                commits = json.loads(response.read().decode())
-                commit_messages = []
-
-                for commit in commits:
-                    message = commit.get('commit', {}).get('message', '').strip()
-                    if message:
-                        # Take first 2-3 lines of commit message for more detail
-                        lines = message.split('\n')
-                        # Get title and first few non-empty lines
-                        display_lines = []
-                        for line in lines[:4]:  # Max 4 lines to check
-                            clean_line = line.strip()
-                            if clean_line and len(display_lines) < 3:  # Max 3 lines to show
-                                display_lines.append(clean_line)
-
-                        if display_lines and not display_lines[0].startswith('Merge'):  # Skip merge commits
-                            # Join lines with newlines to preserve formatting
-                            formatted_message = '\n'.join(display_lines)
-                            commit_messages.append(formatted_message)
-
-                print(f"Fallback: fetched {len(commit_messages)} recent commits")
-                return commit_messages[:8]  # Limit to 8 recent commits
-
-        except Exception as e:
-            log_with_timestamp(f"Fallback commit fetch failed: {e}", "WARNING")
             return []
 
     def launch_update_dialog(self, local_version, remote_version):
@@ -807,16 +764,16 @@ class VersionChecker:
     def update_check_timestamp(self, config):
         """Update the last check timestamp"""
         config['last_check'] = datetime.now(timezone.utc).isoformat()
-        self.save_config(config)
+        save_config(self.config_file, self.config_dir, config)
 
     def update_notified_version(self, config, version):
         """Update the last notified version"""
         config['last_notified_version'] = version
-        self.save_config(config)
+        save_config(self.config_file, self.config_dir, config)
 
     def run_check(self, force=False):
         """Main version check logic"""
-        config = self.load_config()
+        config = load_config(self.config_file)
 
         # Check if we should run now (unless forced)
         if not force and not self.should_check_now(config):
@@ -894,20 +851,20 @@ def main():
                 is_newer = checker.is_newer_version(local, remote)
                 print(f"Update available: {is_newer}")
         elif sys.argv[1] == "--reset":
-            # Reset config
+            # Reset entire config to defaults
             config = {
                 "ignore_notifications": False,
                 "last_check": None,
                 "last_notified_version": None,
                 "check_interval_hours": 4
             }
-            checker.save_config(config)
+            save_config(checker.config_file, checker.config_dir, config)
             print("Configuration reset")
         elif sys.argv[1] == "--reset-notifications":
             # Reset only notification state, keep other settings
-            config = checker.load_config()
+            config = load_config(checker.config_file)
             config['last_notified_version'] = None
-            checker.save_config(config)
+            save_config(checker.config_file, checker.config_dir, config)
             print("Notification state reset - will notify about current updates")
         elif sys.argv[1] == "--clear-flag":
             # Clear waybar update flag
@@ -921,58 +878,37 @@ def main():
             except Exception as e:
                 log_with_timestamp(f"Failed to clear update flag: {e}", "ERROR")
         elif sys.argv[1] == "--gui":
-            # Fast GUI launch using cached data from waybar flag file
-            update_flag_file = os.path.join(checker.config_dir, 'update_available')
+            # Dynamic GUI launch - always read live VERSION file and git latest
             try:
-                if os.path.exists(update_flag_file):
-                    with open(update_flag_file, 'r') as f:
-                        content = f.read().strip()
-                    if content.startswith("UPDATE_AVAILABLE:"):
-                        version_info = content.replace("UPDATE_AVAILABLE:", "")
-                        if "->" in version_info:
-                            local_ver, remote_ver = version_info.split("->", 1)
-                            print(f"Fast GUI launch: {local_ver} -> {remote_ver}")
+                # Get current versions dynamically
+                local_version = checker.get_local_version()
+                remote_version = checker.get_remote_version()
 
-                            # Fetch commit messages for dynamic content
-                            commit_messages = checker.get_commits_between_versions(local_ver, remote_ver)
+                if not local_version:
+                    print("Could not determine local version")
+                    sys.exit(1)
 
-                            # Launch dialog directly with cached version info AND commit messages
-                            dialog = UpdateDialog(local_ver, remote_ver, commit_messages, disable_timeout=True)
-                            dialog.waybar_managed = True  # Flag to prevent auto-notification
-                            Gtk.main()
-                        else:
-                            print("Invalid version format in flag file")
-                    else:
-                        print("No update available in flag file")
+                if not remote_version:
+                    print("Could not fetch remote version")
+                    sys.exit(1)
+
+                # Check if update is available
+                if checker.is_newer_version(local_version, remote_version):
+                    print(f"Dynamic GUI launch: {local_version} -> {remote_version}")
+
+                    # Fetch commit messages for dynamic content
+                    commit_messages = checker.get_commits_between_versions(local_version, remote_version)
+                    print(f"Fetched {len(commit_messages)} commit messages for dynamic waybar dialog")
+
+                    # Launch dialog with live data
+                    dialog = UpdateDialog(local_version, remote_version, commit_messages, disable_timeout=True)
+                    dialog.waybar_managed = True  # Flag to prevent auto-notification
+                    Gtk.main()
                 else:
-                    # No flag file exists - do a quick check for fresh installs
-                    print("No update flag file found - checking for updates...")
-                    local_version = checker.get_local_version()
-                    remote_version = checker.get_remote_version()
+                    print(f"No update available - local {local_version} is up to date with remote {remote_version}")
 
-                    if local_version and remote_version and checker.is_newer_version(local_version, remote_version):
-                        print(f"Update found: {local_version} -> {remote_version}")
-                        # Create flag file for future fast access
-                        os.makedirs(checker.config_dir, exist_ok=True)
-                        with open(update_flag_file, 'w') as f:
-                            f.write(f"UPDATE_AVAILABLE:{local_version}->{remote_version}\n")
-
-                        # Fetch commit messages for dynamic content
-                        checker = VersionChecker()
-                        commit_messages = checker.get_commits_between_versions(local_version, remote_version)
-                        print(f"Fetched {len(commit_messages)} commit messages for waybar dialog")
-                        if commit_messages:
-                            print("Commit messages to display:")
-                            for i, msg in enumerate(commit_messages[:8], 1):
-                                print(f"  {i}. {msg}")
-
-                        # Launch dialog
-                        dialog = UpdateDialog(local_version, remote_version, commit_messages, disable_timeout=True)
-                        dialog.waybar_managed = True
-                        Gtk.main()
-                    else:
-                        print("No updates available")
             except Exception as e:
+                log_with_timestamp(f"Error in dynamic GUI mode: {e}", "ERROR")
                 log_with_timestamp(f"Error launching GUI: {e}", "ERROR")
         else:
             print("Usage: version-check [--force|--test|--reset|--reset-notifications|--clear-flag|--gui]")

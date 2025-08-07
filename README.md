@@ -2,13 +2,12 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.6.10-4c1d95)
+![Version](https://img.shields.io/badge/version-2.6.11-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
-
 ![Language](https://img.shields.io/badge/language-Go-00ADD8)
 ![Language](https://img.shields.io/badge/language-YAML-CB171E)
 ![Language](https://img.shields.io/badge/language-Python-313244)
@@ -21,7 +20,6 @@
 [![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
-[![Changelog](https://img.shields.io/badge/📋_Changelog-View_Releases-4c1d95?style=for-the-badge)](CHANGELOG.md)
 
 </div>
 
@@ -65,7 +63,22 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [System Requirements](#-system-requirements)
 - [Optional Advanced Tools](#-optional-advanced-tools)
 - [VM & Hardware Notes](#️-vm--hardware-notes)
-- [Changelog](CHANGELOG.md)
+
+## 📋 Version History
+
+To see what's new in each version, use git history:
+
+```bash
+# View recent releases with tags
+git log --oneline --decorate | head -10
+
+# See changes between versions
+git log --oneline v2.6.0..v2.6.11
+
+# Search for specific changes
+git log --grep="CRITICAL" --oneline
+git log --grep="FIX" --oneline
+```
 
 ## 🚀 Installation
 
@@ -125,8 +138,6 @@ echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
 ```bash
 curl -fsSL https://ArchRiot.org/setup.sh | bash
 ```
-
-**Current Version: 2.6.2**
 
 ![ArchRiot Upgrade Demo](config/images/upgrade.gif)
 
