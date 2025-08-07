@@ -5,7 +5,33 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.6.6] - 2025-01-10
+## [2.6.7] - 2025-01-08
+
+### 🔧 CRITICAL FIX: Graphics Configuration Installation
+
+#### Immediate Environment Variable Loading
+
+- **FIXED**: Graphics environment variables not loading without session restart
+- **RESOLVED**: AMD users experiencing Thunar artifacts after installation/upgrade
+- **IMPROVED**: Graphics configuration now applies immediately during installation
+- **ADDED**: `systemctl --user set-environment` commands for instant variable loading
+- **ELIMINATED**: Need to logout/login for graphics fixes to take effect
+
+#### Installation Process Improvements
+
+- **FIXED**: File conflict where both source and target graphics configs were copied
+- **REFINED**: Base installation now excludes GPU-specific graphics files
+- **ENHANCED**: Hardware detection section handles all GPU-specific configuration
+- **OPTIMIZED**: Clean separation between generic and hardware-specific configs
+
+#### Technical Details
+
+- **AMD Systems**: `GSK_RENDERER=gl` and `LIBGL_ALWAYS_SOFTWARE=1` load immediately
+- **NVIDIA Systems**: Hardware acceleration settings apply without restart
+- **Intel Systems**: Minimal configuration loads instantly
+- **All Systems**: Graphics fixes now work immediately after installation
+
+## [2.6.1] - 2025-01-08
 
 ### 🔧 Optimization
 

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.6.6-4c1d95)
+![Version](https://img.shields.io/badge/version-2.6.7-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
@@ -29,7 +29,7 @@
 
 **One Command. Complete Environment. Zero Compromises.**
 
-ArchRiot isn't just another Linux distribution -- it's the answer to every time you've thought "why can't Linux just work flawlessly from the start?" We obsess over speed, security, and getting every detail perfect so you don't have to.
+ArchRiot isn't just another Linux distribution -- it's the answer to every time you've thought "why can't Linux just work correctly from the start, with all the right settings and apps?" We obsess over speed, security, and getting every detail perfect so you don't have to.
 
 **Curated to be correct:**
 

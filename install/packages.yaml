@@ -14,7 +14,8 @@ core:
             - linux-firmware
             - efibootmgr
         configs:
-            - pattern: environment.d/*
+            - pattern: environment.d/editor.conf
+            - pattern: environment.d/fcitx.conf
             - pattern: fastfetch/*
             - pattern: systemd/*
         commands:
@@ -425,6 +426,10 @@ system:
             - "if lspci | grep -qi -E 'amd|radeon'; then cp config/environment.d/graphics-amd.conf ~/.config/environment.d/graphics.conf; fi"
             - "if lspci | grep -qi nvidia; then cp config/environment.d/graphics-nvidia.conf ~/.config/environment.d/graphics.conf; fi"
             - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then cp config/environment.d/graphics-intel.conf ~/.config/environment.d/graphics.conf; fi"
+            - "systemctl --user daemon-reload"
+            - "if lspci | grep -qi -E 'amd|radeon'; then systemctl --user set-environment GSK_RENDERER=gl LIBGL_ALWAYS_SOFTWARE=1 mesa_glthread=true MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460; fi"
+            - "if lspci | grep -qi nvidia; then systemctl --user set-environment GSK_RENDERER=gl __GL_THREADED_OPTIMIZATIONS=1; fi"
+            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then systemctl --user set-environment GSK_RENDERER=gl; fi"
         depends: [core.base]
         start: "Setting up hardware drivers"
         end: "Hardware drivers configured"
