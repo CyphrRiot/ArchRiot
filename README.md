@@ -10,7 +10,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=3730a3)
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=1e40af)
 
-![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logoColor=3730a3)
+![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logo=wayland&logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
 ![Language](https://img.shields.io/badge/language-Go-00ADD8)
 ![Language](https://img.shields.io/badge/language-YAML-CB171E)
