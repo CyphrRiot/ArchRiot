@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Proton Docs
+Comment=Access Proton Docs documentation
+Exec=sh -c 'brave --new-window --ozone-platform=wayland --app="https://docs.proton.me/"'
+Icon=help-contents
+Terminal=false
+Categories=Network;WebBrowser;Documentation;
+StartupNotify=true

@@ -91,7 +91,6 @@ desktop:
             - pattern: waybar/*
             - pattern: fuzzel/*
             - pattern: mako/*
-
             - pattern: Thunar/*
               preserve_if_exists: [accels.scm]
             - pattern: bin/upgrade-system
@@ -124,11 +123,9 @@ desktop:
             - signal-desktop
             - brightnessctl
             - xdg-user-dirs
-            - wl-clip-persist
             - hyprsunset
             - tumbler
             - ffmpegthumbnailer
-            - abiword
             - papers
             - unzip
             - p7zip
@@ -153,6 +150,8 @@ desktop:
             - pattern: ghostty/*
             - pattern: xdg-desktop-portal/*
         commands:
+            - "pkill wl-clip-persist 2>/dev/null || true"
+            - "yay -Rns --noconfirm wl-clip-persist 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || true"
             - "xdg-user-dirs-update"
@@ -170,7 +169,7 @@ desktop:
             - "gsettings set org.gnome.TextEditor show-line-numbers true"
             - "gsettings set org.gnome.TextEditor highlight-current-line true"
             - "gsettings set org.gnome.TextEditor show-right-margin false"
-            - "gsettings set org.gnome.TextEditor custom-font 'iA Writer Mono S 12'"
+            - "gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12'"
             - "gsettings set org.gnome.TextEditor line-height 1.2"
             - "gsettings set org.gnome.TextEditor use-system-font false"
             - "gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'"
@@ -226,7 +225,6 @@ development:
             - jq
             - zip
             - tmux
-
         commands:
             - "mkdir -p ~/.local/bin"
             - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
@@ -244,7 +242,6 @@ development:
             - typescript-language-server
             - bash-language-server
             - gopls
-
         commands:
             - "sudo ln -sf /usr/bin/nvim /usr/bin/vi"
         depends: [core.base]
@@ -260,7 +257,6 @@ system:
             - ttf-hack-nerd
             - ttf-cascadia-mono-nerd
             - ttf-ia-writer
-
         commands:
             - "fc-cache -f"
         depends: [core.base]
@@ -271,7 +267,6 @@ system:
     bluetooth:
         packages:
             - blueberry
-
         commands:
             - "sudo systemctl enable --now bluetooth.service"
         depends: [core.base]

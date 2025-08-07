@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.6.4-4c1d95)
+![Version](https://img.shields.io/badge/version-2.6.5-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
@@ -608,7 +608,7 @@ This YAML system provides clean separation of packages, configurations, and comm
 - **Fish shell** - Modern, user-friendly command line with autocompletion
 - **Modern CLI tools** - eza, bat, ripgrep, fzf, zoxide for enhanced productivity
 - **Git integration** - GitHub CLI, lazygit, proper aliases
-- **Code editors** - Zed (Wayland native), Neovim (power user), AbiWord (document editing)
+- **Code editors** - Zed (Wayland native), Neovim (power user)
 - **Container support** - Docker, development environments
 - **Wayland Native** - All development tools run with native Wayland for better performance
 - **CypherRiot Integration** - Consistent dark theme across all editors and development tools

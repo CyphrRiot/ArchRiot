@@ -34,7 +34,7 @@
 
   <!-- Global Settings with transparency -->
   <style name="text"                        foreground="fg" background="bg"/>
-  <style name="selection"                   foreground="fg" background="window"/>
+  <style name="selection"                   foreground="fg" background="#283457"/>
   <style name="cursor"                      foreground="fg"/>
   <style name="secondary-cursor"            foreground="fg-dark"/>
   <style name="current-line"                background="bg-float"/>

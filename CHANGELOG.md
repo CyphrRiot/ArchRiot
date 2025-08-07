@@ -5,6 +5,28 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.5] - 2025-01-10
+
+### 🔧 Critical Fixes
+
+#### Fixed Issues
+
+- **CRITICAL**: Fixed system-wide text selection failure in all GTK applications
+    - **Root Cause**: wl-clip-persist package was intercepting and breaking text selection events
+    - **Impact**: Users could not select text with mouse or Ctrl+A in GNOME Text Editor, Control Panel, and other GTK apps
+    - **Solution**: Removed wl-clip-persist from installer and added cleanup commands
+    - **Affected**: All systems with wl-clip-persist installed (introduced ~5 days ago)
+
+#### New Features
+
+- **Proton Docs Integration** - Added Fuzzel launcher entry for quick access to Proton documentation
+- **Text Editor Font** - Changed default font from iA Writer Mono to Hack Nerd Font Mono
+- **btop Theme** - Set CypherRiot theme as default for all users instead of tokyo-night
+
+#### Removed
+
+- **AbiWord** - Removed package and all references (desktop entries, waybar icons, README mentions)
+
 ## [2.6.4] - 2024-12-16
 
 ### 🎨 Background Management System

@@ -243,7 +243,6 @@
 		"title<.*github.*>": "<span font='11'> </span>",
 		"class<mousepad>": "<span font='11'> </span>",
 		"class<libreoffice-writer>": "<span font='11'>󰈙 </span>",
-		"class<abiword>": "<span font='11'>󰈙 </span>",
 		"class<libreoffice-startcenter>": "<span font='11'>󰏆 </span>",
 		"class<libreoffice-calc>": "<span font='11'>󰈙 </span>",
 		"title<.*nvim ~.*>": "<span font='11'>󰈙 </span>",
