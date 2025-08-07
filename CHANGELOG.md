@@ -5,6 +5,46 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.4] - 2024-12-16
+
+### 🎨 Background Management System
+
+#### New Features
+
+- **Control Panel Background Widget** - Added comprehensive background management to ArchRiot Control Panel
+- **Custom Background Support** - Users can now add personal wallpapers via file chooser dialog
+- **Background Slider** - Visual slider to select from all available backgrounds with immediate preview
+- **Visual Indicators** - System backgrounds numbered (1-20), user backgrounds labeled (U1, U2, etc.)
+- **Upgrade Preservation** - User backgrounds and preferences survive ArchRiot upgrades
+- **Background Persistence** - Selected backgrounds persist across sessions and reboots
+
+#### Technical Improvements
+
+- **Unified Slider System** - Eliminated code duplication with modular slider creation function
+- **Natural Sorting** - Proper numerical ordering for riot_01.jpg, riot_02.jpg, etc.
+- **GTK4 File Chooser** - Modern file dialog with image filtering and proper sizing
+- **Process Detachment** - Improved background service management for reliability
+
+#### User Interface
+
+- **Workspace Colors** - Refined workspace indicator colors for better visibility
+- **Control Panel Optimization** - Improved layout, spacing, and removed redundant elements
+- **Header Styling** - Better version display and font sizing
+
+#### Background Management
+
+- **System Backgrounds**: `~/.local/share/archriot/backgrounds/` (managed by installer)
+- **User Backgrounds**: `~/.config/archriot/backgrounds/` (preserved during upgrades)
+- **Remove Custom Backgrounds**: `rm ~/.config/archriot/backgrounds/*` or `rm -rf ~/.config/archriot/backgrounds/`
+
+### Fixed
+
+- **Audio Widget Removal** - Removed non-functional audio management widget
+- **Slider Snapping** - All sliders now snap properly to discrete values
+- **Background Ordering** - System backgrounds appear first, user backgrounds at end
+
+---
+
 ## [2.6.2] - 2024-12-09
 
 ### Fixed

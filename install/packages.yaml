@@ -465,7 +465,21 @@ system:
     backgrounds:
         commands:
             - "pkill swaybg 2>/dev/null || true"
-            - "nohup swaybg -i ~/.local/share/archriot/backgrounds/riot_01.jpg -m fill >/dev/null 2>&1 & disown"
+            - |
+                # Restore user background if exists, otherwise use default
+                CURRENT_BG_FILE="$HOME/.config/archriot/.current-background"
+                DEFAULT_BG="$HOME/.local/share/archriot/backgrounds/riot_01.jpg"
+
+                if [[ -f "$CURRENT_BG_FILE" ]]; then
+                  SAVED_BG=$(cat "$CURRENT_BG_FILE" 2>/dev/null)
+                  if [[ -f "$SAVED_BG" ]]; then
+                    nohup swaybg -i "$SAVED_BG" -m fill >/dev/null 2>&1 & disown
+                  elif [[ -f "$DEFAULT_BG" ]]; then
+                    nohup swaybg -i "$DEFAULT_BG" -m fill >/dev/null 2>&1 & disown
+                  fi
+                elif [[ -f "$DEFAULT_BG" ]]; then
+                  nohup swaybg -i "$DEFAULT_BG" -m fill >/dev/null 2>&1 & disown
+                fi
             - "pkill waybar 2>/dev/null || true"
             - "nohup waybar >/dev/null 2>&1 & disown"
             - "hyprctl reload"

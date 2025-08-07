@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.6.2-4c1d95)
+![Version](https://img.shields.io/badge/version-2.6.4-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
@@ -227,6 +227,28 @@ The result: **100% reliable installations** with **complete system state managem
 | Keybinding             | Action                              |
 | ---------------------- | ----------------------------------- |
 | `SUPER + CTRL + SPACE` | Cycle through backgrounds (keybind) |
+
+**Control Panel Management:**
+
+- Open ArchRiot Control Panel to add custom backgrounds via file chooser
+- System backgrounds (1-20) and user backgrounds (U1, U2, etc.) clearly labeled
+- Background changes apply immediately and persist across reboots
+
+**Custom Background Management:**
+
+```bash
+# Add custom backgrounds via Control Panel file chooser
+# Or manually copy to: ~/.config/archriot/backgrounds/
+
+# Remove specific custom background
+rm ~/.config/archriot/backgrounds/user_01.jpg
+
+# Remove all custom backgrounds
+rm ~/.config/archriot/backgrounds/*
+
+# Remove custom backgrounds directory entirely
+rm -rf ~/.config/archriot/backgrounds/
+```
 
 ### System Management
 

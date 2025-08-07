@@ -8,7 +8,7 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Gdk', '4.0')
 gi.require_version('GdkPixbuf', '2.0')
-from gi.repository import Gtk, Gdk, GLib, Pango, GdkPixbuf
+from gi.repository import Gtk, Gdk, GLib, Pango, GdkPixbuf, Gio
 import os
 import sys
 import time
@@ -188,7 +188,7 @@ class BaseControlWidget:
 
         # Title
         title_label = Gtk.Label()
-        title_label.set_markup(f'<span size="16000" weight="bold" foreground="#bb9af7">{self.icon} {self.title}</span>')
+        title_label.set_markup(f'<span size="14000" weight="bold" foreground="#bb9af7">{self.icon} {self.title}</span>')
         title_label.set_halign(Gtk.Align.START)
         title_label.set_hexpand(True)
         self.title_row.append(title_label)
@@ -217,25 +217,40 @@ class BaseControlWidget:
         row.append(switch)
         return row, switch
 
-    def create_slider(self, label_text, min_val, max_val, step, current_val, enabled, marks, callback):
-        """Create a slider with label"""
-        row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        label = Gtk.Label(label=label_text)
-        label.set_halign(Gtk.Align.START)
+    def create_slider(self, label_text, min_val, max_val, step, current_val, enabled, marks, callback, snap_increment=None):
+        """Create a slider with optional label and snapping - single reusable function for all sliders"""
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        label = None
+        if label_text:  # Only create label if text is provided
+            label = Gtk.Label(label=label_text)
+            label.set_halign(Gtk.Align.START)
+            container.append(label)
 
         scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, min_val, max_val, step)
         scale.set_value(current_val)
         scale.set_draw_value(False)
         scale.set_sensitive(enabled)
-        scale.connect("value-changed", callback)
+
+        # Create snapping wrapper if snap_increment provided
+        if snap_increment:
+            def snapping_callback(scale):
+                value = scale.get_value()
+                snapped_value = round(value / snap_increment) * snap_increment
+                if abs(value - snapped_value) > (snap_increment * 0.01):
+                    scale.set_value(snapped_value)
+                    return
+                callback(scale)
+            scale.connect("value-changed", snapping_callback)
+        else:
+            scale.connect("value-changed", callback)
 
         # Add tick marks
         for mark_val, mark_label in marks:
             scale.add_mark(mark_val, Gtk.PositionType.BOTTOM, mark_label)
 
-        row.append(label)
-        row.append(scale)
-        return row, label, scale
+        container.append(scale)
+        return container, label, scale
 
     def debounced_save(self, save_function, delay_ms=500):
         """Debounce save operations"""
@@ -536,22 +551,13 @@ class BlueLightWidget(BaseControlWidget):
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
-        # Temperature slider (just the slider, no label)
+        # Temperature slider (using reusable function)
         temp_marks = [(i, f"{i}K") for i in range(2500, 5500, 500)]
-        slider_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-
-        self.temp_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 2500, 5000, 100)
-        self.temp_scale.set_value(bluelight_config['temperature'])
-        self.temp_scale.set_draw_value(False)
-        self.temp_scale.set_sensitive(bluelight_config['enabled'])
-        self.temp_scale.connect("value-changed", self.on_temperature_changed)
-
-        # Add tick marks
-        for mark_val, mark_label in temp_marks:
-            self.temp_scale.add_mark(mark_val, Gtk.PositionType.BOTTOM, mark_label)
-
-        slider_box.append(self.temp_scale)
-        self.controls_box.append(slider_box)
+        slider_container, _, self.temp_scale = self.create_slider(
+            "", 2500, 5000, 100, bluelight_config['temperature'],
+            bluelight_config['enabled'], temp_marks, self.on_temperature_changed
+        )
+        self.controls_box.append(slider_container)
 
     def on_toggle(self, switch, param):
         """Handle toggle switch"""
@@ -1699,6 +1705,290 @@ class PowerWidget(BaseControlWidget):
             except Exception:
                 pass  # Silently fail if powerprofilesctl is not available
 
+class BackgroundWidget(BaseControlWidget):
+    """Background management widget"""
+
+    def __init__(self, config, parent_window):
+        super().__init__(config, "Background Management", "Customize wallpapers and themes", "🎨")
+        self.parent_window = parent_window
+        self.backgrounds = []
+        self.current_index = 0
+        self.setup_controls()
+
+    def setup_controls(self):
+        """Setup background controls"""
+        # Scan available backgrounds
+        self.scan_backgrounds()
+
+        # Current background label (add to title row)
+        self.current_bg_label = Gtk.Label()
+        self.current_bg_label.set_markup(f'<span size="11000" alpha="75%">Current: {self.get_current_background_name()}</span>')
+        self.current_bg_label.set_halign(Gtk.Align.END)
+        self.title_row.append(self.current_bg_label)
+
+        # Add custom background button (add to title row)
+        add_bg_button = Gtk.Button(label="Add My Background")
+        add_bg_button.connect("clicked", self.on_add_background)
+        self.title_row.append(add_bg_button)
+
+        # Background slider (using reusable function)
+        if len(self.backgrounds) > 0:
+            # Create marks with visual distinction for user backgrounds
+            slider_marks = []
+            system_count = len([bg for bg in self.backgrounds if 'riot_' in os.path.basename(bg)])
+
+            for i in range(len(self.backgrounds)):
+                mark_text = str(i + 1)
+                if i >= system_count:  # User background
+                    mark_text = f"U{i - system_count + 1}"
+                slider_marks.append((i + 1, mark_text))
+
+            slider_container, _, self.bg_slider = self.create_slider(
+                "", 1, len(self.backgrounds), 1, self.current_index + 1, True,
+                slider_marks, self.on_background_changed, snap_increment=1
+            )
+            self.controls_box.append(slider_container)
+
+    def scan_backgrounds(self):
+        """Scan for available background images"""
+        import os
+        import glob
+
+        # System backgrounds
+        system_bg_dir = os.path.expanduser("~/.local/share/archriot/backgrounds")
+        user_bg_dir = os.path.expanduser("~/.config/archriot/backgrounds")
+
+        system_backgrounds = []
+        user_backgrounds = []
+
+        # Scan system backgrounds
+        if os.path.exists(system_bg_dir):
+            patterns = ['*.jpg', '*.jpeg', '*.png', '*.webp']
+            for pattern in patterns:
+                system_backgrounds.extend(glob.glob(os.path.join(system_bg_dir, pattern)))
+
+        # Scan user backgrounds
+        if os.path.exists(user_bg_dir):
+            patterns = ['*.jpg', '*.jpeg', '*.png', '*.webp']
+            for pattern in patterns:
+                user_backgrounds.extend(glob.glob(os.path.join(user_bg_dir, pattern)))
+
+        # Sort each group separately with natural sorting, then combine: system first, user at end
+        import re
+        def natural_sort_key(text):
+            return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', text)]
+
+        system_backgrounds.sort(key=lambda x: natural_sort_key(os.path.basename(x)))
+        user_backgrounds.sort(key=lambda x: natural_sort_key(os.path.basename(x)))
+        self.backgrounds = system_backgrounds + user_backgrounds
+
+        # Find current background index
+        current_bg_file = os.path.expanduser("~/.config/archriot/.current-background")
+        if os.path.exists(current_bg_file):
+            try:
+                with open(current_bg_file, 'r') as f:
+                    current_bg = f.read().strip()
+                if current_bg in self.backgrounds:
+                    self.current_index = self.backgrounds.index(current_bg)
+            except:
+                pass
+
+        # Save background preferences for upgrade preservation
+        self.save_background_preferences()
+
+    def get_current_background_name(self):
+        """Get the name of current background"""
+        if self.backgrounds and self.current_index < len(self.backgrounds):
+            import os
+            return os.path.basename(self.backgrounds[self.current_index])
+        return "None"
+
+    def on_background_changed(self, scale):
+        """Handle background slider change"""
+        new_index = int(scale.get_value()) - 1
+        if 0 <= new_index < len(self.backgrounds):
+            self.current_index = new_index
+            self.apply_background_change()
+
+    def on_add_background(self, button):
+        """Handle add custom background button"""
+        import os
+
+        dialog = Gtk.FileChooserDialog(
+            title="Select Background Image",
+            action=Gtk.FileChooserAction.OPEN
+        )
+        dialog.set_transient_for(self.parent_window.window)
+        dialog.set_modal(True)
+        dialog.set_size_request(800, 700)
+
+        dialog.add_buttons(
+            "_Cancel", Gtk.ResponseType.CANCEL,
+            "_Open", Gtk.ResponseType.OK
+        )
+
+        # Set default directory to Pictures
+        pictures_dir = os.path.expanduser("~/Pictures")
+        if os.path.exists(pictures_dir):
+            pictures_file = Gio.File.new_for_path(pictures_dir)
+            dialog.set_current_folder(pictures_file)
+
+        # Add image file filters
+        filter_images = Gtk.FileFilter()
+        filter_images.set_name("Image files")
+        filter_images.add_mime_type("image/jpeg")
+        filter_images.add_mime_type("image/png")
+        filter_images.add_mime_type("image/webp")
+        filter_images.add_pattern("*.jpg")
+        filter_images.add_pattern("*.jpeg")
+        filter_images.add_pattern("*.png")
+        filter_images.add_pattern("*.webp")
+        dialog.set_filter(filter_images)
+
+        dialog.connect("response", self.on_file_dialog_response)
+        dialog.present()
+
+    def on_file_dialog_response(self, dialog, response):
+        """Handle file dialog response"""
+        if response == Gtk.ResponseType.OK:
+            file = dialog.get_file()
+            if file:
+                self.add_custom_background(file.get_path())
+        dialog.destroy()
+
+    def add_custom_background(self, file_path):
+        """Add a custom background image"""
+        import os
+        import shutil
+
+        # Create user backgrounds directory
+        user_bg_dir = os.path.expanduser("~/.config/archriot/backgrounds")
+        os.makedirs(user_bg_dir, exist_ok=True)
+
+        # Get file extension
+        _, ext = os.path.splitext(file_path)
+
+        # Find next available user background number
+        existing_files = [f for f in os.listdir(user_bg_dir) if f.startswith("user_")]
+        next_num = len(existing_files) + 1
+
+        # Copy file to user backgrounds directory
+        dest_filename = f"user_{next_num:02d}{ext}"
+        dest_path = os.path.join(user_bg_dir, dest_filename)
+
+        try:
+            shutil.copy2(file_path, dest_path)
+            print(f"Added background: {dest_filename}")
+
+            # Refresh background list and update UI
+            self.refresh_backgrounds()
+
+        except Exception as e:
+            print(f"Error adding background: {e}")
+
+    def refresh_backgrounds(self):
+        """Refresh the background list and update slider"""
+        old_count = len(self.backgrounds)
+        self.scan_backgrounds()
+        new_count = len(self.backgrounds)
+
+        if new_count != old_count:
+            # Remove old slider
+            if hasattr(self, 'bg_slider') and self.bg_slider.get_parent():
+                self.controls_box.remove(self.bg_slider.get_parent())
+
+            # Create new slider with updated range (using reusable function)
+            if len(self.backgrounds) > 0:
+                # Create marks with visual distinction for user backgrounds
+                bg_marks = []
+                system_count = len([bg for bg in self.backgrounds if 'riot_' in os.path.basename(bg)])
+
+                for i in range(len(self.backgrounds)):
+                    mark_text = str(i + 1)
+                    if i >= system_count:  # User background
+                        mark_text = f"U{i - system_count + 1}"
+                    bg_marks.append((i + 1, mark_text))
+
+                slider_container, _, self.bg_slider = self.create_slider(
+                    "", 1, len(self.backgrounds), 1, self.current_index + 1, True,
+                    bg_marks, self.on_background_changed, snap_increment=1
+                )
+                self.controls_box.append(slider_container)
+
+    def apply_background_change(self):
+        """Apply the selected background"""
+        if self.backgrounds and 0 <= self.current_index < len(self.backgrounds):
+            import os
+            import subprocess
+
+            new_bg = self.backgrounds[self.current_index]
+
+            # Update current background file
+            current_bg_file = os.path.expanduser("~/.config/archriot/.current-background")
+            try:
+                os.makedirs(os.path.dirname(current_bg_file), exist_ok=True)
+                with open(current_bg_file, 'w') as f:
+                    f.write(new_bg)
+            except:
+                pass
+
+            # Apply background via swaybg (with proper process detachment like swaybg-next)
+            try:
+                subprocess.run(['pkill', '-x', 'swaybg'], check=False)
+                import time
+                time.sleep(0.5)
+                subprocess.Popen(['nohup', 'setsid', 'swaybg', '-i', new_bg, '-m', 'fill'],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                               preexec_fn=os.setsid)
+            except:
+                pass
+
+            # Update UI
+            self.current_bg_label.set_markup(f'<span size="11000" alpha="75%">Current: {os.path.basename(new_bg)}</span>')
+
+            # Save preferences after background change
+            self.save_background_preferences()
+
+    def save_background_preferences(self):
+        """Save background preferences for upgrade preservation"""
+        import json
+        import os
+
+        prefs_file = os.path.expanduser("~/.config/archriot/background-prefs.json")
+        os.makedirs(os.path.dirname(prefs_file), exist_ok=True)
+
+        current_bg = ""
+        if self.backgrounds and 0 <= self.current_index < len(self.backgrounds):
+            current_bg = os.path.basename(self.backgrounds[self.current_index])
+
+        # Get list of user background filenames
+        user_bg_dir = os.path.expanduser("~/.config/archriot/backgrounds")
+        user_backgrounds = []
+        if os.path.exists(user_bg_dir):
+            user_backgrounds = [f for f in os.listdir(user_bg_dir)
+                              if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
+
+        preferences = {
+            "current_background": current_bg,
+            "user_backgrounds": sorted(user_backgrounds),
+            "last_system_count": len([bg for bg in self.backgrounds if 'riot_' in os.path.basename(bg)])
+        }
+
+        try:
+            with open(prefs_file, 'w') as f:
+                json.dump(preferences, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save background preferences: {e}")
+
+    def mark_changes_pending(self):
+        """Mark that changes are pending"""
+        self.parent_window.has_unsaved_changes = True
+
+    def apply_changes(self):
+        """Apply any pending changes"""
+        # Background changes are applied immediately
+        pass
+
 class SecurityWidget(BaseControlWidget):
     """Security control widget"""
 
@@ -1729,7 +2019,7 @@ class ControlPanelWindow:
         # Create main window
         self.window = Gtk.Window()
         self.window.set_title("ArchRiot Control Panel")
-        self.window.set_default_size(900, 700)
+        self.window.set_default_size(1000, 800)
         self.window.set_resizable(True)
         self.window.set_modal(True)
         self.window.add_css_class("archriot-control-panel")
@@ -1746,7 +2036,7 @@ class ControlPanelWindow:
         main_box.set_margin_start(15)
         main_box.set_margin_end(15)
         main_box.set_margin_top(10)
-        main_box.set_margin_bottom(2)
+        main_box.set_margin_bottom(15)
 
         # Header
         self.add_header(main_box)
@@ -1763,18 +2053,12 @@ class ControlPanelWindow:
         """Add header with title and version info"""
         header_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
-        # Main title
+        # Main title with version
+        version = self.get_archriot_version()
         title_label = Gtk.Label()
-        title_label.set_markup('<span size="24000" weight="bold" foreground="#bb9af7">ArchRiot Control Panel</span>')
+        title_label.set_markup(f'<span size="20000" weight="bold" foreground="#bb9af7">ArchRiot <span alpha="60%">v{version}</span> Control Panel</span>')
         title_label.set_halign(Gtk.Align.CENTER)
         header_box.append(title_label)
-
-        # Version and description
-        version = self.get_archriot_version()
-        subtitle_label = Gtk.Label()
-        subtitle_label.set_markup(f'<span size="12000" alpha="75%">ArchRiot v{version} • Centralized Settings Management</span>')
-        subtitle_label.set_halign(Gtk.Align.CENTER)
-        header_box.append(subtitle_label)
 
         container.append(header_box)
 
@@ -1789,7 +2073,7 @@ class ControlPanelWindow:
         content_box.set_margin_start(20)
         content_box.set_margin_end(20)
         content_box.set_margin_top(10)
-        content_box.set_margin_bottom(2)
+        content_box.set_margin_bottom(20)
 
         # Create and add widgets
         self.pomodoro_widget = PomodoroWidget(self.config, self)
@@ -1801,8 +2085,9 @@ class ControlPanelWindow:
         self.mullvad_widget = MullvadWidget(self.config, self)
         content_box.append(self.mullvad_widget.widget)
 
-        self.audio_widget = AudioWidget(self.config, self)
-        content_box.append(self.audio_widget.widget)
+        # Audio widget removed - functionality not needed
+        # self.audio_widget = AudioWidget(self.config, self)
+        # content_box.append(self.audio_widget.widget)
 
         self.camera_widget = CameraWidget(self.config, self)
         content_box.append(self.camera_widget.widget)
@@ -1817,6 +2102,9 @@ class ControlPanelWindow:
         self.power_widget = PowerWidget(self.config, self)
         content_box.append(self.power_widget.widget)
 
+        self.background_widget = BackgroundWidget(self.config, self)
+        content_box.append(self.background_widget.widget)
+
         # TODO: Re-enable these widgets later
         # self.security_widget = SecurityWidget(self.config)
         # content_box.append(self.security_widget.widget)
@@ -1826,26 +2114,8 @@ class ControlPanelWindow:
 
     def add_footer(self, container):
         """Add footer with action buttons"""
-        footer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        footer_box.set_margin_top(5)
-        footer_box.set_margin_bottom(8)
-
-        # Spacer to center the close button
-        spacer_left = Gtk.Box()
-        spacer_left.set_hexpand(True)
-        footer_box.append(spacer_left)
-
-        # Close Control Panel button (center)
-        close_button = Gtk.Button(label="Close Control Panel")
-        close_button.connect("clicked", lambda x: self.window.close())
-        footer_box.append(close_button)
-
-        # Spacer to center the close button
-        spacer_right = Gtk.Box()
-        spacer_right.set_hexpand(True)
-        footer_box.append(spacer_right)
-
-        container.append(footer_box)
+        # Footer removed - SUPER+Q handles window closing
+        pass
 
     def apply_all_changes(self):
         """Apply all pending changes from all widgets"""
@@ -1855,8 +2125,9 @@ class ControlPanelWindow:
             self.bluelight_widget.apply_changes()
         if hasattr(self, 'mullvad_widget') and hasattr(self.mullvad_widget, 'apply_changes'):
             self.mullvad_widget.apply_changes()
-        if hasattr(self, 'audio_widget') and hasattr(self.audio_widget, 'apply_changes'):
-            self.audio_widget.apply_changes()
+        # Audio widget removed
+        # if hasattr(self, 'audio_widget') and hasattr(self.audio_widget, 'apply_changes'):
+        #     self.audio_widget.apply_changes()
         if hasattr(self, 'camera_widget') and hasattr(self.camera_widget, 'apply_changes'):
             self.camera_widget.apply_changes()
         if hasattr(self, 'display_widget') and hasattr(self.display_widget, 'apply_changes'):

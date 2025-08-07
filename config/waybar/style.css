@@ -60,7 +60,7 @@ tooltip {
 #taskbar button,
 #workspaces button {
     background-color: transparent;
-    color: #4a6b8a; /* Darker blue-gray for inactive workspaces (same as tray parentheses) */
+    color: #3a3a4a; /* Barely brighter than before for inactive workspace circles */
     box-shadow: none;
     text-shadow: none;
     border: none;
@@ -113,7 +113,7 @@ tooltip {
 }
 
 #workspaces button.urgent {
-    background-color: #eb4d4b;
+    background-color: @power_color;
     border: none;
     outline: none;
     box-shadow: none;
