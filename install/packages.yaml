@@ -465,6 +465,7 @@ system:
     backgrounds:
         commands:
             - "pkill swaybg 2>/dev/null || true"
+            - "rm -f ~/.config/archriot/backgrounds/riot_*.jpg ~/.config/archriot/backgrounds/riot_*.png 2>/dev/null || true"
             - |
                 # Restore user background if exists, otherwise use default
                 CURRENT_BG_FILE="$HOME/.config/archriot/.current-background"
