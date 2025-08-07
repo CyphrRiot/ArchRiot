@@ -103,17 +103,24 @@ class WelcomeWindow:
 
         # Create text with markup for clickable links
         text_content_parts = [
-            f"ArchRiot v{version} is based on Hyprland.\n\nHyprland is not like other window managers. You basically get no click-here-for-stuff abilities at all. \n\nI've tried to make ArchRiot as intuitive as possible, while still respecting the user and their abilities.\n\n",
-            "There's an \"A\" (Arch Logo) in the upper left that will launch an app drawer or launcher if you want it, but... within a day you'll be doing this:\n\n",
-            "SUPER+H = Help Screen\n\n",
-            "SUPER+F = Open File Browser\n",
-            "SUPER+ENTER = Open Terminal\n",
-            "SUPER+B = Open Brave Browser\n",
-            "SUPER+X = Open Twitter/X (Special Window)\n",
-            "SUPER+SPACE = Launch App Search Window\n",
-            "SUPER+Q or SUPER+W = Close/Quit Window!\n\n"
-            "Don't like the background? SUPER+CTRL+SPACE to switch between over a dozen hand-crafted backgrounds made (mostly) for ArchRiot.\n\n",
-            "I hope you enjoy using ArchRiot as much as I enjoyed putting it together."
+            f"Welcome to ArchRiot v{version}\n\n",
+            "ArchRiot is built on Hyprland, a dynamic tiling Wayland compositor. Unlike traditional desktop environments, Hyprland focuses on keyboard-driven workflows and efficient window management.\n\n",
+            "🚀 QUICK START\n\n",
+            "While you can click the Arch logo in the top-left for an app launcher, keyboard shortcuts are the heart of ArchRiot:\n\n",
+            "Essential Shortcuts:\n",
+            "• SUPER + H  →  Help Screen\n",
+            "• SUPER + C  →  Control Panel\n",
+            "• SUPER + D  →  App Launcher\n",
+            "• SUPER + F  →  File Browser\n",
+            "• SUPER + ENTER  →  Terminal\n",
+            "• SUPER + B  →  Browser\n",
+            "• SUPER + Q/W  →  Close Window\n\n",
+            "Customization:\n",
+            "• SUPER + CTRL + SPACE  →  Cycle backgrounds\n",
+            "• SUPER + C  →  Control Panel\n\n",
+            "🎯 PHILOSOPHY\n\n",
+            "ArchRiot respects your abilities while providing an intuitive experience. Everything is configurable, and you're encouraged to make it your own.\n\n",
+            "Enjoy exploring your new environment! 🏴‍☠️"
         ]
 
         # Insert text parts
