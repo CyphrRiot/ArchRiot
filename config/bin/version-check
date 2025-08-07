@@ -891,9 +891,12 @@ def main():
                         if "->" in version_info:
                             local_ver, remote_ver = version_info.split("->", 1)
                             print(f"Fast GUI launch: {local_ver} -> {remote_ver}")
-                            # Launch dialog directly with cached version info
-                            # Create special dialog that doesn't mark as notified
-                            dialog = UpdateDialog(local_ver, remote_ver)
+
+                            # Fetch commit messages for dynamic content
+                            commit_messages = checker.get_commits_between_versions(local_ver, remote_ver)
+
+                            # Launch dialog directly with cached version info AND commit messages
+                            dialog = UpdateDialog(local_ver, remote_ver, commit_messages, disable_timeout=True)
                             dialog.waybar_managed = True  # Flag to prevent auto-notification
                             Gtk.main()
                         else:

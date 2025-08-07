@@ -5,6 +5,21 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.9] - 2025-01-07
+
+### 🐛 BUG FIXES
+
+#### Upgrade GUI Message Display
+
+- **FIXED**: Upgrade dialog now properly shows git commit messages instead of DEFAULT fallback message
+- **ROOT CAUSE**: Fast GUI launch path wasn't fetching commit messages when using cached version data
+- **SOLUTION**: Added commit message fetching to both cached and fresh upgrade dialog paths
+- **IMPACT**: Users now see actual changelog information in all upgrade scenarios
+
+This resolves the issue where clicking the waybar upgrade button showed generic text instead of the detailed commit history that was intended to be displayed.
+
+---
+
 ## [2.6.8] - 2025-01-08
 
 ### 📋 ENHANCED UPGRADE GUI FORMATTING
