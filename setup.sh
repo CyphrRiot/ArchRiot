@@ -1,145 +1,133 @@
-# ArchRiot theme deep purple color
-PURPLE='\033[0;35m'
-NC='\033[0m' # No Color
+#!/bin/bash
 
-ascii_art=' █████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗ ██████╗ ████████╗
-██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██║██╔═══██╗╚══██╔══╝
-███████║██████╔╝██║     ███████║██████╔╝██║██║   ██║   ██║
-██╔══██║██╔══██╗██║     ██╔══██║██╔══██╗██║██║   ██║   ██║
-██║  ██║██║  ██║╚██████╗██║  ██║██║  ██║██║╚██████╔╝   ██║
-╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═╝   '
+# ArchRiot Setup - Bulletproof Minimal Version
+# Purpose: Download repository and run installer (nothing else!)
 
-echo -e "\n${PURPLE}$ascii_art${NC}\n"
+set -euo pipefail  # Exit on any error, undefined vars, or pipe failures
 
-# Read and display version
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Read version from VERSION file (single source of truth)
-if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
-    ARCHRIOT_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
-else
-    # Fetch version from GitHub when running via curl - WITH CACHE BUSTING
-    # CRITICAL: Never use cached content for installer scripts!
-    # CDN caching causes stale versions and prevents immediate upgrades
-    CACHE_BUSTER=$(date +%s)
-    ARCHRIOT_VERSION=$(curl -fsSL -H "Cache-Control: no-cache" -H "Pragma: no-cache" "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION?v=$CACHE_BUSTER" 2>/dev/null || echo "unknown")
-fi
+# Colors for output
+readonly PURPLE='\033[0;35m'
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly NC='\033[0m'
 
-echo -e "🎭 ArchRiot Setup - Version: $ARCHRIOT_VERSION"
-echo -e "================================================\n"
+# Constants with safety checks
+readonly HOME="${HOME:-$(getent passwd "$(whoami)" | cut -d: -f6)}"
+readonly REPO_URL="https://github.com/CyphrRiot/ArchRiot.git"
+readonly INSTALL_DIR="$HOME/.local/share/archriot"
+readonly INSTALLER_PATH="$INSTALL_DIR/install/archriot"
 
-# Check if ArchRiot is already installed with the same version
-LOCAL_VERSION=""
-if [[ -f "$HOME/.local/share/archriot/VERSION" ]]; then
-    LOCAL_VERSION=$(cat "$HOME/.local/share/archriot/VERSION" 2>/dev/null || echo "")
-fi
-
-# Compare versions and exit if they match
-if [[ -n "$LOCAL_VERSION" && "$LOCAL_VERSION" == "$ARCHRIOT_VERSION" && "$ARCHRIOT_VERSION" != "unknown" ]]; then
-    echo -e "✨ ${PURPLE}ArchRiot v$ARCHRIOT_VERSION is already installed!${NC}"
-    echo -e "📦 Your system is up to date - no upgrade needed."
-    echo -e "🔄 To force reinstall:"
-    echo -e "   rm -rf ~/.local/share/archriot && curl -fsSL https://ArchRiot.org/setup.sh | bash"
-    echo -e "🆔 To check version: cat ~/.local/share/archriot/VERSION"
-    echo -e "\nHave a great day! 🎉"
-    exit 0
-fi
-
-# Install git if missing
-pacman -Q git &>/dev/null || sudo pacman -Sy --noconfirm --needed git
-
-
-
-# Smart ArchRiot installation/update
-if [[ -d ~/.local/share/archriot/.git ]]; then
-    echo -e "\n🔄 Updating existing ArchRiot installation..."
-    cd ~/.local/share/archriot
-
-    # Backup any local changes before destructive reset
-    if ! git diff --quiet || ! git diff --cached --quiet; then
-        # Load centralized backup system
-        if [[ -f ~/.local/share/archriot/install/lib/backup-manager.sh ]]; then
-            source ~/.local/share/archriot/install/lib/backup-manager.sh
-            backup_archriot_install "Local changes detected during upgrade"
-            echo "📦 Local changes backed up to: ~/.archriot/backups/"
-        else
-            # Fallback to old method if backup system not available
-            backup_dir="$HOME/.local/share/archriot-backup-$(date +%Y%m%d-%H%M%S)"
-            cp -r ~/.local/share/archriot "$backup_dir"
-            echo "📦 Local changes backed up to: $backup_dir"
-        fi
-    fi
-
-    # Safe update with fallback to fresh clone
-    if git fetch origin && git reset --hard origin/master; then
-        echo "✓ ArchRiot updated successfully"
-    else
-        echo "⚠ Update failed, performing fresh installation..."
-        cd - >/dev/null
-        rm -rf ~/.local/share/archriot
-        git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
-            echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
-            echo "🧹 Cleaning up partial download..."
-            rm -rf ~/.local/share/archriot
-            exit 1
-        }
-
-        # Verify clone contains required files
-        if [[ ! -f ~/.local/share/archriot/install/archriot ]]; then
-            echo "❌ CRITICAL: Clone incomplete - archriot binary missing"
-            echo "   Repository may be corrupted or incomplete"
-            rm -rf ~/.local/share/archriot
-            exit 1
-        fi
-
-        echo "✓ Fresh installation completed"
-    fi
-    cd - >/dev/null
-else
-    echo -e "\n📥 Fresh ArchRiot installation..."
-    rm -rf ~/.local/share/archriot  # Remove any non-git directory
-    git clone --depth 1 https://github.com/CyphrRiot/ArchRiot.git ~/.local/share/archriot || {
-        echo "Error: Failed to clone ArchRiot repository. Check your internet connection."
-        echo "🧹 Cleaning up partial download..."
-        rm -rf ~/.local/share/archriot
-        exit 1
-    }
-
-    # Verify clone contains required files
-    if [[ ! -f ~/.local/share/archriot/install/archriot ]]; then
-        echo "❌ CRITICAL: Clone incomplete - archriot binary missing"
-        echo "   Repository may be corrupted or incomplete"
-        rm -rf ~/.local/share/archriot
-        exit 1
-    fi
-
-    echo "✓ ArchRiot cloned successfully"
-fi
-
-# Switch to custom branch if specified
-if [[ -n "$ARCHRIOT_REF" ]]; then
-    echo -e "\nUsing branch: $ARCHRIOT_REF"
-    if cd ~/.local/share/archriot &&
-       git fetch origin "${ARCHRIOT_REF}" &&
-       git checkout "${ARCHRIOT_REF}"; then
-        echo "✓ Switched to branch $ARCHRIOT_REF"
-    else
-        echo "⚠ Failed to switch to branch $ARCHRIOT_REF, using default"
-    fi
-    cd - >/dev/null
-fi
-
-# Start installation
-echo -e "\nArchRiot installation starting..."
-
-# Check if pre-built installer exists
-if [[ ! -f ~/.local/share/archriot/install/archriot ]]; then
-    echo -e "❌ Pre-built installer not found. This may be a development version."
-    echo -e "   Expected: ~/.local/share/archriot/install/archriot"
+# Error handler
+error_exit() {
+    echo -e "${RED}❌ Error: $1${NC}" >&2
     exit 1
-fi
+}
 
-# Make sure installer is executable
-chmod +x ~/.local/share/archriot/install/archriot
+# Success message
+success_msg() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
 
-echo -e "🚀 Running ArchRiot installer..."
-~/.local/share/archriot/install/archriot
+# Info message
+info_msg() {
+    echo -e "${PURPLE}🔄 $1${NC}"
+}
+
+# Verify prerequisites
+check_prerequisites() {
+    info_msg "Checking prerequisites..."
+
+    # Verify we have a home directory
+    [[ -n "$HOME" && -d "$HOME" ]] || error_exit "No valid home directory found"
+
+    # Check if we have git
+    if ! command -v git >/dev/null 2>&1; then
+        info_msg "Installing git..."
+
+        # Check for package manager and sudo
+        command -v pacman >/dev/null 2>&1 || error_exit "pacman not found - are you on Arch Linux?"
+        command -v sudo >/dev/null 2>&1 || error_exit "sudo not found - please install git manually"
+
+        sudo pacman -Sy --noconfirm --needed git || error_exit "Failed to install git"
+    fi
+
+    # Test git functionality with actual repository
+    if ! git ls-remote --exit-code --heads "$REPO_URL" >/dev/null 2>&1; then
+        error_exit "Cannot connect to ArchRiot repository - check network connection"
+    fi
+
+    success_msg "Prerequisites verified"
+}
+
+# Download or update repository
+setup_repository() {
+    info_msg "Setting up ArchRiot repository..."
+
+    if [[ -d "$INSTALL_DIR/.git" ]]; then
+        info_msg "Updating existing installation..."
+
+        # Safely update in subshell to avoid directory issues
+        (
+            cd "$INSTALL_DIR" || error_exit "Cannot access $INSTALL_DIR"
+            git fetch origin || error_exit "Failed to fetch updates"
+            git reset --hard origin/master || error_exit "Failed to update repository"
+        )
+
+        success_msg "Repository updated"
+    else
+        info_msg "Fresh installation..."
+
+        # Remove any non-git directory and create parent
+        [[ -d "$INSTALL_DIR" ]] && rm -rf "$INSTALL_DIR"
+        mkdir -p "$(dirname "$INSTALL_DIR")" || error_exit "Cannot create directory structure"
+
+        # Clone repository
+        git clone --depth 1 "$REPO_URL" "$INSTALL_DIR" || error_exit "Failed to clone repository"
+
+        success_msg "Repository cloned"
+    fi
+}
+
+# Verify installer
+verify_installer() {
+    info_msg "Verifying installer..."
+
+    [[ -f "$INSTALLER_PATH" ]] || error_exit "Installer binary not found at $INSTALLER_PATH"
+    [[ -x "$INSTALLER_PATH" ]] || error_exit "Installer binary is not executable"
+
+    # Test installer responds
+    "$INSTALLER_PATH" --version >/dev/null 2>&1 || error_exit "Installer binary failed basic test"
+
+    success_msg "Installer verified"
+}
+
+# Main execution
+main() {
+    echo -e "${PURPLE}"
+    echo ' █████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗ ██████╗ ████████╗'
+    echo '██╔══██╗██╔══██╗██╔════╝██║  ██║██╔══██╗██║██╔═══██╗╚══██╔══╝'
+    echo '███████║██████╔╝██║     ███████║██████╔╝██║██║   ██║   ██║   '
+    echo '██╔══██║██╔══██╗██║     ██╔══██║██╔══██╗██║██║   ██║   ██║   '
+    echo '██║  ██║██║  ██║╚██████╗██║  ██║██║  ██║██║╚██████╔╝   ██║   '
+    echo '╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═╝   '
+    echo -e "${NC}"
+    echo
+    echo -e "${PURPLE}🎭 ArchRiot Setup${NC}"
+    echo -e "${PURPLE}=====================${NC}"
+    echo
+
+    # Execute setup steps
+    check_prerequisites
+    setup_repository
+    verify_installer
+
+    echo
+    info_msg "Starting ArchRiot installer..."
+    echo
+
+    # Hand off to the real installer
+    exec "$INSTALLER_PATH"
+}
+
+# Run main function
+main "$@"

@@ -1706,10 +1706,10 @@ class PowerWidget(BaseControlWidget):
                 pass  # Silently fail if powerprofilesctl is not available
 
 class BackgroundWidget(BaseControlWidget):
-    """Background management widget"""
+    """Wallpaper management widget"""
 
     def __init__(self, config, parent_window):
-        super().__init__(config, "Background Management", "Customize wallpapers and themes", "🎨")
+        super().__init__(config, "Wallpaper Management", "Customize wallpapers and themes", "🎨")
         self.parent_window = parent_window
         self.backgrounds = []
         self.current_index = 0
@@ -1727,7 +1727,7 @@ class BackgroundWidget(BaseControlWidget):
         self.title_row.append(self.current_bg_label)
 
         # Add custom background button (add to title row)
-        add_bg_button = Gtk.Button(label="Add My Background")
+        add_bg_button = Gtk.Button(label="Add My Wallpaper")
         add_bg_button.connect("clicked", self.on_add_background)
         self.title_row.append(add_bg_button)
 

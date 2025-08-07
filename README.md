@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.6.12-4c1d95)
+![Version](https://img.shields.io/badge/version-2.6.13-4c1d95)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
@@ -233,7 +233,7 @@ The result: **100% reliable installations** with **complete system state managem
 | `SUPER + SHIFT + F` | Full screen screenshot                    |
 | `Kooha`             | GUI screen recorder (launch from SUPER+D) |
 
-### Background Management
+### Wallpaper Management
 
 | Keybinding             | Action                              |
 | ---------------------- | ----------------------------------- |
@@ -245,7 +245,7 @@ The result: **100% reliable installations** with **complete system state managem
 - System backgrounds (1-20) and user backgrounds (U1, U2, etc.) clearly labeled
 - Background changes apply immediately and persist across reboots
 
-**Custom Background Management:**
+**Custom Wallpaper Management:**
 
 ```bash
 # Add custom backgrounds via Control Panel file chooser
@@ -541,7 +541,7 @@ There is one theme: **CypherRiot**, a beautiful Neo Tokyo Dark inspired theme. I
 - **Lock Screen:** Beautiful hyprlock with CypherRiot theme and system status
 - **Applications:** Unified theming across GTK, terminal, and desktop applications
 
-### Background Management
+### Wallpaper Management
 
 - **Instant application:** Background changes apply immediately
 - **Persistent settings:** Background preferences survive reboots and updates
