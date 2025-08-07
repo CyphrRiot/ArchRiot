@@ -97,8 +97,8 @@ start_mullvad_gui() {
 
 # Main execution
 main() {
-    # Small delay to ensure desktop environment is ready
-    sleep 3
+    # Wait longer for desktop environment and system tray to be ready
+    sleep 10
 
     log_message "=== Mullvad GUI Startup Check ==="
 
