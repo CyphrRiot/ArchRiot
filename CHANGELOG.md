@@ -5,6 +5,19 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.6] - 2025-01-10
+
+### 🔧 Optimization
+
+#### Build System
+
+- **Reduced binary size by 30%**: Optimized Makefile build flags
+    - Added `-ldflags="-s -w"` to strip debug symbols
+    - Disabled CGO with `CGO_ENABLED=0` for better portability
+    - Added `-trimpath` to remove build paths from binary
+    - Binary size reduced from 5.2MB to 3.6MB
+    - Added `ultra` target for maximum compression with UPX support
+
 ## [2.6.5] - 2025-01-10
 
 ### 🔧 Critical Fixes

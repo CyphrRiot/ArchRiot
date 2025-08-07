@@ -12,10 +12,10 @@ BUILD_DIR = $(SOURCE_DIR)
 # Default target
 all: build
 
-# Build the installer
+# Build the installer (with optimizations by default)
 build:
 	@echo "🔨 Building ArchRiot installer..."
-	@cd $(SOURCE_DIR) && go build -o $(BINARY_NAME) .
+	@cd $(SOURCE_DIR) && CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o $(BINARY_NAME) .
 	@mv $(SOURCE_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
 	@chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
 	@echo "✅ Build complete: $(INSTALL_DIR)/$(BINARY_NAME)"
@@ -52,10 +52,23 @@ dev:
 	@chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
 	@echo "✅ Development build complete"
 
+# Ultra-optimized build (maximum compression)
+ultra:
+	@echo "🎯 Building ultra-optimized version..."
+	@cd $(SOURCE_DIR) && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+		-ldflags="-s -w -extldflags '-static'" \
+		-trimpath \
+		-o $(BINARY_NAME) .
+	@mv $(SOURCE_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
+	@chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
+	@echo "📦 Compressing with UPX (if available)..."
+	@which upx > /dev/null 2>&1 && upx --best --lzma $(INSTALL_DIR)/$(BINARY_NAME) || echo "⚠️  UPX not found, skipping compression"
+	@echo "✅ Ultra-optimized build complete"
+
 # Release build (optimized)
 release:
 	@echo "🎯 Building release version..."
-	@cd $(SOURCE_DIR) && go build -ldflags="-s -w" -o $(BINARY_NAME) .
+	@cd $(SOURCE_DIR) && CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -o $(BINARY_NAME) .
 	@mv $(SOURCE_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
 	@chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
 	@echo "✅ Release build complete"
@@ -73,6 +86,7 @@ help:
 	@echo "  verify    - Build and verify installer works"
 	@echo "  dev       - Fast development build"
 	@echo "  release   - Optimized release build"
+	@echo "  ultra     - Maximum optimization with UPX compression"
 	@echo "  help      - Show this help message"
 	@echo ""
 	@echo "Example usage:"
