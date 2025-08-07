@@ -8,13 +8,129 @@ import urllib.request
 import urllib.error
 from datetime import datetime, timezone
 import re
-import os
+import textwrap
 
 # GTK imports for direct dialog integration
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, Pango
+
+# Shared utility functions
+def load_css_styling(config_dir):
+    """Load CSS styling from file or return default embedded styles"""
+    default_css = """
+        * {
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        window {
+            background: rgba(0, 0, 0, 0.7);
+            color: #cdd6f4;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        label {
+            color: #cdd6f4;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        textview {
+            background: rgba(0, 0, 0, 0.7);
+            color: #cdd6f4;
+            border: none;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        textview text {
+            background: rgba(0, 0, 0, 0.7);
+            color: #cdd6f4;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        button {
+            background: rgba(75, 0, 130, 1.0);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: bold;
+            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        }
+
+        button:hover {
+            background: rgba(102, 51, 153, 1.0);
+        }
+
+        scrolledwindow {
+            border: none;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        """
+
+    # Try to load from external file first
+    if config_dir:
+        css_file = os.path.join(config_dir, 'dialog-style.css')
+        try:
+            if os.path.exists(css_file):
+                with open(css_file, 'r') as f:
+                    custom_css = f.read()
+                    log_with_timestamp(f"Loaded custom CSS from {css_file}", "INFO", config_dir)
+                    return custom_css
+        except Exception as e:
+            log_with_timestamp(f"Error loading custom CSS file: {e}, using default", "WARNING", config_dir)
+
+    return default_css
+
+def log_with_timestamp(message, level="INFO", config_dir=None):
+    """Log message with timestamp and optional file logging"""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_message = f"[{timestamp}] {level}: {message}"
+    print(log_message)
+
+    # Also log to file for persistent debugging if config_dir is provided
+    if config_dir:
+        try:
+            log_dir = os.path.join(config_dir, 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            log_file = os.path.join(log_dir, 'version-check.log')
+            with open(log_file, 'a') as f:
+                f.write(log_message + '\n')
+        except Exception:
+            pass  # Don't let logging errors break the application
+
+def load_config(config_file):
+    """Load version check configuration"""
+    default_config = {
+        "ignore_notifications": False,
+        "last_check": None,
+        "last_notified_version": None,
+        "check_interval_hours": 4
+    }
+
+    if not os.path.exists(config_file):
+        return default_config
+
+    try:
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+            # Merge with defaults to handle missing keys
+            for key, value in default_config.items():
+                if key not in config:
+                    config[key] = value
+            return config
+    except Exception as e:
+        log_with_timestamp(f"Error loading config: {e}", "ERROR")
+        return default_config
+
+def save_config(config_file, config_dir, config):
+    """Save version check configuration"""
+    try:
+        os.makedirs(config_dir, exist_ok=True)
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=2)
+    except Exception as e:
+        log_with_timestamp(f"Error saving config: {e}", "ERROR")
 
 class UpdateDialog:
     def __init__(self, local_version, remote_version, commit_messages=None, disable_timeout=False):
@@ -29,8 +145,10 @@ class UpdateDialog:
         self.user_interacted = False  # Track if user actually interacted with dialog
         self.dialog_timeout_id = None  # Track timeout for visibility check
 
-        # Create lock file
-        self.create_lock_file()
+        # Create lock file - exit if another instance is running
+        if not self.create_lock_file():
+            print("Another version check dialog is already running. Exiting.")
+            sys.exit(0)
 
         self.window = Gtk.Window()
         self.window.set_title("ArchRiot Update Available")
@@ -87,22 +205,42 @@ class UpdateDialog:
             self.log_dialog_state("Timeout disabled for explicit GUI mode")
 
     def create_lock_file(self):
-        """Create lock file with PID and cleanup handling"""
+        """Create lock file with PID and cleanup handling using atomic operations"""
         try:
-            # Clean up stale lock files
+            # Clean up stale lock files first
             if os.path.exists(self.lock_file):
-                with open(self.lock_file, 'r') as f:
-                    old_pid = f.read().strip()
+                try:
+                    with open(self.lock_file, 'r') as f:
+                        old_pid = f.read().strip()
 
-                if not os.path.exists(f"/proc/{old_pid}"):
-                    os.remove(self.lock_file)
+                    # Check if the process is still running
+                    if old_pid.isdigit() and not os.path.exists(f"/proc/{old_pid}"):
+                        os.remove(self.lock_file)
+                    elif os.path.exists(f"/proc/{old_pid}"):
+                        print(f"Another instance is already running (PID: {old_pid})")
+                        return False
+                except (ValueError, OSError):
+                    # If we can't read the PID or it's invalid, remove the stale lock
+                    try:
+                        os.remove(self.lock_file)
+                    except OSError:
+                        pass
 
-            # Create new lock file
-            with open(self.lock_file, 'w') as f:
-                f.write(str(os.getpid()))
+            # Try to create lock file atomically using exclusive creation
+            try:
+                # Use os.open with O_CREAT|O_EXCL for atomic creation
+                import fcntl
+                fd = os.open(self.lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+                with os.fdopen(fd, 'w') as f:
+                    f.write(str(os.getpid()))
+                return True
+            except FileExistsError:
+                print("Another instance is already running (lock file exists)")
+                return False
 
         except Exception as e:
-            print(f"Warning: Could not create lock file: {e}")
+            log_with_timestamp(f"Could not create lock file: {e}", "WARNING", self.config_dir)
+            return False
 
     def cleanup_lock_file(self):
         """Clean up lock file on exit"""
@@ -123,7 +261,7 @@ class UpdateDialog:
             if os.path.exists(update_state_file):
                 os.remove(update_state_file)
         except Exception as e:
-            print(f"Warning: Could not clear waybar state: {e}")
+            log_with_timestamp(f"Could not clear waybar state: {e}", "WARNING", self.config_dir)
 
     def add_title(self, container):
         """Add main title"""
@@ -151,7 +289,7 @@ class UpdateDialog:
 
         # Build dynamic content based on commit messages
         if self.commit_messages:
-            # Format commit messages with proper hanging indentation
+            # Format commit messages using textwrap for proper handling
             formatted_messages = []
             for msg in self.commit_messages[:8]:
                 # Handle multi-line commit messages properly
@@ -160,37 +298,18 @@ class UpdateDialog:
 
                 for i, line in enumerate(msg_lines):
                     if i == 0:
-                        # First line gets bullet point
-                        if len(line) > 50:
-                            words = line.split()
-                            lines = []
-                            current_line = "• " + words[0]
-                            for word in words[1:]:
-                                if len(current_line + " " + word) <= 50:
-                                    current_line += " " + word
-                                else:
-                                    lines.append(current_line)
-                                    current_line = "  " + word  # 2 spaces for hanging indent
-                            lines.append(current_line)
-                            formatted_msg_lines.extend(lines)
-                        else:
-                            formatted_msg_lines.append(f"• {line}")
+                        # First line gets bullet point with hanging indent
+                        wrapped = textwrap.fill(f"• {line}", width=50,
+                                              subsequent_indent="  ")
+                        formatted_msg_lines.append(wrapped)
                     else:
-                        # Subsequent lines get hanging indent with word wrapping
-                        if len(line) > 44:  # Account for 6-space indent
-                            words = line.split()
-                            lines = []
-                            current_line = "  " + words[0]
-                            for word in words[1:]:
-                                if len(current_line + " " + word) <= 50:
-                                    current_line += " " + word
-                                else:
-                                    lines.append(current_line)
-                                    current_line = "  " + word  # 2 spaces for hanging indent
-                            lines.append(current_line)
-                            formatted_msg_lines.extend(lines)
+                        # Subsequent lines get hanging indent
+                        if line.strip():  # Only wrap non-empty lines
+                            wrapped = textwrap.fill(f"  {line}", width=50,
+                                                  subsequent_indent="  ")
+                            formatted_msg_lines.append(wrapped)
                         else:
-                            formatted_msg_lines.append(f"  {line}")
+                            formatted_msg_lines.append("  ")
 
                 formatted_messages.append("\n".join(formatted_msg_lines))
 
@@ -309,7 +428,7 @@ Choose an option below to proceed."""
             GLib.timeout_add_seconds(2, lambda: (self.cleanup_lock_file(), Gtk.main_quit()))
 
         except Exception as e:
-            print(f"Error launching update: {e}")
+            log_with_timestamp(f"Error launching update: {e}", "ERROR", self.config_dir)
 
     def on_ignore_clicked(self, button):
         """Handle ignore notifications button click"""
@@ -340,7 +459,7 @@ Choose an option below to proceed."""
             Gtk.main_quit()
 
         except Exception as e:
-            print(f"Error ignoring notifications: {e}")
+            log_with_timestamp(f"Error ignoring notifications: {e}", "ERROR", self.config_dir)
 
     def on_close_clicked(self, button):
         """Handle close button click"""
@@ -385,7 +504,7 @@ Choose an option below to proceed."""
                 ], check=False)
                 print("Fallback notification sent")
             except Exception as e:
-                print(f"Failed to send fallback notification: {e}")
+                log_with_timestamp(f"Failed to send fallback notification: {e}", "WARNING", self.config_dir)
 
             # Close the invisible dialog
             self.cleanup_lock_file()
@@ -413,88 +532,16 @@ Choose an option below to proceed."""
 
     def load_config(self):
         """Load version check configuration"""
-        default_config = {
-            "ignore_notifications": False,
-            "last_check": None,
-            "last_notified_version": None,
-            "check_interval_hours": 4
-        }
-
-        if not os.path.exists(self.config_file):
-            return default_config
-
-        try:
-            with open(self.config_file, 'r') as f:
-                config = json.load(f)
-                for key, value in default_config.items():
-                    if key not in config:
-                        config[key] = value
-                return config
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            return default_config
+        return load_config(self.config_file)
 
     def save_config(self, config):
         """Save version check configuration"""
-        try:
-            os.makedirs(self.config_dir, exist_ok=True)
-            with open(self.config_file, 'w') as f:
-                json.dump(config, f, indent=2)
-        except Exception as e:
-            print(f"Error saving config: {e}")
+        save_config(self.config_file, self.config_dir, config)
 
     def setup_styling(self):
-        """Set up CSS styling to match original dialog"""
+        """Set up CSS styling from external file or embedded default"""
         css_provider = Gtk.CssProvider()
-        css_data = """
-        * {
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
-        }
-
-        window {
-            background: rgba(0, 0, 0, 0.7);
-            color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
-        }
-
-        label {
-            color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
-        }
-
-        textview {
-            background: rgba(0, 0, 0, 0.7);
-            color: #cdd6f4;
-            border: none;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
-        }
-
-        textview text {
-            background: rgba(0, 0, 0, 0.7);
-            color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
-        }
-
-        button {
-            background: rgba(75, 0, 130, 1.0);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-weight: bold;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
-        }
-
-        button:hover {
-            background: rgba(102, 51, 153, 1.0);
-        }
-
-        scrolledwindow {
-            border: none;
-            background: rgba(0, 0, 0, 0.7);
-        }
-        """
-
+        css_data = load_css_styling(self.config_dir)
         css_provider.load_from_data(css_data.encode())
 
         # Apply CSS to default screen
@@ -511,36 +558,11 @@ class VersionChecker:
 
     def load_config(self):
         """Load version check configuration"""
-        default_config = {
-            "ignore_notifications": False,
-            "last_check": None,
-            "last_notified_version": None,
-            "check_interval_hours": 4
-        }
-
-        if not os.path.exists(self.config_file):
-            return default_config
-
-        try:
-            with open(self.config_file, 'r') as f:
-                config = json.load(f)
-                # Merge with defaults to handle missing keys
-                for key, value in default_config.items():
-                    if key not in config:
-                        config[key] = value
-                return config
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            return default_config
+        return load_config(self.config_file)
 
     def save_config(self, config):
         """Save version check configuration"""
-        try:
-            os.makedirs(self.config_dir, exist_ok=True)
-            with open(self.config_file, 'w') as f:
-                json.dump(config, f, indent=2)
-        except Exception as e:
-            print(f"Error saving config: {e}")
+        save_config(self.config_file, self.config_dir, config)
 
     def get_local_version(self):
         """Read local ArchRiot version from VERSION file"""
@@ -549,7 +571,7 @@ class VersionChecker:
                 version = f.read().strip()
                 return version
         except Exception as e:
-            print(f"Error reading local version: {e}")
+            log_with_timestamp(f"Error reading local version: {e}", "ERROR")
             return None
 
     def get_remote_version(self):
@@ -581,7 +603,7 @@ class VersionChecker:
                 return version
 
         except Exception as e:
-            print(f"Fallback GitHub API failed: {e}")
+            log_with_timestamp(f"Fallback GitHub API failed: {e}", "WARNING")
             return None
 
     def parse_version(self, version_str):
@@ -589,16 +611,35 @@ class VersionChecker:
         if not version_str:
             return (0, 0, 0)
 
-        # Remove any non-digit/dot characters and extract version parts
-        clean_version = re.sub(r'[^0-9.]', '', version_str)
+        # Handle common version prefixes (v1.2.3, version-1.2.3, etc.)
+        version_str = version_str.strip()
+        if version_str.lower().startswith('v'):
+            version_str = version_str[1:]
+        elif version_str.lower().startswith('version'):
+            version_str = version_str[7:].lstrip('-_')
+
+        # Extract the numeric part before any non-numeric suffix (e.g., "1.2.3-beta" -> "1.2.3")
+        version_match = re.match(r'^(\d+(?:\.\d+)*)', version_str)
+        if not version_match:
+            print(f"Warning: Could not parse version string '{version_str}', using (0, 0, 0)")
+            return (0, 0, 0)
+
+        clean_version = version_match.group(1)
         parts = clean_version.split('.')
 
         try:
-            # Pad with zeros if needed and convert to integers
-            while len(parts) < 3:
-                parts.append('0')
-            return tuple(int(part) for part in parts[:3])
-        except ValueError:
+            # Convert to integers, filtering out any empty parts
+            int_parts = []
+            for part in parts:
+                if part:  # Skip empty parts from consecutive dots
+                    int_parts.append(int(part))
+
+            # Pad with zeros if needed and take first 3 parts
+            while len(int_parts) < 3:
+                int_parts.append(0)
+            return tuple(int_parts[:3])
+        except ValueError as e:
+            print(f"Warning: Error parsing version '{version_str}': {e}, using (0, 0, 0)")
             return (0, 0, 0)
 
     def is_newer_version(self, local_version, remote_version):
@@ -674,7 +715,7 @@ class VersionChecker:
             print(f"Version tag comparison failed ({e}), trying recent commits fallback")
 
         except Exception as e:
-            print(f"Error fetching version commits: {e}")
+            log_with_timestamp(f"Error fetching version commits: {e}", "WARNING")
 
         # Fallback: Get recent commits from master branch
         try:
@@ -708,7 +749,7 @@ class VersionChecker:
                 return commit_messages[:8]  # Limit to 8 recent commits
 
         except Exception as e:
-            print(f"Fallback commit fetch failed: {e}")
+            log_with_timestamp(f"Fallback commit fetch failed: {e}", "WARNING")
             return []
 
     def launch_update_dialog(self, local_version, remote_version):
@@ -758,7 +799,7 @@ class VersionChecker:
                 return False
 
         except Exception as e:
-            print(f"Error launching update dialog: {e}")
+            log_with_timestamp(f"Error launching update dialog: {e}", "ERROR")
             return False
 
 
@@ -818,7 +859,7 @@ class VersionChecker:
                         print(f"Update flag created: {local_version} -> {remote_version}")
                         # Don't mark as notified - let user click the waybar icon
                     except Exception as e:
-                        print(f"Failed to create update flag: {e}")
+                        log_with_timestamp(f"Failed to create update flag: {e}", "ERROR")
                 else:
                     print("Running interactively - launching GUI notification...")
                     success = self.launch_update_dialog(local_version, remote_version)
@@ -878,7 +919,7 @@ def main():
                 else:
                     print("No update flag to clear")
             except Exception as e:
-                print(f"Failed to clear update flag: {e}")
+                log_with_timestamp(f"Failed to clear update flag: {e}", "ERROR")
         elif sys.argv[1] == "--gui":
             # Fast GUI launch using cached data from waybar flag file
             update_flag_file = os.path.join(checker.config_dir, 'update_available')
@@ -932,7 +973,7 @@ def main():
                     else:
                         print("No updates available")
             except Exception as e:
-                print(f"Error launching GUI: {e}")
+                log_with_timestamp(f"Error launching GUI: {e}", "ERROR")
         else:
             print("Usage: version-check [--force|--test|--reset|--reset-notifications|--clear-flag|--gui]")
             sys.exit(1)
