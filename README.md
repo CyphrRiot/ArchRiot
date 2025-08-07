@@ -13,7 +13,7 @@
 ![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logo=wayland&logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
 ![Language](https://img.shields.io/badge/language-Go-00ADD8)
-![Language](https://img.shields.io/badge/language-YAML-CB171E)
+![Language](https://img.shields.io/badge/language-YAML-4338ca)
 ![Language](https://img.shields.io/badge/language-Python-313244)
 
 [![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
