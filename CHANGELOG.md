@@ -5,6 +5,33 @@ All notable changes to ArchRiot will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.8] - 2025-01-08
+
+### 📋 ENHANCED UPGRADE GUI FORMATTING
+
+#### Multi-Line Commit Message Display
+
+- **ENHANCED**: Upgrade GUI now shows first 2-3 lines of commit messages instead of just titles
+- **IMPROVED**: Proper line breaks and spacing between commit entries for better readability
+- **REFINED**: Minimal left margin usage with hanging indentation for wrapped text
+- **OPTIMIZED**: Scrollable content area handles longer commit descriptions gracefully
+
+#### User Experience Improvements
+
+- **DETAILED**: Users now see comprehensive commit information including:
+    - Full commit titles with version numbers
+    - Key feature descriptions and fixes
+    - Critical technical details about changes
+- **READABLE**: Clean formatting with proper spacing between each commit entry
+- **INFORMATIVE**: No more guessing what's in an update - full context provided
+
+#### Technical Implementation
+
+- **SMART**: Automatic line wrapping with proper hanging indentation
+- **EFFICIENT**: Preserves original commit message formatting and structure
+- **RESPONSIVE**: Content adapts to dialog width while maintaining readability
+- **SCALABLE**: Handles both short and long commit messages elegantly
+
 ## [2.6.7] - 2025-01-08
 
 ### 🔧 CRITICAL FIX: Graphics Configuration Installation

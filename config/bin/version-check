@@ -154,23 +154,47 @@ class UpdateDialog:
             # Format commit messages with proper hanging indentation
             formatted_messages = []
             for msg in self.commit_messages[:8]:
-                # Split long messages and add hanging indent for continuation lines
-                if len(msg) > 50:
-                    words = msg.split()
-                    lines = []
-                    current_line = "    • " + words[0]
-                    for word in words[1:]:
-                        if len(current_line + " " + word) <= 50:
-                            current_line += " " + word
-                        else:
-                            lines.append(current_line)
-                            current_line = "      " + word  # 6 spaces for hanging indent
-                    lines.append(current_line)
-                    formatted_messages.append("\n".join(lines))
-                else:
-                    formatted_messages.append(f"    • {msg}")
+                # Handle multi-line commit messages properly
+                msg_lines = msg.split('\n')
+                formatted_msg_lines = []
 
-            changes_text = "\n".join(formatted_messages)
+                for i, line in enumerate(msg_lines):
+                    if i == 0:
+                        # First line gets bullet point
+                        if len(line) > 50:
+                            words = line.split()
+                            lines = []
+                            current_line = "• " + words[0]
+                            for word in words[1:]:
+                                if len(current_line + " " + word) <= 50:
+                                    current_line += " " + word
+                                else:
+                                    lines.append(current_line)
+                                    current_line = "  " + word  # 2 spaces for hanging indent
+                            lines.append(current_line)
+                            formatted_msg_lines.extend(lines)
+                        else:
+                            formatted_msg_lines.append(f"• {line}")
+                    else:
+                        # Subsequent lines get hanging indent with word wrapping
+                        if len(line) > 44:  # Account for 6-space indent
+                            words = line.split()
+                            lines = []
+                            current_line = "  " + words[0]
+                            for word in words[1:]:
+                                if len(current_line + " " + word) <= 50:
+                                    current_line += " " + word
+                                else:
+                                    lines.append(current_line)
+                                    current_line = "  " + word  # 2 spaces for hanging indent
+                            lines.append(current_line)
+                            formatted_msg_lines.extend(lines)
+                        else:
+                            formatted_msg_lines.append(f"  {line}")
+
+                formatted_messages.append("\n".join(formatted_msg_lines))
+
+            changes_text = "\n\n".join(formatted_messages)
             instructions_text = f"""Recent Changes:
 {changes_text}
 
@@ -630,10 +654,19 @@ class VersionChecker:
                 for commit in commits:
                     message = commit.get('commit', {}).get('message', '').strip()
                     if message:
-                        # Take only the first line (title) of commit message
-                        title = message.split('\n')[0].strip()
-                        if title and not title.startswith('Merge'):  # Skip merge commits
-                            commit_messages.append(title)
+                        # Take first 2-3 lines of commit message for more detail
+                        lines = message.split('\n')
+                        # Get title and first few non-empty lines
+                        display_lines = []
+                        for line in lines[:4]:  # Max 4 lines to check
+                            clean_line = line.strip()
+                            if clean_line and len(display_lines) < 3:  # Max 3 lines to show
+                                display_lines.append(clean_line)
+
+                        if display_lines and not display_lines[0].startswith('Merge'):  # Skip merge commits
+                            # Join lines with newlines to preserve formatting
+                            formatted_message = '\n'.join(display_lines)
+                            commit_messages.append(formatted_message)
 
                 return commit_messages[:10]  # Limit to 10 most recent commits
 
@@ -657,10 +690,19 @@ class VersionChecker:
                 for commit in commits:
                     message = commit.get('commit', {}).get('message', '').strip()
                     if message:
-                        # Take only the first line (title) of commit message
-                        title = message.split('\n')[0].strip()
-                        if title and not title.startswith('Merge'):  # Skip merge commits
-                            commit_messages.append(title)
+                        # Take first 2-3 lines of commit message for more detail
+                        lines = message.split('\n')
+                        # Get title and first few non-empty lines
+                        display_lines = []
+                        for line in lines[:4]:  # Max 4 lines to check
+                            clean_line = line.strip()
+                            if clean_line and len(display_lines) < 3:  # Max 3 lines to show
+                                display_lines.append(clean_line)
+
+                        if display_lines and not display_lines[0].startswith('Merge'):  # Skip merge commits
+                            # Join lines with newlines to preserve formatting
+                            formatted_message = '\n'.join(display_lines)
+                            commit_messages.append(formatted_message)
 
                 print(f"Fallback: fetched {len(commit_messages)} recent commits")
                 return commit_messages[:8]  # Limit to 8 recent commits
