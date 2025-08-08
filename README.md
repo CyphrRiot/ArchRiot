@@ -80,9 +80,42 @@ git log --grep="CRITICAL" --oneline
 git log --grep="FIX" --oneline
 ```
 
-## 🚀 Installation
+## 🚀 Installation Options
 
-### Prerequisites: Fresh Arch Linux Setup
+Choose your installation method based on your needs:
+
+### 🔥 Option 1: ArchRiot ISO (Recommended for Fresh Systems)
+
+**Download the complete ArchRiot ISO with everything pre-configured:**
+
+📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
+
+🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
+
+![ArchRiot Installation Demo](config/images/riot_install.gif)
+
+**Features:**
+
+- ✅ **Complete Arch Linux system** with ArchRiot pre-installed
+- ✅ **No setup required** - boots directly to ArchRiot desktop
+- ✅ **Hyprland, Waybar, themes** all configured out of the box
+- ✅ **Perfect for fresh installations** or virtual machines
+- ✅ **Latest packages** and security updates included
+
+**Installation:**
+
+1. Flash ISO to USB drive or load in VM
+2. Boot from USB/ISO
+3. Follow standard Arch installation process
+4. Reboot into your fully configured ArchRiot system!
+
+---
+
+### ⚡ Option 2: Install on Existing Arch-Based System
+
+**For users who already have Arch Linux, CachyOS, Manjaro, or other Arch-based distributions:**
+
+#### Prerequisites: Existing Arch-Based System
 
 Download the [Arch Linux ISO](https://archlinux.org/download), put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick. You can also use [Ventoy](https://www.ventoy.net/en/index.html) which is quite simple compared to other options.
 
@@ -133,7 +166,7 @@ echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
-### Method 1: One-Line Install or Upgrade (Recommended for Most Users)
+#### One-Line Install or Upgrade (Recommended)
 
 ```bash
 curl -fsSL https://ArchRiot.org/setup.sh | bash
