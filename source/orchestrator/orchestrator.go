@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"math"
+
 	tea "github.com/charmbracelet/bubbletea"
 
 	"archriot-installer/config"
@@ -19,8 +20,6 @@ var Program *tea.Program
 func SetProgram(p *tea.Program) {
 	Program = p
 }
-
-
 
 // countTotalModules counts all modules across all categories
 func countTotalModules(cfg *config.Config) int {
@@ -62,6 +61,7 @@ func RunInstallation() {
 	if err := installer.SyncPackageDatabases(); err != nil {
 		logger.Log("Error", "Database", "Database Sync", "Failed: "+err.Error())
 		logger.Log("Info", "System", "Manual Fix", "Please run 'sudo pacman -Sy' manually and try again")
+		Program.Send(tui.FailureMsg{Error: "Failed to sync package databases: " + err.Error()})
 		return
 	}
 
@@ -72,6 +72,7 @@ func RunInstallation() {
 	configPath := config.FindConfigFile()
 	if configPath == "" {
 		logger.Log("Error", "File", "Config", "packages.yaml not found")
+		Program.Send(tui.FailureMsg{Error: "Configuration file packages.yaml not found"})
 		return
 	}
 
@@ -81,6 +82,7 @@ func RunInstallation() {
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		logger.Log("Error", "File", "Config Load", "Failed: "+err.Error())
+		Program.Send(tui.FailureMsg{Error: "Failed to load configuration: " + err.Error()})
 		return
 	}
 
@@ -90,6 +92,7 @@ func RunInstallation() {
 	logger.Log("Progress", "File", "YAML Validation", "Validating configuration...")
 	if err := config.ValidateConfig(cfg); err != nil {
 		logger.Log("Error", "File", "YAML Validation", "Failed: "+err.Error())
+		Program.Send(tui.FailureMsg{Error: "Configuration validation failed: " + err.Error()})
 		return
 	}
 	logger.Log("Success", "File", "YAML Validation", "Configuration validated")
@@ -113,6 +116,7 @@ func RunInstallation() {
 	// Execute modules in proper order with progress tracking
 	if err := executor.ExecuteModulesInOrderWithProgress(cfg, progressCallback); err != nil {
 		logger.Log("Error", "System", "Module Exec", "Failed: "+err.Error())
+		Program.Send(tui.FailureMsg{Error: "Module execution failed: " + err.Error()})
 		return
 	}
 
@@ -123,11 +127,13 @@ func RunInstallation() {
 	plymouthManager, err := plymouth.NewPlymouthManager()
 	if err != nil {
 		logger.Log("Error", "System", "Plymouth", "Failed to initialize: "+err.Error())
+		Program.Send(tui.FailureMsg{Error: "Plymouth initialization failed: " + err.Error()})
 		return
 	}
 
 	if err := plymouthManager.InstallPlymouth(); err != nil {
 		logger.Log("Error", "System", "Plymouth", "Installation failed: "+err.Error())
+		Program.Send(tui.FailureMsg{Error: "Plymouth installation failed: " + err.Error()})
 		return
 	}
 
@@ -136,4 +142,7 @@ func RunInstallation() {
 	logger.Log("Success", "System", "Installation", "Complete!")
 	logger.Log("Success", "System", "Module Exec", "All modules done")
 	logger.Log("Info", "System", "Log File", "Available at: "+logger.GetLogPath())
+
+	// Send success completion message
+	Program.Send(tui.DoneMsg{})
 }

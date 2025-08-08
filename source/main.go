@@ -101,6 +101,62 @@ func testSudo() bool {
 	return cmd.Run() == nil
 }
 
+// installYay installs yay AUR helper if not already present
+func installYay() error {
+	log.Printf("🔍 Checking for yay AUR helper...")
+
+	// Check if yay is already installed
+	if _, err := exec.LookPath("yay"); err == nil {
+		log.Printf("✅ yay is already installed")
+		return nil
+	}
+
+	log.Printf("📦 Installing yay AUR helper...")
+
+	// Install base-devel and git if not present
+	log.Printf("🔧 Installing prerequisites...")
+	cmd := exec.Command("sudo", "pacman", "-Sy", "--noconfirm", "--needed", "base-devel", "git")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to install yay prerequisites: %v", err)
+	}
+
+	// Create temporary directory for yay installation
+	tempDir := "/tmp/yay-install"
+	if err := exec.Command("rm", "-rf", tempDir).Run(); err != nil {
+		log.Printf("⚠️ Could not clean temp directory: %v", err)
+	}
+
+	if err := exec.Command("mkdir", "-p", tempDir).Run(); err != nil {
+		return fmt.Errorf("failed to create temp directory: %v", err)
+	}
+
+	// Clone yay repository
+	log.Printf("📥 Downloading yay source...")
+	cmd = exec.Command("git", "clone", "https://aur.archlinux.org/yay.git", tempDir)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to clone yay repository: %v", err)
+	}
+
+	// Build and install yay
+	log.Printf("🔨 Building yay...")
+	cmd = exec.Command("makepkg", "-si", "--noconfirm")
+	cmd.Dir = tempDir
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to build yay: %v", err)
+	}
+
+	// Verify yay installation
+	if _, err := exec.LookPath("yay"); err != nil {
+		return fmt.Errorf("yay installation failed - not found in PATH")
+	}
+
+	// Clean up temp directory
+	exec.Command("rm", "-rf", tempDir).Run()
+
+	log.Printf("✅ yay installed successfully")
+	return nil
+}
+
 func main() {
 	// Handle command line arguments
 	if len(os.Args) > 1 {
@@ -141,18 +197,23 @@ func main() {
 		log.Fatalf("❌ Sudo setup failed: %v", err)
 	}
 
+	// STEP 2: Install yay AUR helper (critical for AUR packages)
+	if err := installYay(); err != nil {
+		log.Fatalf("❌ yay installation failed: %v", err)
+	}
+
 	// Read version from VERSION file first
 	if err := version.ReadVersion(); err != nil {
 		log.Fatalf("❌ Failed to read version: %v", err)
 	}
 
-	// STEP 1: Initial installation confirmation
+	// STEP 3: Initial installation confirmation
 	if !confirmInstallation() {
 		fmt.Println("❌ Installation cancelled by user")
 		os.Exit(0)
 	}
 
-	// STEP 3: Initialize logging
+	// STEP 4: Initialize logging
 	if err := logger.InitLogging(); err != nil {
 		log.Fatalf("❌ Failed to initialize logging: %v", err)
 	}
@@ -211,10 +272,9 @@ func main() {
 		time.Sleep(100 * time.Millisecond)
 
 		// Run installation in goroutine
+		// NOTE: orchestrator.RunInstallation() will send either DoneMsg{} or FailureMsg{} itself
+		// Do NOT send DoneMsg here as it overrides failure messages
 		orchestrator.RunInstallation()
-
-		// Signal completion
-		program.Send(tui.DoneMsg{})
 	}()
 
 	// Run TUI in main thread

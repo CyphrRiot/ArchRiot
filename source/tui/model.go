@@ -38,6 +38,8 @@ type InstallModel struct {
 	width              int
 	height             int
 	done               bool
+	failed             bool
+	failureError       string
 	operation          string
 	currentStep        string
 	inputMode          string // "git-username", "git-email", "reboot", ""
@@ -165,6 +167,15 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.cursor = 1 // Default to NO
 		return m, nil
 
+	case FailureMsg:
+		m.done = true
+		m.failed = true
+		m.failureError = msg.Error
+		m.showConfirm = true
+		m.confirmPrompt = "❌ Installation Failed - Press any key to exit"
+		m.cursor = 0
+		return m, nil
+
 	case InputRequestMsg:
 		m.setInputMode(msg.Mode, msg.Prompt)
 		return m, nil
@@ -200,7 +211,12 @@ func (m *InstallModel) View() string {
 
 	// Header - ASCII + title + version (like Migrate) with spacing
 	s.WriteString("\n") // Blank line before ASCII logo
-	asciiStyle := lipgloss.NewStyle().Foreground(accentColor).Bold(true)
+	var asciiStyle lipgloss.Style
+	if m.failed {
+		asciiStyle = lipgloss.NewStyle().Foreground(errorColor).Bold(true)
+	} else {
+		asciiStyle = lipgloss.NewStyle().Foreground(accentColor).Bold(true)
+	}
 	ascii := asciiStyle.Render(ArchRiotASCII)
 	s.WriteString(ascii + "\n")
 
@@ -219,8 +235,10 @@ func (m *InstallModel) View() string {
 	s.WriteString(infoStyle.Render("🎯 Current Step:   "+m.currentStep) + "\n")
 	s.WriteString(logStyle.Render("📁 Log File:       "+GetLogPath()) + "\n")
 
-	// Progress bar
-	s.WriteString("\n" + m.renderProgressBar() + "\n\n")
+	// Progress bar (only show if not failed)
+	if !m.failed {
+		s.WriteString(m.renderProgressBar() + "\n\n")
+	}
 
 	// Scroll window - bordered content area
 	s.WriteString(m.renderScrollWindow())
@@ -415,7 +433,10 @@ func (m *InstallModel) setInputMode(mode, prompt string) {
 
 // handleConfirmSelection processes YES/NO confirmation selection
 func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
-	if m.confirmPrompt == "🔄 Reboot now?" {
+	if m.confirmPrompt == "❌ Installation Failed - Exit?" {
+		// Installation failed - exit immediately
+		return m, tea.Quit
+	} else if m.confirmPrompt == "🔄 Reboot now?" {
 		// Reboot confirmation
 		if m.cursor == 0 && SetRebootFlag != nil { // YES selected
 			SetRebootFlag(true)

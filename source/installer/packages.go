@@ -69,6 +69,26 @@ func InstallPackages(packages []string) error {
 			logger.Log("Error", "Package", "Installation", "Critical packages failed to install")
 			return fmt.Errorf("package installation failed: %w", err)
 		}
+
+		// CRITICAL: Verify packages actually got installed
+		// yay can return exit code 0 even when packages don't exist ("nothing to do")
+		var failedPackages []string
+		for _, pkg := range toInstall {
+			if !isPackageInstalled(pkg) {
+				failedPackages = append(failedPackages, pkg)
+			}
+		}
+
+		if len(failedPackages) > 0 {
+			outputStr := string(output)
+			if len(outputStr) > 500 {
+				outputStr = outputStr[:500] + "... (truncated)"
+			}
+			logger.LogMessage("ERROR", fmt.Sprintf("Package installation failed - packages not found: %v", failedPackages))
+			logger.LogMessage("ERROR", fmt.Sprintf("yay output: %s", outputStr))
+			logger.Log("Error", "Package", "Installation", fmt.Sprintf("Packages not found: %v", failedPackages))
+			return fmt.Errorf("package installation failed - packages not found: %v", failedPackages)
+		}
 	}
 
 	duration := time.Since(start)

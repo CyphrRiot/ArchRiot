@@ -12,8 +12,6 @@ import (
 	"archriot-installer/git"
 	"archriot-installer/installer"
 	"archriot-installer/logger"
-
-
 )
 
 // Program holds the TUI program reference
@@ -23,8 +21,6 @@ var Program *tea.Program
 func SetProgram(p *tea.Program) {
 	Program = p
 }
-
-
 
 // executeCommands runs a list of shell commands
 func executeCommands(commands []string, moduleName string) error {
@@ -97,26 +93,32 @@ func ExecuteModulesInOrderWithProgress(cfg *config.Config, progressCallback func
 
 		// Install packages
 		if err := installer.InstallPackages(module.Packages); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Package installation had issues for %s: %v", moduleName, err))
+			logger.LogMessage("ERROR", fmt.Sprintf("Package installation FAILED for %s: %v", moduleName, err))
+			logger.Log("Error", "Package", moduleName, "Installation failed: "+err.Error())
+			return fmt.Errorf("installation failed at module %s (packages): %w", moduleName, err)
 		}
 
 		// Handle git configuration for core.identity
 		if moduleName == "core.identity" {
 			if err := git.HandleGitConfiguration(); err != nil {
-				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration failed for %s: %v", moduleName, err))
+				logger.LogMessage("ERROR", fmt.Sprintf("Git configuration FAILED for %s: %v", moduleName, err))
+				logger.Log("Error", "Git", moduleName, "Configuration failed: "+err.Error())
+				return fmt.Errorf("installation failed at module %s (git config): %w", moduleName, err)
 			}
 		}
 
 		// Copy config files
 		if err := installer.CopyConfigs(module.Configs); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", moduleName, err))
-			logger.Log("Warning", "File", moduleName, "Config issues: "+err.Error())
+			logger.LogMessage("ERROR", fmt.Sprintf("Config copying FAILED for %s: %v", moduleName, err))
+			logger.Log("Error", "File", moduleName, "Config copy failed: "+err.Error())
+			return fmt.Errorf("installation failed at module %s (config copy): %w", moduleName, err)
 		}
 
 		// Execute commands
 		if err := executeCommands(module.Commands, moduleName); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Command execution had issues for %s: %v", moduleName, err))
-			logger.Log("Warning", "Command", moduleName, "Command issues: "+err.Error())
+			logger.LogMessage("ERROR", fmt.Sprintf("Command execution FAILED for %s: %v", moduleName, err))
+			logger.Log("Error", "Command", moduleName, "Command failed: "+err.Error())
+			return fmt.Errorf("installation failed at module %s (commands): %w", moduleName, err)
 		}
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module completed: %s - %s", moduleName, module.End))
@@ -207,26 +209,32 @@ func executeModuleCategoryWithProgress(category string, modules map[string]confi
 
 		// Install packages
 		if err := installer.InstallPackages(module.Packages); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Package installation had issues for %s: %v", fullName, err))
+			logger.LogMessage("ERROR", fmt.Sprintf("Package installation FAILED for %s: %v", fullName, err))
+			logger.Log("Error", "Package", fullName, "Installation failed: "+err.Error())
+			return fmt.Errorf("installation failed at module %s (packages): %w", fullName, err)
 		}
 
 		// Handle Git configuration for identity module
 		if fullName == "core.identity" {
 			if err := git.HandleGitConfiguration(); err != nil {
-				logger.LogMessage("WARNING", fmt.Sprintf("Git configuration failed for %s: %v", fullName, err))
+				logger.LogMessage("ERROR", fmt.Sprintf("Git configuration FAILED for %s: %v", fullName, err))
+				logger.Log("Error", "Git", fullName, "Configuration failed: "+err.Error())
+				return fmt.Errorf("installation failed at module %s (git config): %w", fullName, err)
 			}
 		}
 
 		// Copy configs
 		if err := installer.CopyConfigs(module.Configs); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Config copying had issues for %s: %v", fullName, err))
-			logger.Log("Warning", "File", fullName, "Config issues: "+err.Error())
+			logger.LogMessage("ERROR", fmt.Sprintf("Config copying FAILED for %s: %v", fullName, err))
+			logger.Log("Error", "File", fullName, "Config copy failed: "+err.Error())
+			return fmt.Errorf("installation failed at module %s (config copy): %w", fullName, err)
 		}
 
 		// Execute commands
 		if err := executeCommands(module.Commands, fullName); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Command execution had issues for %s: %v", fullName, err))
-			logger.Log("Warning", "Command", fullName, "Command issues: "+err.Error())
+			logger.LogMessage("ERROR", fmt.Sprintf("Command execution FAILED for %s: %v", fullName, err))
+			logger.Log("Error", "Command", fullName, "Command failed: "+err.Error())
+			return fmt.Errorf("installation failed at module %s (commands): %w", fullName, err)
 		}
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module completed: %s - %s", fullName, module.End))

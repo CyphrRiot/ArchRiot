@@ -9,8 +9,13 @@ type ProgressMsg float64
 // StepMsg represents a step update
 type StepMsg string
 
-// DoneMsg indicates completion
+// DoneMsg indicates successful completion
 type DoneMsg struct{}
+
+// FailureMsg indicates installation failure
+type FailureMsg struct {
+	Error string
+}
 
 // GitUsernameMsg carries git username input
 type GitUsernameMsg string
