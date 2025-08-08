@@ -395,7 +395,7 @@ system:
             - "xdg-mime default mpv.desktop video/x-ogm+ogg"
             - "xdg-mime default mpv.desktop video/x-theora+ogg"
             - "xdg-mime default mpv.desktop application/ogg"
-        depends: [core.base]
+        depends: [desktop.apps]
         start: "Configuring file associations"
         end: "File associations configured"
         type: "System"
