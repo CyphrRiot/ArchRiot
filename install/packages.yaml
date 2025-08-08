@@ -483,7 +483,7 @@ system:
                 fi
             - "pkill waybar 2>/dev/null || true"
             - "nohup waybar >/dev/null 2>&1 & disown"
-            - "hyprctl reload"
+            - "if pgrep -x Hyprland >/dev/null 2>&1; then hyprctl reload; else echo 'Hyprland not running, skipping reload'; fi"
         depends: [desktop.hyprland]
         start: "Setting up wallpapers"
         end: "Background service started"
