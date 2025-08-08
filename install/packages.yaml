@@ -496,12 +496,9 @@ media:
             - lollypop
             - ffmpeg
             - yt-dlp
-            - python-opencv
-            - spotdl
         configs:
             - pattern: yt-dlp/*
-        commands:
-            - "yay -S --noconfirm --needed --mflags --nocheck spotdl"
+        commands: []
         depends: [desktop.hyprland]
         start: "Installing media players"
         end: "Media players installed"
