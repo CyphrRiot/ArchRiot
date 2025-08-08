@@ -112,10 +112,37 @@ func installYay() error {
 	}
 
 	log.Printf("📦 Installing yay AUR helper...")
-	cmd := exec.Command("sudo", "pacman", "-S", "--noconfirm", "--needed", "yay-bin")
+
+	// Install prerequisites first
+	log.Printf("🔧 Installing prerequisites...")
+	cmd := exec.Command("sudo", "pacman", "-S", "--noconfirm", "--needed", "base-devel", "git")
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to install yay-bin: %v", err)
+		return fmt.Errorf("failed to install yay prerequisites: %v", err)
 	}
+
+	// Create temporary directory for yay installation
+	tempDir := "/tmp/yay-bin-install"
+	if err := exec.Command("rm", "-rf", tempDir).Run(); err != nil {
+		log.Printf("⚠️ Could not clean temp directory: %v", err)
+	}
+
+	// Clone yay-bin repository (precompiled binary version)
+	log.Printf("📥 Downloading yay-bin from AUR...")
+	cmd = exec.Command("git", "clone", "https://aur.archlinux.org/yay-bin.git", tempDir)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to clone yay-bin repository: %v", err)
+	}
+
+	// Build and install yay-bin (this downloads the precompiled binary)
+	log.Printf("🔨 Installing yay-bin...")
+	cmd = exec.Command("makepkg", "-si", "--noconfirm")
+	cmd.Dir = tempDir
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to build yay-bin: %v", err)
+	}
+
+	// Clean up temp directory
+	exec.Command("rm", "-rf", tempDir).Run()
 
 	// Verify yay installation
 	if _, err := exec.LookPath("yay"); err != nil {
