@@ -64,22 +64,6 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [Optional Advanced Tools](#-optional-advanced-tools)
 - [VM & Hardware Notes](#️-vm--hardware-notes)
 
-## 📋 Version History
-
-To see what's new in each version, use git history:
-
-```bash
-# View recent releases with tags
-git log --oneline --decorate | head -10
-
-# See changes between versions
-git log --oneline v2.6.0..v2.6.11
-
-# Search for specific changes
-git log --grep="CRITICAL" --oneline
-git log --grep="FIX" --oneline
-```
-
 ## 🚀 Installation Options
 
 Choose your installation method based on your needs:
@@ -331,6 +315,22 @@ Click network icon                   # Open network manager
 
 ```bash
 curl -fsSL https://archriot.org/setup.sh | bash           # Re-run installer if broken
+```
+
+## 📋 Version History
+
+**Current Release:** v2.7.2 - Critical yay installation + dependency fixes
+
+**Recent Updates:**
+
+- **v2.7.1:** Hardware module path issue fixes
+- **v2.7.0:** Bulletproof fail-fast error handling
+- **v2.6.14:** Waybar 3-state + package safety restoration
+- **v2.6.13:** Bulletproof setup.sh + Control Panel UX improvements
+
+```bash
+# View all version changes
+git log --grep="FIX" --oneline
 ```
 
 ## Control Panel
