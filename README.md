@@ -92,7 +92,7 @@ Choose your installation method based on your needs:
 
 🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
 
-![ArchRiot Installation Demo](config/images/riot_install.gif)
+![ArchRiot Installation Demo](config/images/riot.gif)
 
 **Features:**
 
