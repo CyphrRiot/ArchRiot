@@ -41,14 +41,36 @@ func InstallPackages(packages []string) error {
 
 	logger.LogMessage("INFO", fmt.Sprintf("Installing %d new packages", len(toInstall)))
 
+	// Log which packages we're about to install
+	for i, pkg := range toInstall {
+		logger.LogMessage("INFO", fmt.Sprintf("📦 Package %d/%d: %s", i+1, len(toInstall), pkg))
+	}
+
 	// Try to install all packages at once with pacman
 	start := time.Now()
+	logger.LogMessage("INFO", "🔄 Attempting installation with pacman...")
 	cmd := exec.Command("sudo", append([]string{"pacman", "-S", "--noconfirm", "--needed"}, toInstall...)...)
 	output, err := cmd.CombinedOutput()
 
 	if err != nil {
-		// If pacman fails, try with yay (handles both AUR and regular packages)
-		logger.LogMessage("WARNING", "Pacman failed, trying yay for all packages")
+		// Show detailed pacman failure info
+		outputStr := string(output)
+		if len(outputStr) > 300 {
+			outputStr = outputStr[:300] + "... (truncated)"
+		}
+		logger.LogMessage("WARNING", fmt.Sprintf("Pacman failed for packages: %v", toInstall))
+		logger.LogMessage("WARNING", fmt.Sprintf("Pacman error: %s", outputStr))
+		logger.LogMessage("INFO", "🔄 Switching to yay for AUR package support...")
+
+		// Identify likely AUR packages
+		logger.LogMessage("INFO", "🔍 These packages may be from AUR (requiring compilation):")
+		for _, pkg := range toInstall {
+			if containsAURIndicators(pkg) {
+				logger.LogMessage("INFO", fmt.Sprintf("   📦 %s (likely AUR - may take several minutes to build)", pkg))
+			} else {
+				logger.LogMessage("INFO", fmt.Sprintf("   📦 %s", pkg))
+			}
+		}
 
 		// Check if yay is available
 		if !CommandExists("yay") {
@@ -56,6 +78,8 @@ func InstallPackages(packages []string) error {
 			return fmt.Errorf("package installation failed: pacman failed and yay not available")
 		}
 
+		logger.LogMessage("INFO", "🔨 Starting yay installation (AUR packages compile from source - please wait)...")
+		logger.LogMessage("INFO", "⏳ This may take 5-30 minutes depending on packages and system speed")
 		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
 		output, err = cmd.CombinedOutput()
 
@@ -92,8 +116,25 @@ func InstallPackages(packages []string) error {
 	}
 
 	duration := time.Since(start)
-	logger.LogMessage("SUCCESS", fmt.Sprintf("Package installation completed in %v", duration))
+	logger.LogMessage("SUCCESS", fmt.Sprintf("✅ Package installation completed in %v", duration))
+
+	// Log successful installations
+	for _, pkg := range toInstall {
+		logger.LogMessage("SUCCESS", fmt.Sprintf("✓ Installed: %s", pkg))
+	}
+
 	return nil
+}
+
+// containsAURIndicators checks if a package name suggests it's from AUR
+func containsAURIndicators(pkg string) bool {
+	indicators := []string{"-git", "-bin", "-devel", "-beta", "-alpha", "-rc", "-nightly"}
+	for _, indicator := range indicators {
+		if len(pkg) > len(indicator) && pkg[len(pkg)-len(indicator):] == indicator {
+			return true
+		}
+	}
+	return false
 }
 
 // SyncPackageDatabases syncs pacman and yay databases
