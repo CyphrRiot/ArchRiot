@@ -439,7 +439,7 @@ system:
         packages:
             - bibata-cursor-theme
             - kora-icon-theme
-            - tela-icon-theme-purple-git
+            - tela-circle-icon-theme-purple
             - gnome-themes-extra
             - kvantum-qt5
         configs:
