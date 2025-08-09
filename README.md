@@ -762,7 +762,7 @@ cat ~/.local/share/archriot/VERSION  # Show installed ArchRiot version
 - **CPU:** Any modern processor (optimized for both Intel/AMD)
 - **GPU:** Any modern graphics card (see GPU Support section for full compatibility details)
 
-_Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
+_Note: ArchRiot began as a unique rice[^1] and evolved from [DHH's Omarchy](https://omarchy.org/) installer, but has since become a completely distinct Linux distribution based on Arch. It features a custom installer, advanced Go-based package management system, and many custom applications and tools focused on privacy, development productivity, and clean aesthetics._
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
 
