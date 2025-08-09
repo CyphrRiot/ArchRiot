@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.7.2-blue)
+![Version](https://img.shields.io/badge/version-2.7.3-blue)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
@@ -49,8 +49,8 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 **Complete fresh system installation with everything pre-configured**
 
-📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
-🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
+📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.3/archriot-2025.iso)**
+🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.3/archriot-2025.sha256)**
 
 **Perfect for:**
 
