@@ -137,7 +137,7 @@ desktop:
             - raw-thumbnailer
             - gnome-calculator
             - nwg-drawer
-            - imv
+            - loupe
             - mullvad-vpn-bin
             - ufw
             - kooha
@@ -154,6 +154,7 @@ desktop:
         commands:
             - "pkill wl-clip-persist 2>/dev/null || true"
             - "yay -Rns --noconfirm wl-clip-persist 2>/dev/null || true"
+            - "yay -Rns --noconfirm imv 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || true"
             - "xdg-user-dirs-update"
@@ -367,12 +368,12 @@ system:
     mimetypes:
         commands:
             - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications"
-            - "xdg-mime default imv.desktop image/png"
-            - "xdg-mime default imv.desktop image/jpeg"
-            - "xdg-mime default imv.desktop image/gif"
-            - "xdg-mime default imv.desktop image/webp"
-            - "xdg-mime default imv.desktop image/bmp"
-            - "xdg-mime default imv.desktop image/tiff"
+            - "xdg-mime default org.gnome.Loupe.desktop image/png"
+            - "xdg-mime default org.gnome.Loupe.desktop image/jpeg"
+            - "xdg-mime default org.gnome.Loupe.desktop image/gif"
+            - "xdg-mime default org.gnome.Loupe.desktop image/webp"
+            - "xdg-mime default org.gnome.Loupe.desktop image/bmp"
+            - "xdg-mime default org.gnome.Loupe.desktop image/tiff"
             - "xdg-mime default org.gnome.Papers.desktop application/pdf"
             - "xdg-settings set default-web-browser brave-browser.desktop"
             - "xdg-mime default brave-browser.desktop x-scheme-handler/http"
