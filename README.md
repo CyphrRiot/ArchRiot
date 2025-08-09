@@ -29,7 +29,7 @@ ArchRiot is the answer to every time you've thought "why can't Linux just work c
 
 **Curated to be correct:**
 
-- **🪟 Hyprland Tiling WM** - Keyboard-driven workflow that makes floating windows feel primitive
+- **🪟 Hyprland Tiling WM** - Makes other Window Managers feel primitive
 - **⚡ Go Binary Installer** - Atomic operations, instant rollbacks, zero dependency hell
 - **🛡️ Privacy by Design** - Zero telemetry, zero tracking, zero corporate data harvesting
 - **🎨 CypherRiot Aesthetics** - Carefully crafted dark themes that work at any hour
