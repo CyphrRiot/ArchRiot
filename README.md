@@ -49,8 +49,8 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 **Complete fresh system installation with everything pre-configured**
 
-📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.3/archriot-2025.iso)**
-🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.3/archriot-2025.sha256)**
+📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
+🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
 
 **Perfect for:**
 
