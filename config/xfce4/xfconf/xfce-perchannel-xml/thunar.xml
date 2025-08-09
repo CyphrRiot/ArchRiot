@@ -1,0 +1,27 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<channel name="thunar" version="1.0">
+  <property name="last-view" type="string" value="ThunarIconView"/>
+  <property name="last-icon-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_150_PERCENT"/>
+  <property name="last-window-maximized" type="bool" value="false"/>
+  <property name="last-separator-position" type="int" value="135"/>
+  <property name="last-menubar-visible" type="bool" value="false"/>
+  <property name="misc-symbolic-icons-in-toolbar" type="bool" value="false"/>
+  <property name="last-toolbar-items" type="string" value="menu:1,back:1,forward:1,open-parent:1,open-home:0,new-tab:0,new-window:0,toggle-split-view:0,undo:0,redo:0,zoom-out:0,zoom-in:0,zoom-reset:0,view-as-icons:0,view-as-detailed-list:0,view-as-compact-list:0,view-switcher:0,location-bar:0,reload:0,search:0,uca-action-1752300191230992-1:0"/>
+  <property name="hidden-bookmarks" type="array">
+    <value type="string" value="computer:///"/>
+    <value type="string" value="file:///home/grendel/Desktop"/>
+    <value type="string" value="recent:///"/>
+    <value type="string" value="file:///"/>
+    <value type="string" value="network:///"/>
+  </property>
+  <property name="misc-thumbnail-mode" type="string" value="THUNAR_THUMBNAIL_MODE_ALWAYS"/>
+  <property name="misc-single-click" type="bool" value="false"/>
+  <property name="misc-show-delete-action" type="bool" value="true"/>
+  <property name="misc-symbolic-icons-in-sidepane" type="bool" value="false"/>
+  <property name="last-sort-column" type="string" value="THUNAR_COLUMN_NAME"/>
+  <property name="last-sort-order" type="string" value="GTK_SORT_ASCENDING"/>
+  <property name="last-details-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_38_PERCENT"/>
+  <property name="last-details-view-column-widths" type="string" value="50,50,133,50,50,94,50,50,747,50,50,63,50,68"/>
+  <property name="last-side-pane" type="string" value="THUNAR_SIDEPANE_TYPE_SHORTCUTS"/>
+</channel>

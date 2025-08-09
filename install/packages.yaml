@@ -94,6 +94,7 @@ desktop:
             - pattern: mako/*
             - pattern: Thunar/*
               preserve_if_exists: [accels.scm]
+            - pattern: xfce4/xfconf/xfce-perchannel-xml/*
             - pattern: bin/upgrade-system
               target: ~/.local/bin/
             - pattern: applications/*
