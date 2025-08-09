@@ -253,11 +253,7 @@ development:
 system:
     fonts:
         packages:
-            - ttf-font-awesome
-            - noto-fonts
             - ttf-hack-nerd
-            - ttf-cascadia-mono-nerd
-            - ttf-ia-writer
         commands:
             - "fc-cache -f"
         depends: [core.base]
