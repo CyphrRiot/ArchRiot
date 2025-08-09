@@ -455,12 +455,12 @@ ArchRiot includes a highly customized Waybar (status bar) with comprehensive sys
 
 **Built-in Modules:**
 
-- **Tomato Timer** - Built-in Pomodoro timer with visual states (idle/running/break/finished)
-- **Mullvad VPN Status** - Real-time VPN connection status with location display
-- **System Monitoring** - CPU aggregate usage, accurate memory monitoring
-- **Microphone Control** - Visual mic status with one-click toggle
-- **Network Management** - WiFi status with nmtui integration
-- **Audio Controls** - Volume display with hardware key integration
+- **🍅 Tomato Timer** - Built-in Pomodoro timer with visual states (idle/running/break/finished)
+- **🛡️ Mullvad VPN Status** - Real-time VPN connection status with location display
+- **📊 System Monitoring** - CPU aggregate usage, accurate memory monitoring
+- **🎤 Microphone Control** - Visual mic status with one-click toggle
+- **📶 Network Management** - WiFi status with nmtui integration
+- **🔊 Audio Controls** - Volume display with hardware key integration
 
 **Technical Improvements:**
 
