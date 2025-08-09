@@ -445,7 +445,7 @@ system:
         packages:
             - bibata-cursor-theme
             - kora-icon-theme
-            - tela-circle-icon-theme-purple
+            - tela-icon-theme-purple-git
             - gnome-themes-extra
             - kvantum-qt5
         configs:
