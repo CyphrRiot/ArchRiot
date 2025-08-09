@@ -109,7 +109,7 @@ desktop:
             - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
             - "bash -c 'ACTUAL_USER=$(logname 2>/dev/null || who am i | awk \"{print \\$1}\") && echo -e \"[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $ACTUAL_USER --noclear %I \\$TERM\" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null'"
-            - "if pgrep hypridle >/dev/null 2>&1; then pkill hypridle 2>/dev/null || true; sleep 1; hypridle >/dev/null 2>&1 &; fi"
+            - "pgrep hypridle >/dev/null && (pkill hypridle; sleep 1; hypridle &) || true"
         depends: [core.base]
         start: "Installing Hyprland desktop"
         end: "Hyprland desktop installed"
