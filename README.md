@@ -43,10 +43,158 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
+## 🚀 Two Ways to Install ArchRiot
+
+### 🔥 Method 1: ArchRiot ISO (Recommended)
+
+**Complete fresh system installation with everything pre-configured**
+
+📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
+🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
+
+**Perfect for:**
+
+- ✅ Fresh installations on new hardware
+- ✅ Virtual machines
+- ✅ Users who want everything "just working" immediately
+- ✅ Complete system replacement
+
+**What you get:**
+
+- Complete Arch Linux + ArchRiot system
+- Boot ISO → Run `riot` → Complete guided setup
+- Hyprland, themes, apps all pre-configured
+- No manual setup required
+
+![ArchRiot Installation Demo](config/images/riot.gif)
+
+---
+
+### ⚡ Method 2: Install Script (Existing Systems)
+
+**Add ArchRiot to your current Arch-based system**
+
+```bash
+curl -sSL https://archri.ot/install | bash
+```
+
+**Perfect for:**
+
+- ✅ Existing Arch Linux installations
+- ✅ CachyOS, Manjaro, or other Arch-based distros
+- ✅ Users who want to keep their current setup
+- ✅ Adding ArchRiot desktop environment only
+
+**What you get:**
+
+- ArchRiot desktop environment and apps
+- Hyprland tiling window manager
+- CypherRiot themes and customizations
+- Keeps your existing system intact
+
+---
+
+## 📖 Detailed Installation Instructions
+
+<details>
+<summary><b>🔥 Method 1: ArchRiot ISO - Detailed Steps</b></summary>
+
+### Prerequisites
+
+- USB drive (8GB+ recommended)
+- Computer with UEFI boot support
+- Internet connection for updates
+
+### Installation Steps
+
+1. **Download & Flash**
+    - Download the ArchRiot ISO from the link above
+    - Flash to USB using [balenaEtcher](https://etcher.balena.io/) or [Ventoy](https://www.ventoy.net/)
+
+2. **Boot & Install**
+    - Boot from USB (may need to disable Secure Boot)
+    - Run the `riot` command for guided installation
+    - Follow the prompts for disk encryption, user setup, etc.
+
+3. **First Boot**
+    - Reboot into your fully configured ArchRiot system
+    - Everything works out of the box!
+
+</details>
+
+<details>
+<summary><b>⚡ Method 2: Install Script - Detailed Steps</b></summary>
+
+### Prerequisites: Arch-Based System Required
+
+If you don't have Arch Linux yet, install it first:
+
+**Quick Arch Setup:**
+
+1. Download [Arch Linux ISO](https://archlinux.org/download)
+2. Flash to USB with [balenaEtcher](https://etcher.balena.io/)
+3. Boot from USB
+
+**WiFi Setup** (skip if using ethernet):
+
+```bash
+iwctl
+station wlan0 scan
+station wlan0 connect <your-wifi-name>
+# Enter password when prompted
+```
+
+**Installation:**
+Run `archinstall` with these settings:
+
+| Setting      | Value                       |
+| ------------ | --------------------------- |
+| Mirrors      | Your country                |
+| Disk config  | Default partitioning layout |
+| File system  | btrfs (with compression)    |
+| Encryption   | LUKS + password             |
+| User account | Add user + Superuser: Yes   |
+| Audio        | pipewire                    |
+| Network      | Copy ISO config             |
+
+**⚠️ Important:** Enable disk encryption! ArchRiot relies on disk encryption for security.
+
+### ArchRiot Installation
+
+Once you have Arch Linux running:
+
+**1. Sudo Configuration**
+The installer needs passwordless sudo. If not configured:
+
+```bash
+# Add user to wheel group
+sudo usermod -aG wheel $USER
+
+# Enable passwordless sudo
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
+
+# Log out and back in
+```
+
+**2. Run the Installer**
+
+```bash
+curl -sSL https://archri.ot/install | bash
+```
+
+**3. Follow Prompts**
+
+- Git configuration setup
+- Package installation
+- Theme configuration
+- Reboot when complete
+
+</details>
+
+---
+
 ## Table of Contents
 
-- [Installation](#-installation)
-- [Installation Features](#installation-features)
 - [Essential Commands](#️-essential-commands)
 - [Control Panel](#control-panel)
 - [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
@@ -63,90 +211,6 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [System Requirements](#-system-requirements)
 - [Optional Advanced Tools](#-optional-advanced-tools)
 - [VM & Hardware Notes](#️-vm--hardware-notes)
-
-## 🚀 Installation Options
-
-Choose your installation method based on your needs:
-
-### 🔥 Option 1: ArchRiot ISO (Recommended for Fresh Systems)
-
-**Download the complete ArchRiot ISO with everything pre-configured:**
-
-📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
-
-🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
-
-![ArchRiot Installation Demo](config/images/riot.gif)
-
-**Features:**
-
-- ✅ **Complete Arch Linux system** with ArchRiot pre-installed
-- ✅ **No setup required** - boots directly to ArchRiot desktop
-- ✅ **Hyprland, Waybar, themes** all configured out of the box
-- ✅ **Perfect for fresh installations** or virtual machines
-- ✅ **Latest packages** and security updates included
-
-**Installation:**
-
-1. Flash ISO to USB drive or load in VM
-2. Boot from USB/ISO
-3. Follow standard Arch installation process
-4. Reboot into your fully configured ArchRiot system!
-
----
-
-### ⚡ Option 2: Install on Existing Arch-Based System
-
-**For users who already have Arch Linux, CachyOS, Manjaro, or other Arch-based distributions:**
-
-#### Prerequisites: Existing Arch-Based System
-
-Download the [Arch Linux ISO](https://archlinux.org/download), put it on a USB stick (use balenaEtcher on Mac/Windows), and boot from the stick. You can also use [Ventoy](https://www.ventoy.net/en/index.html) which is quite simple compared to other options.
-
-**WiFi Setup** (skip if using ethernet):
-
-1. Run `iwctl`
-2. Type `station wlan0 scan`
-3. Type `station wlan0 connect <tab>`
-4. Pick your network from the list
-5. Enter your WiFi password
-
-Run `archinstall` and pick these options (and leave anything not mentioned as-is):
-
-| Section                  | Option                                                                  |
-| ------------------------ | ----------------------------------------------------------------------- |
-| Mirrors and repositories | Select regions > Your country                                           |
-| Disk configuration       | Partitioning > Default partitioning layout > Select disk (SPACE+RETURN) |
-| Disk > File system       | btrfs (default structure: yes + use compression)                        |
-| Disk > Disk encryption   | Encryption type: LUKS + Encryption password + Partitions (select)       |
-| Hostname                 | Give your computer a name                                               |
-| Root password            | Set yours                                                               |
-| User account             | Add a user > Superuser: Yes > Confirm and exit                          |
-| Audio                    | pipewire                                                                |
-| Network configuration    | Copy ISO network config                                                 |
-| Timezone                 | Set yours                                                               |
-
-**⚠️ Important:** You must setup disk encryption to use ArchRiot as designed! The setup relies exclusively on disk encryption to secure your device, as it'll auto-login the user after the disk has been decrypted at boot.
-
-Once Arch has been installed, pick reboot, login with the user you just setup, and now you're ready to install ArchRiot.
-
-### Important: Sudo Configuration
-
-**The ArchRiot installer requires passwordless sudo to function.** If it's not configured, the installer will detect this and provide you with the exact commands needed to set it up properly. You'll just need to run those commands, log out/log back in, and run the installer again.
-
-This is necessary because the installer needs to install packages and configure system services automatically.
-
-**Quick Setup (if needed):**
-
-```bash
-# Add your user to wheel group
-sudo usermod -aG wheel $USER
-
-# Enable passwordless sudo for wheel group
-echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
-
-# Log out and log back in, then run the installer
-```
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
