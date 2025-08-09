@@ -342,6 +342,7 @@ system:
         commands:
             - "pacman -Qs ^pulseaudio$ && sudo pacman -Rdd --noconfirm pulseaudio || true"
             - "pacman -Qs ^jack2$ && sudo pacman -Rdd --noconfirm jack2 || true"
+            - "if lspci | grep -qi -E 'audio|sound|multimedia'; then sudo pacman -S --noconfirm --needed sof-firmware alsa-firmware linux-firmware; fi"
             - "systemctl --user enable --now pipewire.service"
             - "systemctl --user enable --now pipewire-pulse.service"
             - "systemctl --user enable --now wireplumber.service"
