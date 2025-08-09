@@ -749,7 +749,7 @@ cat ~/.local/share/archriot/VERSION  # Show installed ArchRiot version
 
 ## 📂 Repository Information
 
-- **Main Repository:** https://github.com/CyphrRiot/ArchRiot
+- **Main Repository:** [https://github.com/CyphrRiot/ArchRiot](https://github.com/CyphrRiot/ArchRiot)
 - **Maintenance:** Active, with regular updates and improvements
 - **Community:** Open to issues, suggestions, and contributions
 
@@ -758,7 +758,7 @@ cat ~/.local/share/archriot/VERSION  # Show installed ArchRiot version
 - **Fresh Arch Linux installation** (recommended)
 - **Internet connection** for package downloads
 - **4GB+ RAM** (8GB+ recommended for development)
-- **10GB+ storage** (20GB+ for full development setup)
+- **8GB+ storage** (10GB+ for full development setup)
 - **CPU:** Any modern processor (optimized for both Intel/AMD)
 - **GPU:** Any modern graphics card (see GPU Support section for full compatibility details)
 
