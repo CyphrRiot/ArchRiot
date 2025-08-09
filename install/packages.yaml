@@ -350,7 +350,7 @@ system:
             - "systemctl --user enable --now pipewire.service"
             - "systemctl --user enable --now pipewire-pulse.service"
             - "systemctl --user enable --now wireplumber.service"
-            - "sleep 2 && pamixer --set-volume 25 || true"
+            - "sleep 2 && current_vol=$(pamixer --get-volume 2>/dev/null || echo 0); if [ $current_vol -gt 90 ]; then pamixer --set-volume 25; fi"
         depends: [core.base]
         start: "Installing PipeWire audio system"
         end: "Audio system configured"
