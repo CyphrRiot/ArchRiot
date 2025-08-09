@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.7-blue)
+![Version](https://img.shields.io/badge/version-2.7-purple)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
@@ -27,15 +27,15 @@
 
 **One Command. Complete Environment. Zero Compromises.**
 
-ArchRiot isn't just another Linux distribution -- it's the answer to every time you've thought "why can't Linux just work correctly from the start, with all the right settings and apps?" We obsess over speed, security, and getting every detail perfect so you don't have to.
+ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" We've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
 
 **Curated to be correct:**
 
-- **Hyprland Tiling WM** - Because most floating windows are chaos
-- **Go Binary Installer** - Atomic operations, zero failures, complete rollback
-- **Privacy by Design** - No telemetry, no tracking, no corporate surveillance
-- **CypherRiot Aesthetics** - Dark themes that don't hurt your eyes at 3 AM
-- **Development-First** - Zed, nvim, containers, and tools that just work
+- **🪟 Hyprland Tiling WM** - Keyboard-driven workflow that makes floating windows feel primitive
+- **⚡ Go Binary Installer** - Atomic operations, instant rollbacks, zero dependency hell
+- **🛡️ Privacy by Design** - Zero telemetry, zero tracking, zero corporate data harvesting
+- **🎨 CypherRiot Aesthetics** - Carefully crafted dark themes that work at any hour
+- **💻 Development-First** - Zed, Neovim, containers, and every tool a dev actually needs
 
 _Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
 
@@ -43,21 +43,21 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
-## 🚀 Two Ways to Install ArchRiot
+## 🚀 Choose Your ArchRiot Experience
 
 ### 🔥 Method 1: ArchRiot ISO (Recommended)
 
-**Complete fresh system installation with everything pre-configured**
+**The nuclear option: Complete system takeover with near zero manual configuration**
 
 📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
 🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
 
 **Perfect for:**
 
-- ✅ Fresh installations on new hardware
-- ✅ Virtual machines
-- ✅ Users who want everything "just working" immediately
-- ✅ Complete system replacement
+- 🖥️ **Fresh hardware** - New builds, clean slates, virtual machines
+- 🚀 **Instant gratification** - Boot → `riot` → Perfect desktop in minutes
+- 💀 **System replacement** - When your current setup has disappointed you for the last time
+- 🎯 **Zero configuration** - For people who have better things to do than tweak configs
 
 **What you get:**
 
@@ -72,7 +72,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ### ⚡ Method 2: Install Script (Existing Systems)
 
-**Add ArchRiot to your current Arch-based system**
+**Transform your current Arch system into ArchRiot paradise**
 
 ```bash
 curl -sSL https://archri.ot/install | bash
@@ -80,10 +80,10 @@ curl -sSL https://archri.ot/install | bash
 
 **Perfect for:**
 
-- ✅ Existing Arch Linux installations
-- ✅ CachyOS, Manjaro, or other Arch-based distros
-- ✅ Users who want to keep their current setup
-- ✅ Adding ArchRiot desktop environment only
+- 🏠 **System preservation** - Keep your data, configs, and custom tweaks intact
+- 🔧 **Arch variants** - CachyOS, Manjaro, EndeavourOS, or pure Arch installations
+- 🎨 **Desktop upgrade** - Transform just your desktop environment, leave the rest alone
+- ⚡ **Quick wins** - Get ArchRiot's best features without starting over
 
 **What you get:**
 
@@ -94,10 +94,14 @@ curl -sSL https://archri.ot/install | bash
 
 ---
 
-## 📖 Detailed Installation Instructions
+## 📖 Installation Deep Dive
+
+_For those who like to know exactly what's happening under the hood_
 
 <details>
-<summary><b>🔥 Method 1: ArchRiot ISO - Detailed Steps</b></summary>
+<summary><b>🔥 Method 1: ArchRiot ISO - The Full Experience</b></summary>
+
+**Turn any computer into an ArchRiot machine in under 30 minutes**
 
 ### Prerequisites
 
@@ -107,114 +111,84 @@ curl -sSL https://archri.ot/install | bash
 
 ### Installation Steps
 
-1. **Download & Flash**
-    - Download the ArchRiot ISO from the link above
+1. **🔥 Download & Start a Riot**
+    - Grab the ArchRiot ISO from the link above
     - Flash to USB using [balenaEtcher](https://etcher.balena.io/) or [Ventoy](https://www.ventoy.net/)
+    - _Pro tip: Use Ventoy if you're a multi-ISO power user or want a simple solution_
 
-2. **Boot & Install**
-    - Boot from USB (may need to disable Secure Boot)
-    - Run the `riot` command for guided installation
-    - Follow the prompts for disk encryption, user setup, etc.
+2. **⚡ Boot & Unleash**
+    - Boot from USB (disable Secure Boot if your BIOS is being difficult)
+    - Type `riot` and watch the magic happen
+    - Follow the intelligent prompts for encryption, users, and preferences
+    - _The installer actually thinks for itself - no cryptic questions_
 
-3. **First Boot**
-    - Reboot into your fully configured ArchRiot system
-    - Everything works out of the box!
+3. **🎯 Victory Lap**
+    - Reboot into your perfectly configured ArchRiot fortress
+    - Hyprland loads instantly, themes are gorgeous, everything just works
+    - _This is what Linux should have been all along_
 
 </details>
 
 <details>
-<summary><b>⚡ Method 2: Install Script - Detailed Steps</b></summary>
+<summary><b>⚡ Method 2: Install Script - For Existing Arch Systems</b></summary>
 
-### Prerequisites: Arch-Based System Required
-
-If you don't have Arch Linux yet, install it first:
-
-**Quick Arch Setup:**
-
-1. Download [Arch Linux ISO](https://archlinux.org/download)
-2. Flash to USB with [balenaEtcher](https://etcher.balena.io/)
-3. Boot from USB
-
-**WiFi Setup** (skip if using ethernet):
-
-```bash
-iwctl
-station wlan0 scan
-station wlan0 connect <your-wifi-name>
-# Enter password when prompted
-```
-
-**Installation:**
-Run `archinstall` with these settings:
-
-| Setting      | Value                       |
-| ------------ | --------------------------- |
-| Mirrors      | Your country                |
-| Disk config  | Default partitioning layout |
-| File system  | btrfs (with compression)    |
-| Encryption   | LUKS + password             |
-| User account | Add user + Superuser: Yes   |
-| Audio        | pipewire                    |
-| Network      | Copy ISO config             |
-
-**⚠️ Important:** Enable disk encryption! ArchRiot relies on disk encryption for security.
-
-### ArchRiot Installation
-
-Once you have Arch Linux running:
-
-**1. Sudo Configuration**
-The installer needs passwordless sudo. If not configured:
-
-```bash
-# Add user to wheel group
-sudo usermod -aG wheel $USER
-
-# Enable passwordless sudo
-echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
-
-# Log out and back in
-```
-
-**2. Run the Installer**
+**Already running Arch Linux or an Arch-based distro? Perfect.**
 
 ```bash
 curl -sSL https://archri.ot/install | bash
 ```
 
-**3. Follow Prompts**
+**Requirements:**
 
-- Git configuration setup
-- Package installation
-- Theme configuration
-- Reboot when complete
+- Existing Arch Linux installation (or Arch-based like CachyOS, Manjaro, EndeavourOS)
+- Passwordless sudo configured
+- Internet connection
+
+**What happens:**
+
+- Intelligent package installation
+- Hyprland + ArchRiot desktop environment
+- Theme configuration and customization
+- Reboot into your transformed system
+
+_Need help setting up Arch Linux first? [See detailed guide below](#detailed-arch-setup-for-power-users)_
 
 </details>
 
 ---
 
-## Table of Contents
+## 📚 Navigate This Guide
 
-- [Essential Commands](#️-essential-commands)
-- [Control Panel](#control-panel)
-- [Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate)
-- [Key Customizations](#-key-customizations)
-- [System Management](#-system-management)
-- [CypherRiot Theme System](#-cypherriot-theme-system)
-- [Understanding the YAML Configuration](#understanding-the-yaml-configuration)
-- [Key Features & Performance](#-key-features--performance)
-- [Differences from Original Omarchy](#-differences-from-original-omarchy)
-- [Installation Verification System](#-installation-verification-system)
-- [Validation & Testing](#-validation--testing)
-- [Management Tools](#️-management-tools)
-- [Repository Information](#-repository-information)
-- [System Requirements](#-system-requirements)
-- [Optional Advanced Tools](#-optional-advanced-tools)
-- [VM & Hardware Notes](#️-vm--hardware-notes)
+**🚀 Getting Started:**
+
+- [⌨️ Essential Commands](#️-essential-commands) - Master your new desktop in minutes
+- [🎛️ Control Panel](#️-archriot-control-panel) - ArchRiot's powerful management interface
+
+**🔧 Advanced Setup:**
+
+- [💾 Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate) - Never lose your perfect setup
+- [🎯 Key Customizations](#-key-customizations) - What makes ArchRiot special
+
+**🎨 Customization & Themes:**
+
+- [🎨 CypherRiot Theme System](#-cypherriot-theme-system) - Beautiful, cohesive aesthetics
+- [📋 YAML Configuration](#understanding-the-yaml-configuration) - Under the hood architecture
+
+**📊 System Info:**
+
+- [⚡ ArchRiot At a Glance](#-archriot-at-a-glance) - Why ArchRiot flies
+- [🔀 Differences from Omarchy](#-differences-from-original-omarchy) - What we changed and why
+- [🔍 Installation Verification](#-installation-verification-system) - How we ensure quality
+- [🛠️ Development Tools](#️-development-tools) - Build from source and contribute
+- [📋 System Requirements](#-system-requirements) - What you need to run ArchRiot
+- [🔧 Optional Advanced Tools](#-optional-advanced-tools) - Secure Boot and power user features
+- [🖥️ VM & Hardware Notes](#️-vm--hardware-notes) - Compatibility and hardware info
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
-#### One-Line Install or Upgrade (Recommended)
+#### 🚀 One-Line Install or Upgrade
+
+**The only command you need to remember:**
 
 ```bash
 curl -fsSL https://ArchRiot.org/setup.sh | bash
@@ -222,173 +196,168 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 
 ![ArchRiot Upgrade Demo](config/images/upgrade.gif)
 
-This downloads and runs the pre-built ArchRiot installer binary with YAML-based configuration. The installer automatically handles package installation, configuration deployment, and system setup.
+This downloads and runs our bulletproof Go binary installer with intelligent YAML configuration. Upgrading is exactly the same command - because simplicity is the ultimate sophistication.
 
-**Note: Upgrading is exactly the same command! Simple!**
+**What happens:** Automatic package installation, configuration deployment, and system setup with complete rollback capability if anything goes wrong.
 
-### Why Go + YAML Dominates Shell Scripts
+## ⌨️ Master Your ArchRiot Desktop
 
-ArchRiot has evolved beyond the fragile, error-prone shell script installations that plague most Linux distributions. Our architecture represents a quantum leap in system reliability and maintainability:
+_The keyboard shortcuts that'll make you wonder how you ever used a mouse_
 
-**Technical Superiority:**
+### 🎯 Getting Started
 
-- **Go Binary**: Compiled, statically-linked executable with proper error handling, structured logging, and predictable behavior across environments
-- **YAML Configuration**: Declarative, type-safe configuration that eliminates shell script parsing nightmares and variable expansion hell
-- **Dependency Resolution**: Intelligent module dependency management that traditional shell scripts simply cannot provide
-- **Atomic Operations**: Proper transaction-like behavior with rollback capabilities, unlike shell scripts that fail halfway and leave systems in broken states
-- **Memory Safety**: No shell injection vulnerabilities, buffer overflows, or undefined behavior that plague bash-based installers
+_Your gateway to ArchRiot mastery - memorize these first_
 
-**What We Left Behind:**
+| Keybinding       | Action                                     |
+| ---------------- | ------------------------------------------ |
+| `SUPER + H`      | Show HELP - Your lifeline when lost        |
+| `SUPER + D`      | App launcher - Find anything instantly     |
+| `SUPER + RETURN` | Terminal - Your command center (Ghostty)   |
+| `SUPER + L`      | Lock screen - Beautiful CypherRiot styling |
+| `SUPER + ESCAPE` | Power menu - Sleep, restart, or shutdown   |
 
-- Shell script fragility where a single missing quote breaks everything
-- Untracked state changes scattered across hundreds of script files
-- Zero error recovery when installations fail partway through
-- Impossible-to-debug variable scoping and expansion issues
-- Platform-dependent shell behavior causing random failures
-- No validation of configuration before execution
+### 🪟 Window Management (Most Used)
 
-The result: **100% reliable installations** with **complete system state management** that shell scripts could never achieve. This isn't just an upgrade—it's architectural superiority.
+_Tiling mastery - where ArchRiot really shines_
 
-### Installation Features
+| Keybinding                   | Action                                          |
+| ---------------------------- | ----------------------------------------------- |
+| `SUPER + W` or `SUPER + Q`   | Close window - Goodbye forever                  |
+| `SUPER + V`                  | Toggle floating - Break free                    |
+| `SUPER + J`                  | Toggle split - Reorganize space                 |
+| `SUPER + Arrow Keys`         | Move focus - Navigate like a pro                |
+| `SUPER + SHIFT + Arrow Keys` | Swap windows - Rearrange perfection             |
+| `SUPER + CTRL + Arrow Keys`  | Smart movement - Let Hyprland think             |
+| `SUPER + 1-4`                | Switch workspace - Your digital rooms           |
+| `SUPER + SHIFT + 1-4`        | Move window to workspace - Relocate             |
+| `SUPER + SHIFT + RETURN`     | Floating terminal - When you need overlay power |
 
-- **Preserves Critical Configs** - Won't overwrite your key configurations
-- **Dependency verification** - Ensures Python3 and required packages
-- **Script validation** - Verifies all waybar modules are functional
-- **Error handling** - Clear feedback and rollback capability
-- **100% confidence** - Comprehensive testing and validation
+### 💻 Core Applications
 
-## ⌨️ Essential Commands
+_The tools that matter, one keystroke away_
 
-### Getting Started
+| Keybinding               | Action                                                |
+| ------------------------ | ----------------------------------------------------- |
+| `SUPER + F`              | File manager - Navigate your digital kingdom (Thunar) |
+| `SUPER + B`              | Browser - Privacy-focused web (Brave)                 |
+| `SUPER + Z`              | Code editor - Modern development (Zed)                |
+| `SUPER + N`              | Text editor - Power user paradise (Neovim)            |
+| `SUPER + O`              | Simple text editor - Clean and fast (GNOME)           |
+| `SUPER + T`              | System monitor - See everything (btop)                |
+| `SUPER + SHIFT + RETURN` | Floating terminal - Overlay power mode                |
 
-| Keybinding       | Action                                      |
-| ---------------- | ------------------------------------------- |
-| `SUPER + H`      | Show HELP (SUPER Key Bindings)              |
-| `SUPER + D`      | App launcher (fuzzel)                       |
-| `SUPER + RETURN` | Open terminal (Ghostty)                     |
-| `SUPER + L`      | Lock screen (integrated CypherRiot styling) |
-| `SUPER + ESCAPE` | Power menu                                  |
+### 💬 Communication & Social
 
-### Window Management (Most Used)
+_Stay connected without selling your soul to data miners_
 
-| Keybinding                   | Action                           |
-| ---------------------------- | -------------------------------- |
-| `SUPER + W` or `SUPER + Q`   | Close window                     |
-| `SUPER + V`                  | Toggle floating                  |
-| `SUPER + J`                  | Toggle split                     |
-| `SUPER + Arrow Keys`         | Move focus                       |
-| `SUPER + SHIFT + Arrow Keys` | Swap windows                     |
-| `SUPER + CTRL + Arrow Keys`  | Smart window movement            |
-| `SUPER + 1-4`                | Switch workspace                 |
-| `SUPER + SHIFT + 1-4`        | Move window to workspace         |
-| `SUPER + SHIFT + RETURN`     | Open floating terminal (Ghostty) |
+| Keybinding  | Action                                          |
+| ----------- | ----------------------------------------------- |
+| `SUPER + E` | Email - Encrypted and private (Proton Mail)     |
+| `SUPER + G` | Signal messenger - NSA-proof conversations      |
+| `SUPER + S` | Signal launcher - Smart Signal integration      |
+| `SUPER + M` | Google Messages - When you must use the machine |
+| `SUPER + X` | X/Twitter                                       |
 
-### Core Applications
+### 📸 Screenshots & Recording
 
-| Keybinding               | Action                          |
-| ------------------------ | ------------------------------- |
-| `SUPER + F`              | File manager (Thunar)           |
-| `SUPER + B`              | Browser (Brave)                 |
-| `SUPER + Z`              | Code editor (Zed)               |
-| `SUPER + N`              | Text editor (Neovim)            |
-| `SUPER + O`              | Text editor (Gnome Text Editor) |
-| `SUPER + T`              | System monitor (btop)           |
-| `SUPER + SHIFT + RETURN` | Centered floating terminal      |
+_Capture your ArchRiot greatness and share it with the world_
 
-### Communication & Social
+| Keybinding          | Action                                                  |
+| ------------------- | ------------------------------------------------------- |
+| `SUPER + SHIFT + S` | Region screenshot - Select exactly what matters         |
+| `SUPER + SHIFT + W` | Window screenshot - Perfect app captures                |
+| `SUPER + SHIFT + F` | Full screen - Show off your entire desktop              |
+| `Kooha`             | Screen recorder - Make tutorials (launch via `SUPER+D`) |
 
-| Keybinding  | Action                            |
-| ----------- | --------------------------------- |
-| `SUPER + E` | Email (Proton Mail)               |
-| `SUPER + G` | Signal messenger                  |
-| `SUPER + S` | Signal messenger (smart launcher) |
-| `SUPER + M` | Google Messages                   |
-| `SUPER + X` | X/Twitter                         |
+### 🎨 Wallpaper Management
 
-### Screenshots & Recording
+_Keep your desktop fresh with ArchRiot's intelligent wallpaper system_
 
-| Keybinding          | Action                                    |
-| ------------------- | ----------------------------------------- |
-| `SUPER + SHIFT + S` | Region screenshot                         |
-| `SUPER + SHIFT + W` | Window screenshot                         |
-| `SUPER + SHIFT + F` | Full screen screenshot                    |
-| `Kooha`             | GUI screen recorder (launch from SUPER+D) |
+| Keybinding             | Action                                    |
+| ---------------------- | ----------------------------------------- |
+| `SUPER + CTRL + SPACE` | Cycle backgrounds - Fresh vibes on demand |
 
-### Wallpaper Management
+**🎛️ Control Panel Magic:**
 
-| Keybinding             | Action                              |
-| ---------------------- | ----------------------------------- |
-| `SUPER + CTRL + SPACE` | Cycle through backgrounds (keybind) |
+- Launch ArchRiot Control Panel for drag-and-drop wallpaper management
+- System wallpapers (1-20) + your custom collection (U1, U2, etc.) perfectly organized
+- Changes apply instantly - no restarts, no waiting, just beauty
 
-**Control Panel Management:**
-
-- Open ArchRiot Control Panel to add custom backgrounds via file chooser
-- System backgrounds (1-20) and user backgrounds (U1, U2, etc.) clearly labeled
-- Background changes apply immediately and persist across reboots
-
-**Custom Wallpaper Management:**
+**🖼️ Custom Wallpaper Power Moves:**
 
 ```bash
-# Add custom backgrounds via Control Panel file chooser
-# Or manually copy to: ~/.config/archriot/backgrounds/
+# Pro method: Use the Control Panel's file chooser
+# Quick method: Drop files directly into ~/.config/archriot/backgrounds/
 
-# Remove specific custom background
+# Clean house - remove specific wallpaper
 rm ~/.config/archriot/backgrounds/user_01.jpg
 
-# Remove all custom backgrounds
+# Nuclear option - start fresh
 rm ~/.config/archriot/backgrounds/*
-
-# Remove custom backgrounds directory entirely
-rm -rf ~/.config/archriot/backgrounds/
 ```
 
-### System Management
+### ⚙️ System Management
+
+_Keep your ArchRiot system running like a well-oiled machine_
 
 ```bash
-upgrade-system                       # Optimized system upgrade utility (ArchRiot enhanced)
-upgrade-system --all --backup        # Full automated upgrade with backup
-upgrade-system --dry-run             # Preview available updates
+upgrade-system                       # ArchRiot's intelligent upgrade engine
+upgrade-system --all --backup        # Full upgrade with safety net included
+upgrade-system --dry-run             # Preview what's coming (no surprises)
 
-migrate                              # Backup/restore system (interactive TUI)
-sudo systemctl reboot                # Restart system
-sudo systemctl poweroff              # Shutdown system
+migrate                              # Backup/restore wizard - your insurance policy
+sudo systemctl reboot                # Fresh start - sometimes you need it
+sudo systemctl poweroff              # Graceful shutdown - not a crash
 ```
 
-### Audio & Media
+### 🎵 Audio & Media
+
+_Hardware media keys that actually work - imagine that!_
 
 ```bash
-XF86AudioRaiseVolume                 # Volume up (hardware buttons)
-XF86AudioLowerVolume                 # Volume down (hardware buttons)
-XF86AudioMute                        # Toggle mute (hardware buttons)
-XF86AudioMicMute                     # Toggle microphone (hardware buttons)
-XF86AudioPlay/Pause                  # Media play/pause (hardware buttons)
+XF86AudioRaiseVolume                 # Volume up - with gorgeous overlay
+XF86AudioLowerVolume                 # Volume down - smooth as silk
+XF86AudioMute                        # Toggle mute - instant feedback
+XF86AudioMicMute                     # Microphone toggle - privacy at a keystroke
+XF86AudioPlay/Pause                  # Media control - works with everything
 
-# Beautiful volume overlay appears for 1 second with progress bar
-# These are actual hardware keys, not application shortcuts
+# Beautiful volume overlay appears instantly with progress bar
+# These are your actual hardware keys working the way they should
 ```
 
-### Waybar Controls (Status Bar)
+### 📊 Waybar Controls (Status Bar)
+
+_Your desktop's mission control - everything you need at a glance_
 
 ```bash
-Click tomato timer                   # Start/pause Pomodoro timer
-Double-click tomato timer            # Reset timer to 25:00
-Click network icon                   # Open network manager
+Click tomato timer                   # Pomodoro focus mode - stay productive
+Double-click tomato timer            # Reset to 25:00 - fresh start
+Click network icon                   # Network manager - connect anywhere
+Click volume icon                    # Audio settings - fine-tune your sound
+Click battery icon                   # Power management - stay charged
 ```
 
-### Fix Scripts (If Needed)
+### 🔧 Emergency Fixes (When Things Go Sideways)
+
+_Because sometimes even perfect systems need a gentle nudge_
 
 ```bash
-curl -fsSL https://archriot.org/setup.sh | bash           # Re-run installer if broken
+curl -fsSL https://archriot.org/setup.sh | bash           # The nuclear reset - fixes everything
 ```
 
-## 📋 Version History
+## 📋 Evolution Log
 
-**Current Release:** v2.7.2 - Critical yay installation + dependency fixes
+_The relentless march toward Linux perfection_
 
-**Recent Updates:**
+**🔥 Current Release:** v2.7.5 - Lock screen colors, image viewer improvements, and volume preservation
 
+**🚀 Recent Milestones:**
+
+- **v2.7.4:** DPMS wake fixes and system optimization
+- **v2.7.3:** Enhanced theme consistency and bug fixes
+- **v2.7.2:** Critical yay installation + dependency fixes
 - **v2.7.1:** Hardware module path issue fixes
-- **v2.7.0:** Bulletproof fail-fast error handling
+- **v2.7.0:** Bulletproof fail-fast error handling - because failure is not an option
 - **v2.6.14:** Waybar 3-state + package safety restoration
 - **v2.6.13:** Bulletproof setup.sh + Control Panel UX improvements
 
@@ -397,13 +366,15 @@ curl -fsSL https://archriot.org/setup.sh | bash           # Re-run installer if 
 git log --grep="FIX" --oneline
 ```
 
-## Control Panel
+## 🎛️ ArchRiot Control Panel
 
-ArchRiot includes a comprehensive GTK4-based Control Panel for managing system settings through an intuitive graphical interface.
+**The command center that makes Linux actually user-friendly**
 
-Access it via `SUPER+C` or by running `archriot-control-panel`.
+ArchRiot's Control Panel isn't just another settings app - it's the missing piece that makes advanced Linux features accessible to humans. Built with modern GTK4, it's fast, beautiful, and actually makes sense.
 
-![ArchRiot Control Panel Demo](config/images/control-panel.png)
+**Launch it:** `SUPER+C` or run `archriot-control-panel` from anywhere
+
+![ArchRiot Control Panel](config/images/control-panel.png)
 
 ### 🎛️ **Features**
 
@@ -424,22 +395,28 @@ Access it via `SUPER+C` or by running `archriot-control-panel`.
 
 ### 🎨 **Technical Excellence**
 
-- **GTK4 Application** - Modern interface with ArchRiot CypherRiot theming
-- **Real-time Integration** - All changes apply immediately to running system
-- **Persistent Settings** - Configuration survives reboot and system changes
-- **Modular Architecture** - Clean, maintainable widget-based design
+_Because you deserve software that doesn't suck_
+
+- **GTK4 Application** - Cutting-edge interface with gorgeous CypherRiot theming
+- **Real-time Integration** - Watch changes happen instantly - no "apply" buttons needed
+- **Bulletproof Persistence** - Your settings survive reboots, updates, and system chaos
+- **Modular Architecture** - Built right from day one - extensible and maintainable
 
 ## 💾 **Built-in Backup & Recovery with Migrate**
 
-ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - a powerful backup and recovery tool also created by Cypher Riot. This separate project is downloaded and configured during ArchRiot installation to provide seamless backup capabilities. Never lose your configurations again!
+**Your perfect ArchRiot setup is precious - protect it like the digital treasure it is**
+
+ArchRiot automatically installs and integrates **[Migrate](https://github.com/CyphrRiot/Migrate)** - our battle-tested backup and recovery system. This isn't some afterthought tool - it's your insurance policy against hardware failures, user errors, and the inevitable "what did I just delete?" moments.
+
+_Because spending weeks recreating your perfect setup is a special kind of hell._
 
 ### 🛡️ **Why Migrate Matters**
 
-- **Complete System Backup** - Captures all your dotfiles, configurations, and customizations
-- **Interactive TUI** - Beautiful text interface makes backup/restore simple
-- **Live System Recovery** - Restore without reinstalling your entire system
-- **Cross-Installation Migration** - Move your setup between different machines
-- **Automatic Updates** - Always gets the latest version during ArchRiot installation
+- **Complete System Backup** - Every dotfile, every tweak, every perfect configuration preserved
+- **Interactive TUI** - Gorgeous terminal interface that makes complex operations simple
+- **Live System Recovery** - Restore without nuking your system - keep working while fixing
+- **Cross-Installation Migration** - Clone your setup to new machines in minutes
+- **Zero Maintenance** - Updates automatically with ArchRiot - one less thing to worry about
 
 ### 🔥 **Quick Start**
 
@@ -450,16 +427,6 @@ migrate                              # Launch interactive backup/restore interfa
 **No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
 
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
-
-### 🔧 Troubleshooting
-
-Quick fixes for common issues:
-
-- **Installation errors**: ArchRiot binary provides detailed logging and error diagnostics
-- **Configuration issues**: The installer either works or it fails - no gray area
-- **Reliable installer**: Go binary with atomic operations and proper rollback capabilities
-- **Something broken?**: Re-run the installer - it's idempotent and safe
-- **No validation needed**: The installer IS the validation
 
 ## 🎯 Key Customizations
 
@@ -701,55 +668,19 @@ desktop:
 
 This YAML system provides clean separation of packages, configurations, and commands while maintaining full dependency resolution and proper installation ordering.
 
-## ⚡ Key Features & Performance
+## ⚡ ArchRiot At a Glance
 
-### Window Management
+_The elevator pitch - everything that makes ArchRiot special in one place_
 
-- **Hyprland compositor** - Smooth animations, efficient memory usage
-- **Tiling & floating** - Flexible window arrangements
-- **Multi-workspace** - Organized workflow separation
-- **Auto-login** - Direct to tty1 with Hyprland autostart
-- **Blue light filter** - Optional hyprsunset reduces eye strain during evening use (installer asks user preference)
+**🪟 Wayland Excellence:** Hyprland compositor with smooth animations, intelligent tiling, and zero XWayland compromises
 
-### Development Ready
+**💻 Developer Paradise:** Fish shell, Zed editor, Neovim, modern CLI tools (eza, bat, ripgrep), and containers that just work
 
-- **Fish shell** - Modern, user-friendly command line with autocompletion
-- **Modern CLI tools** - eza, bat, ripgrep, fzf, zoxide for enhanced productivity
-- **Git integration** - GitHub CLI, lazygit, proper aliases
-- **Code editors** - Zed (Wayland native), Neovim (power user)
-- **Container support** - Docker, development environments
-- **Wayland Native** - All development tools run with native Wayland for better performance
-- **CypherRiot Integration** - Consistent dark theme across all editors and development tools
+**🛡️ Privacy Arsenal:** Brave browser, Proton Mail, Mullvad VPN, Signal messaging, and Feather Wallet - all with native Wayland support
 
-### Privacy & Security Focus
+**🎨 Visual Perfection:** CypherRiot dark themes, optional blue light filtering, and beautiful interfaces that don't hurt your eyes at 3AM
 
-- **Brave browser** - Ad blocking, privacy protection by default with native Wayland
-- **Proton Mail** - End-to-end encrypted email with XF86Mail key support and proper icon
-- **Mullvad VPN** - Anonymous browsing with live waybar status indicator
-- **Feather Wallet** - Privacy-focused Monero wallet with beautiful feather icon
-- **GNOME Secrets** - 💀 Clean password manager using KeePass format with perfect GTK integration
-- **Signal** - Secure messaging with native Wayland support (no more scaling issues)
-- **Local tools** - Reduced dependency on cloud services
-- **Clean telemetry** - Minimal data collection
-- **Media Downloads** - yt-dlp and spotdl for offline media privacy
-
-### Health & Comfort Features
-
-- **Optional blue light filtering** - installer asks if you want hyprsunset configured with `exec-once = hyprsunset -t 3500` for immediate warm temperature on startup
-- **3500K color temperature** - Scientifically optimal warm setting reduces blue light exposure without color distortion
-- **Simple management** - Enable/disable by editing `~/.config/hypr/hyprland.conf` (add/remove `exec-once = hyprsunset -t 3500`)
-- **No manual switching needed** - Runs continuously from login, unlike redshift/f.lux time-based switching
-- **GPU accelerated filtering** - Native Wayland compositor integration for smooth, lag-free color adjustment
-- **Memory pressure relief** - Intelligent VM tuning prevents system lag and swap thrashing
-- **Responsive performance** - Conservative memory management keeps applications snappy
-- **Clean, minimal UI** - Reduced visual clutter and distractions for focused work
-
-### Audio & Media
-
-- **PipeWire/WirePlumber** - Modern audio stack with low latency
-- **MPV** - Lightweight, powerful video player with hardware acceleration
-- **Screenshot integration** - Multiple capture methods with clipboard support
-- **Media key support** - Volume, brightness, and playback controls work out of the box
+**⚡ Performance Tuned:** Intelligent memory management, hardware acceleration, and optimized audio stack for lag-free computing
 
 ## 🔀 Differences from Original Omarchy
 
@@ -811,38 +742,18 @@ After fresh installation, you should see:
 - **Image files:** Show thumbnail previews in Thunar
 - **Waybar:** Running with tomato timer, system stats, and transparent microphone button
 
-## 🧪 Validation & Testing
+## 🛠️ Development Tools
 
-### System Health Validation
-
-The ArchRiot installer performs comprehensive validation automatically:
-
-**Built-in validation includes:**
-
-- YAML configuration integrity and module dependency resolution
-- System compatibility (Arch Linux, hardware, drivers)
-- Package availability and repository accessibility
-- Network connectivity and download verification
-- Configuration file deployment and permissions
-- Service startup and functionality testing
-- Complete dependency tree validation
-
-**Real-time feedback:** Progress bars, status updates, and immediate error reporting if anything goes wrong. The installer won't continue if any validation step fails.
-
-## 🛠️ Management Tools
+_For contributors and power users who want to build from source_
 
 ```bash
-# ArchRiot Management
-cat ~/.local/share/archriot/VERSION                   # Show ArchRiot version
-
-# System Management
-sudo pacman -Syu                     # Update system packages
-yay -Syu                             # Update AUR packages
-migrate                              # Backup/restore system (TUI)
-
-# Development Tools
-make                                 # Build ArchRiot from source (in repo)
+# Build ArchRiot from source (in repo directory)
+make                                 # Build the Go binary
 make test                            # Run test suite
+make dev                             # Development build
+
+# Version checking
+cat ~/.local/share/archriot/VERSION  # Show installed ArchRiot version
 ```
 
 ## 📂 Repository Information
@@ -892,92 +803,29 @@ _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] a
 
 [^1]: In the context of Linux, "rice" is slang for customizing or tweaking a desktop environment or user interface to make it look aesthetically pleasing or highly personalized, often with a focus on minimalism, unique themes, or lightweight setups. It comes from the term "ricer," originally used in car culture to describe heavily modified cars (inspired by "rice burner" for Japanese cars).
 
-## 🧪 EXPERIMENTAL
-
-### ArchRiot Linux ISO (Beta)
-
-## 🚀 **BETA ArchRiot Linux ISO Available!**
-
-> Skip the manual Arch installation entirely with our custom ArchRiot Linux ISO!
-
-### **Downloads**
-
-- [archriot_2025.iso (1.1GB)](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.iso)
-- [archriot_2025.sha256](https://github.com/CyphrRiot/ArchRiot/releases/download/2.5/archriot-2025.sha256)
-
-### **SHA256 Checksum**
-
-**Verify the Download**:
-
-```bash
-    sha256sum -c archriot_2025.sha256
-```
-
-Boot and run `riot-install` from the prompt!
-
-**⚠️ Warning:** This is experimental software. Use the standard installation method above for production systems.
-
 ## 🖥️ VM & Hardware Notes
 
-**ArchRiot is designed for bare metal hardware.** While it can run in VMs, you're missing the point—this system is built to replace whatever disappointing Linux distribution you're currently stuck with. Install it on real hardware where it belongs.
+**ArchRiot is designed for bare metal hardware.** While it works perfectly in VMs, you're missing the full experience—this system is built to replace whatever disappointing Linux distribution you're currently stuck with. Install it on real hardware where it belongs.
 
-**That said, if you insist on VMs:**
+**For VM testing:**
 
-_Thanks to [DTWaling on X](https://x.com/DTWaling) for VM installation guidance._
+- **VirtualBox/VMware:** Works out of the box with the ArchRiot ISO
+- **QEMU/KVM:** Full acceleration support with virtio drivers
+- **Recommended VM specs:** 4GB+ RAM, 20GB+ storage, EFI boot enabled
 
-### Disk Partitioning in VirtualBox
+**Hardware compatibility:**
 
-The Arch Linux installer's auto partitioning might not detect the full disk space allocated by VirtualBox. If this happens, archinstall will partition based on the actual space pre-allocated by VirtualBox rather than the full virtual disk size.
+- **Multi-GPU systems:** Automatic detection and driver installation
+- **High-DPI displays:** Proper scaling across all applications
+- **Gaming hardware:** Full support for NVIDIA/AMD/Intel graphics
+- **Modern laptops:** Battery management, backlight control, and power profiles
 
-**Solutions:**
+**You're done!** If the installer finished, your ArchRiot system is ready to rock. Reboot and enjoy your perfectly configured desktop.
 
-1. **Pre-allocate full space:** In VirtualBox disk settings, pre-allocate the full disk space before installation
-2. **Manual partitioning:** Use `gdisk` to create your own EFI boot and root partitions, then configure archinstall to use your pre-configured partitions
-
-#### Plymouth Installation Issues
-
-If installation stops at the "running: plymouth" step (95% progress) and returns to command prompt:
-
-**The installation is likely 99% complete!** Plymouth is a boot splash screen and not essential for desktop functionality.
-
-**To complete installation:**
-
-```bash
-# Complete remaining steps
-sudo updatedb && fc-cache -fv
-
-# Verify core components
-which waybar && echo "✓ Waybar OK" || echo "❌ Waybar missing"
-which hyprland && echo "✓ Hyprland OK" || echo "❌ Hyprland missing"
-
-# Check if key components are working
-
-# Reboot to apply all configurations
-reboot
-```
-
-**To install Plymouth later:**
-
-```bash
-# Re-run installer to complete Plymouth installation
-curl -fsSL https://archriot.org/setup.sh | bash
-```
-
-### Post-Installation
-
-If the installer completes successfully, your system is fully functional. The installer validates every component during installation - if it finishes, everything works.
-
-**No separate verification needed.** The installer already validated:
-
-- All packages installed correctly
-- All configurations deployed properly
-- All services started successfully
-- All dependencies resolved
-
-**Issues after installation?** Re-run the installer - it's designed to fix problems and maintain your system.
+**Something not working?** Re-run the installer - it's designed to fix problems and maintain your system.
 
 ## 📄 License
 
-ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), maintaining compatibility with the original Omarchy project while enabling community contributions and modifications.
+ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), enabling community contributions and modifications.
 
 # 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
