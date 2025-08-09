@@ -768,7 +768,7 @@ _Note: ArchRiot began as a unique rice[^1] and evolved from [DHH's Omarchy](http
 
 ## 🖥️ VM & Hardware Notes
 
-**ArchRiot is designed for bare metal hardware.** While it works perfectly in VMs, you're missing the full experience—this system is built to replace whatever disappointing Linux distribution you're currently stuck with. Install it on real hardware where it belongs.
+**ArchRiot is designed for bare metal hardware.** While it works perfectly in VMs, you're missing the full experience. This system is built to replace whatever disappointing Linux distribution you're currently stuck with. Install it on real hardware where it belongs.
 
 **For VM testing:**
 
