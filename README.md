@@ -96,8 +96,7 @@ curl -sSL https://archri.ot/install | bash
 
 _For those who like to know exactly what's happening under the hood_
 
-<details>
-<summary><b>🔥 Method 1: ArchRiot ISO - The Full Experience</b></summary>
+### 🔥 Method 1: ArchRiot ISO - The Full Experience
 
 **Turn any computer into an ArchRiot machine in under 30 minutes**
 
@@ -125,10 +124,7 @@ _For those who like to know exactly what's happening under the hood_
     - Hyprland loads instantly, themes are gorgeous, everything just works
     - _This is what Linux should have been all along_
 
-</details>
-
-<details>
-<summary><b>⚡ Method 2: Install Script - For Existing Arch Systems</b></summary>
+### ⚡ Method 2: Install Script - For Existing Arch Systems
 
 **Already running Arch Linux or an Arch-based distro? Perfect.**
 
@@ -150,8 +146,6 @@ curl -sSL https://archri.ot/install | bash
 - Reboot into your transformed system
 
 _Need help setting up Arch Linux first? Check the [official Arch installation guide](https://wiki.archlinux.org/title/Installation_guide)._
-
-</details>
 
 ---
 
