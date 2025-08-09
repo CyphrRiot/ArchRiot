@@ -186,7 +186,6 @@ desktop:
             - iwgtk
             - file-roller
             - secrets
-            - featherwallet-bin
             - fragments
             - wget
         configs:
