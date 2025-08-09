@@ -149,7 +149,7 @@ curl -sSL https://archri.ot/install | bash
 - Theme configuration and customization
 - Reboot into your transformed system
 
-_Need help setting up Arch Linux first? [See detailed guide below](#detailed-arch-setup-for-power-users)_
+_Need help setting up Arch Linux first? Check the [official Arch installation guide](https://wiki.archlinux.org/title/Installation_guide)._
 
 </details>
 
