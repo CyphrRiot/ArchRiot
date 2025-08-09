@@ -333,7 +333,7 @@ Click battery icon                   # Power management - stay charged
 _Because sometimes even perfect systems need a gentle nudge_
 
 ```bash
-curl -fsSL https://archriot.org/setup.sh | bash           # The nuclear reset - fixes everything
+curl -fsSL https://archriot.org/setup.sh | bash           # Upgrade - fixes everything
 ```
 
 ## 📋 Evolution Log
