@@ -3,6 +3,7 @@ package installer
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -60,6 +61,33 @@ func InstallPackages(packages []string) error {
 		}
 		logger.LogMessage("WARNING", fmt.Sprintf("Pacman failed for packages: %v", toInstall))
 		logger.LogMessage("WARNING", fmt.Sprintf("Pacman error: %s", outputStr))
+
+		// Try ONE retry with fresh database sync before falling back to yay
+		logger.LogMessage("INFO", "🔄 Refreshing databases and retrying pacman once...")
+		if syncErr := SyncPackageDatabases(); syncErr != nil {
+			logger.LogMessage("WARNING", fmt.Sprintf("Database refresh failed: %v", syncErr))
+		}
+
+		// Single retry attempt
+		retryCmd := exec.Command("sudo", append([]string{"pacman", "-S", "--noconfirm", "--needed"}, toInstall...)...)
+		retryOutput, retryErr := retryCmd.CombinedOutput()
+
+		if retryErr == nil {
+			logger.LogMessage("SUCCESS", "✅ Retry successful! Packages installed with pacman")
+			duration := time.Since(start)
+			logger.LogMessage("SUCCESS", fmt.Sprintf("✅ Package installation completed in %v", duration))
+			for _, pkg := range toInstall {
+				logger.LogMessage("SUCCESS", fmt.Sprintf("✓ Installed: %s", pkg))
+			}
+			return nil
+		}
+
+		// Retry also failed, log it and continue to yay fallback
+		retryOutputStr := string(retryOutput)
+		if len(retryOutputStr) > 300 {
+			retryOutputStr = retryOutputStr[:300] + "... (truncated)"
+		}
+		logger.LogMessage("WARNING", fmt.Sprintf("Pacman retry also failed: %s", retryOutputStr))
 		logger.LogMessage("INFO", "🔄 Switching to yay for AUR package support...")
 
 		// Identify likely AUR packages
@@ -82,6 +110,30 @@ func InstallPackages(packages []string) error {
 		logger.LogMessage("INFO", "⏳ This may take 5-30 minutes depending on packages and system speed")
 		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
 		output, err = cmd.CombinedOutput()
+
+		if err != nil {
+			// Check if it's a network error and retry once
+			outputStr := string(output)
+			if strings.Contains(outputStr, "failure in name resolution") || strings.Contains(outputStr, "dial tcp") || strings.Contains(outputStr, "network") {
+				logger.LogMessage("WARNING", "Network error detected, retrying yay once...")
+				time.Sleep(3 * time.Second)
+
+				retryCmd := exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
+				retryOutput, retryErr := retryCmd.CombinedOutput()
+
+				if retryErr == nil {
+					logger.LogMessage("SUCCESS", "✅ Yay retry successful!")
+					output = retryOutput
+					err = nil
+				} else {
+					retryOutputStr := string(retryOutput)
+					if len(retryOutputStr) > 300 {
+						retryOutputStr = retryOutputStr[:300] + "... (truncated)"
+					}
+					logger.LogMessage("WARNING", fmt.Sprintf("Yay retry also failed: %s", retryOutputStr))
+				}
+			}
+		}
 
 		if err != nil {
 			// Log the error and fail for critical packages
