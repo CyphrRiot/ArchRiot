@@ -484,10 +484,10 @@ ArchRiot includes a highly customized Waybar (status bar) with comprehensive sys
 - **Smart centering** - All floating windows automatically center regardless of monitor size
 - **Cross-resolution compatibility** - No hardcoded pixel positions, works on any display setup
 - **Optimized app windows**:
-    - **X/Twitter**: `850x90%` (mobile-style layout with responsive height)
-    - **Proton Mail**: `1000x75%` (perfect email reading dimensions)
-    - **Google Messages**: `1000x75%` (comfortable messaging interface)
-    - **Signal**: `1000x1080` (maintains native desktop experience)
+    - **X/Twitter**: `40% x 90%` (mobile-style layout with responsive height)
+    - **Proton Mail**: `45% x 80%` (perfect email reading dimensions)
+    - **Google Messages**: `40% x 85%` (comfortable messaging interface)
+    - **Signal**: `40% x 80%` (maintains native desktop experience)
 - **Future-proof design** - Window rules adapt automatically to new monitor configurations
 
 ### 🎮 **GPU Support**
