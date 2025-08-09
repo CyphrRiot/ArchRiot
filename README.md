@@ -153,7 +153,7 @@ _Need help setting up Arch Linux first? Check the [official Arch installation gu
 
 **🚀 Getting Started:**
 
-- [⌨️ Essential Commands](#️-essential-commands) - Master your new desktop in minutes
+- [⌨️ Essential Commands](#️-master-your-archriot-desktop) - Master your new desktop in minutes
 - [🎛️ Control Panel](#️-archriot-control-panel) - ArchRiot's powerful management interface
 
 **🔧 Advanced Setup:**
@@ -173,7 +173,6 @@ _Need help setting up Arch Linux first? Check the [official Arch installation gu
 - [🔍 Installation Verification](#-installation-verification-system) - How we ensure quality
 - [🛠️ Development Tools](#️-development-tools) - Build from source and contribute
 - [📋 System Requirements](#-system-requirements) - What you need to run ArchRiot
-- [🔧 Optional Advanced Tools](#-optional-advanced-tools) - Secure Boot and power user features
 - [🖥️ VM & Hardware Notes](#️-vm--hardware-notes) - Compatibility and hardware info
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
@@ -762,34 +761,6 @@ cat ~/.local/share/archriot/VERSION  # Show installed ArchRiot version
 - **10GB+ storage** (20GB+ for full development setup)
 - **CPU:** Any modern processor (optimized for both Intel/AMD)
 - **GPU:** Any modern graphics card (see GPU Support section for full compatibility details)
-
-## 🔧 Optional Advanced Tools
-
-ArchRiot includes optional tools for advanced users who need additional functionality beyond the core installation. These tools are **completely optional** and should only be used if you understand the risks.
-
-### 🛡️ Secure Boot Setup
-
-**Clean, safe, and simple UEFI Secure Boot implementation**
-
-- **Purpose:** Implement UEFI Secure Boot using standard Arch Linux methods
-- **Compatibility:** AMD, Intel, Any UEFI system with Secure Boot
-- **Safety:** Uses official Arch packages (`sbctl`, `shim-signed`)
-- **Status:** ✅ **Available and Ready**
-
-```bash
-# Navigate to optional tools directory
-cd ~/.local/share/archriot/optional-tools
-```
-
-**Features:**
-
-- ✅ Microsoft hardware compatibility guaranteed
-- ✅ Automatic kernel signing on updates
-- ✅ Windows dual-boot support
-- ✅ Interactive guided setup with safety checks
-- ✅ Comprehensive documentation and recovery options
-
-**⚠️ Important:** These tools modify critical system components. Always have a backup plan and test thoroughly. Read `optional-tools/README.md` for complete documentation.
 
 _Note: ArchRiot is very opinionated setup and was originally a unique rice[^1] and then a fork of [DHH's Omarchy](https://omarchy.org/) installer with extensive customizations focused on privacy, development productivity, and clean aesthetics._
 
