@@ -168,13 +168,13 @@ desktop:
         configs:
             - pattern: text-editor/*
         commands:
-            - "gsettings set org.gnome.TextEditor show-line-numbers true"
-            - "gsettings set org.gnome.TextEditor highlight-current-line true"
-            - "gsettings set org.gnome.TextEditor show-right-margin false"
-            - "gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12'"
-            - "gsettings set org.gnome.TextEditor line-height 1.2"
-            - "gsettings set org.gnome.TextEditor use-system-font false"
-            - "gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'"
+            - "gsettings set org.gnome.TextEditor show-line-numbers true || true"
+            - "gsettings set org.gnome.TextEditor highlight-current-line true || true"
+            - "gsettings set org.gnome.TextEditor show-right-margin false || true"
+            - "gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12' || true"
+            - "gsettings set org.gnome.TextEditor line-height 1.2 || true"
+            - "gsettings set org.gnome.TextEditor use-system-font false || true"
+            - "gsettings set org.gnome.TextEditor style-scheme 'tokyo-night' || true"
         depends: [core.base]
         start: "Installing text editors"
         end: "Text editors configured"
@@ -338,14 +338,18 @@ system:
             - pavucontrol
             - pamixer
             - playerctl
+            - sof-firmware
+            - alsa-firmware
+            - linux-firmware
 
         commands:
             - "pacman -Qs ^pulseaudio$ && sudo pacman -Rdd --noconfirm pulseaudio || true"
             - "pacman -Qs ^jack2$ && sudo pacman -Rdd --noconfirm jack2 || true"
-            - "if lspci | grep -qi -E 'audio|sound|multimedia'; then sudo pacman -S --noconfirm --needed sof-firmware alsa-firmware linux-firmware; fi"
+
             - "systemctl --user enable --now pipewire.service"
             - "systemctl --user enable --now pipewire-pulse.service"
             - "systemctl --user enable --now wireplumber.service"
+            - "sleep 2 && pamixer --set-volume 25 || true"
         depends: [core.base]
         start: "Installing PipeWire audio system"
         end: "Audio system configured"
@@ -447,13 +451,6 @@ system:
             - pattern: gtk-3.0/*
             - pattern: gtk-4.0/*
         commands:
-            - 'gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"'
-            - 'gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"'
-            - 'gsettings set org.gnome.desktop.wm.preferences theme "Adwaita-dark"'
-            - 'gsettings set org.gnome.desktop.interface icon-theme "Tela-purple-dark"'
-            - 'gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Ice"'
-            - "gsettings set org.gnome.desktop.interface cursor-size 24"
-            - 'gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"'
             - "mkdir -p ~/.config/gtk-3.0 && [ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\" > ~/.config/gtk-3.0/bookmarks || true"
             - "sudo usermod -a -G video $USER"
         depends: [core.base]
