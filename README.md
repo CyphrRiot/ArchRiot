@@ -45,10 +45,22 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ### 🔥 Method 1: ArchRiot ISO (Recommended)
 
-**The nuclear option: Complete system takeover with near zero manual configuration**
+1. **📥 Download ArchRiot ISO**
+    - **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
+    - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
 
-📥 **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
-🔐 **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
+2. **💾 Download Ventoy**
+    - Download [Ventoy](https://www.ventoy.net/) and create a bootable USB drive
+    - _Pro tip: Ventoy lets you boot multiple ISOs from one USB - perfect for testing_
+
+3. **📂 Copy ISO to Ventoy Drive**
+    - Copy the ArchRiot ISO file directly to your Ventoy USB drive
+    - No flashing needed - just copy the file
+
+4. **⚡ Boot ArchRiot ISO**
+    - Boot from USB (disable Secure Boot if your BIOS is being difficult)
+    - Select ArchRiot ISO from Ventoy menu
+    - Type `riot` and watch the magic happen
 
 **Perfect for:**
 
@@ -70,7 +82,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ### ⚡ Method 2: Install Script (Existing Systems)
 
-**Transform your current Arch system into ArchRiot paradise**
+**Transform your current Arch system into ArchRiot**
 
 ```bash
 curl -sSL https://archri.ot/install | bash
@@ -89,63 +101,6 @@ curl -sSL https://archri.ot/install | bash
 - Hyprland tiling window manager
 - CypherRiot themes and customizations
 - Keeps your existing system intact
-
----
-
-## 📖 Installation Deep Dive
-
-_For those who like to know exactly what's happening under the hood_
-
-### 🔥 Method 1: ArchRiot ISO - The Full Experience
-
-**Turn any computer into an ArchRiot machine in under 30 minutes**
-
-### Prerequisites
-
-- USB drive (8GB+ recommended)
-- Computer with UEFI boot support
-- Internet connection for updates
-
-### Installation Steps
-
-1. **🔥 Download & Start a Riot**
-    - Grab the ArchRiot ISO from the link above
-    - Flash to USB using [balenaEtcher](https://etcher.balena.io/) or [Ventoy](https://www.ventoy.net/)
-    - _Pro tip: Use Ventoy if you're a multi-ISO power user or want a simple solution_
-
-2. **⚡ Boot & Unleash**
-    - Boot from USB (disable Secure Boot if your BIOS is being difficult)
-    - Type `riot` and watch the magic happen
-    - Follow the intelligent prompts for encryption, users, and preferences
-    - _The installer actually thinks for itself - no cryptic questions_
-
-3. **🎯 Victory Lap**
-    - Reboot into your perfectly configured ArchRiot fortress
-    - Hyprland loads instantly, themes are gorgeous, everything just works
-    - _This is what Linux should have been all along_
-
-### ⚡ Method 2: Install Script - For Existing Arch Systems
-
-**Already running Arch Linux or an Arch-based distro? Perfect.**
-
-```bash
-curl -sSL https://archri.ot/install | bash
-```
-
-**Requirements:**
-
-- Existing Arch Linux installation (or Arch-based like CachyOS, Manjaro, EndeavourOS)
-- Passwordless sudo configured
-- Internet connection
-
-**What happens:**
-
-- Intelligent package installation
-- Hyprland + ArchRiot desktop environment
-- Theme configuration and customization
-- Reboot into your transformed system
-
-_Need help setting up Arch Linux first? Check the [official Arch installation guide](https://wiki.archlinux.org/title/Installation_guide)._
 
 ---
 

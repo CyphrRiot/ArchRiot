@@ -152,6 +152,8 @@ desktop:
             - gst-plugin-pipewire
             - gstreamer-vaapi
             - gst-plugins-base
+            - gst-plugins-good
+            - gst-plugins-bad
         configs:
             - pattern: ghostty/*
             - pattern: xdg-desktop-portal/*
