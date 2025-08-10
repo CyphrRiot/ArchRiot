@@ -41,6 +41,11 @@ func InstallPackages(packages []string) error {
 	}
 
 	logger.LogMessage("INFO", fmt.Sprintf("Installing %d new packages", len(toInstall)))
+	packageList := strings.Join(toInstall, ", ")
+	if len(packageList) > 60 {
+		packageList = packageList[:57] + "..."
+	}
+	logger.Log("Progress", "Package", "Installation", fmt.Sprintf("Installing: %s", packageList))
 
 	// Log which packages we're about to install
 	for i, pkg := range toInstall {
@@ -50,6 +55,7 @@ func InstallPackages(packages []string) error {
 	// Try to install all packages at once with pacman
 	start := time.Now()
 	logger.LogMessage("INFO", "🔄 Attempting installation with pacman...")
+	logger.Log("Progress", "Package", "Installation", fmt.Sprintf("Installing %d packages with pacman...", len(toInstall)))
 	cmd := exec.Command("sudo", append([]string{"pacman", "-S", "--noconfirm", "--needed"}, toInstall...)...)
 	output, err := cmd.CombinedOutput()
 
@@ -76,6 +82,7 @@ func InstallPackages(packages []string) error {
 			logger.LogMessage("SUCCESS", "✅ Retry successful! Packages installed with pacman")
 			duration := time.Since(start)
 			logger.LogMessage("SUCCESS", fmt.Sprintf("✅ Package installation completed in %v", duration))
+			logger.Log("Complete", "Package", "Installation", fmt.Sprintf("All packages installed in %v", duration))
 			for _, pkg := range toInstall {
 				logger.LogMessage("SUCCESS", fmt.Sprintf("✓ Installed: %s", pkg))
 			}
@@ -108,6 +115,11 @@ func InstallPackages(packages []string) error {
 
 		logger.LogMessage("INFO", "🔨 Starting yay installation (AUR packages compile from source - please wait)...")
 		logger.LogMessage("INFO", "⏳ This may take 5-30 minutes depending on packages and system speed")
+		aurPackageList := strings.Join(toInstall, ", ")
+		if len(aurPackageList) > 50 {
+			aurPackageList = aurPackageList[:47] + "..."
+		}
+		logger.Log("Progress", "Package", "AUR Build", fmt.Sprintf("Building: %s (5-30 min)", aurPackageList))
 		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
 		output, err = cmd.CombinedOutput()
 
@@ -123,6 +135,7 @@ func InstallPackages(packages []string) error {
 
 				if retryErr == nil {
 					logger.LogMessage("SUCCESS", "✅ Yay retry successful!")
+					logger.Log("Success", "Package", "AUR Build", "AUR packages built successfully")
 					output = retryOutput
 					err = nil
 				} else {
@@ -169,6 +182,7 @@ func InstallPackages(packages []string) error {
 
 	duration := time.Since(start)
 	logger.LogMessage("SUCCESS", fmt.Sprintf("✅ Package installation completed in %v", duration))
+	logger.Log("Complete", "Package", "Installation", fmt.Sprintf("All packages installed in %v", duration))
 
 	// Log successful installations
 	for _, pkg := range toInstall {
