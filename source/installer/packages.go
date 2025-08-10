@@ -224,7 +224,7 @@ func SyncPackageDatabases() error {
 
 // syncPackmanDatabase syncs the pacman database
 func syncPackmanDatabase() error {
-	cmd := exec.Command("sudo", "pacman", "-Sy")
+	cmd := exec.Command("sudo", "pacman", "-Sy", "--noconfirm")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("pacman -Sy failed: %w, output: %s", err, string(output))
