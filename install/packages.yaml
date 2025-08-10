@@ -134,6 +134,8 @@ desktop:
             - kooha
         configs:
             - pattern: xdg-desktop-portal/*
+        commands:
+            - "gsettings set org.gnome.desktop.interface icon-theme 'kora' || true"
         depends: [core.base, system.hyprland]
         start: "Installing desktop applications"
         end: "Desktop applications configured"
