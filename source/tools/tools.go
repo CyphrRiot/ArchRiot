@@ -273,14 +273,14 @@ func installSecureBootPackages() error {
 
 	// Update package database
 	logger.LogMessage("INFO", "Updating package database...")
-	cmd := exec.Command("pacman", "-Sy", "--noconfirm")
+	cmd := exec.Command("sudo", "pacman", "-Sy", "--noconfirm")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to update package database: %w", err)
 	}
 
 	// Install sbctl
 	logger.LogMessage("INFO", "Installing sbctl...")
-	cmd = exec.Command("pacman", "-S", "--noconfirm", "sbctl")
+	cmd = exec.Command("sudo", "pacman", "-S", "--noconfirm", "sbctl")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to install sbctl: %w", err)
 	}
