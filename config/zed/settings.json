@@ -115,7 +115,9 @@
             "comment": { "color": "#4d6878" },
             "string": { "color": "#9d7dd8" },
             "emphasis.strong": { "color": "#4a90e2" },
-            "title": { "color": "#7dd3fc" }
+            "title": { "color": "#7dd3fc" },
+            "property": { "color": "#60a5fa" },
+            "variable": { "color": "#60a5fa" }
         }
     },
     "file_scan_exclusions": [

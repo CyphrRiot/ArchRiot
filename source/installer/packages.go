@@ -191,7 +191,7 @@ func containsAURIndicators(pkg string) bool {
 
 // SyncPackageDatabases syncs pacman and yay databases
 func SyncPackageDatabases() error {
-	logger.LogMessage("INFO", "🔄 Syncing package databases...")
+	logger.LogMessage("INFO", "🔄 Syncing package databases... (can take a while)")
 	logger.Log("Progress", "Database", "Database Sync", "Syncing databases")
 
 	start := time.Now()
