@@ -120,43 +120,74 @@ desktop:
 
     apps:
         packages:
-            - ghostty
-            - ghostty-shell-integration
             - thunar
             - thunar-volman
             - thunar-archive-plugin
-            - brave-bin
             - signal-desktop
             - brightnessctl
             - xdg-user-dirs
             - hyprsunset
+            - gnome-calculator
+            - nwg-drawer
+            - loupe
+            - ufw
+            - kooha
+        configs:
+            - pattern: xdg-desktop-portal/*
+        depends: [core.base, system.hyprland]
+        start: "Installing desktop applications"
+        end: "Desktop applications configured"
+        type: "Package"
+
+    archive:
+        packages:
+            - unzip
+            - p7zip
+        depends: [core.base]
+        start: "Installing archive tools"
+        end: "Archive tools configured"
+        type: "Package"
+
+    media:
+        packages:
             - tumbler
             - ffmpegthumbnailer
             - papers
-            - unzip
-            - p7zip
             - libwebp
             - libheif
             - libavif
             - raw-thumbnailer
-            - gnome-calculator
-            - nwg-drawer
-            - loupe
-            - mullvad-vpn-bin
-            - ufw
-            - kooha
+        depends: [core.base]
+        start: "Installing media codecs and thumbnail support"
+        end: "Media support configured"
+        type: "Package"
+
+    gstreamer:
+        packages:
+            - gst-plugins-base
             - gst-plugins-good
             - gst-plugins-bad
             - gst-plugins-ugly
             - gst-libav
             - gst-plugin-pipewire
             - gstreamer-vaapi
-            - gst-plugins-base
-            - gst-plugins-good
-            - gst-plugins-bad
+        depends: [core.base]
+        start: "Installing GStreamer multimedia framework"
+        end: "GStreamer configured"
+        type: "Package"
+
+    sources:
+        packages:
+            - ghostty
+            - ghostty-shell-integration
+            - brave-bin
+            - mullvad-vpn-bin
         configs:
             - pattern: ghostty/*
-            - pattern: xdg-desktop-portal/*
+        depends: [core.base, desktop.apps]
+        start: "Building AUR packages from source (may take 15-30 minutes)"
+        end: "AUR packages built and configured"
+        type: "Package"
         commands:
             - "pkill wl-clip-persist 2>/dev/null || true"
             - "yay -Rns --noconfirm wl-clip-persist 2>/dev/null || true"
@@ -164,10 +195,6 @@ desktop:
             - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || true"
             - "xdg-user-dirs-update"
-        depends: [desktop.hyprland]
-        start: "Installing desktop applications"
-        end: "Desktop applications installed"
-        type: "Package"
 
     editors:
         packages:
