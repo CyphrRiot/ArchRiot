@@ -6,18 +6,13 @@
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=1e293b)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-0f172a?logo=arch-linux&logoColor=4c1d95)
 
-![Maintained](https://img.shields.io/maintenance/yes/2025?color=4c1d95)
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=3730a3)
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=1e40af)
-
-![Hyprland](https://img.shields.io/badge/Hyprland-1e1e2e?logo=wayland&logoColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-313244?logo=wayland&logoColor=1e40af)
+
 ![Language](https://img.shields.io/badge/language-Go-00ADD8)
 ![Language](https://img.shields.io/badge/language-YAML-4338ca)
 ![Language](https://img.shields.io/badge/language-Python-313244)
-
-[![CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
-[![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
 
 </div>
 
@@ -707,6 +702,19 @@ cat ~/.local/share/archriot/VERSION  # Show installed ArchRiot version
 - **Main Repository:** [https://github.com/CyphrRiot/ArchRiot](https://github.com/CyphrRiot/ArchRiot)
 - **Maintenance:** Active, with regular updates and improvements
 - **Community:** Open to issues, suggestions, and contributions
+
+## 🌐 Connect with CyphrRiot
+
+<div align="center">
+
+**Stay connected for updates, tips, and Linux excellence**
+
+[![Follow CyphrRiot on X](https://img.shields.io/badge/Follow-@CyphrRiot-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/CyphrRiot)
+[![GitHub Profile](https://img.shields.io/badge/GitHub-CyphrRiot-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot)
+
+_Building the Linux system you actually want to use_
+
+</div>
 
 ## 📋 System Requirements
 
