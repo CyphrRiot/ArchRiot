@@ -203,7 +203,7 @@ func SyncPackageDatabases() error {
 	}
 
 	// Sync yay database (non-critical)
-	cmd := exec.Command("yay", "-Sy")
+	cmd := exec.Command("yay", "-Sy", "--noconfirm")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// Yay sync failure is not critical, just log it
