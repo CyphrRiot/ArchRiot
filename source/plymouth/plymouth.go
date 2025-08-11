@@ -39,7 +39,7 @@ func (pm *PlymouthManager) InstallPlymouth() error {
 
 	// Install Plymouth package
 	logger.Log("Progress", "Package", "Plymouth", "Installing package")
-	if err := pm.runCommand("yay", "-S", "--noconfirm", "plymouth"); err != nil {
+	if err := pm.runCommand("yay", "-S", "--noconfirm", "--needed", "--nocleanmenu", "--nodiffmenu", "plymouth"); err != nil {
 		return fmt.Errorf("failed to install Plymouth: %v", err)
 	}
 	logger.Log("Success", "Package", "Plymouth", "Package installed")

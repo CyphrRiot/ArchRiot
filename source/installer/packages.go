@@ -129,7 +129,7 @@ func InstallPackages(packages []string) error {
 				time.Sleep(time.Duration(attempt) * time.Second)
 			}
 
-			cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
+			cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed", "--nocleanmenu", "--nodiffmenu"}, toInstall...)...)
 			lastOutput, err = cmd.CombinedOutput()
 
 			if err == nil {

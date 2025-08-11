@@ -289,7 +289,7 @@ func installSecureBootPackages() error {
 	// Install shim-signed from AUR (using yay if available)
 	if _, err := exec.LookPath("yay"); err == nil {
 		logger.LogMessage("INFO", "Installing shim-signed from AUR...")
-		cmd = exec.Command("yay", "-S", "--noconfirm", "shim-signed")
+		cmd = exec.Command("yay", "-S", "--noconfirm", "--needed", "--nocleanmenu", "--nodiffmenu", "shim-signed")
 		if err := cmd.Run(); err != nil {
 			logger.LogMessage("WARNING", "Failed to install shim-signed from AUR, continuing without it")
 		} else {
