@@ -479,7 +479,7 @@ system:
 
     themes:
         packages:
-            - bibata-cursor-theme
+            - bibata-cursor-theme-bin
             - kora-icon-theme
             - gnome-themes-extra
             - kvantum-qt5
