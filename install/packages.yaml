@@ -290,6 +290,7 @@ system:
     fonts:
         packages:
             - ttf-hack-nerd
+            - noto-fonts-emoji
         commands:
             - "fc-cache -f"
         depends: [core.base]
