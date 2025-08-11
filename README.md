@@ -616,7 +616,7 @@ _The elevator pitch - everything that makes ArchRiot special in one place_
 
 **🪟 Wayland Excellence:** Hyprland compositor with smooth animations, intelligent tiling, and zero XWayland compromises
 
-**💻 Developer Paradise:** Fish shell, Zed editor, Neovim, modern CLI tools (eza, bat, ripgrep), and containers that just work
+**💻 Developer Paradise:** Fish shell, Zed editor, Neovim, modern CLI tools (lsd, bat, ripgrep), and containers that just work
 
 **🛡️ Privacy Arsenal:** Brave browser, Proton Mail, Mullvad VPN, Signal messaging, and Feather Wallet - all with native Wayland support
 
@@ -624,9 +624,9 @@ _The elevator pitch - everything that makes ArchRiot special in one place_
 
 **⚡ Performance Tuned:** Intelligent memory management, hardware acceleration, and optimized audio stack for lag-free computing
 
-## 🔀 Differences from Original Omarchy
+## 🔀 Differences from Omarchy
 
-ArchRiot is a **heavily customized fork** with these key distinctions:
+ArchRiot was (once) a **heavily customized fork** with these key distinctions:
 
 ### Core Philosophy
 
