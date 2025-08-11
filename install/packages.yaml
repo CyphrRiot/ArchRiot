@@ -16,7 +16,6 @@ core:
         configs:
             - pattern: environment.d/editor.conf
             - pattern: environment.d/fcitx.conf
-            - pattern: environment.d/graphics.conf
             - pattern: fastfetch/*
             - pattern: systemd/*
         commands:

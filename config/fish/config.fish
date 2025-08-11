@@ -93,3 +93,7 @@ end
 if status is-login && test (tty) = /dev/tty1
     exec Hyprland
 end
+
+# Graphics environment variables for GTK4 stability
+set -gx GSK_RENDERER gl
+set -gx LIBGL_ALWAYS_SOFTWARE 1
