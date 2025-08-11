@@ -120,33 +120,32 @@ func InstallPackages(packages []string) error {
 			aurPackageList = aurPackageList[:47] + "..."
 		}
 		logger.Log("Progress", "Package", "AUR Build", fmt.Sprintf("Building: %s (5-30 min)", aurPackageList))
-		cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
-		output, err = cmd.CombinedOutput()
 
-		if err != nil {
-			// Check if it's a network error and retry once
-			outputStr := string(output)
-			if strings.Contains(outputStr, "failure in name resolution") || strings.Contains(outputStr, "dial tcp") || strings.Contains(outputStr, "network") {
-				logger.LogMessage("WARNING", "Network error detected, retrying yay once...")
-				time.Sleep(3 * time.Second)
+		// Try yay up to 3 times
+		var lastOutput []byte
+		for attempt := 1; attempt <= 3; attempt++ {
+			if attempt > 1 {
+				logger.LogMessage("WARNING", fmt.Sprintf("Yay attempt %d/3...", attempt))
+				time.Sleep(time.Duration(attempt) * time.Second)
+			}
 
-				retryCmd := exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
-				retryOutput, retryErr := retryCmd.CombinedOutput()
+			cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed"}, toInstall...)...)
+			lastOutput, err = cmd.CombinedOutput()
 
-				if retryErr == nil {
-					logger.LogMessage("SUCCESS", "✅ Yay retry successful!")
-					logger.Log("Success", "Package", "AUR Build", "AUR packages built successfully")
-					output = retryOutput
-					err = nil
-				} else {
-					retryOutputStr := string(retryOutput)
-					if len(retryOutputStr) > 300 {
-						retryOutputStr = retryOutputStr[:300] + "... (truncated)"
-					}
-					logger.LogMessage("WARNING", fmt.Sprintf("Yay retry also failed: %s", retryOutputStr))
+			if err == nil {
+				output = lastOutput
+				break
+			}
+
+			if attempt < 3 {
+				outputStr := string(lastOutput)
+				if len(outputStr) > 200 {
+					outputStr = outputStr[:200] + "..."
 				}
+				logger.LogMessage("WARNING", fmt.Sprintf("Yay attempt %d failed: %s", attempt, outputStr))
 			}
 		}
+		output = lastOutput
 
 		if err != nil {
 			// Log the error and fail for critical packages
