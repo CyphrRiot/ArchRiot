@@ -16,9 +16,7 @@ core:
         configs:
             - pattern: environment.d/editor.conf
             - pattern: environment.d/fcitx.conf
-            - pattern: environment.d/graphics-amd.conf
-            - pattern: environment.d/graphics-nvidia.conf
-            - pattern: environment.d/graphics-intel.conf
+            - pattern: environment.d/graphics.conf
             - pattern: fastfetch/*
             - pattern: systemd/*
         commands:
@@ -196,6 +194,7 @@ desktop:
             - "yay -Rns --noconfirm imv 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true"
             - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || true"
+            - "sudo mv /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so.disabled 2>/dev/null || true"
             - "xdg-user-dirs-update"
 
     editors:
@@ -459,14 +458,8 @@ system:
             - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon; fi"
             - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver; fi"
             - "if command -v lsusb >/dev/null 2>&1 && lsusb | grep -i apple | grep -qi keyboard; then echo 'options hid_apple fnmode=2' | sudo tee /etc/modprobe.d/hid_apple.conf >/dev/null; fi"
-            - "mkdir -p ~/.config/environment.d"
-            - "if lspci | grep -qi -E 'amd|radeon'; then cp ~/.local/share/archriot/config/environment.d/graphics-amd.conf ~/.config/environment.d/graphics.conf; fi"
-            - "if lspci | grep -qi nvidia; then cp ~/.local/share/archriot/config/environment.d/graphics-nvidia.conf ~/.config/environment.d/graphics.conf; fi"
-            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then cp ~/.local/share/archriot/config/environment.d/graphics-intel.conf ~/.config/environment.d/graphics.conf; fi"
             - "systemctl --user daemon-reload"
-            - "if lspci | grep -qi -E 'amd|radeon'; then systemctl --user set-environment GSK_RENDERER=gl LIBGL_ALWAYS_SOFTWARE=1 mesa_glthread=true MESA_GL_VERSION_OVERRIDE=4.6 MESA_GLSL_VERSION_OVERRIDE=460; fi"
-            - "if lspci | grep -qi nvidia; then systemctl --user set-environment GSK_RENDERER=gl __GL_THREADED_OPTIMIZATIONS=1; fi"
-            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then systemctl --user set-environment GSK_RENDERER=gl; fi"
+            - "systemctl --user set-environment GSK_RENDERER=gl LIBGL_ALWAYS_SOFTWARE=1"
         depends: [core.base]
         start: "Setting up hardware drivers"
         end: "Hardware drivers configured"
