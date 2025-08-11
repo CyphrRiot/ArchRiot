@@ -25,7 +25,7 @@ def load_css_styling(config_dir):
         }
 
         window {
-            background: rgba(0, 0, 0, 0.7);
+            background: #1a1b26;
             color: #cdd6f4;
             font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
         }
@@ -36,14 +36,14 @@ def load_css_styling(config_dir):
         }
 
         textview {
-            background: rgba(0, 0, 0, 0.7);
+            background: #1a1b26;
             color: #cdd6f4;
             border: none;
             font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
         }
 
         textview text {
-            background: rgba(0, 0, 0, 0.7);
+            background: #1a1b26;
             color: #cdd6f4;
             font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
         }
@@ -64,7 +64,7 @@ def load_css_styling(config_dir):
 
         scrolledwindow {
             border: none;
-            background: rgba(0, 0, 0, 0.7);
+            background: #1a1b26;
         }
         """
 
