@@ -49,6 +49,7 @@ core:
             - starship
             - inetutils
             - neovim
+            - lazygit
             - kitty
             - pv
             - fd

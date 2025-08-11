@@ -2,6 +2,10 @@
 # Dependency-Free Fish Configuration with Git Integration
 # =============================================================================
 
+# Graphics environment variables for GTK4 stability
+set -gx GSK_RENDERER gl
+set -gx LIBGL_ALWAYS_SOFTWARE 1
+
 # Greeting with fastfetch if available - with delay for terminal sizing
 function fish_greeting
     if command -v fastfetch >/dev/null 2>&1
@@ -93,7 +97,3 @@ end
 if status is-login && test (tty) = /dev/tty1
     exec Hyprland
 end
-
-# Graphics environment variables for GTK4 stability
-set -gx GSK_RENDERER gl
-set -gx LIBGL_ALWAYS_SOFTWARE 1
