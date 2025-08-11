@@ -238,6 +238,7 @@ development:
             - zed
             - tree
             - btop
+            - vulkan-tools
         configs:
             - pattern: zed/*
               preserve_if_exists: [settings.json]
@@ -450,13 +451,14 @@ system:
             - usbutils
             - pciutils
             - vulkan-icd-loader
-            - vulkan-tools
+            - mesa
 
         commands:
             - "sudo sed -i '/^#\\[multilib\\]/,/^#Include/ s/^#//' /etc/pacman.conf"
-            - "if lspci | grep -qi nvidia; then yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils; fi"
-            - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon; fi"
-            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver; fi"
+            - "yay -S --noconfirm --needed lib32-vulkan-icd-loader lib32-mesa || true"
+            - "if lspci | grep -qi nvidia; then yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils || true; fi"
+            - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed vulkan-radeon lib32-vulkan-radeon xf86-video-amdgpu || true; fi"
+            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver || true; fi"
             - "if command -v lsusb >/dev/null 2>&1 && lsusb | grep -i apple | grep -qi keyboard; then echo 'options hid_apple fnmode=2' | sudo tee /etc/modprobe.d/hid_apple.conf >/dev/null; fi"
             - "systemctl --user daemon-reload"
             - "systemctl --user set-environment GSK_RENDERER=gl LIBGL_ALWAYS_SOFTWARE=1"
