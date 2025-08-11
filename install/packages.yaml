@@ -264,8 +264,8 @@ development:
             - tmux
         commands:
             - "mkdir -p ~/.local/bin"
-            - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
-            - "chmod +x ~/.local/bin/migrate"
+            - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate || true"
+            - "chmod +x ~/.local/bin/migrate || true"
         depends: [core.base]
         start: "Installing development helpers"
         end: "Development helpers installed"
