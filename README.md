@@ -141,6 +141,22 @@ This downloads and runs our bulletproof Go binary installer with intelligent YAM
 
 **What happens:** Automatic package installation, configuration deployment, and system setup with complete rollback capability if anything goes wrong.
 
+## 🔧 Troubleshooting
+
+### Blinking Cursor Instead of Hyprland
+
+If your system boots to a **blinking cursor** instead of starting Hyprland:
+
+1. **Get to a terminal:** Press `CTRL+ALT+F3`
+2. **Login** with your username and password
+3. **Re-run the installer** to fix GPU/graphics issues:
+    ```bash
+    curl -fsSL https://ArchRiot.org/setup.sh | bash
+    ```
+4. **Reboot** after the script completes
+
+This issue is almost always GPU-related and the installer will detect and fix graphics driver problems automatically.
+
 ## ⌨️ Master Your ArchRiot Desktop
 
 _The keyboard shortcuts that'll make you wonder how you ever used a mouse_
