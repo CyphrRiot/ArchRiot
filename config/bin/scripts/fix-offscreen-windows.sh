@@ -5,6 +5,7 @@
 # ==============================================================================
 # Moves windows that are positioned beyond screen boundaries back to center
 # Fixes the AMD DPMS wake bug where windows get offset by thousands of pixels
+# Also handles floating window positioning issues after hyprlock/monitor changes
 # ==============================================================================
 
 # Get screen resolution
@@ -73,9 +74,12 @@ fix_offscreen_windows() {
 
         echo "Checking floating window: $class ($title) at position $x,$y"
 
-        # Check if window is off-screen (expanded detection)
-        if (( x < -100 || y < -100 || x > (screen_width + 100) || y > (screen_height + 100) )); then
+        # Check if window is off-screen (aggressive detection for the 4000+ pixel bug)
+        # Also check for windows that are way too far right/down (common with the bug)
+        if (( x < -50 || y < -50 || x > screen_width || y > screen_height || x > 2000 || y > 2000 )); then
             echo "Found off-screen floating window: $class ($title) at position $x,$y on workspace $workspace_id"
+            echo "Screen bounds: 0,0 to $screen_width,$screen_height"
+            notify-send "Fixing Window" "$class at $x,$y" --urgency=low
             center_window "$address" "$workspace_id" "$current_workspace"
             ((fixed_count++))
             # Small delay to avoid overwhelming Hyprland
@@ -86,9 +90,11 @@ fix_offscreen_windows() {
     if (( fixed_count > 0 )); then
         echo "Fixed $fixed_count off-screen floating windows"
         notify-send "Window Fix Complete" "Fixed $fixed_count off-screen floating windows" --urgency=normal
+        echo "Summary: Fixed $fixed_count windows that were outside normal screen bounds"
     else
         echo "No off-screen floating windows found"
-        notify-send "Window Check Complete" "No off-screen floating windows found" --urgency=low
+        # Don't notify when no windows need fixing (reduces notification spam)
+        echo "No off-screen floating windows found - all windows within bounds"
     fi
 }
 
