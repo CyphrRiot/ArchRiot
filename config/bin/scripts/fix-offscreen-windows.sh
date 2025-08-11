@@ -88,6 +88,7 @@ fix_offscreen_windows() {
         notify-send "Window Fix Complete" "Fixed $fixed_count off-screen floating windows" --urgency=normal
     else
         echo "No off-screen floating windows found"
+        notify-send "Window Check Complete" "No off-screen floating windows found" --urgency=low
     fi
 }
 

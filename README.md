@@ -169,6 +169,7 @@ _Tiling mastery - where ArchRiot really shines_
 | `SUPER + Arrow Keys`         | Move focus - Navigate like a pro                |
 | `SUPER + SHIFT + Arrow Keys` | Swap windows - Rearrange perfection             |
 | `SUPER + CTRL + Arrow Keys`  | Smart movement - Let Hyprland think             |
+| `SUPER + SHIFT + TAB`        | Fix off-screen windows - Manual rescue tool     |
 | `SUPER + 1-4`                | Switch workspace - Your digital rooms           |
 | `SUPER + SHIFT + 1-4`        | Move window to workspace - Relocate             |
 | `SUPER + SHIFT + RETURN`     | Floating terminal - When you need overlay power |
