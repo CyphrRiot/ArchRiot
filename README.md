@@ -2,17 +2,17 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.9-blue)
-![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca)
-![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6)
+![Version](https://img.shields.io/badge/version-2.9-5b21b6)
+![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=5b21b6)
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-5b21b6?logo=arch-linux&logoColor=8b5cf6)
 
 ![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=5b21b6)
-![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=6366f1)
-![Wayland](https://img.shields.io/badge/Wayland-312e81?logo=wayland&logoColor=a855f7)
+![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=5b21b6)
+![Wayland](https://img.shields.io/badge/Wayland-5b21b6?logo=wayland&logoColor=a855f7)
 
-![Language](https://img.shields.io/badge/language-Go-4338ca)
+![Language](https://img.shields.io/badge/language-Go-5b21b6)
 ![Language](https://img.shields.io/badge/language-YAML-5b21b6)
-![Language](https://img.shields.io/badge/language-Python-312e81)
+![Language](https://img.shields.io/badge/language-Python-5b21b6)
 
 </div>
 
@@ -31,8 +31,6 @@ ArchRiot is the answer to every time you've thought "why can't Linux just work c
 - **💻 Development-First** - Zed, Neovim, containers, and every tool a dev actually needs
 
 _Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
-
-🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
@@ -766,6 +764,8 @@ _Note: ArchRiot began as a unique rice[^1] and evolved from [DHH's Omarchy](http
 **You're done!** If the installer finished, your ArchRiot system is ready to rock. Reboot and enjoy your perfectly configured desktop.
 
 **Something not working?** Re-run the installer - it's designed to fix problems and maintain your system.
+
+🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
 ## 📄 License
 
