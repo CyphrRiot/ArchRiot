@@ -102,7 +102,7 @@ func testSudo() bool {
 	return cmd.Run() == nil
 }
 
-// installYay installs yay AUR helper if not already present
+// installYay installs yay AUR helper with retry logic for AUR unreliability
 func installYay() error {
 	log.Printf("🔍 Checking for yay AUR helper...")
 
@@ -114,23 +114,98 @@ func installYay() error {
 
 	log.Printf("📦 Installing yay AUR helper...")
 
-	// Install prerequisites first
+	// Install prerequisites first (this is reliable)
 	log.Printf("🔧 Installing prerequisites...")
 	cmd := exec.Command("sudo", "pacman", "-S", "--noconfirm", "--needed", "base-devel", "git")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to install yay prerequisites: %v", err)
 	}
 
-	// Create temporary directory for yay installation
+	// Retry yay installation up to 3 times with user prompts
+	maxRetries := 3
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		log.Printf("🔄 yay installation attempt %d/%d...", attempt, maxRetries)
+
+		if err := attemptYayInstall(); err != nil {
+			log.Printf("❌ Attempt %d failed: %v", attempt, err)
+
+			if attempt < maxRetries {
+				// Offer retry with different methods
+				log.Printf("")
+				log.Printf("🌐 AUR servers may be experiencing issues.")
+				log.Printf("💡 This is common and usually resolves quickly.")
+				log.Printf("")
+				log.Printf("Options:")
+				log.Printf("  1. Retry yay installation")
+				log.Printf("  2. Continue without AUR packages (limited functionality)")
+				log.Printf("  3. Exit and try again later")
+				log.Printf("")
+				log.Printf("Choice [1/2/3]: ")
+
+				var choice string
+				fmt.Scanln(&choice)
+
+				switch choice {
+				case "1", "":
+					log.Printf("🔄 Retrying yay installation...")
+					continue
+				case "2":
+					log.Printf("⚠️ Continuing without AUR support - some packages may be missing")
+					return nil
+				case "3":
+					log.Printf("👋 Exiting installer - try again when AUR is stable")
+					os.Exit(0)
+				default:
+					log.Printf("🔄 Invalid choice, retrying...")
+					continue
+				}
+			} else {
+				// Final attempt failed
+				log.Printf("")
+				log.Printf("❌ All yay installation attempts failed.")
+				log.Printf("🌐 AUR servers appear to be down or unreachable.")
+				log.Printf("")
+				log.Printf("Options:")
+				log.Printf("  1. Continue without AUR packages (limited functionality)")
+				log.Printf("  2. Exit and try again later")
+				log.Printf("")
+				log.Printf("Choice [1/2]: ")
+
+				var choice string
+				fmt.Scanln(&choice)
+
+				switch choice {
+				case "1", "":
+					log.Printf("⚠️ Continuing without AUR support - some packages may be missing")
+					return nil
+				default:
+					log.Printf("👋 Exiting installer - try again when AUR is stable")
+					os.Exit(0)
+				}
+			}
+		} else {
+			log.Printf("✅ yay installed successfully on attempt %d", attempt)
+			return nil
+		}
+	}
+
+	return nil
+}
+
+// attemptYayInstall performs a single yay installation attempt
+func attemptYayInstall() error {
 	tempDir := "/tmp/yay-bin-install"
+
+	// Clean up any previous attempts
 	if err := exec.Command("rm", "-rf", tempDir).Run(); err != nil {
 		log.Printf("⚠️ Could not clean temp directory: %v", err)
 	}
 
 	// Clone yay-bin repository (precompiled binary version)
 	log.Printf("📥 Downloading yay-bin from AUR...")
-	cmd = exec.Command("git", "clone", "https://aur.archlinux.org/yay-bin.git", tempDir)
+	cmd := exec.Command("git", "clone", "https://aur.archlinux.org/yay-bin.git", tempDir)
 	if err := cmd.Run(); err != nil {
+		exec.Command("rm", "-rf", tempDir).Run() // Clean up on failure
 		return fmt.Errorf("failed to clone yay-bin repository: %v", err)
 	}
 
@@ -139,6 +214,7 @@ func installYay() error {
 	cmd = exec.Command("makepkg", "-si", "--noconfirm")
 	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
+		exec.Command("rm", "-rf", tempDir).Run() // Clean up on failure
 		return fmt.Errorf("failed to build yay-bin: %v", err)
 	}
 
@@ -150,7 +226,6 @@ func installYay() error {
 		return fmt.Errorf("yay installation failed - not found in PATH")
 	}
 
-	log.Printf("✅ yay installed successfully")
 	return nil
 }
 

@@ -11,9 +11,9 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Wayland](https://img.shields.io/badge/Wayland-312e81?logo=wayland&logoColor=a855f7&labelColor=1e1b4b)
 
-![Language](https://img.shields.io/badge/language-Go-4338ca?logo=go&logoColor=white&labelColor=3730a3)
-![Language](https://img.shields.io/badge/language-YAML-5b21b6?logo=yaml&logoColor=white&labelColor=4c1d95)
-![Language](https://img.shields.io/badge/Python-312e81?label=language&logo=python&logoColor=white&labelColor=1e1b4b&color=312e81)
+![Language](https://img.shields.io/badge/language-Go-4338ca?logo=go&logoColor=c7d2fe&labelColor=3730a3)
+![Language](https://img.shields.io/badge/language-YAML-5b21b6?logo=yaml&logoColor=e0e7ff&labelColor=4c1d95)
+![Language](https://img.shields.io/badge/Python-312e81?label=language&logo=python&logoColor=c7d2fe&labelColor=1e1b4b&color=312e81)
 
 </div>
 
