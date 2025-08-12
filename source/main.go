@@ -9,6 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"archriot-installer/config"
 	"archriot-installer/executor"
 	"archriot-installer/git"
 	"archriot-installer/installer"
@@ -170,6 +171,14 @@ func main() {
 			}
 			return
 
+		case "--validate":
+			// Validate packages.yaml configuration
+			if err := validateConfig(); err != nil {
+				log.Fatalf("❌ Configuration validation failed: %v", err)
+			}
+			fmt.Println("✅ Configuration is valid")
+			return
+
 		case "--version", "-v":
 			if err := version.ReadVersion(); err != nil {
 				log.Fatalf("❌ Failed to read version: %v", err)
@@ -303,6 +312,50 @@ func main() {
 	}
 }
 
+// validateConfig validates the packages.yaml configuration
+func validateConfig() error {
+	fmt.Println("🔍 Validating packages.yaml configuration...")
+
+	// Find configuration file
+	configPath := config.FindConfigFile()
+	if configPath == "" {
+		return fmt.Errorf("packages.yaml not found")
+	}
+
+	fmt.Printf("📁 Found config: %s\n", configPath)
+
+	// Load configuration
+	cfg, err := config.LoadConfig(configPath)
+	if err != nil {
+		return fmt.Errorf("loading config: %w", err)
+	}
+
+	fmt.Println("✅ YAML structure is valid")
+
+	// Validate basic config structure
+	if err := config.ValidateConfig(cfg); err != nil {
+		return fmt.Errorf("config validation: %w", err)
+	}
+
+	fmt.Println("✅ Required fields are present")
+
+	// Validate dependencies
+	if err := config.ValidateDependencies(cfg); err != nil {
+		return fmt.Errorf("dependency validation: %w", err)
+	}
+
+	fmt.Println("✅ Dependencies are valid (no cycles, all references exist)")
+
+	// Validate command safety
+	if err := config.ValidateAllCommands(cfg); err != nil {
+		return fmt.Errorf("command safety validation: %w", err)
+	}
+
+	fmt.Println("✅ Commands are safe (no dangerous patterns detected)")
+
+	return nil
+}
+
 // showHelp displays the help message
 func showHelp() {
 	fmt.Printf(`ArchRiot - The (Arch) Linux System You've Always Wanted
@@ -310,17 +363,20 @@ func showHelp() {
 Usage:
   archriot              Run the main installer
   archriot --tools      Launch optional tools interface
+  archriot --validate   Validate packages.yaml configuration
   archriot --version    Show version information
   archriot --help       Show this help message
 
 Options:
   -t, --tools          Access optional advanced tools (Secure Boot, etc.)
+      --validate       Validate configuration without installing
   -v, --version        Display version information
   -h, --help           Display this help message
 
 Examples:
   archriot             # Start installation
   archriot --tools     # Open tools menu
+  archriot --validate  # Check config for errors
 
 For more information, visit: https://github.com/CyphrRiot/ArchRiot
 `)

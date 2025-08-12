@@ -22,8 +22,8 @@ func SetProgram(p *tea.Program) {
 	Program = p
 }
 
-// executeCommands runs a list of shell commands
-func executeCommands(commands []string, moduleName string) error {
+// executeCommands runs a list of shell commands with critical/non-critical handling
+func executeCommands(commands []string, moduleName string, isCritical bool) error {
 	if len(commands) == 0 {
 		return nil
 	}
@@ -35,8 +35,13 @@ func executeCommands(commands []string, moduleName string) error {
 
 		cmd := exec.Command("sh", "-c", command)
 		if err := cmd.Run(); err != nil {
-			logger.LogMessage("WARNING", fmt.Sprintf("Command failed for %s: %s (error: %v)", moduleName, command, err))
-			return fmt.Errorf("command failed: %s", command)
+			if isCritical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL command failed for %s: %s (error: %v)", moduleName, command, err))
+				return fmt.Errorf("critical command failed: %s (error: %v)", command, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical command failed for %s: %s (error: %v) - continuing installation", moduleName, command, err))
+				continue
+			}
 		}
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Command completed: %s", command))
@@ -93,32 +98,52 @@ func ExecuteModulesInOrderWithProgress(cfg *config.Config, progressCallback func
 
 		// Install packages
 		if err := installer.InstallPackages(module.Packages); err != nil {
-			logger.LogMessage("ERROR", fmt.Sprintf("Package installation FAILED for %s: %v", moduleName, err))
-			logger.Log("Error", "Package", moduleName, "Installation failed: "+err.Error())
-			return fmt.Errorf("installation failed at module %s (packages): %w", moduleName, err)
+			if module.Critical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL package installation FAILED for %s: %v", moduleName, err))
+				logger.Log("Error", "Package", moduleName, "Critical installation failed: "+err.Error())
+				return fmt.Errorf("critical installation failed at module %s (packages): %w", moduleName, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical package installation FAILED for %s: %v - continuing installation", moduleName, err))
+				logger.Log("Warning", "Package", moduleName, "Non-critical installation failed: "+err.Error())
+			}
 		}
 
 		// Handle git configuration for core.identity
 		if moduleName == "core.identity" {
 			if err := git.HandleGitConfiguration(); err != nil {
-				logger.LogMessage("ERROR", fmt.Sprintf("Git configuration FAILED for %s: %v", moduleName, err))
-				logger.Log("Error", "Git", moduleName, "Configuration failed: "+err.Error())
-				return fmt.Errorf("installation failed at module %s (git config): %w", moduleName, err)
+				if module.Critical {
+					logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL git configuration FAILED for %s: %v", moduleName, err))
+					logger.Log("Error", "Git", moduleName, "Critical configuration failed: "+err.Error())
+					return fmt.Errorf("critical installation failed at module %s (git config): %w", moduleName, err)
+				} else {
+					logger.LogMessage("WARNING", fmt.Sprintf("Non-critical git configuration FAILED for %s: %v - continuing installation", moduleName, err))
+					logger.Log("Warning", "Git", moduleName, "Non-critical configuration failed: "+err.Error())
+				}
 			}
 		}
 
 		// Copy config files
 		if err := installer.CopyConfigs(module.Configs); err != nil {
-			logger.LogMessage("ERROR", fmt.Sprintf("Config copying FAILED for %s: %v", moduleName, err))
-			logger.Log("Error", "File", moduleName, "Config copy failed: "+err.Error())
-			return fmt.Errorf("installation failed at module %s (config copy): %w", moduleName, err)
+			if module.Critical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL config copying FAILED for %s: %v", moduleName, err))
+				logger.Log("Error", "File", moduleName, "Critical config copy failed: "+err.Error())
+				return fmt.Errorf("critical installation failed at module %s (config copy): %w", moduleName, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical config copying FAILED for %s: %v - continuing installation", moduleName, err))
+				logger.Log("Warning", "File", moduleName, "Non-critical config copy failed: "+err.Error())
+			}
 		}
 
 		// Execute commands
-		if err := executeCommands(module.Commands, moduleName); err != nil {
-			logger.LogMessage("ERROR", fmt.Sprintf("Command execution FAILED for %s: %v", moduleName, err))
-			logger.Log("Error", "Command", moduleName, "Command failed: "+err.Error())
-			return fmt.Errorf("installation failed at module %s (commands): %w", moduleName, err)
+		if err := executeCommands(module.Commands, moduleName, module.Critical); err != nil {
+			if module.Critical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL command execution FAILED for %s: %v", moduleName, err))
+				logger.Log("Error", "Command", moduleName, "Critical command failed: "+err.Error())
+				return fmt.Errorf("critical installation failed at module %s (commands): %w", moduleName, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical command execution FAILED for %s: %v - continuing installation", moduleName, err))
+				logger.Log("Warning", "Command", moduleName, "Non-critical command failed: "+err.Error())
+			}
 		}
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module completed: %s - %s", moduleName, module.End))
@@ -209,32 +234,52 @@ func executeModuleCategoryWithProgress(category string, modules map[string]confi
 
 		// Install packages
 		if err := installer.InstallPackages(module.Packages); err != nil {
-			logger.LogMessage("ERROR", fmt.Sprintf("Package installation FAILED for %s: %v", fullName, err))
-			logger.Log("Error", "Package", fullName, "Installation failed: "+err.Error())
-			return fmt.Errorf("installation failed at module %s (packages): %w", fullName, err)
+			if module.Critical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL package installation FAILED for %s: %v", fullName, err))
+				logger.Log("Error", "Package", fullName, "Critical installation failed: "+err.Error())
+				return fmt.Errorf("critical installation failed at module %s (packages): %w", fullName, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical package installation FAILED for %s: %v - continuing installation", fullName, err))
+				logger.Log("Warning", "Package", fullName, "Non-critical installation failed: "+err.Error())
+			}
 		}
 
 		// Handle Git configuration for identity module
 		if fullName == "core.identity" {
 			if err := git.HandleGitConfiguration(); err != nil {
-				logger.LogMessage("ERROR", fmt.Sprintf("Git configuration FAILED for %s: %v", fullName, err))
-				logger.Log("Error", "Git", fullName, "Configuration failed: "+err.Error())
-				return fmt.Errorf("installation failed at module %s (git config): %w", fullName, err)
+				if module.Critical {
+					logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL git configuration FAILED for %s: %v", fullName, err))
+					logger.Log("Error", "Git", fullName, "Critical configuration failed: "+err.Error())
+					return fmt.Errorf("critical installation failed at module %s (git config): %w", fullName, err)
+				} else {
+					logger.LogMessage("WARNING", fmt.Sprintf("Non-critical git configuration FAILED for %s: %v - continuing installation", fullName, err))
+					logger.Log("Warning", "Git", fullName, "Non-critical configuration failed: "+err.Error())
+				}
 			}
 		}
 
 		// Copy configs
 		if err := installer.CopyConfigs(module.Configs); err != nil {
-			logger.LogMessage("ERROR", fmt.Sprintf("Config copying FAILED for %s: %v", fullName, err))
-			logger.Log("Error", "File", fullName, "Config copy failed: "+err.Error())
-			return fmt.Errorf("installation failed at module %s (config copy): %w", fullName, err)
+			if module.Critical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL config copying FAILED for %s: %v", fullName, err))
+				logger.Log("Error", "File", fullName, "Critical config copy failed: "+err.Error())
+				return fmt.Errorf("critical installation failed at module %s (config copy): %w", fullName, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical config copying FAILED for %s: %v - continuing installation", fullName, err))
+				logger.Log("Warning", "File", fullName, "Non-critical config copy failed: "+err.Error())
+			}
 		}
 
 		// Execute commands
-		if err := executeCommands(module.Commands, fullName); err != nil {
-			logger.LogMessage("ERROR", fmt.Sprintf("Command execution FAILED for %s: %v", fullName, err))
-			logger.Log("Error", "Command", fullName, "Command failed: "+err.Error())
-			return fmt.Errorf("installation failed at module %s (commands): %w", fullName, err)
+		if err := executeCommands(module.Commands, fullName, module.Critical); err != nil {
+			if module.Critical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL command execution FAILED for %s: %v", fullName, err))
+				logger.Log("Error", "Command", fullName, "Critical command failed: "+err.Error())
+				return fmt.Errorf("critical installation failed at module %s (commands): %w", fullName, err)
+			} else {
+				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical command execution FAILED for %s: %v - continuing installation", fullName, err))
+				logger.Log("Warning", "Command", fullName, "Non-critical command failed: "+err.Error())
+			}
 		}
 
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Module completed: %s - %s", fullName, module.End))

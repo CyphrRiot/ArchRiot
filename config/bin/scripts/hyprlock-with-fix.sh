@@ -70,9 +70,23 @@ main() {
     # Fix any floating windows that got repositioned
     fix_floating_windows
 
-    # Return to original workspace to force visual refresh
-    log "Returning to workspace $CURRENT_WORKSPACE to refresh display"
+    # More aggressive visual refresh to fix persistent positioning bugs
+    log "Performing aggressive visual refresh to fix window positioning"
+
+    # Switch to a different workspace and back to force complete refresh
+    OTHER_WORKSPACE=$((CURRENT_WORKSPACE == 1 ? 2 : 1))
+    log "Switching to workspace $OTHER_WORKSPACE temporarily"
+    hyprctl dispatch workspace "$OTHER_WORKSPACE"
+    sleep 0.3
+
+    # Return to original workspace
+    log "Returning to workspace $CURRENT_WORKSPACE to complete refresh"
     hyprctl dispatch workspace "$CURRENT_WORKSPACE"
+    sleep 0.3
+
+    # Force compositor to recalculate all window positions
+    log "Forcing compositor refresh"
+    hyprctl dispatch forcerendererreload
     sleep 0.2
 
     # Clean up temp file

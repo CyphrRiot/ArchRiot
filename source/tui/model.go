@@ -98,6 +98,11 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.handleConfirmSelection()
 			case "q", "ctrl+c":
 				return m, tea.Quit
+			default:
+				// For failure messages, any key should exit
+				if m.confirmPrompt == "❌ Installation Failed - Exit?" {
+					return m, tea.Quit
+				}
 			}
 		} else if m.inputMode != "" {
 			switch msg.String() {
@@ -172,7 +177,7 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.failed = true
 		m.failureError = msg.Error
 		m.showConfirm = true
-		m.confirmPrompt = "❌ Installation Failed - Press any key to exit"
+		m.confirmPrompt = "❌ Installation Failed - Exit?"
 		m.cursor = 0
 		return m, nil
 

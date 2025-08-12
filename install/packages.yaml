@@ -20,15 +20,11 @@ core:
             - pattern: systemd/*
         commands:
             - "python3 -c 'import psutil'"
-            - "systemctl --user daemon-reload"
-            - "systemctl --user enable version-check.timer 2>/dev/null || true"
-            - "systemctl --user start version-check.timer 2>/dev/null || true"
-            - "systemctl --user enable battery-monitor.timer 2>/dev/null || true"
-            - "systemctl --user start battery-monitor.timer 2>/dev/null || true"
         depends: []
         start: "Installing base development tools"
         end: "Base tools installed"
         type: "Package"
+        critical: true
 
     identity:
         commands:
@@ -42,6 +38,7 @@ core:
         start: "Configuring Git identity"
         end: "Git identity configured"
         type: "Git"
+        critical: false
 
     shell:
         packages:
@@ -75,6 +72,7 @@ core:
         start: "Installing shell and terminal tools"
         end: "Shell environment configured"
         type: "Package"
+        critical: false
 
 desktop:
     hyprland:
@@ -101,20 +99,25 @@ desktop:
             - pattern: applications/*
               target: ~/.local/share/applications/
         commands:
-            - "mkdir -p ~/.local/bin && chmod +x ~/.local/bin/* 2>/dev/null || true"
-            - "chmod +x ~/.local/share/archriot/config/bin/* "
+            - "mkdir -p ~/.local/bin"
+            - "chmod +x ~/.local/share/archriot/config/bin/*"
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
-            - "chmod +x ~/.config/waybar/scripts/* 2>/dev/null || true"
+            - "chmod +x ~/.config/waybar/scripts/*"
             - "~/.local/share/archriot/config/bin/setup-temperature"
-            - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications/"
-            - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm" 2>/dev/null || true; sudo systemctl disable "$dm" 2>/dev/null || true; sudo pacman -Rns --noconfirm "$dm" 2>/dev/null || true; fi; done'
+            - "mkdir -p ~/.local/share/applications"
+            - "update-desktop-database ~/.local/share/applications/"
+            - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm"; sudo systemctl disable "$dm"; sudo pacman -Rns --noconfirm "$dm"; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
-            - "bash -c 'ACTUAL_USER=$(logname 2>/dev/null || who am i | awk \"{print \\$1}\") && echo -e \"[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $ACTUAL_USER --noclear %I \\$TERM\" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null'"
+            - "bash -c 'ACTUAL_USER=$(logname || who am i | awk \"{print \\$1}\") && echo -e \"[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $ACTUAL_USER --noclear %I \\$TERM\" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf'"
+            - "systemctl --user daemon-reload"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now version-check.timer; else systemctl --user enable version-check.timer; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now battery-monitor.timer; else systemctl --user enable battery-monitor.timer; fi"
 
         depends: [core.base]
         start: "Installing Hyprland desktop"
         end: "Hyprland desktop installed"
         type: "Package"
+        critical: true
 
     apps:
         packages:
@@ -133,11 +136,12 @@ desktop:
         configs:
             - pattern: xdg-desktop-portal/*
         commands:
-            - "gsettings set org.gnome.desktop.interface icon-theme 'kora' || true"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.desktop.interface icon-theme 'kora'; fi"
         depends: [core.base, desktop.hyprland]
         start: "Installing desktop applications"
         end: "Desktop applications configured"
         type: "Package"
+        critical: false
 
     archive:
         packages:
@@ -147,6 +151,7 @@ desktop:
         start: "Installing archive tools"
         end: "Archive tools configured"
         type: "Package"
+        critical: false
 
     media:
         packages:
@@ -161,6 +166,7 @@ desktop:
         start: "Installing media codecs and thumbnail support"
         end: "Media support configured"
         type: "Package"
+        critical: false
 
     gstreamer:
         packages:
@@ -175,6 +181,7 @@ desktop:
         start: "Installing GStreamer multimedia framework"
         end: "GStreamer configured"
         type: "Package"
+        critical: false
 
     sources:
         packages:
@@ -189,13 +196,14 @@ desktop:
         end: "AUR packages built and configured"
         type: "Package"
         commands:
-            - "pkill wl-clip-persist 2>/dev/null || true"
-            - "yay -Rns --noconfirm wl-clip-persist 2>/dev/null || true"
-            - "yay -Rns --noconfirm imv 2>/dev/null || true"
-            - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled 2>/dev/null || true"
-            - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled 2>/dev/null || true"
-            - "sudo mv /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so.disabled 2>/dev/null || true"
-            - "xdg-user-dirs-update"
+            - "pkill wl-clip-persist"
+            - "yay -Rns --noconfirm wl-clip-persist"
+            - "yay -Rns --noconfirm imv"
+            - "sudo mv /usr/share/thumbnailers/papers.thumbnailer /usr/share/thumbnailers/papers.thumbnailer.disabled"
+            - "sudo mv /usr/share/thumbnailers/evince.thumbnailer /usr/share/thumbnailers/evince.thumbnailer.disabled"
+            - "sudo mv /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so /usr/lib/tumbler-1/plugins/tumbler-poppler-thumbnailer.so.disabled"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-user-dirs-update; fi"
+        critical: false
 
     editors:
         packages:
@@ -203,17 +211,18 @@ desktop:
         configs:
             - pattern: text-editor/*
         commands:
-            - "gsettings set org.gnome.TextEditor show-line-numbers true || true"
-            - "gsettings set org.gnome.TextEditor highlight-current-line true || true"
-            - "gsettings set org.gnome.TextEditor show-right-margin false || true"
-            - "gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12' || true"
-            - "gsettings set org.gnome.TextEditor line-height 1.2 || true"
-            - "gsettings set org.gnome.TextEditor use-system-font false || true"
-            - "gsettings set org.gnome.TextEditor style-scheme 'tokyo-night' || true"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-line-numbers true; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor highlight-current-line true; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-right-margin false; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12'; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor line-height 1.2; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor use-system-font false; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'; fi"
         depends: [core.base]
         start: "Installing text editors"
         end: "Text editors configured"
         type: "Package"
+        critical: false
 
     utilities:
         packages:
@@ -226,11 +235,13 @@ desktop:
         configs:
             - pattern: applications/*
         commands:
-            - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications/"
+            - "mkdir -p ~/.local/share/applications"
+            - "update-desktop-database ~/.local/share/applications/"
         depends: [core.base]
         start: "Installing desktop utilities"
         end: "Desktop utilities installed"
         type: "Package"
+        critical: false
 
 development:
     tools:
@@ -249,6 +260,7 @@ development:
         start: "Installing development tools"
         end: "Development tools installed"
         type: "Package"
+        critical: false
 
     helpers:
         packages:
@@ -264,12 +276,13 @@ development:
             - tmux
         commands:
             - "mkdir -p ~/.local/bin"
-            - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate || echo 'migrate download failed, skipping'"
-            - "test -f ~/.local/bin/migrate && chmod +x ~/.local/bin/migrate || echo 'migrate not found, skipping chmod'"
+            - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
+            - "chmod +x ~/.local/bin/migrate"
         depends: [core.base]
         start: "Installing development helpers"
         end: "Development helpers installed"
         type: "Package"
+        critical: false
 
     editors:
         packages:
@@ -285,6 +298,7 @@ development:
         start: "Installing editor and LSP servers"
         end: "Editor environment configured"
         type: "Package"
+        critical: false
 
 system:
     fonts:
@@ -297,6 +311,7 @@ system:
         start: "Installing system fonts"
         end: "Fonts installed and cached"
         type: "System"
+        critical: false
 
     bluetooth:
         packages:
@@ -307,6 +322,7 @@ system:
         start: "Setting up Bluetooth"
         end: "Bluetooth configured"
         type: "System"
+        critical: false
 
     printer:
         packages:
@@ -314,25 +330,25 @@ system:
             - cups-pdf
             - cups-filters
             - system-config-printer
-
         commands:
             - "sudo systemctl enable --now cups.service"
         depends: [core.base]
         start: "Installing printing system"
         end: "Printing system configured"
         type: "System"
+        critical: false
 
     power:
         packages:
             - power-profiles-daemon
             - powertop
-
         commands:
             - "sudo systemctl enable --now power-profiles-daemon.service"
         depends: [core.base]
         start: "Configuring power management"
         end: "Power management configured"
         type: "System"
+        critical: false
 
     filesystems:
         packages:
@@ -343,24 +359,24 @@ system:
             - ntfs-3g
             - dosfstools
             - exfatprogs
-
         commands:
             - "sudo systemctl enable --now udisks2.service"
         depends: [core.base]
         start: "Installing filesystem support"
         end: "Filesystem support configured"
         type: "System"
+        critical: false
 
     networking:
         packages:
             - iwd
-
         commands:
             - "sudo systemctl enable --now iwd.service"
         depends: [core.base]
         start: "Configuring wireless networking"
         end: "Wireless networking configured"
         type: "System"
+        critical: false
 
     audio:
         packages:
@@ -380,17 +396,16 @@ system:
             - linux-firmware
 
         commands:
-            - "pacman -Qs ^pulseaudio$ && sudo pacman -Rdd --noconfirm pulseaudio || true"
-            - "pacman -Qs ^jack2$ && sudo pacman -Rdd --noconfirm jack2 || true"
-
-            - "systemctl --user enable --now pipewire.service"
-            - "systemctl --user enable --now pipewire-pulse.service"
-            - "systemctl --user enable --now wireplumber.service"
-            - "sleep 2 && current_vol=$(pamixer --get-volume 2>/dev/null || echo 0); if [ $current_vol -gt 90 ]; then pamixer --set-volume 25; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire.service; else systemctl --user enable pipewire.service; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire-pulse.service; else systemctl --user enable pipewire-pulse.service; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now wireplumber.service; else systemctl --user enable wireplumber.service; fi"
+            - "sleep 2"
+            - "if command -v pamixer && systemctl --user is-active --quiet pipewire.service; then current_vol=$(pamixer --get-volume) && if [ $current_vol -gt 90 ]; then pamixer --set-volume 25; fi; fi"
         depends: [core.base]
         start: "Installing PipeWire audio system"
         end: "Audio system configured"
         type: "System"
+        critical: true
 
     memory:
         commands:
@@ -400,52 +415,56 @@ system:
         start: "Optimizing memory settings"
         end: "Memory optimization applied"
         type: "System"
+        critical: false
 
     mimetypes:
         commands:
-            - "mkdir -p ~/.local/share/applications && update-desktop-database ~/.local/share/applications"
-            - "xdg-mime default org.gnome.Loupe.desktop image/png"
-            - "xdg-mime default org.gnome.Loupe.desktop image/jpeg"
-            - "xdg-mime default org.gnome.Loupe.desktop image/gif"
-            - "xdg-mime default org.gnome.Loupe.desktop image/webp"
-            - "xdg-mime default org.gnome.Loupe.desktop image/bmp"
-            - "xdg-mime default org.gnome.Loupe.desktop image/tiff"
-            - "xdg-mime default org.gnome.Papers.desktop application/pdf"
-            - "xdg-settings set default-web-browser brave-browser.desktop"
-            - "xdg-mime default brave-browser.desktop x-scheme-handler/http"
-            - "xdg-mime default brave-browser.desktop x-scheme-handler/https"
-            - "xdg-mime default org.gnome.TextEditor.desktop text/plain"
-            - "xdg-mime default org.gnome.TextEditor.desktop text/markdown"
-            - "xdg-mime default org.gnome.TextEditor.desktop text/x-markdown"
-            - "xdg-mime default org.gnome.TextEditor.desktop application/x-markdown"
-            - "xdg-mime default mpv.desktop video/mp4"
-            - "xdg-mime default mpv.desktop video/x-msvideo"
-            - "xdg-mime default mpv.desktop video/x-matroska"
-            - "xdg-mime default mpv.desktop video/x-flv"
-            - "xdg-mime default mpv.desktop video/x-ms-wmv"
-            - "xdg-mime default mpv.desktop video/mpeg"
-            - "xdg-mime default mpv.desktop video/ogg"
-            - "xdg-mime default mpv.desktop video/webm"
-            - "xdg-mime default mpv.desktop video/quicktime"
-            - "xdg-mime default mpv.desktop video/3gpp"
-            - "xdg-mime default mpv.desktop video/3gpp2"
-            - "xdg-mime default mpv.desktop video/x-ms-asf"
-            - "xdg-mime default mpv.desktop video/x-ogm+ogg"
-            - "xdg-mime default mpv.desktop video/x-theora+ogg"
-            - "xdg-mime default mpv.desktop application/ogg"
+            - "mkdir -p ~/.local/share/applications"
+            - "update-desktop-database ~/.local/share/applications"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/png; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/jpeg; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/gif; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/webp; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/bmp; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/tiff; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Papers.desktop application/pdf; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-settings set default-web-browser brave-browser.desktop; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default brave-browser.desktop x-scheme-handler/http; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default brave-browser.desktop x-scheme-handler/https; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop text/plain; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop text/markdown; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop text/x-markdown; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop application/x-markdown; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/mp4; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-msvideo; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-matroska; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-flv; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-ms-wmv; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/mpeg; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/ogg; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/webm; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/quicktime; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/3gpp; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/3gpp2; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-ms-asf; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-ogm+ogg; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-theora+ogg; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop application/ogg; fi"
         depends: [desktop.apps, desktop.sources]
         start: "Configuring file associations"
         end: "File associations configured"
         type: "System"
+        critical: false
 
     privacy:
         commands:
-            - "gsettings set org.gnome.desktop.privacy remember-recent-files false || true"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.desktop.privacy remember-recent-files false; fi"
             - "rm -f ~/.local/share/recently-used.xbel"
         depends: [core.base]
         start: "Configuring desktop privacy"
         end: "Privacy settings applied"
         type: "System"
+        critical: false
 
     hardware:
         packages:
@@ -456,27 +475,29 @@ system:
 
         commands:
             - "sudo sed -i '/^#\\[multilib\\]/,/^#Include/ s/^#//' /etc/pacman.conf"
-            - "yay -S --noconfirm --needed lib32-vulkan-icd-loader lib32-mesa || true"
-            - "if lspci | grep -qi nvidia; then yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils || true; fi"
-            - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed vulkan-radeon lib32-vulkan-radeon xf86-video-amdgpu || true; fi"
-            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver || true; fi"
-            - "if command -v lsusb >/dev/null 2>&1 && lsusb | grep -i apple | grep -qi keyboard; then echo 'options hid_apple fnmode=2' | sudo tee /etc/modprobe.d/hid_apple.conf >/dev/null; fi"
+            - "yay -S --noconfirm --needed lib32-vulkan-icd-loader lib32-mesa"
+            - "if lspci | grep -qi nvidia; then yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils; fi"
+            - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed vulkan-radeon lib32-vulkan-radeon xf86-video-amdgpu; fi"
+            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver; fi"
+            - "if command -v lsusb && lsusb | grep -i apple | grep -qi keyboard; then echo 'options hid_apple fnmode=2' | sudo tee /etc/modprobe.d/hid_apple.conf; fi"
             - "systemctl --user daemon-reload"
-            - "sudo rm -f /etc/environment.d/graphics*.conf || true"
-            - "rm -f ~/.config/environment.d/graphics*.conf || true"
-            - "rm -f ~/.local/share/archriot/config/environment.d/graphics*.conf || true"
-            - "sed -i '/LIBGL_ALWAYS_SOFTWARE/d' ~/.config/fish/config.fish ~/.local/share/archriot/config/fish/config.fish || true"
-            - "sed -i '/LIBGL.*SOFTWARE/d' ~/.config/fish/fish_variables || true"
-            - "fish -c 'set -e LIBGL_ALWAYS_SOFTWARE' || true"
-            - "fish -c 'set -U --erase LIBGL_ALWAYS_SOFTWARE' || true"
-            - "systemctl --user unset-environment LIBGL_ALWAYS_SOFTWARE || true"
-            - "sudo sed -i '/LIBGL_ALWAYS_SOFTWARE/d' /etc/environment || true"
-            - "rm -f ~/.cache/environment.d/graphics.conf || true"
+            - "sudo rm -f /etc/environment.d/graphics*.conf"
+            - "rm -f ~/.config/environment.d/graphics*.conf"
+            - "rm -f ~/.local/share/archriot/config/environment.d/graphics*.conf"
+            - "if [ -f ~/.config/fish/config.fish ]; then sed -i '/LIBGL_ALWAYS_SOFTWARE/d' ~/.config/fish/config.fish; fi"
+            - "if [ -f ~/.local/share/archriot/config/fish/config.fish ]; then sed -i '/LIBGL_ALWAYS_SOFTWARE/d' ~/.local/share/archriot/config/fish/config.fish; fi"
+            - "if [ -f ~/.config/fish/fish_variables ]; then sed -i '/LIBGL.*SOFTWARE/d' ~/.config/fish/fish_variables; fi"
+            - "fish -c 'if set -q LIBGL_ALWAYS_SOFTWARE; set -e LIBGL_ALWAYS_SOFTWARE; end'"
+            - "fish -c 'if set -q -U LIBGL_ALWAYS_SOFTWARE; set -U --erase LIBGL_ALWAYS_SOFTWARE; end'"
+            - "if systemctl --user show-environment | grep -q LIBGL_ALWAYS_SOFTWARE; then systemctl --user unset-environment LIBGL_ALWAYS_SOFTWARE; fi"
+            - "if [ -f /etc/environment ]; then sudo sed -i '/LIBGL_ALWAYS_SOFTWARE/d' /etc/environment; fi"
+            - "rm -f ~/.cache/environment.d/graphics.conf"
             - "systemctl --user set-environment GSK_RENDERER=gl"
         depends: [core.base]
         start: "Setting up hardware drivers"
         end: "Hardware drivers configured"
         type: "System"
+        critical: true
 
     themes:
         packages:
@@ -490,24 +511,26 @@ system:
             - pattern: gtk-3.0/*
             - pattern: gtk-4.0/*
         commands:
-            - "mkdir -p ~/.config/gtk-3.0 && [ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\" > ~/.config/gtk-3.0/bookmarks || true"
+            - "mkdir -p ~/.config/gtk-3.0"
+            - "[ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\" > ~/.config/gtk-3.0/bookmarks"
             - "sudo usermod -a -G video $USER"
         depends: [core.base]
         start: "Installing desktop themes"
         end: "Desktop themes configured"
         type: "Package"
+        critical: false
 
     backgrounds:
         commands:
-            - "pkill swaybg 2>/dev/null || true"
-            - "rm -f ~/.config/archriot/backgrounds/riot_*.jpg ~/.config/archriot/backgrounds/riot_*.png 2>/dev/null || true"
+            - "pkill swaybg"
+            - "rm -f ~/.config/archriot/backgrounds/riot_*.jpg ~/.config/archriot/backgrounds/riot_*.png"
             - |
                 # Restore user background if exists, otherwise use default
                 CURRENT_BG_FILE="$HOME/.config/archriot/.current-background"
                 DEFAULT_BG="$HOME/.local/share/archriot/backgrounds/riot_01.jpg"
 
                 if [[ -f "$CURRENT_BG_FILE" ]]; then
-                  SAVED_BG=$(cat "$CURRENT_BG_FILE" 2>/dev/null)
+                  SAVED_BG=$(cat "$CURRENT_BG_FILE")
                   if [[ -f "$SAVED_BG" ]]; then
                     nohup swaybg -i "$SAVED_BG" -m fill >/dev/null 2>&1 & disown
                   elif [[ -f "$DEFAULT_BG" ]]; then
@@ -516,13 +539,14 @@ system:
                 elif [[ -f "$DEFAULT_BG" ]]; then
                   nohup swaybg -i "$DEFAULT_BG" -m fill >/dev/null 2>&1 & disown
                 fi
-            - "pkill waybar 2>/dev/null || true"
+            - "pkill waybar"
             - "nohup waybar >/dev/null 2>&1 & disown"
-            - "if pgrep -x Hyprland >/dev/null 2>&1; then hyprctl reload; else echo 'Hyprland not running, skipping reload'; fi"
+            - "if pgrep -x Hyprland; then hyprctl reload; else echo 'Hyprland not running, skipping reload'; fi"
         depends: [desktop.hyprland]
         start: "Setting up wallpapers"
         end: "Background service started"
         type: "System"
+        critical: false
 
 media:
     players:
@@ -538,3 +562,4 @@ media:
         start: "Installing media players"
         end: "Media players installed"
         type: "Package"
+        critical: false

@@ -23,6 +23,7 @@ type Module struct {
 	Start    string       `yaml:"start"`
 	End      string       `yaml:"end"`
 	Type     string       `yaml:"type"`
+	Critical bool         `yaml:"critical,omitempty"`
 }
 
 // ConfigRule represents a configuration copying rule
