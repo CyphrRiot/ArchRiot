@@ -133,7 +133,7 @@ func RunInstallation() {
 
 	// Install Plymouth boot screen (critical system component)
 	sendStep("Configuring boot screen...")
-	sendProgress(0.98)
+	sendProgress(0.95)
 
 	plymouthManager, err := plymouth.NewPlymouthManager()
 	if err != nil {
@@ -142,12 +142,14 @@ func RunInstallation() {
 		return
 	}
 
+	sendProgress(0.96)
 	if err := plymouthManager.InstallPlymouth(); err != nil {
 		logger.Log("Error", "System", "Plymouth", "Installation failed: "+err.Error())
 		Program.Send(tui.FailureMsg{Error: "Plymouth installation failed: " + err.Error()})
 		return
 	}
 
+	sendProgress(0.98)
 	sendStep("Installation complete!")
 	sendProgress(1.0)
 	logger.Log("Success", "System", "Installation", "Complete!")

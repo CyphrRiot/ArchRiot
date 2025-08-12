@@ -600,8 +600,8 @@ class BlueLightWidget(BaseControlWidget):
         """Apply temperature change immediately to system and update config"""
         try:
             import subprocess
-            import re
-            from pathlib import Path
+            import os
+            import time
 
             # Kill any existing hyprsunset processes (ensure only one instance)
             subprocess.run(['pkill', '-f', 'hyprsunset'], check=False)
@@ -620,6 +620,9 @@ class BlueLightWidget(BaseControlWidget):
                 content = re.sub(r'exec-once = hyprsunset -t \d+',
                                f'exec-once = hyprsunset -t {temperature}', content)
                 hyprland_config.write_text(content)
+
+            # Save to external config file for persistence
+            self.save_bluelight_setting(True, temperature)
         except Exception as e:
             print(f"Blue light filter error: {e}")  # Debug output
 
@@ -643,8 +646,41 @@ class BlueLightWidget(BaseControlWidget):
                 content = re.sub(r'exec-once = hyprsunset -t \d+',
                                '# exec-once = hyprsunset -t 3500  # Disabled via Control Panel', content)
                 hyprland_config.write_text(content)
+
+            # Save to external config file for persistence
+            self.save_bluelight_setting(False, 3500)
         except Exception as e:
             print(f"Blue light filter disable error: {e}")  # Debug output
+
+    def save_bluelight_setting(self, enabled, temperature):
+        """Save blue light setting to external config file for upgrade persistence"""
+        try:
+            import configparser
+            import os
+            from pathlib import Path
+
+            config_file = Path.home() / '.config' / 'archriot' / 'archriot.conf'
+            config = configparser.ConfigParser()
+
+            # Read existing config if it exists
+            if config_file.exists():
+                config.read(config_file)
+
+            # Ensure bluelight section exists
+            if not config.has_section('bluelight'):
+                config.add_section('bluelight')
+
+            # Update bluelight settings
+            config.set('bluelight', 'enabled', str(enabled).lower())
+            config.set('bluelight', 'temperature', str(temperature))
+
+            # Write back to file
+            os.makedirs(config_file.parent, exist_ok=True)
+            with open(config_file, 'w') as f:
+                config.write(f)
+
+        except Exception as e:
+            print(f"Failed to save bluelight setting: {e}")
 
     def mark_changes_pending(self):
         """Mark that changes are pending"""
@@ -2261,8 +2297,70 @@ class ControlPanelApplication(Gtk.Application):
 
 def main():
     """Main entry point"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description='ArchRiot Control Panel')
+    parser.add_argument('--reapply', action='store_true',
+                       help='Re-apply saved settings to fresh config files')
+
+    args = parser.parse_args()
+
+    if args.reapply:
+        reapply_saved_settings()
+        return 0
+
     app = ControlPanelApplication()
     return app.run(sys.argv)
+
+def reapply_saved_settings():
+    """Re-apply all saved user settings to fresh config files"""
+    try:
+        # Import config module to read saved settings
+        config_class = import_config_module()
+        if not config_class:
+            return
+
+        # Create config instance
+        config = config_class()
+
+        # Re-apply blue light filter setting
+        bluelight_config = config.get_bluelight_config()
+
+        if bluelight_config['enabled'] and bluelight_config['temperature'] != 3500:
+            apply_bluelight_setting(bluelight_config['temperature'])
+            print(f"Re-applied blue light filter: {bluelight_config['temperature']}K")
+        elif not bluelight_config['enabled']:
+            disable_bluelight_setting()
+            print("Re-applied blue light filter: disabled")
+
+        # TODO: Add other settings re-application here as needed
+
+    except Exception as e:
+        print(f"Error re-applying settings: {e}")
+
+def apply_bluelight_setting(temperature):
+    """Apply blue light temperature setting to hyprland.conf"""
+    import re
+    from pathlib import Path
+
+    hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+    if hyprland_config.exists():
+        content = hyprland_config.read_text()
+        content = re.sub(r'exec-once = hyprsunset -t \d+',
+                        f'exec-once = hyprsunset -t {temperature}', content)
+        hyprland_config.write_text(content)
+
+def disable_bluelight_setting():
+    """Disable blue light filter in hyprland.conf"""
+    import re
+    from pathlib import Path
+
+    hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+    if hyprland_config.exists():
+        content = hyprland_config.read_text()
+        content = re.sub(r'exec-once = hyprsunset -t \d+',
+                        '# exec-once = hyprsunset -t 3500  # Disabled via Control Panel', content)
+        hyprland_config.write_text(content)
 
 if __name__ == "__main__":
     exit_code = main()

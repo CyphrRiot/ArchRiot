@@ -2,7 +2,9 @@ package executor
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -282,7 +284,15 @@ func executeModuleCategoryWithProgress(category string, modules map[string]confi
 			}
 		}
 
-		logger.LogMessage("SUCCESS", fmt.Sprintf("Module completed: %s - %s", fullName, module.End))
+		// Special post-hook for desktop.hyprland to re-apply control panel settings
+		if fullName == "desktop.hyprland" {
+			logger.Log("Progress", "Config", "Settings Restore", "Re-applying control panel settings")
+			if err := reapplyControlPanelSettings(); err != nil {
+				logger.Log("Warning", "Config", "Settings Restore", "Failed: "+err.Error())
+			}
+		}
+
+		logger.LogMessage("INFO", fmt.Sprintf("Completed module: %s - %s", fullName, module.End))
 		logger.Log("Success", module.Type, fullName, module.End)
 
 		// Call progress callback after each module completes
@@ -293,5 +303,28 @@ func executeModuleCategoryWithProgress(category string, modules map[string]confi
 
 	logger.LogMessage("SUCCESS", fmt.Sprintf("%s modules completed", strings.Title(category)))
 	logger.Log("Success", "Module", strings.Title(category), "All "+category+" modules done")
+	return nil
+}
+
+// reapplyControlPanelSettings calls archriot-control-panel --reapply to restore user settings
+func reapplyControlPanelSettings() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	controlPanelPath := filepath.Join(homeDir, ".local", "share", "archriot", "config", "bin", "archriot-control-panel")
+
+	// Check if control panel exists
+	if _, err := os.Stat(controlPanelPath); err != nil {
+		return nil // Not an error - control panel not installed yet
+	}
+
+	// Execute control panel with --reapply flag
+	cmd := exec.Command(controlPanelPath, "--reapply")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("control panel reapply failed: %w", err)
+	}
+
 	return nil
 }
