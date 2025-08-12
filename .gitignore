@@ -39,7 +39,6 @@ local/
 
 # Python Rope IDE artifacts
 .ropeproject/
-plan.md
 PROPOSAL.md
 
 # No crush
