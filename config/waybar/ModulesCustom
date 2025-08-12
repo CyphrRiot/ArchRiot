@@ -8,7 +8,7 @@
     "custom/archriot-update": {
     	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
     	"return-type": "json",
-    	"interval": 300,
+    	"interval": 3600,
     	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
     	"tooltip": true,
     },

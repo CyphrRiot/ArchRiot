@@ -771,6 +771,25 @@ class VersionChecker:
         config['last_notified_version'] = version
         save_config(self.config_file, self.config_dir, config)
 
+    def is_running_from_systemd(self):
+        """Check if we're running from systemd using multiple indicators"""
+        # Check for systemd-specific environment variables
+        if os.environ.get('INVOCATION_ID'):  # Set by systemd for all services
+            return True
+
+        # Check if parent process is systemd
+        try:
+            ppid = os.getppid()
+            with open(f'/proc/{ppid}/comm', 'r') as f:
+                parent_name = f.read().strip()
+            if parent_name == 'systemd':
+                return True
+        except:
+            pass
+
+        # Fallback to original method as last resort
+        return not os.environ.get('TERM') and not sys.stdin.isatty()
+
     def run_check(self, force=False):
         """Main version check logic"""
         config = load_config(self.config_file)
@@ -803,8 +822,8 @@ class VersionChecker:
 
             # Check if we should notify about this version
             if self.should_notify_version(config, remote_version):
-                # Check if running from systemd (no TERM, no interactive session)
-                is_systemd = not os.environ.get('TERM') and not sys.stdin.isatty()
+                # Check if running from systemd using robust detection
+                is_systemd = self.is_running_from_systemd()
 
                 if is_systemd:
                     print("Running from systemd - creating waybar notification flag")
