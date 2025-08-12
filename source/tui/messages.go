@@ -26,6 +26,9 @@ type GitEmailMsg string
 // RebootMsg carries reboot decision
 type RebootMsg bool
 
+// UpgradeMsg triggers upgrade confirmation prompt
+type UpgradeMsg struct{}
+
 // InputRequestMsg requests user input
 type InputRequestMsg struct {
 	Mode   string
@@ -75,4 +78,12 @@ func SetGitCallbacks(completion func(bool), username func(string), email func(st
 	gitCompletionCallback = completion
 	gitUsernameCallback = username
 	gitEmailCallback = email
+}
+
+// Upgrade callback function
+var upgradeCompletionCallback func(bool)
+
+// SetUpgradeCallback sets the callback function for upgrade confirmation handling
+func SetUpgradeCallback(callback func(bool)) {
+	upgradeCompletionCallback = callback
 }

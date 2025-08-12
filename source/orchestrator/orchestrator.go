@@ -11,6 +11,7 @@ import (
 	"archriot-installer/logger"
 	"archriot-installer/plymouth"
 	"archriot-installer/tui"
+	"archriot-installer/upgrade"
 )
 
 // Program holds the TUI program reference
@@ -120,9 +121,19 @@ func RunInstallation() {
 		return
 	}
 
+	// Optional system upgrade before Plymouth installation
+	sendStep("Module installation complete!")
+	sendProgress(0.90)
+
+	upgrade.SetProgram(Program)
+	if err := upgrade.PromptAndRun(); err != nil {
+		logger.Log("Warning", "System", "Package Upgrade", "Failed: "+err.Error())
+		// Continue anyway - upgrade failure should not stop installation
+	}
+
 	// Install Plymouth boot screen (critical system component)
 	sendStep("Configuring boot screen...")
-	sendProgress(0.95)
+	sendProgress(0.98)
 
 	plymouthManager, err := plymouth.NewPlymouthManager()
 	if err != nil {

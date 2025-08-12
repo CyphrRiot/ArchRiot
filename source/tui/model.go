@@ -172,6 +172,12 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.cursor = 1 // Default to NO
 		return m, nil
 
+	case UpgradeMsg:
+		m.showConfirm = true
+		m.confirmPrompt = "⚠️ Full Arch Linux Upgrade?"
+		m.cursor = 1 // Default to NO (conservative)
+		return m, nil
+
 	case FailureMsg:
 		m.done = true
 		m.failed = true
@@ -447,6 +453,15 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 			SetRebootFlag(true)
 		}
 		return m, tea.Quit
+	} else if m.confirmPrompt == "⚠️ Full Arch Linux Upgrade?" {
+		// Upgrade confirmation - send result back through callback
+		m.showConfirm = false
+		m.confirmPrompt = ""
+		// Signal completion through external callback
+		if upgradeCompletionCallback != nil {
+			upgradeCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
+		}
+		return m, nil
 	} else if m.confirmPrompt == "🔧 Use these credentials?" {
 		// Git credentials confirmation - send result back to main
 		m.showConfirm = false
@@ -518,7 +533,13 @@ func (m *InstallModel) SetConfirmationMode(mode, prompt string) {
 	m.isConfirmationMode = true
 	m.showConfirm = true
 	m.confirmPrompt = prompt
-	m.cursor = 0 // Default to YES
+
+	// Set appropriate default based on prompt type
+	if prompt == "⚠️ Full Arch Linux Upgrade?" {
+		m.cursor = 1 // Default to NO for upgrade (conservative)
+	} else {
+		m.cursor = 0 // Default to YES for other prompts
+	}
 }
 
 // GetConfirmationResult returns the result of the confirmation dialog
