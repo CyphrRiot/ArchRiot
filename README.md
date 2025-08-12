@@ -2,17 +2,17 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.9-blue)
-![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca)
-![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6)
+![Version](https://img.shields.io/badge/version-2.9-blue?labelColor=blue)
+![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=4338ca)
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=1e1b4b)
 
-![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=5b21b6)
-![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=4338ca)
-![Wayland](https://img.shields.io/badge/Wayland-312e81?logo=wayland&logoColor=a855f7)
+![Last Commit](https://img.shields.io/github/last-commit/CyphrRiot/ArchRiot?color=5b21b6&labelColor=5b21b6)
+![Code Size](https://img.shields.io/github/languages/code-size/CyphrRiot/ArchRiot?color=4338ca&labelColor=4338ca)
+![Wayland](https://img.shields.io/badge/Wayland-312e81?logo=wayland&logoColor=a855f7&labelColor=312e81)
 
-![Language](https://img.shields.io/badge/language-Go-4338ca)
-![Language](https://img.shields.io/badge/language-YAML-5b21b6)
-![Language](https://img.shields.io/badge/language-Python-312e81)
+![Language](https://img.shields.io/badge/language-Go-4338ca?labelColor=4338ca)
+![Language](https://img.shields.io/badge/language-YAML-5b21b6?labelColor=5b21b6)
+![Language](https://img.shields.io/badge/language-Python-312e81?labelColor=312e81)
 
 </div>
 
