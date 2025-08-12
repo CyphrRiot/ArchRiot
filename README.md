@@ -12,7 +12,7 @@
 
 ![Language](https://img.shields.io/badge/language-Go-4338ca?labelColor=4338ca)
 ![Language](https://img.shields.io/badge/language-YAML-5b21b6?labelColor=5b21b6)
-![Language](https://img.shields.io/badge/language-Python-312e81?labelColor=312e81)
+![Language](https://img.shields.io/badge/Python-312e81?label=language&labelColor=312e81&color=312e81)
 
 </div>
 
