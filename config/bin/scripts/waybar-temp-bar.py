@@ -17,7 +17,7 @@ def get_visual_bar(percentage, show_empty=True):
         Unicode block character representing the level
     """
     if percentage <= 0:
-        return ""
+        return "▁"
     elif percentage <= 10:
         return "▁"
     elif percentage <= 25:
