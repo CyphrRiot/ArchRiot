@@ -29,7 +29,7 @@ ArchRiot is the answer to every time you've thought "why can't Linux just work c
 - **⚡ Go Binary Installer** - Atomic operations, instant rollbacks, zero dependency hell
 - **🛡️ Privacy by Design** - Zero telemetry, zero tracking, zero corporate data harvesting
 - **🎨 CypherRiot Aesthetics** - Carefully crafted dark themes that work at any hour
-- **💻 Development-First** - Zed, Neovim, containers, and every tool a dev actually needs
+- **💻 Development-First** - Zed, Neovim, shell enhancements, and other upgrades
 
 _Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
 
@@ -424,6 +424,7 @@ ArchRiot includes a highly customized Waybar (status bar) with comprehensive sys
 - **🍅 Tomato Timer** - Built-in Pomodoro timer (idle/running/break/finished)
 - **🛡️ Mullvad VPN Status** - Real-time VPN connection status with location display
 - **📊 System Monitoring** - CPU aggregate usage, accurate memory monitoring
+- **📊 Visual System Metrics** - Temperature, CPU, memory, and volume shown as intuitive bar indicators (▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
 - **🎤 Microphone Control** - Visual mic status with one-click toggle
 - **📶 Network Management** - WiFi status with nmtui integration
 - **🔊 Audio Controls** - Volume display with hardware key integration
