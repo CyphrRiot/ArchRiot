@@ -542,6 +542,7 @@ system:
                 fi
             - "pkill waybar"
             - "nohup waybar >/dev/null 2>&1 & disown"
+            - "if pgrep -x Hyprland; then pkill hypridle 2>/dev/null; sleep 1; if ! pgrep hypridle >/dev/null; then nohup hypridle >/dev/null 2>&1 & disown; fi; else echo 'Hyprland not running, skipping hypridle restart'; fi"
             - "if pgrep -x Hyprland; then hyprctl reload; else echo 'Hyprland not running, skipping reload'; fi"
         depends: [desktop.hyprland]
         start: "Setting up wallpapers"
