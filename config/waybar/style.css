@@ -113,7 +113,8 @@ tooltip {
 }
 
 #workspaces button.urgent {
-    background-color: @power_color;
+    background-color: transparent;
+    color: @power_color;
     border: none;
     outline: none;
     box-shadow: none;
