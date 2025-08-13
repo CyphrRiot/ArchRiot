@@ -29,6 +29,9 @@ type RebootMsg bool
 // UpgradeMsg triggers upgrade confirmation prompt
 type UpgradeMsg struct{}
 
+// KernelUpgradeMsg indicates kernel was upgraded and reboot is recommended
+type KernelUpgradeMsg bool
+
 // InputRequestMsg requests user input
 type InputRequestMsg struct {
 	Mode   string

@@ -51,6 +51,7 @@ type InstallModel struct {
 	scrollOffset       int    // scroll position in logs
 	confirmationResult bool   // stores confirmation result
 	isConfirmationMode bool   // true if in confirmation-only mode
+	kernelUpgraded     bool   // true if kernel was upgraded
 }
 
 // NewInstallModel creates a new installation model
@@ -168,14 +169,25 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.done = true
 		m.setInputMode("reboot", "🔄 Reboot now? ")
 		m.showConfirm = true
-		m.confirmPrompt = "🔄 Reboot now?"
-		m.cursor = 1 // Default to NO
+
+		// Check if kernel was upgraded to determine prompt and default
+		if m.kernelUpgraded {
+			m.confirmPrompt = "🔄 Reboot now? (Linux Kernel upgraded, you really should reboot)"
+			m.cursor = 0 // Default to YES for kernel upgrades
+		} else {
+			m.confirmPrompt = "🔄 Reboot now?"
+			m.cursor = 1 // Default to NO for regular upgrades
+		}
 		return m, nil
 
 	case UpgradeMsg:
 		m.showConfirm = true
 		m.confirmPrompt = "⚠️ Full Arch Linux Upgrade?"
 		m.cursor = 1 // Default to NO (conservative)
+		return m, nil
+
+	case KernelUpgradeMsg:
+		m.kernelUpgraded = bool(msg)
 		return m, nil
 
 	case FailureMsg:

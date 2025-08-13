@@ -11,6 +11,9 @@ import (
 	"archriot-installer/tui"
 )
 
+// Global variable to track if kernel was upgraded
+var kernelUpgraded bool
+
 // Program holds the TUI program reference
 var Program *tea.Program
 
@@ -21,6 +24,11 @@ func SetProgram(p *tea.Program) {
 
 // Global channel for upgrade confirmation result
 var upgradeConfirmationDone chan bool
+
+// IsKernelUpgraded returns whether kernel was upgraded in last system upgrade
+func IsKernelUpgraded() bool {
+	return kernelUpgraded
+}
 
 // PromptAndRun prompts the user for system upgrade and executes if confirmed
 func PromptAndRun() error {
@@ -61,6 +69,9 @@ func PromptAndRun() error {
 func runSystemUpgrade() error {
 	logger.Log("Progress", "System", "Package Upgrade", "Starting comprehensive system upgrade")
 
+	// Reset kernel upgrade flag
+	kernelUpgraded = false
+
 	// Step 1: Update package databases
 	Program.Send(tui.StepMsg("Updating package databases..."))
 	logger.Log("Progress", "System", "Database Update", "Syncing package databases")
@@ -70,8 +81,20 @@ func runSystemUpgrade() error {
 		return fmt.Errorf("package database update failed: %v", err)
 	}
 
+	// Check what packages will be upgraded before performing upgrade
+	Program.Send(tui.StepMsg("Checking for kernel upgrades..."))
+	kernelUpgraded = detectKernelUpgrade()
+
+	// Send kernel upgrade status to TUI
+	Program.Send(tui.KernelUpgradeMsg(kernelUpgraded))
+
 	// Step 2: Upgrade official packages with retry logic
-	Program.Send(tui.StepMsg("Upgrading official packages..."))
+	if kernelUpgraded {
+		Program.Send(tui.StepMsg("Upgrading official packages (kernel upgrade detected)..."))
+		logger.Log("Progress", "System", "Kernel Upgrade", "Linux kernel will be upgraded - reboot will be recommended")
+	} else {
+		Program.Send(tui.StepMsg("Upgrading official packages..."))
+	}
 	logger.Log("Progress", "System", "Pacman Upgrade", "Upgrading official packages")
 
 	cmd = exec.Command("sudo", "pacman", "-Su", "--noconfirm")
@@ -152,6 +175,54 @@ func runSystemUpgrade() error {
 		}
 	}
 
+	// Log final kernel upgrade status
+	if kernelUpgraded {
+		logger.Log("Success", "System", "Kernel Upgrade", "System upgrade completed - kernel was upgraded, reboot recommended")
+	} else {
+		logger.Log("Success", "System", "Package Upgrade", "System upgrade completed - no kernel upgrade detected")
+	}
+
 	logger.Log("Success", "System", "Package Upgrade", "Complete system upgrade finished successfully")
 	return nil
+}
+
+// detectKernelUpgrade checks if kernel packages will be upgraded
+func detectKernelUpgrade() bool {
+	// Get list of packages that would be upgraded
+	cmd := exec.Command("pacman", "-Qu")
+	output, err := cmd.Output()
+	if err != nil {
+		logger.Log("Warning", "System", "Kernel Detection", "Could not check for kernel upgrades: "+err.Error())
+		return false
+	}
+
+	upgradeList := strings.TrimSpace(string(output))
+	if upgradeList == "" {
+		logger.Log("Info", "System", "Kernel Detection", "No packages to upgrade")
+		return false
+	}
+
+	lines := strings.Split(upgradeList, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		// Extract package name (first field before space)
+		parts := strings.Fields(line)
+		if len(parts) == 0 {
+			continue
+		}
+		packageName := parts[0]
+
+		// Check for exact "linux" package match
+		if packageName == "linux" {
+			logger.Log("Info", "System", "Kernel Detection", "Kernel package upgrade detected: "+packageName)
+			return true
+		}
+	}
+
+	logger.Log("Info", "System", "Kernel Detection", "No kernel upgrades detected")
+	return false
 }
