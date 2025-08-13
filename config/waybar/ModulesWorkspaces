@@ -154,6 +154,7 @@
 	"active-only": false,
 	"numeric-first": false,
 	"format": "{icon}{windows}",
+	"window-rewrite-delay": 250,
 	"format-icons": {
 		"active": "<span font='14'>⬤</span> ",
 		"default": "<span font='14'>◉</span> ",
@@ -163,7 +164,7 @@
 	"window-rewrite-default": "<span font='11'> </span>",
 	"ignore-workspaces": [],
 	"window-rewrite": {
-		"title<.*amazon.*>": "<span font='11'> </span>",
+		"title<.*amazon.*>": "<span font='11'>󰊯 </span>",
 
 		"class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>": "<span font='11'>󰈹 </span>",
 		"class<signal>": "<span font='11'>󰍡 </span>",

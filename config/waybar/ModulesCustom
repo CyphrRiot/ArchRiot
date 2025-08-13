@@ -47,6 +47,30 @@
     	"tooltip": false
     },
 
+    // Custom temperature module with visual bar indicators
+    "custom/temp-bar": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 10,
+    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-temp-bar.py",
+    	"on-click": "gnome-system-monitor",
+    	"on-click-right": "gnome-system-monitor",
+    	"tooltip": true
+    },
+
+    // Custom volume module with visual bar indicators
+    "custom/volume-bar": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 1,
+    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-volume-bar.py",
+    	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/Volume.sh --toggle",
+    	"on-click-right": "pavucontrol -t 3",
+    	"on-scroll-up": "$HOME/.local/share/archriot/config/bin/scripts/Volume.sh --inc",
+    	"on-scroll-down": "$HOME/.local/share/archriot/config/bin/scripts/Volume.sh --dec",
+    	"tooltip": true
+    },
+
     // Accurate memory module using same calculation as btop (Total - Available)
     "custom/memory-accurate": {
     	"format": "{}",
@@ -90,6 +114,11 @@
     },
     "custom/separator#blank_3": {
     	"format": "   ",
+    	"interval": "once",
+    	"tooltip": false
+    },
+    "custom/separator#tight": {
+    	"format": " ",
     	"interval": "once",
     	"tooltip": false
     },

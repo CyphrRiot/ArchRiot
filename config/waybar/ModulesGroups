@@ -14,6 +14,14 @@
             "disk"
         ]
     },
+    "group/system-metrics": {
+        "orientation": "inherit",
+        "modules": [
+            "custom/temp-bar",
+            "custom/cpu-aggregate",
+            "custom/memory-accurate"
+        ]
+    },
     "group/status": {
         "orientation": "inherit",
         "modules": [

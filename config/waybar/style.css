@@ -145,6 +145,8 @@ tooltip {
 #pulseaudio-slider,
 #taskbar,
 #temperature,
+#custom-temp-bar,
+#custom-volume-bar,
 #tray,
 #window,
 #wireplumber,
@@ -272,8 +274,8 @@ label:focus {
 #custom-cpu-max,
 #custom-cpu-aggregate {
     color: @cpu_color;
-    padding-left: 3px;
-    padding-right: 3px;
+    padding-left: 1px;
+    padding-right: 1px;
     min-width: 45px; /* Reduced minimum width */
 }
 
@@ -336,6 +338,26 @@ label:focus {
 
 #custom-memory-accurate {
     color: @memory_color;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+#custom-volume-bar {
+    color: @cpu_color;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+#custom-volume-bar.muted {
+    color: #565f89; /* Dimmed color for muted */
+}
+
+#custom-volume-bar.warning {
+    color: #e0af68; /* Yellow-orange for high volume */
+}
+
+#custom-volume-bar.critical {
+    color: #ff9e64; /* Orange for dangerous volume levels */
 }
 
 #custom-memory-accurate.warning {
@@ -409,13 +431,25 @@ label:focus {
 }
 
 #keyboard-state,
-#temperature {
+#temperature,
+#custom-temp-bar {
     color: @temp_color;
+    padding-left: 1px;
+    padding-right: 1px;
     /* background-color: #f0932b; */
 }
 
-#temperature.critical {
+#temperature.critical,
+#custom-temp-bar.critical {
     color: #ff9e64; /* Orange text instead of red background */
+}
+
+#custom-temp-bar.hot {
+    color: #ff7a93; /* Reddish-purple for 70-80°C */
+}
+
+#custom-temp-bar.warning {
+    color: #ff5370; /* Bright red for 80-90°C */
 }
 
 #tray {

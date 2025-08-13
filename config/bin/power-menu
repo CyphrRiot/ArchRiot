@@ -18,7 +18,7 @@ show_power_menu() {
 
   case "$selection" in
   *Control*) notify-send -t 2000 "Opening Control Panel..." && $HOME/.local/share/archriot/config/bin/archriot-control-panel ;;
-  *Lock*) $HOME/.local/share/archriot/config/bin/scripts/hyprlock-with-fix.sh ;;
+  *Lock*) $HOME/.local/share/archriot/config/bin/scripts/hyprlock-wrapper.sh ;;
   *Suspend*) systemctl suspend ;;
   *Relaunch*) hyprctl dispatch exit ;;
   *Restart*) systemctl reboot ;;
