@@ -55,6 +55,12 @@ type SecureBootPromptMsg struct{}
 // SecureBootConfirmMsg carries Secure Boot enablement decision
 type SecureBootConfirmMsg bool
 
+// SecureBootContinuationPromptMsg triggers retry/cancel prompt for Secure Boot continuation
+type SecureBootContinuationPromptMsg struct{}
+
+// SecureBootContinuationMsg carries continuation decision (retry/cancel)
+type SecureBootContinuationMsg bool
+
 // Helper functions for external packages
 var versionGetter func() string
 var logPathGetter func() string
@@ -111,4 +117,12 @@ var secureBootCompletionCallback func(bool)
 // SetSecureBootCallback sets the callback function for Secure Boot confirmation handling
 func SetSecureBootCallback(callback func(bool)) {
 	secureBootCompletionCallback = callback
+}
+
+// Secure Boot continuation callback function
+var secureBootContinuationCallback func(bool)
+
+// SetSecureBootContinuationCallback sets the callback function for Secure Boot continuation handling
+func SetSecureBootContinuationCallback(callback func(bool)) {
+	secureBootContinuationCallback = callback
 }

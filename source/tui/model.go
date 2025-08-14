@@ -210,6 +210,12 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case SecureBootContinuationPromptMsg:
+		m.showConfirm = true
+		m.confirmPrompt = "🔄 Continue Secure Boot setup?"
+		m.cursor = 1 // Default to NO (conservative)
+		return m, nil
+
 	case FailureMsg:
 		m.done = true
 		m.failed = true
@@ -510,6 +516,15 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 		// Signal completion through external callback
 		if secureBootCompletionCallback != nil {
 			secureBootCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
+		}
+		return m, nil
+	} else if m.confirmPrompt == "🔄 Continue Secure Boot setup?" {
+		// Secure Boot continuation - send result back through callback
+		m.showConfirm = false
+		m.confirmPrompt = ""
+		// Signal completion through external callback
+		if secureBootContinuationCallback != nil {
+			secureBootContinuationCallback(m.cursor == 0) // YES = 0, NO = 1
 		}
 		return m, nil
 	} else if m.isConfirmationMode {
