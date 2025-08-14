@@ -32,10 +32,10 @@ class WelcomeWindow:
         main_box.set_margin_bottom(30)
 
         # Add title
-        #title_label = Gtk.Label()
-        #title_label.set_markup('<span size="28000" weight="bold">Welcome!</span>')
-        #title_label.set_halign(Gtk.Align.CENTER)
-        #main_box.pack_start(title_label, False, False, 0)
+        # title_label = Gtk.Label()
+        # title_label.set_markup('<span size="28000" weight="bold">Welcome!</span>')
+        # title_label.set_halign(Gtk.Align.CENTER)
+        # main_box.pack_start(title_label, False, False, 0)
 
         # Add Welcome image
         self.add_welcome_image(main_box)
@@ -53,7 +53,9 @@ class WelcomeWindow:
     def add_welcome_image(self, container):
         # Add Welcome image - use image directly from repository
         home_dir = os.environ.get('HOME') or os.path.expanduser('~')
-        image_path = os.path.join(home_dir, '.local', 'share', 'archriot', 'config', 'images', 'welcome.png')
+        image_path = os.path.join(
+            home_dir, '.local', 'share', 'archriot', 'config', 'images', 'welcome.png'
+        )
 
         if os.path.exists(image_path):
             try:
@@ -67,7 +69,9 @@ class WelcomeWindow:
                 scale_factor = target_width / width
                 new_width = target_width
                 new_height = int(height * scale_factor)
-                pixbuf = pixbuf.scale_simple(new_width, new_height, GdkPixbuf.InterpType.BILINEAR)
+                pixbuf = pixbuf.scale_simple(
+                    new_width, new_height, GdkPixbuf.InterpType.BILINEAR
+                )
 
                 image = Gtk.Image.new_from_pixbuf(pixbuf)
                 image.set_halign(Gtk.Align.FILL)
