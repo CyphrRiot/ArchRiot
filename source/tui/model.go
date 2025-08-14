@@ -205,7 +205,7 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.secureBootEnabled && m.secureBootSupported && m.luksDetected {
 			m.showConfirm = true
 			deviceList := strings.Join(m.luksDevices, ", ")
-			m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot for LUKS protection? (Devices: %s)", deviceList)
+			m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot? (Devices: %s)", deviceList)
 			m.cursor = 1 // Default to NO (conservative)
 		}
 		return m, nil
@@ -503,7 +503,7 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 			gitCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
 		}
 		return m, nil
-	} else if strings.HasPrefix(m.confirmPrompt, "🛡️ Enable Secure Boot for LUKS protection?") {
+	} else if strings.HasPrefix(m.confirmPrompt, "🛡️ Enable Secure Boot?") {
 		// Secure Boot confirmation - send result back through callback
 		m.showConfirm = false
 		m.confirmPrompt = ""

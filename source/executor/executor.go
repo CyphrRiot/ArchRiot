@@ -314,17 +314,24 @@ func reapplyControlPanelSettings() error {
 	}
 
 	controlPanelPath := filepath.Join(homeDir, ".local", "share", "archriot", "config", "bin", "archriot-control-panel")
+	logger.LogMessage("INFO", fmt.Sprintf("Checking for control panel at: %s", controlPanelPath))
 
 	// Check if control panel exists
 	if _, err := os.Stat(controlPanelPath); err != nil {
+		logger.LogMessage("WARNING", fmt.Sprintf("Control panel not found at %s - skipping settings restore", controlPanelPath))
 		return nil // Not an error - control panel not installed yet
 	}
 
+	logger.LogMessage("INFO", "Control panel found, executing --reapply to restore blue light settings")
+
 	// Execute control panel with --reapply flag
 	cmd := exec.Command(controlPanelPath, "--reapply")
-	if err := cmd.Run(); err != nil {
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		logger.LogMessage("ERROR", fmt.Sprintf("Control panel reapply failed: %v, output: %s", err, string(output)))
 		return fmt.Errorf("control panel reapply failed: %w", err)
 	}
 
+	logger.LogMessage("SUCCESS", fmt.Sprintf("Control panel reapply completed successfully: %s", string(output)))
 	return nil
 }

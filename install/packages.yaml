@@ -419,35 +419,28 @@ system:
         commands:
             - "mkdir -p ~/.local/share/applications"
             - "update-desktop-database ~/.local/share/applications"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/png; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/jpeg; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/gif; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/webp; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/bmp; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Loupe.desktop image/tiff; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.Papers.desktop application/pdf; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-settings set default-web-browser brave-browser.desktop; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default brave-browser.desktop x-scheme-handler/http; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default brave-browser.desktop x-scheme-handler/https; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop text/plain; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop text/markdown; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop text/x-markdown; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default org.gnome.TextEditor.desktop application/x-markdown; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/mp4; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-msvideo; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-matroska; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-flv; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-ms-wmv; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/mpeg; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/ogg; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/webm; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/quicktime; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/3gpp; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/3gpp2; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-ms-asf; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-ogm+ogg; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop video/x-theora+ogg; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then xdg-mime default mpv.desktop application/ogg; fi"
+            - |
+                if systemctl --user is-active --quiet dbus.service; then
+                  # Images
+                  for mime in image/png image/jpeg image/gif image/webp image/bmp image/tiff; do
+                    xdg-mime default org.gnome.Loupe.desktop "$mime"
+                  done
+                  # Documents
+                  xdg-mime default org.gnome.Papers.desktop application/pdf
+                  # Web browser
+                  xdg-settings set default-web-browser brave-browser.desktop
+                  for scheme in x-scheme-handler/http x-scheme-handler/https; do
+                    xdg-mime default brave-browser.desktop "$scheme"
+                  done
+                  # Text files
+                  for mime in text/plain text/markdown text/x-markdown application/x-markdown; do
+                    xdg-mime default org.gnome.TextEditor.desktop "$mime"
+                  done
+                  # Video files
+                  for mime in video/mp4 video/x-msvideo video/x-matroska video/x-flv video/x-ms-wmv video/mpeg video/ogg video/webm video/quicktime video/3gpp video/3gpp2 video/x-ms-asf video/x-ogm+ogg video/x-theora+ogg application/ogg; do
+                    xdg-mime default mpv.desktop "$mime"
+                  done
+                fi
         depends: [desktop.apps, desktop.sources]
         start: "Configuring file associations"
         end: "File associations configured"
@@ -474,28 +467,10 @@ system:
         commands:
             - "sudo sed -i '/^#\\[multilib\\]/,/^#Include/ s/^#//' /etc/pacman.conf"
             - "sudo pacman -Sy"
-            - "sudo pacman -S --noconfirm --needed pciutils"
-            - "yay -S --noconfirm --needed lib32-vulkan-icd-loader lib32-mesa"
-            - "if lspci | grep -qi nvidia; then yay -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils || true; fi"
-            - "if lspci | grep -qi -E 'amd|radeon'; then yay -S --noconfirm --needed vulkan-radeon lib32-vulkan-radeon xf86-video-amdgpu || true; fi"
-            - "if lspci | grep -i intel | grep -qi -E 'vga|3d|display|graphics'; then yay -S --noconfirm --needed vulkan-intel lib32-vulkan-intel intel-media-driver intel-gmmlib libva-intel-driver || true; fi"
-            - "if command -v lsusb && lsusb | grep -i apple | grep -qi keyboard; then echo 'options hid_apple fnmode=2' | sudo tee /etc/modprobe.d/hid_apple.conf; fi"
-            - "systemctl --user daemon-reload"
-            - "sudo rm -f /etc/environment.d/graphics*.conf"
-            - "rm -f ~/.config/environment.d/graphics*.conf"
-            - "rm -f ~/.local/share/archriot/config/environment.d/graphics*.conf"
-            - "if [ -f ~/.config/fish/config.fish ]; then sed -i '/LIBGL_ALWAYS_SOFTWARE/d' ~/.config/fish/config.fish; fi"
-            - "if [ -f ~/.local/share/archriot/config/fish/config.fish ]; then sed -i '/LIBGL_ALWAYS_SOFTWARE/d' ~/.local/share/archriot/config/fish/config.fish; fi"
-            - "if [ -f ~/.config/fish/fish_variables ]; then sed -i '/LIBGL.*SOFTWARE/d' ~/.config/fish/fish_variables; fi"
-            - "fish -c 'if set -q LIBGL_ALWAYS_SOFTWARE; set -e LIBGL_ALWAYS_SOFTWARE; end'"
-            - "fish -c 'if set -q -U LIBGL_ALWAYS_SOFTWARE; set -U --erase LIBGL_ALWAYS_SOFTWARE; end'"
-            - "if systemctl --user show-environment | grep -q LIBGL_ALWAYS_SOFTWARE; then systemctl --user unset-environment LIBGL_ALWAYS_SOFTWARE; fi"
-            - "if [ -f /etc/environment ]; then sudo sed -i '/LIBGL_ALWAYS_SOFTWARE/d' /etc/environment; fi"
-            - "rm -f ~/.cache/environment.d/graphics.conf"
             - "systemctl --user set-environment GSK_RENDERER=gl"
         depends: [core.base]
-        start: "Setting up hardware drivers"
-        end: "Hardware drivers configured"
+        start: "Setting up basic hardware support"
+        end: "Basic hardware support configured"
         type: "System"
         critical: true
 
@@ -522,30 +497,11 @@ system:
 
     backgrounds:
         commands:
-            - "pkill swaybg"
-            - "rm -f ~/.config/archriot/backgrounds/riot_*.jpg ~/.config/archriot/backgrounds/riot_*.png"
-            - |
-                # Restore user background if exists, otherwise use default
-                CURRENT_BG_FILE="$HOME/.config/archriot/.current-background"
-                DEFAULT_BG="$HOME/.local/share/archriot/backgrounds/riot_01.jpg"
-
-                if [[ -f "$CURRENT_BG_FILE" ]]; then
-                  SAVED_BG=$(cat "$CURRENT_BG_FILE")
-                  if [[ -f "$SAVED_BG" ]]; then
-                    nohup swaybg -i "$SAVED_BG" -m fill >/dev/null 2>&1 & disown
-                  elif [[ -f "$DEFAULT_BG" ]]; then
-                    nohup swaybg -i "$DEFAULT_BG" -m fill >/dev/null 2>&1 & disown
-                  fi
-                elif [[ -f "$DEFAULT_BG" ]]; then
-                  nohup swaybg -i "$DEFAULT_BG" -m fill >/dev/null 2>&1 & disown
-                fi
-            - "pkill waybar"
-            - "nohup waybar >/dev/null 2>&1 & disown"
-            - "if pgrep -x Hyprland; then pkill hypridle 2>/dev/null; sleep 1; if ! pgrep hypridle >/dev/null; then nohup hypridle >/dev/null 2>&1 & disown; fi; else echo 'Hyprland not running, skipping hypridle restart'; fi"
-            - "if pgrep -x Hyprland; then hyprctl reload; else echo 'Hyprland not running, skipping reload'; fi"
+            - "mkdir -p ~/.config/archriot"
+            - "if [ ! -f ~/.config/archriot/.current-background ]; then echo '~/.local/share/archriot/backgrounds/riot_01.jpg' > ~/.config/archriot/.current-background; fi"
         depends: [desktop.hyprland]
-        start: "Setting up wallpapers"
-        end: "Background service started"
+        start: "Configuring wallpaper settings"
+        end: "Wallpaper configuration saved"
         type: "System"
         critical: false
 

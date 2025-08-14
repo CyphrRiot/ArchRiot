@@ -207,9 +207,8 @@ func checkSecureBootRecommendation() {
 		LuksDevices: luksDevices,
 	})
 
-	// TODO: Secure Boot prompting temporarily disabled for version push
-	// Will re-enable after other fixes are deployed
-	if false && !sbEnabled && sbSupported && luksUsed {
+	// Prompt user if Secure Boot should be enabled for LUKS protection
+	if !sbEnabled && sbSupported && luksUsed {
 		logger.Log("Info", "System", "SecureBoot", "Prompting user for Secure Boot enablement...")
 		Program.Send(tui.SecureBootPromptMsg{})
 

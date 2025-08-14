@@ -248,7 +248,7 @@ case SecureBootPromptMsg:
     if !m.secureBootEnabled && m.secureBootSupported && m.luksDetected {
         m.showConfirm = true
         deviceList := strings.Join(m.luksDevices, ", ")
-        m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot for LUKS protection? (Devices: %s)", deviceList)
+        m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot? (Devices: %s)", deviceList)
         m.cursor = 1 // Default to NO (conservative)
     }
     return m, nil
@@ -423,7 +423,7 @@ This process is REVERSIBLE - you can disable Secure Boot anytime.`, deviceList)
 
 🔄 **CURRENT STATUS (POST v2.10.3):**
 
-**Secure Boot functionality is IMPLEMENTED but DISABLED** - All Phase 1 code is in place and functional, but the user prompt is disabled via `if false &&` condition in `orchestrator/orchestrator.go:212`. This allows other system fixes to be deployed while Secure Boot undergoes further testing.
+**Secure Boot functionality is RE-ENABLED** - All Phase 1 code is in place and the user prompt has been re-activated by removing the `if false &&` condition in `orchestrator/orchestrator.go:212`. Users will now see Secure Boot prompts during installation.
 
 **SECURE BOOT CONTINUATION ARCHITECTURE:**
 
@@ -476,12 +476,26 @@ All core Phase 1 functionality implemented, compiles successfully, and deployed 
 4. **Restoration Testing**: Ensure hyprland.conf restores properly after completion
 5. **Edge Case Testing**: Legacy BIOS systems, already-enabled Secure Boot, no LUKS encryption
 
-**RE-ENABLEMENT STEPS:**
+**STAGE 4 IMPLEMENTATION GAPS:**
 
-1. **FIRST**: Complete all testing requirements listed above
-2. Fix any issues discovered during testing
-3. Change `if false && !sbEnabled && sbSupported && luksUsed {` to `if !sbEnabled && sbSupported && luksUsed {` in `orchestrator/orchestrator.go:212`
-4. Release as v2.10.4 or later
+The current post-reboot continuation (`--secure_boot_stage`) has significant gaps that need addressing:
+
+**Current Issues:**
+
+1. **No user guidance** - just says "Please enable Secure Boot in UEFI settings"
+2. **No UEFI instructions** - users don't know how to access UEFI/BIOS
+3. **No retry mechanism** - if setup fails, users are stuck
+4. **No cancellation option** - no way to abort and restore normal system
+5. **No vendor-specific guidance** - UEFI interfaces vary by manufacturer
+
+**Stage 4 Requirements:**
+
+1. **UEFI Access Instructions** - How to reboot into UEFI settings (vendor-specific)
+2. **Secure Boot Configuration Guide** - Step-by-step UEFI navigation
+3. **Retry/Cancel Options** - Allow users to try again or give up gracefully
+4. **Better Validation** - Detect specific failure modes and provide targeted help
+5. **Recovery Mechanism** - Restore hyprland.conf if user cancels
+6. **Vendor Detection** - Provide manufacturer-specific UEFI guidance
 
 **IMMEDIATE NEXT ACTION:**
-Begin comprehensive testing of all Phase 1 functionality before any re-enablement. Only after successful testing should the `false &&` condition be removed.
+Implement proper Stage 4 continuation flow with user guidance, retry/cancel options, and recovery mechanisms.
