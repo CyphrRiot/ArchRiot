@@ -41,6 +41,20 @@ type InputRequestMsg struct {
 // GitConfirmMsg carries git credential confirmation
 type GitConfirmMsg bool
 
+// SecureBootStatusMsg carries Secure Boot and LUKS detection results
+type SecureBootStatusMsg struct {
+	Enabled     bool
+	Supported   bool
+	LuksUsed    bool
+	LuksDevices []string
+}
+
+// SecureBootPromptMsg triggers Secure Boot enablement prompt
+type SecureBootPromptMsg struct{}
+
+// SecureBootConfirmMsg carries Secure Boot enablement decision
+type SecureBootConfirmMsg bool
+
 // Helper functions for external packages
 var versionGetter func() string
 var logPathGetter func() string
@@ -89,4 +103,12 @@ var upgradeCompletionCallback func(bool)
 // SetUpgradeCallback sets the callback function for upgrade confirmation handling
 func SetUpgradeCallback(callback func(bool)) {
 	upgradeCompletionCallback = callback
+}
+
+// Secure Boot callback function
+var secureBootCompletionCallback func(bool)
+
+// SetSecureBootCallback sets the callback function for Secure Boot confirmation handling
+func SetSecureBootCallback(callback func(bool)) {
+	secureBootCompletionCallback = callback
 }

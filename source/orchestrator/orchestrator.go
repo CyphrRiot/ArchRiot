@@ -1,7 +1,11 @@
 package orchestrator
 
 import (
+	"fmt"
 	"math"
+	"os"
+	"path/filepath"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -150,6 +154,11 @@ func RunInstallation() {
 	}
 
 	sendProgress(0.98)
+	sendStep("Checking Secure Boot recommendation...")
+
+	// Check Secure Boot recommendation before completion
+	checkSecureBootRecommendation()
+
 	sendStep("Installation complete!")
 	sendProgress(1.0)
 	logger.Log("Success", "System", "Installation", "Complete!")
@@ -158,4 +167,138 @@ func RunInstallation() {
 
 	// Send success completion message
 	Program.Send(tui.DoneMsg{})
+}
+
+// secureBootSetupDone channel for synchronization
+var secureBootSetupDone chan bool
+
+// SetSecureBootSetupChannel sets the channel for Secure Boot setup synchronization
+func SetSecureBootSetupChannel(ch chan bool) {
+	secureBootSetupDone = ch
+}
+
+// checkSecureBootRecommendation checks if Secure Boot should be recommended and waits for user decision
+func checkSecureBootRecommendation() {
+	logger.Log("Info", "System", "SecureBoot", "Checking Secure Boot and LUKS status...")
+
+	// Detect Secure Boot status
+	sbEnabled, sbSupported, err := installer.DetectSecureBootStatus()
+	if err != nil {
+		logger.Log("Warning", "System", "SecureBoot", "Failed to detect Secure Boot status: "+err.Error())
+		return
+	}
+
+	// Detect LUKS encryption
+	luksUsed, luksDevices, err := installer.DetectLuksEncryption()
+	if err != nil {
+		logger.Log("Warning", "System", "SecureBoot", "Failed to detect LUKS encryption: "+err.Error())
+		luksUsed = false
+		luksDevices = []string{}
+	}
+
+	logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("Secure Boot: enabled=%v, supported=%v", sbEnabled, sbSupported))
+	logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("LUKS: detected=%v, devices=%v", luksUsed, luksDevices))
+
+	// Send status to TUI
+	Program.Send(tui.SecureBootStatusMsg{
+		Enabled:     sbEnabled,
+		Supported:   sbSupported,
+		LuksUsed:    luksUsed,
+		LuksDevices: luksDevices,
+	})
+
+	// TODO: Secure Boot prompting temporarily disabled for version push
+	// Will re-enable after other fixes are deployed
+	if false && !sbEnabled && sbSupported && luksUsed {
+		logger.Log("Info", "System", "SecureBoot", "Prompting user for Secure Boot enablement...")
+		Program.Send(tui.SecureBootPromptMsg{})
+
+		// Wait for user decision
+		if secureBootSetupDone != nil {
+			userWantsSecureBoot := <-secureBootSetupDone
+			if userWantsSecureBoot {
+				Program.Send(tui.StepMsg("Setting up Secure Boot..."))
+				if err := performSecureBootSetup(); err != nil {
+					logger.Log("Error", "System", "SecureBoot", "Setup failed: "+err.Error())
+					Program.Send(tui.FailureMsg{Error: "Secure Boot setup failed: " + err.Error()})
+					return
+				}
+				logger.Log("Success", "System", "SecureBoot", "Setup completed successfully")
+			} else {
+				logger.Log("Info", "System", "SecureBoot", "User declined Secure Boot setup")
+			}
+		}
+	}
+}
+
+// performSecureBootSetup executes the Secure Boot setup process
+func performSecureBootSetup() error {
+	// Validate prerequisites
+	if err := installer.ValidateSecureBootPrerequisites(); err != nil {
+		return fmt.Errorf("prerequisites not met: %w", err)
+	}
+
+	// Modify hyprland.conf for continuation after reboot
+	if err := modifyHyprlandForContinuation(); err != nil {
+		return fmt.Errorf("failed to setup continuation: %w", err)
+	}
+
+	// TODO: Implement actual Secure Boot setup steps for Phase 2:
+	// 1. Generate custom signing keys
+	// 2. Sign bootloader and kernel
+	// 3. Set up pacman hooks for future updates
+	// 4. Prepare UEFI guidance for user
+
+	logger.Log("Info", "System", "SecureBoot", "Secure Boot setup prepared - enable in UEFI settings after reboot")
+	return nil
+}
+
+// modifyHyprlandForContinuation modifies hyprland.conf to launch Secure Boot continuation after reboot
+func modifyHyprlandForContinuation() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	hyprlandConfigPath := filepath.Join(homeDir, ".config", "hypr", "hyprland.conf")
+	backupPath := hyprlandConfigPath + ".archriot-backup"
+
+	// Read current hyprland.conf
+	configData, err := os.ReadFile(hyprlandConfigPath)
+	if err != nil {
+		return fmt.Errorf("reading hyprland.conf: %w", err)
+	}
+
+	// Backup original
+	if err := os.WriteFile(backupPath, configData, 0644); err != nil {
+		return fmt.Errorf("creating backup: %w", err)
+	}
+
+	// Get ArchRiot binary path
+	archRiotPath := filepath.Join(homeDir, ".local", "share", "archriot", "install", "archriot")
+
+	// Modify config to replace welcome with Secure Boot continuation
+	configStr := string(configData)
+	lines := strings.Split(configStr, "\n")
+
+	for i, line := range lines {
+		trimmedLine := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmedLine, "exec-once") && strings.Contains(trimmedLine, "welcome") {
+			// Replace with Secure Boot continuation
+			lines[i] = fmt.Sprintf("exec-once = %s --secure_boot_stage", archRiotPath)
+			logger.Log("Info", "System", "SecureBoot", "Modified hyprland.conf for Secure Boot continuation")
+			break
+		}
+	}
+
+	// Write modified config
+	modifiedConfig := strings.Join(lines, "\n")
+	if err := os.WriteFile(hyprlandConfigPath, []byte(modifiedConfig), 0644); err != nil {
+		// Restore backup on failure
+		os.WriteFile(hyprlandConfigPath, configData, 0644)
+		return fmt.Errorf("writing modified config: %w", err)
+	}
+
+	logger.Log("Success", "System", "SecureBoot", "Hyprland configuration modified for post-reboot continuation")
+	return nil
 }

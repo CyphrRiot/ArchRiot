@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"archriot-installer/installer"
 	"archriot-installer/logger"
 )
 
@@ -116,11 +117,11 @@ func GetAvailableTools() ([]Tool, error) {
 		{
 			ID:          "secure-boot",
 			Name:        "🛡️  Secure Boot Setup",
-			Description: "Clean UEFI Secure Boot implementation using sbctl + shim-signed",
+			Description: "Enable Secure Boot protection for LUKS encryption",
 			Category:    "Security",
 			ExecuteFunc: executeSecureBoot,
-			Advanced:    true,
-			Available:   checkSecureBootAvailable(),
+			Advanced:    false,
+			Available:   checkSecureBootSetupAvailable(),
 		},
 		{
 			ID:          "memory-optimizer",
@@ -154,7 +155,14 @@ func GetAvailableTools() ([]Tool, error) {
 	return tools, nil
 }
 
-// checkSecureBootAvailable checks if secure boot tools are available
+// checkSecureBootSetupAvailable checks if Secure Boot setup is recommended
+func checkSecureBootSetupAvailable() bool {
+	// Use our new detection system
+	recommended, _ := installer.CheckSecureBootRecommendation()
+	return recommended
+}
+
+// checkSecureBootAvailable checks if secure boot tools are available (legacy)
 func checkSecureBootAvailable() bool {
 	// Check if system supports UEFI
 	if _, err := os.Stat("/sys/firmware/efi"); os.IsNotExist(err) {

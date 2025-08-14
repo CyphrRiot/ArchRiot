@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,6 +27,11 @@ var program *tea.Program
 // Global git credentials handling
 var (
 	gitInputDone chan bool
+)
+
+// Global Secure Boot setup handling
+var (
+	secureBootSetupDone chan bool
 )
 
 // Global model instance
@@ -261,6 +267,13 @@ func main() {
 			fmt.Printf("ArchRiot version %s\n", version.Get())
 			return
 
+		case "--secure_boot_stage":
+			// Run Secure Boot continuation after reboot
+			if err := runSecureBootContinuation(); err != nil {
+				log.Fatalf("❌ Secure Boot continuation failed: %v", err)
+			}
+			return
+
 		case "--help", "-h":
 			showHelp()
 			return
@@ -306,6 +319,9 @@ func main() {
 	// Initialize git input channel
 	gitInputDone = make(chan bool, 1)
 
+	// Initialize Secure Boot setup channel
+	secureBootSetupDone = make(chan bool, 1)
+
 	// Set up reboot flag callback
 	tui.SetRebootFlag = func(reboot bool) {
 		shouldReboot = reboot
@@ -336,6 +352,14 @@ func main() {
 	// Set up git package (after program is created)
 	git.SetProgram(program)
 	git.SetGitInputChannel(gitInputDone)
+
+	// Set up Secure Boot callback
+	tui.SetSecureBootCallback(func(confirmed bool) {
+		secureBootSetupDone <- confirmed
+	})
+
+	// Set up orchestrator Secure Boot channel
+	orchestrator.SetSecureBootSetupChannel(secureBootSetupDone)
 
 	// Set up installer package
 	installer.SetProgram(program)
@@ -428,6 +452,119 @@ func validateConfig() error {
 
 	fmt.Println("✅ Commands are safe (no dangerous patterns detected)")
 
+	return nil
+}
+
+// runSecureBootContinuation handles the post-reboot Secure Boot setup continuation
+func runSecureBootContinuation() error {
+	// Read version from VERSION file first
+	if err := version.ReadVersion(); err != nil {
+		return fmt.Errorf("failed to read version: %w", err)
+	}
+
+	// Initialize logging
+	if err := logger.InitLogging(); err != nil {
+		return fmt.Errorf("failed to initialize logging: %w", err)
+	}
+	defer logger.CloseLogging()
+
+	// Set up TUI helper functions
+	tui.SetVersionGetter(func() string { return version.Get() })
+	tui.SetLogPathGetter(func() string { return logger.GetLogPath() })
+
+	// Initialize TUI model for Secure Boot continuation
+	model := tui.NewInstallModel()
+	program := tea.NewProgram(model)
+
+	// Set up unified logger with TUI program
+	logger.SetProgram(program)
+
+	// Start Secure Boot continuation in background
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		runSecureBootContinuationFlow(program, model)
+	}()
+
+	// Run TUI in main thread
+	if _, err := program.Run(); err != nil {
+		return fmt.Errorf("TUI error: %v", err)
+	}
+
+	return nil
+}
+
+// runSecureBootContinuationFlow handles the actual Secure Boot continuation logic
+func runSecureBootContinuationFlow(program *tea.Program, model *tui.InstallModel) {
+	program.Send(tui.StepMsg("Validating Secure Boot setup..."))
+	program.Send(tui.ProgressMsg(0.1))
+
+	// Check current Secure Boot status
+	sbEnabled, sbSupported, err := installer.DetectSecureBootStatus()
+	if err != nil {
+		program.Send(tui.FailureMsg{Error: "Failed to detect Secure Boot status: " + err.Error()})
+		return
+	}
+
+	program.Send(tui.ProgressMsg(0.3))
+
+	if !sbSupported {
+		program.Send(tui.FailureMsg{Error: "System does not support Secure Boot"})
+		return
+	}
+
+	if sbEnabled {
+		// Success! Secure Boot is enabled
+		program.Send(tui.StepMsg("Secure Boot successfully enabled!"))
+		program.Send(tui.ProgressMsg(0.8))
+
+		// Restore hyprland.conf to normal welcome
+		if err := restoreHyprlandConfig(); err != nil {
+			logger.LogMessage("WARNING", "Failed to restore hyprland.conf: "+err.Error())
+		}
+
+		program.Send(tui.ProgressMsg(1.0))
+		program.Send(tui.DoneMsg{})
+		return
+	}
+
+	// Secure Boot not enabled - guide user
+	program.Send(tui.StepMsg("Secure Boot not yet enabled"))
+	program.Send(tui.ProgressMsg(0.5))
+
+	// TODO: Show guidance for UEFI settings
+	// For now, provide option to retry or cancel
+	program.Send(tui.FailureMsg{Error: "Please enable Secure Boot in UEFI settings and reboot"})
+}
+
+// restoreHyprlandConfig restores the original hyprland.conf with welcome
+func restoreHyprlandConfig() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	hyprlandConfigPath := filepath.Join(homeDir, ".config", "hypr", "hyprland.conf")
+	backupPath := hyprlandConfigPath + ".archriot-backup"
+
+	// Check if backup exists
+	if _, err := os.Stat(backupPath); err != nil {
+		return fmt.Errorf("backup hyprland.conf not found at %s", backupPath)
+	}
+
+	// Restore from backup
+	backupData, err := os.ReadFile(backupPath)
+	if err != nil {
+		return fmt.Errorf("reading backup: %w", err)
+	}
+
+	if err := os.WriteFile(hyprlandConfigPath, backupData, 0644); err != nil {
+		return fmt.Errorf("writing restored config: %w", err)
+	}
+
+	// Remove backup file
+	os.Remove(backupPath)
+
+	logger.LogMessage("SUCCESS", "Restored original hyprland.conf")
 	return nil
 }
 

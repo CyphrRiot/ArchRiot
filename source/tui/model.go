@@ -31,27 +31,31 @@ const ArchRiotASCII = `
 
 // InstallModel represents the TUI model
 type InstallModel struct {
-	progress           float64
-	message            string
-	logs               []string
-	maxLogs            int
-	width              int
-	height             int
-	done               bool
-	failed             bool
-	failureError       string
-	operation          string
-	currentStep        string
-	inputMode          string // "git-username", "git-email", "reboot", ""
-	inputValue         string // current typed input
-	inputPrompt        string // what we're asking for
-	showConfirm        bool   // show YES/NO confirmation
-	confirmPrompt      string // confirmation prompt text
-	cursor             int    // 0 = YES, 1 = NO
-	scrollOffset       int    // scroll position in logs
-	confirmationResult bool   // stores confirmation result
-	isConfirmationMode bool   // true if in confirmation-only mode
-	kernelUpgraded     bool   // true if kernel was upgraded
+	progress            float64
+	message             string
+	logs                []string
+	maxLogs             int
+	width               int
+	height              int
+	done                bool
+	failed              bool
+	failureError        string
+	operation           string
+	currentStep         string
+	inputMode           string   // "git-username", "git-email", "reboot", ""
+	inputValue          string   // current typed input
+	inputPrompt         string   // what we're asking for
+	showConfirm         bool     // show YES/NO confirmation
+	confirmPrompt       string   // confirmation prompt text
+	cursor              int      // 0 = YES, 1 = NO
+	scrollOffset        int      // scroll position in logs
+	confirmationResult  bool     // stores confirmation result
+	isConfirmationMode  bool     // true if in confirmation-only mode
+	kernelUpgraded      bool     // true if kernel was upgraded
+	secureBootEnabled   bool     // true if Secure Boot is currently enabled
+	secureBootSupported bool     // true if system supports Secure Boot
+	luksDetected        bool     // true if LUKS encryption is detected
+	luksDevices         []string // list of detected LUKS devices
 }
 
 // NewInstallModel creates a new installation model
@@ -188,6 +192,22 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case KernelUpgradeMsg:
 		m.kernelUpgraded = bool(msg)
+		return m, nil
+
+	case SecureBootStatusMsg:
+		m.secureBootEnabled = msg.Enabled
+		m.secureBootSupported = msg.Supported
+		m.luksDetected = msg.LuksUsed
+		m.luksDevices = msg.LuksDevices
+		return m, nil
+
+	case SecureBootPromptMsg:
+		if !m.secureBootEnabled && m.secureBootSupported && m.luksDetected {
+			m.showConfirm = true
+			deviceList := strings.Join(m.luksDevices, ", ")
+			m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot for LUKS protection? (Devices: %s)", deviceList)
+			m.cursor = 1 // Default to NO (conservative)
+		}
 		return m, nil
 
 	case FailureMsg:
@@ -481,6 +501,15 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 		// Signal completion through external callback
 		if gitCompletionCallback != nil {
 			gitCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
+		}
+		return m, nil
+	} else if strings.HasPrefix(m.confirmPrompt, "🛡️ Enable Secure Boot for LUKS protection?") {
+		// Secure Boot confirmation - send result back through callback
+		m.showConfirm = false
+		m.confirmPrompt = ""
+		// Signal completion through external callback
+		if secureBootCompletionCallback != nil {
+			secureBootCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
 		}
 		return m, nil
 	} else if m.isConfirmationMode {
