@@ -248,7 +248,7 @@ case SecureBootPromptMsg:
     if !m.secureBootEnabled && m.secureBootSupported && m.luksDetected {
         m.showConfirm = true
         deviceList := strings.Join(m.luksDevices, ", ")
-        m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot? (Devices: %s)", deviceList)
+        m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot? (%s)", deviceList)
         m.cursor = 1 // Default to NO (conservative)
     }
     return m, nil
@@ -421,9 +421,13 @@ This process is REVERSIBLE - you can disable Secure Boot anytime.`, deviceList)
 - **Build verification: Code compiles successfully with `make`**
 - **Released as v2.10.3 with Secure Boot prompting temporarily disabled**
 
-🔄 **CURRENT STATUS (POST v2.10.3):**
+🔄 **CURRENT STATUS (Bootloader Signing Critical Failure):**
 
-**Secure Boot functionality is RE-ENABLED** - All Phase 1 code is in place and the user prompt has been re-activated by removing the `if false &&` condition in `orchestrator/orchestrator.go:212`. Users will now see Secure Boot prompts during installation.
+**CRITICAL ISSUE DISCOVERED**: Secure Boot implementation causes complete boot failure with "Operating System Loader has no signature" error. Users get locked out of their systems.
+
+**Root Cause**: Bootloader signing process fails or signed bootloader is not being used properly, causing UEFI to reject boot with Secure Boot enabled.
+
+**SAFETY MEASURE**: Secure Boot prompting disabled again with `if false &&` to protect users from boot failures.
 
 **SECURE BOOT CONTINUATION ARCHITECTURE:**
 
@@ -498,7 +502,43 @@ The post-reboot continuation (`--secure_boot_stage`) has been significantly enha
 5. **Retry Handling** - YES keeps continuation active for next reboot
 6. **Cancel Handling** - NO restores hyprland.conf and returns to normal system
 
-**Code Status:** Implemented and compiles successfully
+**Code Status:** Implemented and compiles successfully but CAUSES BOOT FAILURES - DISABLED FOR SAFETY
+
+**PHASE 2 IMPLEMENTATION STATUS:**
+
+✅ **Code Complete**: All Phase 2 functions implemented:
+
+- `generateSecureBootKeys()` - Creates PK, KEK, db key hierarchy ✅
+- `signBootComponents()` - Signs bootloader and kernel with custom keys ❌ **BROKEN**
+- `setupPackmanHooks()` - Creates automatic signing hooks for kernel updates ✅
+- `installKeysIntoUEFI()` - Installs keys directly into UEFI firmware ✅
+- Fixed storage paths to `~/.config/archriot/` to avoid installer overwrites ✅
+- Fixed UUID generation for proper UEFI key identification ✅
+- Fixed Setup Mode detection and user guidance ✅
+
+❌ **CRITICAL FAILURE**: Bootloader signing causes boot failures
+
+**DISCOVERED ISSUES:**
+
+1. **Key Generation**: Works correctly with proper UUIDs
+2. **Key Installation**: Works correctly in Setup Mode
+3. **Bootloader Signing**: FAILS - causes "no signature" boot error
+4. **User Experience**: Complete nightmare - users get locked out
+
+**SPECIFIC FAILURES:**
+
+- Bootloader signing doesn't work properly with custom keys
+- Signed bootloader may not be in correct location
+- UEFI rejects bootloader even with custom keys installed
+- No recovery mechanism for boot failures
+- Users must manually disable Secure Boot to recover
+
+**ARCHITECTURAL PROBLEMS:**
+
+- Missing bootloader validation step
+- No verification that signed bootloader works before enabling Secure Boot
+- No fallback unsigned bootloader for recovery
+- Continuation flow doesn't handle "already enabled but failing" state
 
 **IMMEDIATE NEXT ACTION:**
-Test the complete Stage 4 continuation flow on target systems before enabling the Secure Boot prompt.
+Fix bootloader signing process and add validation before allowing Secure Boot enablement. Must ensure signed bootloader actually works before exposing to users.

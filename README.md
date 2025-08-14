@@ -346,7 +346,7 @@ ArchRiot's Control Panel isn't just another settings app - it's the missing piec
 ### 🛡️ **Privacy & Safety**
 
 - **Account Privacy** - Sensitive information hidden by default with show/hide toggle
-- **Safe Controls** - Mute instead of killing services, permissions instead of breaking devices
+- **Safe Controls** - Mute instead of killing services, permissions instead of breaking :
 - **Live Preview** - Real-time system changes with "Exit without Saving" option
 - **Educational Content** - "Learn More" dialogs with comprehensive feature explanations
 

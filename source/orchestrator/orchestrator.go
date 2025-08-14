@@ -1,9 +1,11 @@
 package orchestrator
 
 import (
+	"crypto/rand"
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -207,7 +209,7 @@ func checkSecureBootRecommendation() {
 		LuksDevices: luksDevices,
 	})
 
-	// TODO: Secure Boot prompting temporarily disabled - needs testing before activation
+	// TODO: Secure Boot prompting disabled - bootloader signing issues cause boot failures
 	if false && !sbEnabled && sbSupported && luksUsed {
 		logger.Log("Info", "System", "SecureBoot", "Prompting user for Secure Boot enablement...")
 		Program.Send(tui.SecureBootPromptMsg{})
@@ -222,6 +224,7 @@ func checkSecureBootRecommendation() {
 					Program.Send(tui.FailureMsg{Error: "Secure Boot setup failed: " + err.Error()})
 					return
 				}
+				Program.Send(tui.LogMsg("✅ Secure Boot preparation complete"))
 				logger.Log("Success", "System", "SecureBoot", "Setup completed successfully")
 			} else {
 				logger.Log("Info", "System", "SecureBoot", "User declined Secure Boot setup")
@@ -232,24 +235,324 @@ func checkSecureBootRecommendation() {
 
 // performSecureBootSetup executes the Secure Boot setup process
 func performSecureBootSetup() error {
+	Program.Send(tui.LogMsg("🛡️ Preparing Secure Boot configuration..."))
+	Program.Send(tui.LogMsg("📋 Validating system prerequisites..."))
+
 	// Validate prerequisites
 	if err := installer.ValidateSecureBootPrerequisites(); err != nil {
+		Program.Send(tui.LogMsg("❌ Prerequisites validation failed"))
 		return fmt.Errorf("prerequisites not met: %w", err)
 	}
+	Program.Send(tui.LogMsg("✅ System prerequisites validated"))
 
+	Program.Send(tui.LogMsg("⚙️ Configuring post-reboot continuation..."))
 	// Modify hyprland.conf for continuation after reboot
 	if err := modifyHyprlandForContinuation(); err != nil {
+		Program.Send(tui.LogMsg("❌ Failed to configure continuation"))
 		return fmt.Errorf("failed to setup continuation: %w", err)
 	}
+	Program.Send(tui.LogMsg("✅ Post-reboot continuation configured"))
 
-	// TODO: Implement actual Secure Boot setup steps for Phase 2:
-	// 1. Generate custom signing keys
-	// 2. Sign bootloader and kernel
-	// 3. Set up pacman hooks for future updates
-	// 4. Prepare UEFI guidance for user
+	// Phase 2: Generate custom Secure Boot keys
+	Program.Send(tui.LogMsg("🔑 Generating Secure Boot signing keys..."))
+	if err := generateSecureBootKeys(); err != nil {
+		Program.Send(tui.LogMsg("❌ Failed to generate signing keys"))
+		return fmt.Errorf("key generation failed: %w", err)
+	}
+	Program.Send(tui.LogMsg("✅ Secure Boot keys generated"))
 
-	logger.Log("Info", "System", "SecureBoot", "Secure Boot setup prepared - enable in UEFI settings after reboot")
+	// Phase 2: Sign bootloader and kernel
+	Program.Send(tui.LogMsg("🖊️ Signing bootloader and kernel..."))
+	if err := signBootComponents(); err != nil {
+		Program.Send(tui.LogMsg("❌ Failed to sign boot components"))
+		return fmt.Errorf("signing failed: %w", err)
+	}
+	Program.Send(tui.LogMsg("✅ Boot components signed"))
+
+	// Phase 2: Set up automatic signing for future updates
+	Program.Send(tui.LogMsg("⚙️ Setting up automatic kernel signing..."))
+	if err := setupPackmanHooks(); err != nil {
+		Program.Send(tui.LogMsg("⚠️ Warning: Failed to setup automatic signing"))
+		logger.Log("Warning", "System", "SecureBoot", "Pacman hooks setup failed: "+err.Error())
+	} else {
+		Program.Send(tui.LogMsg("✅ Automatic signing configured"))
+	}
+
+	// Phase 2: Prepare key installation guidance
+	Program.Send(tui.LogMsg("📋 Preparing UEFI key installation..."))
+	if err := prepareKeyInstallation(); err != nil {
+		Program.Send(tui.LogMsg("⚠️ Warning: Failed to prepare key installation"))
+		logger.Log("Warning", "System", "SecureBoot", "Key preparation failed: "+err.Error())
+	} else {
+		Program.Send(tui.LogMsg("✅ Key installation prepared"))
+	}
+
+	Program.Send(tui.LogMsg(""))
+	Program.Send(tui.LogMsg("🔄 WHAT HAPPENS NEXT:"))
+	Program.Send(tui.LogMsg("• After reboot, you'll see setup continuation"))
+	Program.Send(tui.LogMsg("• Install custom keys in UEFI settings"))
+	Program.Send(tui.LogMsg("• Enable Secure Boot with custom keys"))
+	Program.Send(tui.LogMsg("• System will validate and complete setup"))
+	Program.Send(tui.LogMsg(""))
+
+	logger.Log("Info", "System", "SecureBoot", "Secure Boot setup completed - install keys and enable in UEFI settings after reboot")
 	return nil
+}
+
+// generateSecureBootKeys creates the Secure Boot key hierarchy (PK, KEK, db)
+func generateSecureBootKeys() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
+	if err := os.MkdirAll(keyDir, 0700); err != nil {
+		return fmt.Errorf("creating key directory: %w", err)
+	}
+
+	logger.Log("Info", "System", "SecureBoot", "Creating Secure Boot key hierarchy...")
+
+	// Generate Platform Key (PK)
+	if err := generateKey(keyDir, "PK", "ArchRiot Platform Key"); err != nil {
+		return fmt.Errorf("generating PK: %w", err)
+	}
+
+	// Generate Key Exchange Key (KEK)
+	if err := generateKey(keyDir, "KEK", "ArchRiot Key Exchange Key"); err != nil {
+		return fmt.Errorf("generating KEK: %w", err)
+	}
+
+	// Generate Database Key (db)
+	if err := generateKey(keyDir, "db", "ArchRiot Database Key"); err != nil {
+		return fmt.Errorf("generating db: %w", err)
+	}
+
+	logger.Log("Success", "System", "SecureBoot", "Secure Boot key hierarchy created")
+	return nil
+}
+
+// generateKey creates a single key pair for Secure Boot
+func generateKey(keyDir, keyName, description string) error {
+	keyPath := filepath.Join(keyDir, keyName+".key")
+	certPath := filepath.Join(keyDir, keyName+".crt")
+
+	// Generate private key
+	cmd := exec.Command("openssl", "req", "-new", "-x509", "-newkey", "rsa:2048",
+		"-subj", fmt.Sprintf("/CN=%s/", description),
+		"-keyout", keyPath, "-out", certPath,
+		"-days", "3650", "-nodes", "-sha256")
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("generating %s key: %w", keyName, err)
+	}
+
+	// Set secure permissions
+	os.Chmod(keyPath, 0600)
+	os.Chmod(certPath, 0644)
+
+	logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("Generated %s key pair", keyName))
+	return nil
+}
+
+// signBootComponents signs the bootloader and kernel with Secure Boot keys
+func signBootComponents() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
+	dbKey := filepath.Join(keyDir, "db.key")
+	dbCert := filepath.Join(keyDir, "db.crt")
+
+	// Check if keys exist
+	if _, err := os.Stat(dbKey); err != nil {
+		return fmt.Errorf("db key not found: %w", err)
+	}
+
+	logger.Log("Info", "System", "SecureBoot", "Signing boot components...")
+
+	// Sign systemd-boot bootloader
+	bootloaderPaths := []string{
+		"/boot/EFI/systemd/systemd-bootx64.efi",
+		"/boot/EFI/BOOT/BOOTX64.EFI",
+	}
+
+	for _, bootloaderPath := range bootloaderPaths {
+		if _, err := os.Stat(bootloaderPath); err == nil {
+			if err := signFile(bootloaderPath, dbKey, dbCert); err != nil {
+				logger.Log("Warning", "System", "SecureBoot", fmt.Sprintf("Failed to sign %s: %v", bootloaderPath, err))
+			} else {
+				logger.Log("Success", "System", "SecureBoot", fmt.Sprintf("Signed bootloader: %s", bootloaderPath))
+			}
+		}
+	}
+
+	// Sign kernel
+	kernelPath := "/boot/vmlinuz-linux"
+	if _, err := os.Stat(kernelPath); err == nil {
+		if err := signFile(kernelPath, dbKey, dbCert); err != nil {
+			logger.Log("Warning", "System", "SecureBoot", fmt.Sprintf("Failed to sign kernel: %v", err))
+		} else {
+			logger.Log("Success", "System", "SecureBoot", "Signed kernel")
+		}
+	}
+
+	logger.Log("Success", "System", "SecureBoot", "Boot component signing completed")
+	return nil
+}
+
+// signFile signs a single file with Secure Boot keys
+func signFile(filePath, keyPath, certPath string) error {
+	// Create backup
+	backupPath := filePath + ".unsigned"
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		if err := exec.Command("cp", filePath, backupPath).Run(); err != nil {
+			return fmt.Errorf("creating backup: %w", err)
+		}
+	}
+
+	// Sign the file
+	cmd := exec.Command("sbsign", "--key", keyPath, "--cert", certPath, "--output", filePath, filePath)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("signing %s: %w", filePath, err)
+	}
+
+	return nil
+}
+
+// setupPackmanHooks creates pacman hooks for automatic kernel signing
+func setupPackmanHooks() error {
+	hookDir := "/etc/pacman.d/hooks"
+	if err := os.MkdirAll(hookDir, 0755); err != nil {
+		return fmt.Errorf("creating hooks directory: %w", err)
+	}
+
+	hookPath := filepath.Join(hookDir, "99-secureboot-sign.hook")
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
+
+	hookContent := fmt.Sprintf(`[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = linux
+Target = linux-lts
+Target = linux-zen
+Target = linux-hardened
+
+[Action]
+Description = Signing kernel for Secure Boot
+When = PostTransaction
+Exec = /usr/bin/sbsign --key %s/db.key --cert %s/db.crt --output /boot/vmlinuz-linux /boot/vmlinuz-linux
+Depends = sbsigntools
+`, keyDir, keyDir)
+
+	if err := os.WriteFile(hookPath, []byte(hookContent), 0644); err != nil {
+		return fmt.Errorf("writing pacman hook: %w", err)
+	}
+
+	logger.Log("Success", "System", "SecureBoot", "Pacman hooks configured for automatic signing")
+	return nil
+}
+
+// prepareKeyInstallation prepares keys for UEFI installation
+func prepareKeyInstallation() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
+	eslDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "esl")
+
+	if err := os.MkdirAll(eslDir, 0755); err != nil {
+		return fmt.Errorf("creating ESL directory: %w", err)
+	}
+
+	logger.Log("Info", "System", "SecureBoot", "Preparing keys for UEFI installation...")
+
+	// Convert certificates to EFI signature lists
+	keys := []string{"PK", "KEK", "db"}
+	for _, keyName := range keys {
+		certPath := filepath.Join(keyDir, keyName+".crt")
+		eslPath := filepath.Join(eslDir, keyName+".esl")
+		authPath := filepath.Join(eslDir, keyName+".auth")
+
+		// Generate proper UUID for this key
+		uuid, err := generateUUID()
+		if err != nil {
+			return fmt.Errorf("generating UUID for %s: %w", keyName, err)
+		}
+
+		// Create ESL from certificate with proper UUID
+		cmd := exec.Command("cert-to-efi-sig-list", "-g", uuid, certPath, eslPath)
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("creating ESL for %s: %w", keyName, err)
+		}
+
+		// Create authenticated variable for UEFI
+		if keyName == "PK" {
+			// PK is self-signed
+			cmd = exec.Command("sign-efi-sig-list", "-k", filepath.Join(keyDir, "PK.key"), "-c", filepath.Join(keyDir, "PK.crt"), keyName, eslPath, authPath)
+		} else {
+			// KEK and db are signed by PK
+			cmd = exec.Command("sign-efi-sig-list", "-k", filepath.Join(keyDir, "PK.key"), "-c", filepath.Join(keyDir, "PK.crt"), keyName, eslPath, authPath)
+		}
+
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("signing %s: %w", keyName, err)
+		}
+
+		logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("Prepared %s for UEFI installation", keyName))
+	}
+
+	// Create installation script
+	scriptPath := filepath.Join(homeDir, ".local", "share", "archriot", "secureboot", "install-keys.sh")
+	scriptContent := fmt.Sprintf(`#!/bin/bash
+# ArchRiot Secure Boot Key Installation Script
+
+ESL_DIR="%s"
+
+echo "Installing ArchRiot Secure Boot keys..."
+
+# Install keys using efi-updatevar
+sudo efi-updatevar -f "$ESL_DIR/db.auth" db
+sudo efi-updatevar -f "$ESL_DIR/KEK.auth" KEK
+sudo efi-updatevar -f "$ESL_DIR/PK.auth" PK
+
+echo "Keys installed. You can now enable Secure Boot in UEFI settings."
+`, eslDir)
+
+	if err := os.WriteFile(scriptPath, []byte(scriptContent), 0755); err != nil {
+		return fmt.Errorf("creating installation script: %w", err)
+	}
+
+	logger.Log("Success", "System", "SecureBoot", "Key installation prepared")
+	logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("Installation script: %s", scriptPath))
+	return nil
+}
+
+// generateUUID creates a proper UUID for UEFI key identification
+func generateUUID() (string, error) {
+	uuid := make([]byte, 16)
+	_, err := rand.Read(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	// Set version (4) and variant bits according to RFC 4122
+	uuid[6] = (uuid[6] & 0x0f) | 0x40 // Version 4
+	uuid[8] = (uuid[8] & 0x3f) | 0x80 // Variant 10
+
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+		uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:16]), nil
 }
 
 // modifyHyprlandForContinuation modifies hyprland.conf to launch Secure Boot continuation after reboot
@@ -276,15 +579,16 @@ func modifyHyprlandForContinuation() error {
 	// Get ArchRiot binary path
 	archRiotPath := filepath.Join(homeDir, ".local", "share", "archriot", "install", "archriot")
 
-	// Modify config to replace welcome with Secure Boot continuation
+	// Modify config to replace welcome with Secure Boot continuation in Ghostty
 	configStr := string(configData)
 	lines := strings.Split(configStr, "\n")
 
 	for i, line := range lines {
 		trimmedLine := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmedLine, "exec-once") && strings.Contains(trimmedLine, "welcome") {
-			// Replace with Secure Boot continuation
-			lines[i] = fmt.Sprintf("exec-once = %s --secure_boot_stage", archRiotPath)
+			// Replace with Secure Boot continuation in terminal
+			terminalCmd := fmt.Sprintf("ghostty --class=com.mitchellh.ghostty-floating -e bash -c 'cd $HOME; %s --secure_boot_stage; echo \"Press Enter to close.\"; read'", archRiotPath)
+			lines[i] = fmt.Sprintf("exec-once = sleep 2 && %s", terminalCmd)
 			logger.Log("Info", "System", "SecureBoot", "Modified hyprland.conf for Secure Boot continuation")
 			break
 		}

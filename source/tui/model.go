@@ -205,7 +205,7 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.secureBootEnabled && m.secureBootSupported && m.luksDetected {
 			m.showConfirm = true
 			deviceList := strings.Join(m.luksDevices, ", ")
-			m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot? (Devices: %s)", deviceList)
+			m.confirmPrompt = fmt.Sprintf("🛡️ Enable Secure Boot? (%s)", deviceList)
 			m.cursor = 1 // Default to NO (conservative)
 		}
 		return m, nil

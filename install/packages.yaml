@@ -13,6 +13,11 @@ core:
             - fastfetch
             - linux-firmware
             - efibootmgr
+            - mokutil
+            - openssl
+            - sbsigntools
+            - sbctl
+            - efitools
         configs:
             - pattern: environment.d/editor.conf
             - pattern: environment.d/fcitx.conf

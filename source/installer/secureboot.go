@@ -23,7 +23,7 @@ type LuksInfo struct {
 	Methods  []string // Which detection methods found LUKS
 }
 
-// DetectSecureBootStatus checks the current Secure Boot state
+// DetectSecureBootStatus checks the current Secure Boot state and Setup Mode
 func DetectSecureBootStatus() (bool, bool, error) {
 	logger.LogMessage("INFO", "🔍 Detecting Secure Boot status...")
 
@@ -46,7 +46,15 @@ func DetectSecureBootStatus() (bool, bool, error) {
 	enabled := strings.Contains(outputStr, "Secure Boot: enabled")
 	supported := true // UEFI system with bootctl means Secure Boot is supported
 
-	logger.LogMessage("INFO", fmt.Sprintf("Secure Boot status: enabled=%v, supported=%v", enabled, supported))
+	// Check if system is in Setup Mode (required for key installation)
+	setupMode := detectSetupMode()
+	if setupMode {
+		logger.LogMessage("INFO", "UEFI is in Setup Mode - ready for custom key installation")
+	} else {
+		logger.LogMessage("WARNING", "UEFI is NOT in Setup Mode - custom keys cannot be installed")
+	}
+
+	logger.LogMessage("INFO", fmt.Sprintf("Secure Boot status: enabled=%v, supported=%v, setup_mode=%v", enabled, supported, setupMode))
 	return enabled, supported, nil
 }
 
@@ -369,5 +377,57 @@ func ValidateSecureBootPrerequisites() error {
 	}
 	logger.LogMessage("SUCCESS", "✓ Required tools available")
 
+	// CRITICAL: Check if UEFI is in Setup Mode for key installation
+	if !detectSetupMode() {
+		return fmt.Errorf("UEFI must be in Setup Mode to install custom keys - clear Secure Boot keys in BIOS first")
+	}
+	logger.LogMessage("SUCCESS", "✓ UEFI Setup Mode confirmed - ready for key installation")
+
 	return nil
+}
+
+// detectSetupMode checks if UEFI is in Setup Mode (required for custom key installation)
+func detectSetupMode() bool {
+	// Check SetupMode EFI variable
+	setupPath := "/sys/firmware/efi/efivars/SetupMode-8be4df61-93ca-11d2-aa0d-00e098032b8c"
+	if setupData, err := os.ReadFile(setupPath); err == nil {
+		// EFI variable format: first 4 bytes are attributes, then data
+		if len(setupData) > 4 {
+			setupMode := setupData[4] == 1
+			return setupMode
+		}
+	}
+	return false
+}
+
+// GetSetupModeInstructions returns user instructions for enabling Setup Mode
+func GetSetupModeInstructions() string {
+	return `🔧 UEFI SETUP MODE REQUIRED
+
+Your UEFI firmware must be in "Setup Mode" to install custom Secure Boot keys.
+
+STEPS TO ENABLE SETUP MODE:
+
+1. Reboot and enter UEFI/BIOS settings:
+   • Dell: Press F2 during boot
+   • HP: Press F10 or ESC during boot
+   • Lenovo: Press F1 or F2 during boot
+   • ASUS: Press F2 or DEL during boot
+
+2. Navigate to Security → Secure Boot settings
+
+3. Look for one of these options:
+   • "Clear Secure Boot Keys" → Execute
+   • "Reset to Setup Mode" → Enable
+   • "Secure Boot Mode" → Set to "Custom"
+   • "Key Management" → "Clear Keys"
+
+4. Save settings and exit UEFI
+
+5. Boot back to Linux and run ArchRiot again
+
+⚠️  WARNING: This will clear existing Secure Boot keys (including Microsoft keys).
+Your system will boot normally, but Windows may show warnings until custom keys are installed.
+
+✅ BENEFIT: After setup, your system will have stronger security than default Microsoft keys.`
 }

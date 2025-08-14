@@ -497,6 +497,30 @@ func runSecureBootContinuation() error {
 		return fmt.Errorf("TUI error: %v", err)
 	}
 
+	// Handle reboot if requested (same as main installer)
+	if shouldReboot {
+		log.Println("🔄 Preparing for system reboot...")
+		log.Println("💾 Syncing filesystems...")
+
+		// Sync filesystems
+		if err := exec.Command("sync").Run(); err != nil {
+			log.Printf("⚠️ Failed to sync filesystems: %v", err)
+		}
+
+		// Give time for any background processes to finish
+		log.Println("⏳ Waiting for processes to complete...")
+		time.Sleep(2 * time.Second)
+
+		// Clean shutdown and reboot
+		log.Println("🔄 Initiating system reboot...")
+		if err := exec.Command("sudo", "shutdown", "-r", "now").Run(); err != nil {
+			log.Printf("❌ Failed to reboot: %v", err)
+			// Fallback to systemctl if shutdown fails
+			log.Println("🔄 Trying fallback reboot method...")
+			exec.Command("sudo", "systemctl", "reboot").Run()
+		}
+	}
+
 	return nil
 }
 
@@ -578,20 +602,26 @@ func runSecureBootContinuationFlow(program *tea.Program, model *tui.InstallModel
 	// Wait for user decision
 	userWantsRetry := <-secureBootContinuationDone
 	if userWantsRetry {
-		// User chose to retry - they will reboot to UEFI
-		program.Send(tui.LogMsg("🔄 You chose to continue - reboot and access UEFI settings"))
+		// User chose to retry - show reboot prompt to go to UEFI
+		program.Send(tui.LogMsg("🔄 You chose to continue - reboot to access UEFI settings"))
 		program.Send(tui.LogMsg("⏳ This program will run again after you enable Secure Boot"))
+		program.Send(tui.LogMsg(""))
+		program.Send(tui.StepMsg("Reboot to enable Secure Boot in UEFI"))
 		program.Send(tui.ProgressMsg(1.0))
+
+		// Trigger reboot prompt (same as main installer)
 		program.Send(tui.DoneMsg{})
 	} else {
-		// User chose to cancel - restore system
+		// User chose to cancel - restore welcome and exit
 		program.Send(tui.LogMsg("❌ User cancelled Secure Boot setup"))
 		program.Send(tui.LogMsg("🔄 Restoring normal system behavior..."))
 		if err := restoreHyprlandConfig(); err != nil {
 			program.Send(tui.LogMsg("⚠️ Failed to restore hyprland.conf: " + err.Error()))
 			program.Send(tui.FailureMsg{Error: "Failed to restore system configuration"})
 		} else {
-			program.Send(tui.LogMsg("✅ System restored to normal startup"))
+			program.Send(tui.LogMsg("✅ System restored - welcome will show on next login"))
+			program.Send(tui.LogMsg(""))
+			program.Send(tui.LogMsg("Press any key to exit"))
 			program.Send(tui.ProgressMsg(1.0))
 			program.Send(tui.DoneMsg{})
 		}
