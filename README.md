@@ -393,7 +393,7 @@ migrate                              # Launch interactive backup/restore interfa
 - **Browser:** Brave (replaces Chromium) with native Wayland support
 - **File Manager:** Thunar (replaces Nautilus) with comprehensive dark theming
 - **Shell:** Fish as default (replaces Bash) with proper PATH configuration
-- **Theme:** CypherRiot integrated as unified theme system (v2.0.0: eliminated theme override system)
+- **Theme:** CypherRiot integrated as unified theme system
 - **Code Editor:** Zed (Wayland) + Neovim with proper theme integration
 - **Applications:** All major apps now run native Wayland (no more XWayland issues)
 - **Migrate Backup Tool:** CyphrRiot's comprehensive system backup/restore solution (built-in)
