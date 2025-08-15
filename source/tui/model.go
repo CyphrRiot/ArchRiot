@@ -485,8 +485,8 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 	if m.confirmPrompt == "❌ Installation Failed - Exit?" {
 		// Installation failed - exit immediately
 		return m, tea.Quit
-	} else if m.confirmPrompt == "🔄 Reboot now?" {
-		// Reboot confirmation
+	} else if strings.HasPrefix(m.confirmPrompt, "🔄 Reboot now?") {
+		// Reboot confirmation (handles both regular and kernel upgrade prompts)
 		if m.cursor == 0 && SetRebootFlag != nil { // YES selected
 			SetRebootFlag(true)
 		}
