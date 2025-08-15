@@ -38,12 +38,14 @@ check_mullvad_installed() {
 # Check if Mullvad account is logged in
 check_mullvad_account() {
     local status_output=$(mullvad status 2>/dev/null)
+    local account_output=$(mullvad account get 2>/dev/null)
 
-    # Check if connected (means account is active) or if account info is available
+    # Check if connected (means account is active)
     if echo "$status_output" | grep -q "Connected\|Disconnected\|Blocked"; then
         log_message "Mullvad account is active, will start GUI"
         return 0
-    elif mullvad account get >/dev/null 2>&1; then
+    # Check if account command succeeds AND contains an actual account number
+    elif echo "$account_output" | grep -q "Mullvad account:" && echo "$account_output" | grep -E "Mullvad account:\s+[0-9]+"; then
         log_message "Mullvad account found, will start GUI"
         return 0
     else

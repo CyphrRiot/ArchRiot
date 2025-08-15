@@ -106,18 +106,18 @@ def get_temp_bar():
 
     temp_int = int(temp)
 
-    # Convert temperature to percentage for bar calculation (55°C = 0%, 80°C = 100%)
-    temp_percentage = max(0, min(100, (temp - 55) * 100 / 25))
+    # Convert temperature to percentage for bar calculation (60°C = 0%, 95°C = 100%)
+    temp_percentage = max(0, min(100, (temp - 60) * 100 / 35))
 
     # Get visual bar using reusable function
     bar = get_visual_bar(temp_percentage, show_empty=True)
 
     # Determine color class based on temperature
-    if temp >= 90:
+    if temp >= 95:
         css_class = "critical"
-    elif temp >= 80:
+    elif temp >= 85:
         css_class = "warning"
-    elif temp >= 70:
+    elif temp >= 75:
         css_class = "hot"
     else:
         css_class = "normal"
