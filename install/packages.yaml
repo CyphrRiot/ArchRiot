@@ -410,6 +410,7 @@ system:
         commands:
             - "sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf"
             - "sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf"
+            - "sleep 2 && if ! pgrep -x waybar >/dev/null 2>&1; then nohup waybar >/dev/null 2>&1 & disown; fi"
         depends: [core.base]
         start: "Optimizing memory settings"
         end: "Memory optimization applied"
