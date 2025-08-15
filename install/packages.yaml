@@ -102,6 +102,7 @@ desktop:
             - "chmod +x ~/.local/share/archriot/config/bin/*"
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
             - "chmod +x ~/.config/waybar/scripts/*"
+            - "sleep 1 && if pgrep -x waybar >/dev/null 2>&1; then pkill waybar && sleep 1 && nohup waybar >/dev/null 2>&1 & disown; fi"
             - "~/.local/share/archriot/config/bin/setup-temperature"
             - "mkdir -p ~/.local/share/applications"
             - "update-desktop-database ~/.local/share/applications/"
@@ -490,6 +491,7 @@ system:
         commands:
             - "mkdir -p ~/.config/gtk-3.0"
             - "[ ! -f ~/.config/gtk-3.0/bookmarks ] && echo -e \"file://$HOME/Documents\\nfile://$HOME/Downloads\\nfile://$HOME/Music\\nfile://$HOME/Pictures\\nfile://$HOME/Videos\" > ~/.config/gtk-3.0/bookmarks"
+            - "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'"
             - "sudo usermod -a -G video $USER"
         depends: [core.base]
         start: "Installing desktop themes"
