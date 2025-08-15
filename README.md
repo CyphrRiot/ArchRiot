@@ -406,14 +406,30 @@ migrate                              # Launch interactive backup/restore interfa
 
 Linux's default memory management is **aggressively stupid** about caching. The kernel will happily consume 90%+ of your RAM for file caches, then struggle to free it when applications actually need memory.
 
-**ArchRiot's Solution:** Intelligent memory management tuning that provides:
+**ArchRiot's Solution:** Comprehensive memory management tuning that provides:
 
-- **No more lag spikes** when opening applications
-- **Better responsiveness** under memory pressure
-- **Reduced swap usage** with proper RAM utilization
-- **Optimized caching** that doesn't hog system resources
+**Core Improvements:**
 
-**Result:** Your system stays fast and responsive even when running multiple applications.
+- **Smart Caching** - Reserves 1GB RAM, reduces aggressive file system caching
+- **Minimal Swapping** - 10% swappiness (vs 60% default) keeps everything in RAM
+- **Lag-Free Writing** - 5% dirty page limit prevents massive write bursts
+- **Background Cleanup** - 2% background writeback for smooth performance
+
+**Advanced Protection:**
+
+- **Memory Overcommit Control** - Prevents dangerous memory allocation that causes crashes
+- **Proactive Defragmentation** - Reduces memory fragmentation for better allocation
+- **Smart OOM Killer** - Kills problematic processes, not random system services
+- **Enhanced Responsiveness** - Optimized dirty page intervals and memory bandwidth
+
+**Real-World Impact:**
+
+- **No more lag spikes** when opening applications or switching windows
+- **Better responsiveness** under heavy memory pressure (tested with 75%+ RAM usage)
+- **Reduced swap usage** with intelligent RAM utilization
+- **System stability** under extreme load - no freezes or crashes
+
+**Result:** Your system stays fast and responsive even when running multiple applications, compiling code, or under extreme stress testing.
 
 ### 📱 **Advanced Waybar Integration**
 
