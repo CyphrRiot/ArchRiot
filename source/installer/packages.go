@@ -121,12 +121,16 @@ func InstallPackages(packages []string) error {
 		}
 		logger.Log("Progress", "Package", "AUR Build", fmt.Sprintf("Building: %s (5-30 min)", aurPackageList))
 
-		// Try yay up to 3 times
+		// Try yay up to 3 times with longer waits for AUR reliability
 		var lastOutput []byte
 		for attempt := 1; attempt <= 3; attempt++ {
 			if attempt > 1 {
-				logger.LogMessage("WARNING", fmt.Sprintf("Yay attempt %d/3...", attempt))
-				time.Sleep(time.Duration(attempt) * time.Second)
+				waitTime := 120 // 2 minutes between retries
+				logger.Log("Warning", "AUR", "Unavailable", fmt.Sprintf("AUR unavailable - attempt %d/3 failed", attempt-1))
+				logger.Log("Warning", "AUR", "Retry", fmt.Sprintf("AUR unavailable, retrying in %d seconds...", waitTime))
+				logger.Log("Info", "AUR", "Wait", fmt.Sprintf("Waiting %d seconds (AUR may be experiencing issues)...", waitTime))
+				time.Sleep(time.Duration(waitTime) * time.Second)
+				logger.Log("Info", "AUR", "Retry", fmt.Sprintf("Retrying yay attempt %d/3...", attempt))
 			}
 
 			cmd = exec.Command("yay", append([]string{"-S", "--noconfirm", "--needed", "--answerclean", "None", "--answerdiff", "None"}, toInstall...)...)
