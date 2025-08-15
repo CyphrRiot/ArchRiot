@@ -1,8 +1,9 @@
 # Jekyll Configuration for ArchRiot GitHub Pages
 title: ArchRiot 🎭
 description: >-
-    A beautiful, modern Arch Linux + Hyprland desktop environment with
-    CypherRiot theming, purple aesthetics, and comprehensive Wayland support.
+    ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?"
+    We've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system
+    that actually respects your time and intelligence.
 
 # GitHub Pages settings
 remote_theme: pages-themes/midnight@v0.2.0
