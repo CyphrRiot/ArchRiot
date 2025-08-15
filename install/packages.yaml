@@ -11,13 +11,6 @@ core:
             - python
             - python-psutil
             - fastfetch
-            - linux-firmware
-            - efibootmgr
-            - mokutil
-            - openssl
-            - sbsigntools
-            - sbctl
-            - efitools
         configs:
             - pattern: environment.d/editor.conf
             - pattern: environment.d/fcitx.conf
@@ -25,25 +18,28 @@ core:
             - pattern: systemd/*
         commands:
             - "python3 -c 'import psutil'"
+            - "git config --global pull.rebase true"
+            - "git config --global init.defaultBranch master"
         depends: []
         start: "Installing base development tools"
         end: "Base tools installed"
         type: "Package"
         critical: true
 
-    identity:
-        commands:
-            - "git config --global alias.co checkout"
-            - "git config --global alias.br branch"
-            - "git config --global alias.ci commit"
-            - "git config --global alias.st status"
-            - "git config --global pull.rebase true"
-            - "git config --global init.defaultBranch master"
+    secure-boot:
+        packages:
+            - linux-firmware
+            - efibootmgr
+            - mokutil
+            - openssl
+            - sbsigntools
+            - sbctl
+            - efitools
         depends: [core.base]
-        start: "Configuring Git identity"
-        end: "Git identity configured"
-        type: "Git"
-        critical: false
+        start: "Installing secure boot and signing tools"
+        end: "Secure boot tools installed"
+        type: "Package"
+        critical: true
 
     shell:
         packages:
