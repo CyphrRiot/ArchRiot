@@ -15,7 +15,7 @@
 
     "custom/lock": {
     	"format": "󰌾",
-    	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/hyprlock-wrapper.sh",
+    	"on-click": "hyprlock",
     	"tooltip": true,
     	"tooltip-format": "󰷛 Screen Lock",
     },
