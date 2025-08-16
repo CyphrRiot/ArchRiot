@@ -6,8 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
+
 	"archriot-installer/config"
 	"archriot-installer/logger"
+	"archriot-installer/tui"
 )
 
 // CopyConfigs copies configuration files with preservation logic
@@ -53,6 +56,13 @@ func copyConfigPattern(sourceDir, homeDir string, configRule config.ConfigRule) 
 	// Parse pattern (e.g., "hypr/*" -> source: config/hypr, dest: ~/.config/hypr)
 	pattern := configRule.Pattern
 	var sourcePath, destPath string
+
+	// Check if this is hyprland config that needs preservation
+	if pattern == "hypr/*" {
+		if err := handleHyprlandPreservation(sourceDir, homeDir, program); err != nil {
+			logger.LogMessage("WARNING", fmt.Sprintf("Hyprland preservation failed: %v - continuing with normal copy", err))
+		}
+	}
 
 	if configRule.Target != "" {
 		// Custom target specified - expand ~ if present
@@ -175,6 +185,79 @@ func copyFile(source, dest string, preserveFiles []string) error {
 
 	if err := os.WriteFile(dest, sourceData, 0644); err != nil {
 		return fmt.Errorf("writing dest file: %w", err)
+	}
+
+	return nil
+}
+
+// Global variables for preservation state
+var (
+	preservationResult     *config.PreservationResult
+	preservationNewConfig  string
+	preservationSourcePath string
+	preservationDone       chan bool
+)
+
+// handleHyprlandPreservation handles the preservation logic for hyprland.conf
+func handleHyprlandPreservation(sourceDir, homeDir string, prog *tea.Program) error {
+	existingConfigPath := filepath.Join(homeDir, ".config", "hypr", "hyprland.conf")
+	newConfigPath := filepath.Join(sourceDir, "hypr", "hyprland.conf")
+
+	// Extract user settings from existing config
+	result, err := config.ExtractUserSettings(existingConfigPath)
+	if err != nil {
+		return fmt.Errorf("extracting user settings: %w", err)
+	}
+
+	// If no existing config or no user settings found, skip preservation
+	if len(result.PreservedValues) == 0 {
+		logger.LogMessage("INFO", "No user settings to preserve for hyprland.conf")
+		return nil
+	}
+
+	// Create backup of existing config
+	backupPath, err := config.CreateBackup(existingConfigPath, "hyprland.conf")
+	if err != nil {
+		return fmt.Errorf("creating backup: %w", err)
+	}
+	result.BackupPath = backupPath
+
+	// Read new config content
+	newContent, err := os.ReadFile(newConfigPath)
+	if err != nil {
+		return fmt.Errorf("reading new config: %w", err)
+	}
+
+	// Store preservation state for callback
+	preservationResult = result
+	preservationNewConfig = string(newContent)
+	preservationSourcePath = newConfigPath
+	preservationDone = make(chan bool, 1)
+
+	// Set up preservation callback
+	tui.SetPreservationCallback(func(shouldRestore bool) {
+		if shouldRestore {
+			// Apply user settings to new config
+			modifiedContent := config.ApplyUserSettings(preservationNewConfig, preservationResult.PreservedValues)
+
+			// Write the modified config back to source location
+			if err := os.WriteFile(preservationSourcePath, []byte(modifiedContent), 0644); err != nil {
+				logger.LogMessage("ERROR", fmt.Sprintf("Failed to write modified config: %v", err))
+			} else {
+				logger.LogMessage("INFO", fmt.Sprintf("Applied %d user settings to new hyprland.conf", len(preservationResult.PreservedValues)))
+			}
+		} else {
+			logger.LogMessage("INFO", "User chose not to restore hyprland modifications")
+		}
+		preservationDone <- true
+	})
+
+	// Send preservation prompt to TUI
+	if prog != nil {
+		prog.Send(tui.PreservationPromptMsg{})
+
+		// Wait for user response
+		<-preservationDone
 	}
 
 	return nil

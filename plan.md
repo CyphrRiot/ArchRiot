@@ -6,7 +6,92 @@ This document tracks outstanding development tasks for the ArchRiot installer an
 
 ## 🚧 OUTSTANDING TASKS
 
-### TASK 1: Secure Boot Enablement
+### TASK 1: Simple Hyprland Config Preservation During Upgrades (TOP PRIORITY)
+
+### Problem
+
+Users lose their customizations when ArchRiot upgrades overwrite `~/.config/hypr/hyprland.conf`. Users customize keyboard layout (`kb_layout = fr`), browser preference (`$browser = vivaldi`), keybindings, and other settings.
+
+User feedback: "like when update, ask for hyprland.conf to be backuped or no, if we can keep our keyboard localization, for me its fr, not us, i like vivaldi not brave ! ... and so on ... got to modify two 3 things in hyprland.conf"
+
+### Requirements
+
+- **Simple Detection**: Detect upgrade vs fresh install easily
+- **Generic Preservation**: Preserve ANY user setting changes
+- **No Data Loss**: User customizations survive upgrades
+- **User Review**: User can see what was backed up
+
+### Implementation Strategy (SIMPLE)
+
+**Step 1: Check for Existing Config**
+
+- Check if `~/.config/hypr/hyprland.conf` exists
+- If NO = no existing config → just copy new config normally
+- If YES = extract user customizations and prompt for restoration
+
+**Step 2: Extract Specific User Settings**
+
+- Only preserve specific user-customizable settings:
+    - `kb_layout`, `kb_variant`, `kb_model` (keyboard/locale settings)
+    - `$browser`, `$terminal`, `$fileManager` (application preferences)
+- Backup existing config → `~/.cache/archriot/YYYYMMDD_hyprland.conf`
+- Extract only these whitelisted settings from existing config
+
+**Step 3: User Prompt for Restoration**
+
+- Show user prompt: **"Restore your hyprland modifications?" [YES] [NO]**
+- If YES = apply extracted user settings to new config
+- If NO = use new config with system defaults
+- Install final config (new system config + user settings if chosen)
+
+**Example Flow:**
+
+```
+SCENARIO 1 - No existing config: Just copy normally
+
+SCENARIO 2 - Existing config found:
+Extract: kb_layout = fr, $browser = vivaldi
+Prompt: "Restore your hyprland modifications?" [YES] [NO]
+If YES: New config with kb_layout = fr, $browser = vivaldi
+If NO: New config with system defaults (kb_layout = us, $browser = brave)
+```
+
+**Technical Implementation**
+
+- Add preservation logic before hyprland config copy in packages.yaml
+- Conservative whitelist approach - only preserve specific user settings
+- **Configurable Settings**: Load preservable settings from `install/preserve.yaml`
+- **No Recompilation**: Add new settings by editing YAML file
+- TUI prompt integration using existing confirmation system
+- Storage: `~/.cache/archriot/{date}_hyprland.conf` for user review
+- Fail-safe: If anything fails, use new config (no preservation)
+
+**Configuration File Structure**:
+
+```yaml
+# install/preserve.yaml
+user_customizable_settings:
+    - name: "kb_layout"
+      description: "Keyboard layout (us, fr, de, etc.)"
+      pattern: "kb_layout"
+    - name: "browser"
+      description: "Default browser application"
+      pattern: "$browser"
+    # ... easily extensible
+```
+
+**Benefits**
+
+- **Safe & Predictable**: Only preserves obvious user customizations
+- **No False Preservation**: Won't preserve old system defaults by mistake
+- **User Control**: User decides whether to restore their modifications
+- **System Updates**: Always get latest system improvements and bug fixes
+- **Configurable**: Add new preservable settings without recompiling
+- **Maintainable**: Edit prompts and settings in YAML file
+- **Reviewable**: User can see what was backed up in cache
+- **Non-Intrusive**: Fails gracefully, doesn't break installation
+
+### TASK 2: Secure Boot Enablement
 
 ### Problem
 

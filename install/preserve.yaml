@@ -1,0 +1,66 @@
+# ArchRiot Configuration Preservation Settings
+# This file defines which settings are preserved during upgrades
+
+# Version of this preservation config (for future compatibility)
+version: "1.0"
+
+# User-customizable settings that should be preserved during upgrades
+# Only these specific settings will be extracted from existing configs
+# and optionally restored to new configs
+user_customizable_settings:
+    # Keyboard and input settings
+    - name: "kb_layout"
+      description: "Keyboard layout (us, fr, de, etc.)"
+      pattern: "kb_layout"
+
+    - name: "kb_variant"
+      description: "Keyboard variant"
+      pattern: "kb_variant"
+
+    - name: "kb_model"
+      description: "Keyboard model"
+      pattern: "kb_model"
+
+    # Application preferences
+    - name: "browser"
+      description: "Default browser application"
+      pattern: "$browser"
+
+    - name: "terminal"
+      description: "Default terminal application"
+      pattern: "$terminal"
+
+    - name: "fileManager"
+      description: "Default file manager application"
+      pattern: "$fileManager"
+
+    - name: "dock"
+      description: "Default dock application"
+      pattern: "$dock"
+
+# Configuration for backup behavior
+backup:
+    # Directory where config backups are stored (relative to home)
+    cache_dir: ".cache/archriot"
+
+    # Filename format for backups (supports date formatting)
+    filename_format: "%s_hyprland.conf" # %s will be replaced with YYYYMMDD
+
+    # Whether to create backups even if no preservable settings found
+    always_backup: true
+
+# Prompts and messages
+prompts:
+    # Message shown when asking user about restoration
+    restore_prompt: "Restore your hyprland modifications?"
+
+    # Default choice (0 = YES, 1 = NO)
+    default_choice: 0
+
+    # Messages for different scenarios
+    messages:
+        no_existing_config: "No existing config found - fresh install"
+        no_user_settings: "No user customizations found in existing config"
+        settings_extracted: "Extracted %d user settings for preservation"
+        backup_created: "Config backed up to: %s"
+        settings_applied: "Applied user setting: %s = %s"

@@ -107,6 +107,9 @@ func RunInstallation() {
 	sendStep("Installing modules...")
 	sendProgress(0.3)
 
+	// Set up installer program reference for preservation prompts
+	installer.SetProgram(Program)
+
 	// Calculate dynamic progress
 	totalModules := countTotalModules(cfg)
 	moduleProgressRange := 0.7 // 70% of progress is for modules (30% already used for prep)

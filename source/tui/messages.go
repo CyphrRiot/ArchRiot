@@ -32,9 +32,12 @@ type UpgradeMsg struct{}
 // KernelUpgradeMsg indicates kernel was upgraded and reboot is recommended
 type KernelUpgradeMsg bool
 
+// PreservationPromptMsg triggers preservation confirmation prompt
+type PreservationPromptMsg struct{}
+
 // InputRequestMsg requests user input
 type InputRequestMsg struct {
-	Mode   string
+	Mode   string // git-username, git-email, git-confirm, etc.
 	Prompt string
 }
 
@@ -109,6 +112,14 @@ var upgradeCompletionCallback func(bool)
 // SetUpgradeCallback sets the callback function for upgrade confirmation handling
 func SetUpgradeCallback(callback func(bool)) {
 	upgradeCompletionCallback = callback
+}
+
+// Preservation callback function
+var preservationCompletionCallback func(bool)
+
+// SetPreservationCallback sets the callback function for preservation confirmation handling
+func SetPreservationCallback(callback func(bool)) {
+	preservationCompletionCallback = callback
 }
 
 // Secure Boot callback function

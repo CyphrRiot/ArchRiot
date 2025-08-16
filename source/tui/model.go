@@ -190,6 +190,12 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.cursor = 1 // Default to NO (conservative)
 		return m, nil
 
+	case PreservationPromptMsg:
+		m.showConfirm = true
+		m.confirmPrompt = "🔧 Restore your hyprland modifications?"
+		m.cursor = 0 // Default to YES (user wants their settings)
+		return m, nil
+
 	case KernelUpgradeMsg:
 		m.kernelUpgraded = bool(msg)
 		return m, nil
@@ -525,6 +531,15 @@ func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 		// Signal completion through external callback
 		if secureBootContinuationCallback != nil {
 			secureBootContinuationCallback(m.cursor == 0) // YES = 0, NO = 1
+		}
+		return m, nil
+	} else if m.confirmPrompt == "🔧 Restore your hyprland modifications?" {
+		// Preservation confirmation - send result back through callback
+		m.showConfirm = false
+		m.confirmPrompt = ""
+		// Signal completion through external callback
+		if preservationCompletionCallback != nil {
+			preservationCompletionCallback(m.cursor == 0) // YES = 0, NO = 1
 		}
 		return m, nil
 	} else if m.isConfirmationMode {
