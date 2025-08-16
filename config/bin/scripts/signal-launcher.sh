@@ -40,6 +40,7 @@ if pgrep -x "signal-desktop" > /dev/null; then
     fi
 else
     # Signal is not running, launch it
+    notify-send --expire-time=2000 "Launching Signal" "Starting Signal Desktop..."
     env GDK_SCALE=1 signal-desktop --ozone-platform=wayland --enable-features=UseOzonePlatform > /dev/null 2>&1 &
 
     # Wait for Signal to start and then try to focus it
