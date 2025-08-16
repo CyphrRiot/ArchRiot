@@ -58,6 +58,9 @@ type PreservationResult struct {
 
 // ExtractUserSettings extracts user-customized settings from existing config
 func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error) {
+	logger.LogMessage("DEBUG", fmt.Sprintf("=== PRESERVATION DEBUG START ==="))
+	logger.LogMessage("DEBUG", fmt.Sprintf("ExtractUserSettings called with path: %s", existingConfigPath))
+
 	result := &PreservationResult{
 		BackupPath:      "",
 		PreservedValues: make(map[string]string),
@@ -68,8 +71,11 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 	if _, err := os.Stat(existingConfigPath); os.IsNotExist(err) {
 		result.Message = "No existing config found - fresh install"
 		logger.LogMessage("INFO", result.Message)
+		logger.LogMessage("DEBUG", "=== PRESERVATION DEBUG END (no file) ===")
 		return result, nil
 	}
+
+	logger.LogMessage("DEBUG", "Existing config file found")
 
 	// Read existing config
 	existingContent, err := os.ReadFile(existingConfigPath)
@@ -77,14 +83,64 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 		return nil, fmt.Errorf("failed to read existing config: %w", err)
 	}
 
+	// Early comparison - check if files are identical
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("getting home directory: %w", err)
+	}
+	newConfigPath := filepath.Join(homeDir, ".local", "share", "archriot", "config", "hypr", "hyprland.conf")
+	logger.LogMessage("DEBUG", fmt.Sprintf("Comparing with new config path: %s", newConfigPath))
+
+	newContent, err := os.ReadFile(newConfigPath)
+	if err == nil {
+		logger.LogMessage("DEBUG", fmt.Sprintf("Existing config size: %d bytes", len(existingContent)))
+		logger.LogMessage("DEBUG", fmt.Sprintf("New config size: %d bytes", len(newContent)))
+
+		// If files are byte-for-byte identical, skip preservation entirely
+		if string(existingContent) == string(newContent) {
+			result.Message = "Configs are identical - no preservation needed"
+			logger.LogMessage("INFO", result.Message)
+			logger.LogMessage("DEBUG", "=== PRESERVATION DEBUG END (identical files) ===")
+			return result, nil
+		} else {
+			logger.LogMessage("DEBUG", "Files are NOT identical - proceeding with extraction")
+		}
+	} else {
+		logger.LogMessage("DEBUG", fmt.Sprintf("Could not read new config: %v", err))
+	}
+
 	// Extract user settings
 	extractedSettings := extractSettings(string(existingContent))
-	result.PreservedValues = extractedSettings
 
+	// Check if any extracted settings are actually different from new config
+	meaningfulSettings := make(map[string]string)
 	if len(extractedSettings) > 0 {
-		result.Message = fmt.Sprintf("Extracted %d user settings for preservation", len(extractedSettings))
+		// Read new config to compare
+		newContent, err := os.ReadFile(newConfigPath)
+		if err == nil {
+			newSettings := extractSettings(string(newContent))
+
+			// Only preserve settings that are actually different
+			for key, userValue := range extractedSettings {
+				newValue, exists := newSettings[key]
+				if !exists || userValue != newValue {
+					meaningfulSettings[key] = userValue
+				}
+			}
+		} else {
+			// If we can't read new config, preserve all extracted settings
+			meaningfulSettings = extractedSettings
+		}
+	}
+
+	result.PreservedValues = meaningfulSettings
+
+	logger.LogMessage("DEBUG", fmt.Sprintf("Final meaningful settings count: %d", len(meaningfulSettings)))
+
+	if len(meaningfulSettings) > 0 {
+		result.Message = fmt.Sprintf("Extracted %d user settings for preservation", len(meaningfulSettings))
 		logger.LogMessage("INFO", result.Message)
-		for key, value := range extractedSettings {
+		for key, value := range meaningfulSettings {
 			logger.LogMessage("INFO", fmt.Sprintf("Preserving: %s = %s", key, value))
 		}
 	} else {
@@ -92,6 +148,7 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 		logger.LogMessage("INFO", result.Message)
 	}
 
+	logger.LogMessage("DEBUG", "=== PRESERVATION DEBUG END ===")
 	return result, nil
 }
 
@@ -157,9 +214,12 @@ func extractSettings(content string) map[string]string {
 					key := strings.TrimSpace(parts[0])
 					value := strings.TrimSpace(parts[1])
 
-					// Match the setting name
+					// Match the setting name and check if value is meaningful
 					if key == setting.Pattern || strings.HasPrefix(key, setting.Pattern+" ") {
-						settings[setting.Name] = value
+						// Only preserve if value is not empty or whitespace-only
+						if value != "" && !isDefaultOrEmpty(value) {
+							settings[setting.Name] = value
+						}
 						break
 					}
 				}
@@ -274,4 +334,30 @@ func GetPreservationConfig() *PreservationConfig {
 		}
 	}
 	return preservationConfig
+}
+
+// isDefaultOrEmpty checks if a value is empty, whitespace-only, or a common default
+func isDefaultOrEmpty(value string) bool {
+	trimmed := strings.TrimSpace(value)
+
+	// Empty or whitespace-only
+	if trimmed == "" {
+		return true
+	}
+
+	// Common default values that shouldn't be preserved
+	defaults := []string{
+		"us",      // default keyboard layout
+		"ghostty", // default terminal
+		"brave",   // default browser
+		"Thunar",  // default file manager
+	}
+
+	for _, defaultVal := range defaults {
+		if trimmed == defaultVal {
+			return true
+		}
+	}
+
+	return false
 }
