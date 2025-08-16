@@ -14,6 +14,8 @@ Users lose their customizations when ArchRiot upgrades overwrite `~/.config/hypr
 
 User feedback: "like when update, ask for hyprland.conf to be backuped or no, if we can keep our keyboard localization, for me its fr, not us, i like vivaldi not brave ! ... and so on ... got to modify two 3 things in hyprland.conf"
 
+[Github Issue](https://github.com/CyphrRiot/ArchRiot/issues/4)
+
 ### Requirements
 
 - **Simple Detection**: Detect upgrade vs fresh install easily
