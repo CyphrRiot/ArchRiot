@@ -344,6 +344,8 @@ system:
             - powertop
         commands:
             - "sudo systemctl enable --now power-profiles-daemon.service"
+            - 'for iface in /sys/class/net/*/device/power/wakeup; do [ -f "$iface" ] && [ -w "$iface" ] && echo enabled | sudo tee "$iface" >/dev/null 2>&1 || true; done'
+            - 'find /sys/bus/usb/devices -name wakeup -type f 2>/dev/null | while read wakeup_file; do [ -w "$wakeup_file" ] && echo enabled | sudo tee "$wakeup_file" >/dev/null 2>&1 || true; done'
         depends: [core.base]
         start: "Configuring power management"
         end: "Power management configured"
