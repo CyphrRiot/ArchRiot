@@ -48,6 +48,10 @@ palette = 15=#c0caf5
 palette = 16=#ff9e64
 palette = 17=#db4b4b
 
+# Font configuration
+font-family = "CaskaydiaMono Nerd Font Mono"
+font-size = 12
+
 # padding
 window-padding-x = 8
 window-padding-y = 8

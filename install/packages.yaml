@@ -215,7 +215,7 @@ desktop:
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-line-numbers true; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor highlight-current-line true; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-right-margin false; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12'; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor custom-font 'CaskaydiaMono Nerd Font Mono 12'; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor line-height 1.2; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor use-system-font false; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor style-scheme 'cypherriot'; fi"
@@ -305,6 +305,7 @@ system:
     fonts:
         packages:
             - ttf-hack-nerd
+            - ttf-cascadia-mono-nerd
             - noto-fonts-emoji
         commands:
             - "fc-cache -f"
