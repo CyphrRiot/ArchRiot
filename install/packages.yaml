@@ -210,6 +210,7 @@ desktop:
             - gnome-text-editor
         configs:
             - pattern: text-editor/*
+              target: ~/.local/share/gtksourceview-5/styles/
         commands:
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-line-numbers true; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor highlight-current-line true; fi"
@@ -217,7 +218,7 @@ desktop:
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor custom-font 'Hack Nerd Font Mono 12'; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor line-height 1.2; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor use-system-font false; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor style-scheme 'tokyo-night'; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor style-scheme 'cypherriot'; fi"
         depends: [core.base]
         start: "Installing text editors"
         end: "Text editors configured"
