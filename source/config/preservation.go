@@ -58,9 +58,6 @@ type PreservationResult struct {
 
 // ExtractUserSettings extracts user-customized settings from existing config
 func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error) {
-	logger.LogMessage("DEBUG", fmt.Sprintf("=== PRESERVATION DEBUG START ==="))
-	logger.LogMessage("DEBUG", fmt.Sprintf("ExtractUserSettings called with path: %s", existingConfigPath))
-
 	result := &PreservationResult{
 		BackupPath:      "",
 		PreservedValues: make(map[string]string),
@@ -71,11 +68,8 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 	if _, err := os.Stat(existingConfigPath); os.IsNotExist(err) {
 		result.Message = "No existing config found - fresh install"
 		logger.LogMessage("INFO", result.Message)
-		logger.LogMessage("DEBUG", "=== PRESERVATION DEBUG END (no file) ===")
 		return result, nil
 	}
-
-	logger.LogMessage("DEBUG", "Existing config file found")
 
 	// Read existing config
 	existingContent, err := os.ReadFile(existingConfigPath)
@@ -89,24 +83,15 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 		return nil, fmt.Errorf("getting home directory: %w", err)
 	}
 	newConfigPath := filepath.Join(homeDir, ".local", "share", "archriot", "config", "hypr", "hyprland.conf")
-	logger.LogMessage("DEBUG", fmt.Sprintf("Comparing with new config path: %s", newConfigPath))
 
 	newContent, err := os.ReadFile(newConfigPath)
 	if err == nil {
-		logger.LogMessage("DEBUG", fmt.Sprintf("Existing config size: %d bytes", len(existingContent)))
-		logger.LogMessage("DEBUG", fmt.Sprintf("New config size: %d bytes", len(newContent)))
-
 		// If files are byte-for-byte identical, skip preservation entirely
 		if string(existingContent) == string(newContent) {
 			result.Message = "Configs are identical - no preservation needed"
 			logger.LogMessage("INFO", result.Message)
-			logger.LogMessage("DEBUG", "=== PRESERVATION DEBUG END (identical files) ===")
 			return result, nil
-		} else {
-			logger.LogMessage("DEBUG", "Files are NOT identical - proceeding with extraction")
 		}
-	} else {
-		logger.LogMessage("DEBUG", fmt.Sprintf("Could not read new config: %v", err))
 	}
 
 	// Extract user settings
@@ -135,8 +120,6 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 
 	result.PreservedValues = meaningfulSettings
 
-	logger.LogMessage("DEBUG", fmt.Sprintf("Final meaningful settings count: %d", len(meaningfulSettings)))
-
 	if len(meaningfulSettings) > 0 {
 		result.Message = fmt.Sprintf("Extracted %d user settings for preservation", len(meaningfulSettings))
 		logger.LogMessage("INFO", result.Message)
@@ -148,7 +131,6 @@ func ExtractUserSettings(existingConfigPath string) (*PreservationResult, error)
 		logger.LogMessage("INFO", result.Message)
 	}
 
-	logger.LogMessage("DEBUG", "=== PRESERVATION DEBUG END ===")
 	return result, nil
 }
 

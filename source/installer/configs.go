@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -256,8 +257,14 @@ func handleHyprlandPreservation(sourceDir, homeDir string, prog *tea.Program) er
 	if prog != nil {
 		prog.Send(tui.PreservationPromptMsg{})
 
-		// Wait for user response
-		<-preservationDone
+		// Wait for user response with timeout
+		select {
+		case <-preservationDone:
+			// User responded
+		case <-time.After(30 * time.Second):
+			// Timeout - default to NO restoration
+			logger.LogMessage("WARNING", "Preservation prompt timed out - defaulting to no restoration")
+		}
 	}
 
 	return nil

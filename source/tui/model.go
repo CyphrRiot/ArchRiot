@@ -270,7 +270,7 @@ func (m *InstallModel) View() string {
 	if m.failed {
 		asciiStyle = lipgloss.NewStyle().Foreground(errorColor).Bold(true)
 	} else {
-		asciiStyle = lipgloss.NewStyle().Foreground(accentColor).Bold(true)
+		asciiStyle = lipgloss.NewStyle().Foreground(primaryColor).Bold(true)
 	}
 	ascii := asciiStyle.Render(ArchRiotASCII)
 	s.WriteString(ascii + "\n")
