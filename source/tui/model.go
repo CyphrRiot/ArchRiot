@@ -23,6 +23,23 @@ var (
 	dimColor     = lipgloss.Color("#565f89") // Tokyo Night comment
 )
 
+// Emoji variables (set by logger during initialization)
+var (
+	currentStepEmoji = "🎯" // Default emoji, will be overridden if ASCII mode
+	logFileEmoji     = "📁" // Default emoji, will be overridden if ASCII mode
+)
+
+// SetEmojiMode sets the emoji display mode for TUI elements
+func SetEmojiMode(emojiSupport bool) {
+	if emojiSupport {
+		currentStepEmoji = "🎯"
+		logFileEmoji = "📁"
+	} else {
+		currentStepEmoji = ">"
+		logFileEmoji = "-"
+	}
+}
+
 // ASCII Art
 const ArchRiotASCII = `
 ▄  ▄▀█ █▀█ █▀▀ █ █ █▀█ █ █▀█ ▀█▀  ▄
@@ -287,8 +304,8 @@ func (m *InstallModel) View() string {
 	infoStyle := lipgloss.NewStyle().Foreground(fgColor)
 	logStyle := lipgloss.NewStyle().Foreground(dimColor)
 
-	s.WriteString(infoStyle.Render("🎯 Current Step:   "+m.currentStep) + "\n")
-	s.WriteString(logStyle.Render("📁 Log File:       "+GetLogPath()) + "\n")
+	s.WriteString(infoStyle.Render(currentStepEmoji+" Current Step:   "+m.currentStep) + "\n")
+	s.WriteString(logStyle.Render(logFileEmoji+" Log File:       "+GetLogPath()) + "\n")
 
 	// Progress bar (only show if not failed)
 	if !m.failed {

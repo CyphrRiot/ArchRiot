@@ -240,6 +240,11 @@ func main() {
 	// Handle command line arguments
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
+		case "--ascii-only":
+			// Force ASCII mode for testing
+			logger.SetForceAsciiMode(true)
+			// Continue with normal installation (fall through to main logic)
+
 		case "--tools", "-t":
 			// Initialize basic logging for tools
 			if err := logger.InitLogging(); err != nil {
@@ -284,6 +289,11 @@ func main() {
 			showHelp()
 			os.Exit(1)
 		}
+	}
+
+	// Skip normal installation if we handled a special flag above
+	if len(os.Args) > 1 && os.Args[1] != "--ascii-only" {
+		return
 	}
 
 	// STEP 1: Setup passwordless sudo (critical for installation)
@@ -350,6 +360,9 @@ func main() {
 
 	// Set up unified logger with TUI program (must be first)
 	logger.SetProgram(program)
+
+	// Set up TUI emoji callback
+	logger.SetTuiEmojiCallback(tui.SetEmojiMode)
 
 	// Set up git package (after program is created)
 	git.SetProgram(program)
