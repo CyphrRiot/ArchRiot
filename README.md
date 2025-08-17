@@ -104,10 +104,6 @@ curl -sSL https://archri.ot/install | bash
 
 - [⌨️ Essential Commands](#️-master-your-archriot-desktop) - Master your new desktop in minutes
 - [🎛️ Control Panel](#️-archriot-control-panel) - ArchRiot's powerful management interface
-
-**🔧 Advanced Setup:**
-
-- [💾 Built-in Backup & Recovery](#-built-in-backup--recovery-with-migrate) - Never lose your perfect setup
 - [🎯 Key Customizations](#-key-customizations) - What makes ArchRiot special
 
 **🎨 Customization & Themes:**
@@ -118,11 +114,11 @@ curl -sSL https://archri.ot/install | bash
 **📊 System Info:**
 
 - [⚡ ArchRiot At a Glance](#-archriot-at-a-glance) - Why ArchRiot flies
-- [🔀 Differences from Omarchy](#-differences-from-original-omarchy) - What we changed and why
 - [🔍 Installation Verification](#-installation-verification-system) - How we ensure quality
 - [🛠️ Development Tools](#️-development-tools) - Build from source and contribute
 - [📋 System Requirements](#-system-requirements) - What you need to run ArchRiot
 - [🖥️ VM & Hardware Notes](#️-vm--hardware-notes) - Compatibility and hardware info
+- [🔀 Differences from Omarchy](#-differences-from-omarchy) - Why ArchRiot is not Omarchy
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
