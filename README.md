@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.14-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-2.15-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -641,6 +641,38 @@ desktop:
 ```
 
 This YAML system provides clean separation of packages, configurations, and commands while maintaining full dependency resolution and proper installation ordering.
+
+### Configuration Preservation
+
+ArchRiot includes an intelligent preservation system via `install/preserve.yaml` that maintains your personal customizations during upgrades and reinstalls. This ensures your keyboard layout, application preferences, and other settings survive system updates.
+
+**Preserved Settings:**
+
+- **Keyboard Configuration** - Layout (us, fr, de), variant, and model
+- **Default Applications** - Browser, terminal, file manager, and dock preferences
+- **User Customizations** - Any settings you've modified in Hyprland configs
+
+**How It Works:**
+
+1. **Detection** - Scans existing configs for user-customizable settings
+2. **Backup** - Creates timestamped backups in `~/.cache/archriot/`
+3. **Extraction** - Pulls out your personal settings using defined patterns
+4. **Restoration** - Optionally applies saved settings to new configs
+
+**Example preserve.yaml entry:**
+
+```yaml
+user_customizable_settings:
+    - name: "kb_layout"
+      description: "Keyboard layout (us, fr, de, etc.)"
+      pattern: "kb_layout"
+
+    - name: "browser"
+      description: "Default browser application"
+      pattern: "$browser"
+```
+
+The system prompts during installation: **"Restore your hyprland modifications?"** allowing you to choose whether to apply your saved preferences to the fresh configuration.
 
 ## ⚡ ArchRiot At a Glance
 
