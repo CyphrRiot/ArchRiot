@@ -37,7 +37,31 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ## 🚀 Choose Your ArchRiot Experience
 
-### 🔥 Method 1: ArchRiot ISO
+### 🔥 Method 1: Install Script
+
+**Transform your current Arch system into ArchRiot**
+
+```bash
+curl -sSL https://archri.ot/install | bash
+```
+
+**Perfect for:**
+
+- 🏠 **System preservation** - Keep your data, configs, and custom tweaks intact
+- 🔧 **Arch variants** - CachyOS, Manjaro, EndeavourOS, or pure Arch installations
+- 🎨 **Desktop upgrade** - Transform just your desktop environment, leave the rest alone
+- ⚡ **Quick wins** - Get ArchRiot's best features without starting over
+
+**What you get:**
+
+- ArchRiot desktop environment and apps
+- Hyprland tiling window manager
+- CypherRiot themes and customizations
+- Keeps your existing system intact
+
+## \_**Note:** For fresh installations, we also have an **ArchRiot ISO available** (See below "Method 2")
+
+### ⚡ Method 2: ArchRiot ISO
 
 1. **📥 Download ArchRiot ISO**
     - **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
@@ -71,30 +95,6 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - No manual setup required
 
 ![ArchRiot Installation Demo](config/images/riot.gif)
-
----
-
-### ⚡ Method 2: Install Script (Existing Systems)
-
-**Transform your current Arch system into ArchRiot**
-
-```bash
-curl -sSL https://archri.ot/install | bash
-```
-
-**Perfect for:**
-
-- 🏠 **System preservation** - Keep your data, configs, and custom tweaks intact
-- 🔧 **Arch variants** - CachyOS, Manjaro, EndeavourOS, or pure Arch installations
-- 🎨 **Desktop upgrade** - Transform just your desktop environment, leave the rest alone
-- ⚡ **Quick wins** - Get ArchRiot's best features without starting over
-
-**What you get:**
-
-- ArchRiot desktop environment and apps
-- Hyprland tiling window manager
-- CypherRiot themes and customizations
-- Keeps your existing system intact
 
 ---
 
