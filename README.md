@@ -59,7 +59,7 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 - CypherRiot themes and customizations
 - Keeps your existing system intact
 
-## \_**Note:** For fresh installations, we also have an **ArchRiot ISO available** (See below "Method 2")
+#### **Note:** For fresh installations, we also have an **ArchRiot ISO available** (See below "Method 2")
 
 ### ⚡ Method 2: ArchRiot ISO
 
