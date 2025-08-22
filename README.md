@@ -37,7 +37,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ## 🚀 Choose Your ArchRiot Experience
 
-### 🔥 Method 1: ArchRiot ISO (Recommended)
+### 🔥 Method 1: ArchRiot ISO
 
 1. **📥 Download ArchRiot ISO**
     - **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
