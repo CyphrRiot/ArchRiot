@@ -42,7 +42,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 **Transform your current Arch system into ArchRiot**
 
 ```bash
-curl -sSL https://archri.ot/install | bash
+curl -fsSL https://ArchRiot.org/setup.sh | bash
 ```
 
 **Perfect for:**
