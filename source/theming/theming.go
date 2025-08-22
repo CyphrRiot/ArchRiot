@@ -70,6 +70,30 @@ func GetColorsPath() (string, error) {
 	return filepath.Join(homeDir, ".config", "waybar", "colors.css"), nil
 }
 
+// GetZedConfigPath returns the path to the Zed settings.json file
+func GetZedConfigPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("getting home directory: %w", err)
+	}
+	return filepath.Join(homeDir, ".config", "zed", "settings.json"), nil
+}
+
+// GetZedTemplatePath returns the path to the original Zed config template
+func GetZedTemplatePath() string {
+	// This is relative to the ArchRiot source directory
+	return "config/zed/settings.json"
+}
+
+// GetHyprlandConfigPath returns the path to the Hyprland config file
+func GetHyprlandConfigPath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("getting home directory: %w", err)
+	}
+	return filepath.Join(homeDir, ".config", "hypr", "hyprland.conf"), nil
+}
+
 // LoadThemeConfig loads the theming configuration
 func LoadThemeConfig() (*ThemeConfig, error) {
 	configPath, err := GetConfigPath()
@@ -368,6 +392,16 @@ func ApplyWallpaperTheme(wallpaperPath string) error {
 		return fmt.Errorf("saving theme config: %w", err)
 	}
 
+	// Update Zed editor theme
+	if err := UpdateZedTheme(colors, config.DynamicThemingEnabled); err != nil {
+		fmt.Printf("Warning: Failed to update Zed theme: %v\n", err)
+	}
+
+	// Update Hyprland window border colors
+	if err := UpdateHyprlandColors(colors, config.DynamicThemingEnabled); err != nil {
+		fmt.Printf("Warning: Failed to update Hyprland colors: %v\n", err)
+	}
+
 	// Reload waybar to pick up new colors using SIGUSR2 (reload signal)
 	if err := exec.Command("pkill", "-SIGUSR2", "waybar").Run(); err != nil {
 		// Don't fail if waybar reload fails
@@ -412,6 +446,16 @@ func ToggleDynamicTheming(enabled bool) error {
 		return fmt.Errorf("updating colors file: %w", err)
 	}
 
+	// Update Zed editor theme
+	if err := UpdateZedTheme(nil, enabled); err != nil {
+		fmt.Printf("Warning: Failed to update Zed theme: %v\n", err)
+	}
+
+	// Update Hyprland window border colors
+	if err := UpdateHyprlandColors(nil, enabled); err != nil {
+		fmt.Printf("Warning: Failed to update Hyprland colors: %v\n", err)
+	}
+
 	// Save config
 	if err := SaveThemeConfig(config); err != nil {
 		return fmt.Errorf("saving theme config: %w", err)
@@ -427,4 +471,217 @@ func IsDynamicThemingEnabled() (bool, error) {
 		return false, err
 	}
 	return config.DynamicThemingEnabled, nil
+}
+
+// ZedThemeOverrides represents Zed's experimental.theme_overrides section
+type ZedThemeOverrides struct {
+	EditorGutterBackground string                 `json:"editor.gutter.background"`
+	PanelBackground        string                 `json:"panel.background"`
+	BackgroundAppearance   string                 `json:"background.appearance"`
+	ToolbarBackground      string                 `json:"toolbar.background"`
+	EditorIndentGuide      string                 `json:"editor.indent_guide"`
+	TitleBarBackground     string                 `json:"title_bar.background"`
+	StatusBarBackground    string                 `json:"status_bar.background"`
+	Background             string                 `json:"background"`
+	EditorBackground       string                 `json:"editor.background"`
+	TerminalBackground     string                 `json:"terminal.background"`
+	Syntax                 map[string]interface{} `json:"syntax"`
+}
+
+// ZedSettings represents the structure of Zed's settings.json
+type ZedSettings struct {
+	ExperimentalThemeOverrides ZedThemeOverrides `json:"experimental.theme_overrides"`
+	// We'll preserve other settings as raw JSON
+	Other map[string]interface{} `json:"-"`
+}
+
+// LoadOriginalZedThemeOverrides loads the original theme overrides from the ArchRiot config template
+func LoadOriginalZedThemeOverrides() (*ZedThemeOverrides, error) {
+	templatePath := GetZedTemplatePath()
+
+	data, err := os.ReadFile(templatePath)
+	if err != nil {
+		return nil, fmt.Errorf("reading Zed template: %w", err)
+	}
+
+	var templateSettings map[string]interface{}
+	if err := json.Unmarshal(data, &templateSettings); err != nil {
+		return nil, fmt.Errorf("parsing Zed template: %w", err)
+	}
+
+	// Extract theme overrides from template
+	themeOverridesRaw, exists := templateSettings["experimental.theme_overrides"]
+	if !exists {
+		return nil, fmt.Errorf("no theme overrides found in template")
+	}
+
+	// Convert to JSON and back to get proper struct
+	overridesJSON, err := json.Marshal(themeOverridesRaw)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling theme overrides: %w", err)
+	}
+
+	var overrides ZedThemeOverrides
+	if err := json.Unmarshal(overridesJSON, &overrides); err != nil {
+		return nil, fmt.Errorf("unmarshaling theme overrides: %w", err)
+	}
+
+	return &overrides, nil
+}
+
+// GenerateZedThemeOverrides creates theme overrides for Zed editor
+func GenerateZedThemeOverrides(colors *MatugenColors, dynamicEnabled bool) ZedThemeOverrides {
+	if dynamicEnabled && colors != nil {
+		// Use dynamic colors from wallpaper
+		return ZedThemeOverrides{
+			EditorGutterBackground: colors.Colors.Dark.Background,
+			PanelBackground:        colors.Colors.Dark.Background,
+			BackgroundAppearance:   "opaque",
+			ToolbarBackground:      colors.Colors.Dark.Background,
+			EditorIndentGuide:      colors.Colors.Dark.SurfaceVariant,
+			TitleBarBackground:     colors.Colors.Dark.Background,
+			StatusBarBackground:    colors.Colors.Dark.Background,
+			Background:             colors.Colors.Dark.Background,
+			EditorBackground:       colors.Colors.Dark.Background,
+			TerminalBackground:     colors.Colors.Dark.Background,
+			Syntax: map[string]interface{}{
+				"comment":         map[string]string{"color": colors.Colors.Dark.OnSurface},
+				"string":          map[string]string{"color": colors.Colors.Dark.Secondary},
+				"emphasis.strong": map[string]string{"color": colors.Colors.Dark.Primary},
+				"title":           map[string]string{"color": colors.Colors.Dark.Primary},
+				"property":        map[string]string{"color": colors.Colors.Dark.Tertiary},
+				"variable":        map[string]string{"color": colors.Colors.Dark.Tertiary},
+			},
+		}
+	} else {
+		// Use original ArchRiot theme from template
+		originalOverrides, err := LoadOriginalZedThemeOverrides()
+		if err != nil {
+			// Fallback to hardcoded values if template loading fails
+			return ZedThemeOverrides{
+				EditorGutterBackground: "#000000",
+				PanelBackground:        "#000000",
+				BackgroundAppearance:   "opaque",
+				ToolbarBackground:      "#000000",
+				EditorIndentGuide:      "#000002",
+				TitleBarBackground:     "#000000",
+				StatusBarBackground:    "#000000",
+				Background:             "#000000",
+				EditorBackground:       "#000000",
+				TerminalBackground:     "#000000",
+				Syntax: map[string]interface{}{
+					"comment":         map[string]string{"color": "#4d6878"},
+					"string":          map[string]string{"color": "#9d7dd8"},
+					"emphasis.strong": map[string]string{"color": "#4a90e2"},
+					"title":           map[string]string{"color": "#7dd3fc"},
+					"property":        map[string]string{"color": "#60a5fa"},
+					"variable":        map[string]string{"color": "#60a5fa"},
+				},
+			}
+		}
+		return *originalOverrides
+	}
+}
+
+// UpdateZedTheme updates the Zed editor theme with dynamic or static colors
+func UpdateZedTheme(colors *MatugenColors, dynamicEnabled bool) error {
+	zedConfigPath, err := GetZedConfigPath()
+	if err != nil {
+		return fmt.Errorf("getting Zed config path: %w", err)
+	}
+
+	// Read existing settings
+	var existingSettings map[string]interface{}
+	if data, err := os.ReadFile(zedConfigPath); err == nil {
+		if err := json.Unmarshal(data, &existingSettings); err != nil {
+			return fmt.Errorf("parsing existing Zed settings: %w", err)
+		}
+	} else {
+		// If file doesn't exist, start with empty settings
+		existingSettings = make(map[string]interface{})
+	}
+
+	// Generate new theme overrides
+	themeOverrides := GenerateZedThemeOverrides(colors, dynamicEnabled)
+
+	// Update theme overrides in existing settings
+	existingSettings["experimental.theme_overrides"] = themeOverrides
+
+	// Ensure directory exists
+	if err := os.MkdirAll(filepath.Dir(zedConfigPath), 0755); err != nil {
+		return fmt.Errorf("creating Zed config directory: %w", err)
+	}
+
+	// Write updated settings
+	data, err := json.MarshalIndent(existingSettings, "", "    ")
+	if err != nil {
+		return fmt.Errorf("marshaling Zed settings: %w", err)
+	}
+
+	if err := os.WriteFile(zedConfigPath, data, 0644); err != nil {
+		return fmt.Errorf("writing Zed settings file: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateHyprlandColors updates Hyprland window border colors with dynamic or static colors
+func UpdateHyprlandColors(colors *MatugenColors, dynamicEnabled bool) error {
+	hyprlandConfigPath, err := GetHyprlandConfigPath()
+	if err != nil {
+		return fmt.Errorf("getting Hyprland config path: %w", err)
+	}
+
+	// Read current config
+	data, err := os.ReadFile(hyprlandConfigPath)
+	if err != nil {
+		return fmt.Errorf("reading Hyprland config: %w", err)
+	}
+
+	content := string(data)
+
+	if dynamicEnabled && colors != nil {
+		// Use dynamic colors from wallpaper
+		activeColor := colors.Colors.Dark.Primary
+		inactiveColor := colors.Colors.Dark.SurfaceVariant
+
+		// Convert hex to 6-char format and add alpha/gradient
+		activeHex := strings.TrimPrefix(activeColor, "#")
+		inactiveHex := strings.TrimPrefix(inactiveColor, "#")
+
+		activeBorder := fmt.Sprintf("rgba(%s88) 45deg", activeHex)
+		inactiveBorder := fmt.Sprintf("rgba(%s60)", inactiveHex)
+
+		// Replace border colors using line-by-line replacement
+		content = replaceHyprlandProperty(content, "col.active_border", activeBorder)
+		content = replaceHyprlandProperty(content, "col.inactive_border", inactiveBorder)
+		content = replaceHyprlandProperty(content, "col.border_active", activeBorder)
+	} else {
+		// Use static CypherRiot colors
+		content = replaceHyprlandProperty(content, "col.active_border", "rgba(89b4fa88) 45deg")
+		content = replaceHyprlandProperty(content, "col.inactive_border", "rgba(1a1a1a60)")
+		content = replaceHyprlandProperty(content, "col.border_active", "rgba(89b4fa88) 45deg")
+	}
+
+	// Write updated config
+	if err := os.WriteFile(hyprlandConfigPath, []byte(content), 0644); err != nil {
+		return fmt.Errorf("writing Hyprland config: %w", err)
+	}
+
+	return nil
+}
+
+// replaceHyprlandProperty replaces a Hyprland property value in the config
+func replaceHyprlandProperty(content, property, newValue string) string {
+	lines := strings.Split(content, "\n")
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, property+" = ") {
+			// Keep the original indentation
+			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
+			lines[i] = fmt.Sprintf("%s%s = %s", indent, property, newValue)
+			break
+		}
+	}
+	return strings.Join(lines, "\n")
 }
