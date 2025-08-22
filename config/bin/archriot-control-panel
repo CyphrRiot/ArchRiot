@@ -1756,23 +1756,35 @@ class BackgroundWidget(BaseControlWidget):
         # Scan available backgrounds
         self.scan_backgrounds()
 
-        # Current background label (add to title row)
+        # Dynamic Colors label (add to title row)
+        dynamic_label = Gtk.Label(label="Dynamic Colors")
+        dynamic_label.set_halign(Gtk.Align.END)
+        self.title_row.append(dynamic_label)
+
+        # Dynamic theming toggle (add to title row - RIGHTMOST)
+        dynamic_theming_enabled = self.get_dynamic_theming_enabled()
+        self.dynamic_toggle = Gtk.Switch()
+        self.dynamic_toggle.set_active(dynamic_theming_enabled)
+        self.dynamic_toggle.connect("notify::active", self.on_dynamic_theming_changed)
+        self.title_row.append(self.dynamic_toggle)
+
+        # Row with current wallpaper (left) and Add button (right)
+        wallpaper_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+
+        # Current background label (left-aligned)
         self.current_bg_label = Gtk.Label()
         self.current_bg_label.set_markup(f'<span size="11000" alpha="75%">Current: {self.get_current_background_name()}</span>')
-        self.current_bg_label.set_halign(Gtk.Align.END)
-        self.title_row.append(self.current_bg_label)
+        self.current_bg_label.set_halign(Gtk.Align.START)
+        self.current_bg_label.set_hexpand(True)
+        wallpaper_row.append(self.current_bg_label)
 
-        # Add custom background button (add to title row)
+        # Add custom background button (right-aligned)
         add_bg_button = Gtk.Button(label="Add My Wallpaper")
         add_bg_button.connect("clicked", self.on_add_background)
-        self.title_row.append(add_bg_button)
+        add_bg_button.set_halign(Gtk.Align.END)
+        wallpaper_row.append(add_bg_button)
 
-        # Dynamic theming toggle
-        dynamic_theming_enabled = self.get_dynamic_theming_enabled()
-        toggle_container, self.dynamic_toggle = self.create_toggle(
-            "Dynamic Theming", dynamic_theming_enabled, self.on_dynamic_theming_changed
-        )
-        self.controls_box.append(toggle_container)
+        self.controls_box.append(wallpaper_row)
 
         # Background slider (using reusable function)
         if len(self.backgrounds) > 0:

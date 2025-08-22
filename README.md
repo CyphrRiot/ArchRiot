@@ -232,7 +232,7 @@ _Keep your desktop fresh with ArchRiot's intelligent wallpaper system and automa
 
 **🌈 Dynamic Color Theming:**
 
-- **Optional intelligent theming** - Enable in Control Panel to extract colors from your wallpaper using `matugen`
+- **Optional intelligent theming** - Enable in Control Panel to extract colors from your wallpaper
 - **Real-time waybar updates** - When enabled, workspace colors, CPU indicators, and accents change instantly to match your wallpaper
 - **Toggle control** - Enable/disable dynamic theming in the Control Panel or keep classic CypherRiot colors
 - **Smart fallback** - Always reverts to beautiful CypherRiot theme when disabled
@@ -242,7 +242,7 @@ _Keep your desktop fresh with ArchRiot's intelligent wallpaper system and automa
 
 - Launch ArchRiot Control Panel for drag-and-drop wallpaper management
 - Dynamic theming toggle - Enable wallpaper-based colors or stick with CypherRiot classics
-- System wallpapers (1-20) + your custom collection (U1, U2, etc.) perfectly organized
+- System wallpapers (1-15) + your custom collection (U1, U2, etc.) perfectly organized
 - Changes apply instantly - no restarts, no waiting, just beauty
 
 **🖼️ Custom Wallpaper Power Moves:**
