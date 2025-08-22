@@ -5,6 +5,6 @@ Comment=Google Messages
 Exec=sh -c 'brave --new-window --ozone-platform=wayland --new-window --ozone-platform=wayland --app="https://messages.google.com/web/conversations"'
 Terminal=false
 Type=Application
-Icon=mail-message-new
+Icon=applications-internet
 StartupNotify=true
 Categories=Network;WebBrowser;

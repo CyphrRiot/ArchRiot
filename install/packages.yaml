@@ -133,6 +133,7 @@ desktop:
             - loupe
             - ufw
             - kooha
+            - gnome-disk-utility
         configs:
             - pattern: xdg-desktop-portal/*
         commands:

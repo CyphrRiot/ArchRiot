@@ -302,79 +302,35 @@ func performSecureBootSetup() error {
 	return nil
 }
 
-// generateSecureBootKeys creates the Secure Boot key hierarchy (PK, KEK, db)
+// generateSecureBootKeys creates the Secure Boot key hierarchy using sbctl
 func generateSecureBootKeys() error {
-	homeDir, err := os.UserHomeDir()
+	logger.Log("Info", "System", "SecureBoot", "Creating Secure Boot key hierarchy with sbctl...")
+
+	// Check if sbctl is available
+	if _, err := exec.LookPath("sbctl"); err != nil {
+		return fmt.Errorf("sbctl not found - install 'sbctl' package: %w", err)
+	}
+
+	// Use sbctl to create keys (stores in /usr/share/secureboot/keys/ by default)
+	cmd := exec.Command("sbctl", "create-keys")
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("getting home directory: %w", err)
+		return fmt.Errorf("sbctl create-keys failed: %w - output: %s", err, string(output))
 	}
 
-	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
-	if err := os.MkdirAll(keyDir, 0700); err != nil {
-		return fmt.Errorf("creating key directory: %w", err)
-	}
-
-	logger.Log("Info", "System", "SecureBoot", "Creating Secure Boot key hierarchy...")
-
-	// Generate Platform Key (PK)
-	if err := generateKey(keyDir, "PK", "ArchRiot Platform Key"); err != nil {
-		return fmt.Errorf("generating PK: %w", err)
-	}
-
-	// Generate Key Exchange Key (KEK)
-	if err := generateKey(keyDir, "KEK", "ArchRiot Key Exchange Key"); err != nil {
-		return fmt.Errorf("generating KEK: %w", err)
-	}
-
-	// Generate Database Key (db)
-	if err := generateKey(keyDir, "db", "ArchRiot Database Key"); err != nil {
-		return fmt.Errorf("generating db: %w", err)
-	}
-
-	logger.Log("Success", "System", "SecureBoot", "Secure Boot key hierarchy created")
+	logger.Log("Success", "System", "SecureBoot", "Secure Boot key hierarchy created with sbctl")
+	logger.Log("Info", "System", "SecureBoot", string(output))
 	return nil
 }
 
-// generateKey creates a single key pair for Secure Boot
-func generateKey(keyDir, keyName, description string) error {
-	keyPath := filepath.Join(keyDir, keyName+".key")
-	certPath := filepath.Join(keyDir, keyName+".crt")
-
-	// Generate private key
-	cmd := exec.Command("openssl", "req", "-new", "-x509", "-newkey", "rsa:2048",
-		"-subj", fmt.Sprintf("/CN=%s/", description),
-		"-keyout", keyPath, "-out", certPath,
-		"-days", "3650", "-nodes", "-sha256")
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("generating %s key: %w", keyName, err)
-	}
-
-	// Set secure permissions
-	os.Chmod(keyPath, 0600)
-	os.Chmod(certPath, 0644)
-
-	logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("Generated %s key pair", keyName))
-	return nil
-}
-
-// signBootComponents signs the bootloader and kernel with Secure Boot keys
+// signBootComponents signs the bootloader and kernel using sbctl
 func signBootComponents() error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("getting home directory: %w", err)
+	logger.Log("Info", "System", "SecureBoot", "Signing boot components with sbctl...")
+
+	// Check if sbctl is available
+	if _, err := exec.LookPath("sbctl"); err != nil {
+		return fmt.Errorf("sbctl not found - install 'sbctl' package: %w", err)
 	}
-
-	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
-	dbKey := filepath.Join(keyDir, "db.key")
-	dbCert := filepath.Join(keyDir, "db.crt")
-
-	// Check if keys exist
-	if _, err := os.Stat(dbKey); err != nil {
-		return fmt.Errorf("db key not found: %w", err)
-	}
-
-	logger.Log("Info", "System", "SecureBoot", "Signing boot components...")
 
 	// Sign systemd-boot bootloader
 	bootloaderPaths := []string{
@@ -384,7 +340,7 @@ func signBootComponents() error {
 
 	for _, bootloaderPath := range bootloaderPaths {
 		if _, err := os.Stat(bootloaderPath); err == nil {
-			if err := signFile(bootloaderPath, dbKey, dbCert); err != nil {
+			if err := signFileWithSbctl(bootloaderPath); err != nil {
 				logger.Log("Warning", "System", "SecureBoot", fmt.Sprintf("Failed to sign %s: %v", bootloaderPath, err))
 			} else {
 				logger.Log("Success", "System", "SecureBoot", fmt.Sprintf("Signed bootloader: %s", bootloaderPath))
@@ -395,7 +351,7 @@ func signBootComponents() error {
 	// Sign kernel
 	kernelPath := "/boot/vmlinuz-linux"
 	if _, err := os.Stat(kernelPath); err == nil {
-		if err := signFile(kernelPath, dbKey, dbCert); err != nil {
+		if err := signFileWithSbctl(kernelPath); err != nil {
 			logger.Log("Warning", "System", "SecureBoot", fmt.Sprintf("Failed to sign kernel: %v", err))
 		} else {
 			logger.Log("Success", "System", "SecureBoot", "Signed kernel")
@@ -406,42 +362,30 @@ func signBootComponents() error {
 	return nil
 }
 
-// signFile signs a single file with Secure Boot keys
-func signFile(filePath, keyPath, certPath string) error {
-	// Create backup
-	backupPath := filePath + ".unsigned"
-	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		if err := exec.Command("cp", filePath, backupPath).Run(); err != nil {
-			return fmt.Errorf("creating backup: %w", err)
-		}
+// signFileWithSbctl signs a single file using sbctl
+func signFileWithSbctl(filePath string) error {
+	// Use sbctl sign with save option to add to database for auto-signing
+	cmd := exec.Command("sbctl", "sign", "-s", filePath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("sbctl sign failed for %s: %w - output: %s", filePath, err, string(output))
 	}
 
-	// Sign the file
-	cmd := exec.Command("sbsign", "--key", keyPath, "--cert", certPath, "--output", filePath, filePath)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("signing %s: %w", filePath, err)
-	}
-
+	logger.Log("Info", "System", "SecureBoot", fmt.Sprintf("sbctl output: %s", string(output)))
 	return nil
 }
 
-// setupPackmanHooks creates pacman hooks for automatic kernel signing
+// setupPackmanHooks creates pacman hooks for automatic kernel signing using sbctl
 func setupPackmanHooks() error {
 	hookDir := "/etc/pacman.d/hooks"
 	if err := os.MkdirAll(hookDir, 0755); err != nil {
 		return fmt.Errorf("creating hooks directory: %w", err)
 	}
 
-	hookPath := filepath.Join(hookDir, "99-secureboot-sign.hook")
+	hookPath := filepath.Join(hookDir, "99-secureboot.hook")
 
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("getting home directory: %w", err)
-	}
-
-	keyDir := filepath.Join(homeDir, ".config", "archriot", "secureboot", "keys")
-
-	hookContent := fmt.Sprintf(`[Trigger]
+	// Comprehensive hook for all components that need signing
+	hookContent := `[Trigger]
 Operation = Install
 Operation = Upgrade
 Type = Package
@@ -449,19 +393,21 @@ Target = linux
 Target = linux-lts
 Target = linux-zen
 Target = linux-hardened
+Target = systemd
+Target = plymouth
+Target = mkinitcpio
 
 [Action]
-Description = Signing kernel for Secure Boot
+Description = Signing kernel, initramfs and boot loader for Secure Boot
 When = PostTransaction
-Exec = /usr/bin/sbsign --key %s/db.key --cert %s/db.crt --output /boot/vmlinuz-linux /boot/vmlinuz-linux
-Depends = sbsigntools
-`, keyDir, keyDir)
+Exec = /usr/bin/sbctl sign-all
+`
 
 	if err := os.WriteFile(hookPath, []byte(hookContent), 0644); err != nil {
 		return fmt.Errorf("writing pacman hook: %w", err)
 	}
 
-	logger.Log("Success", "System", "SecureBoot", "Pacman hooks configured for automatic signing")
+	logger.Log("Success", "System", "SecureBoot", "Pacman hooks configured for automatic signing with sbctl")
 	return nil
 }
 

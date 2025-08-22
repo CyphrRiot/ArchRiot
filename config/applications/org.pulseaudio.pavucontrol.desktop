@@ -3,7 +3,7 @@ Version=1.0
 Name=Volume Control
 Comment=Adjust the volume level
 Exec=env GTK_THEME=Adwaita-dark pavucontrol
-Icon=audio-volume-high
+Icon=multimedia-volume-control
 StartupNotify=true
 Type=Application
 Categories=AudioVideo;Audio;Mixer;GTK;Settings;X-XFCE-SettingsDialog;X-XFCE-HardwareSettings;

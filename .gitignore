@@ -33,6 +33,9 @@ __pycache__/
 # Log files
 *.log
 
+# docs
+docs/
+
 # Personal customizations
 personal/
 local/
