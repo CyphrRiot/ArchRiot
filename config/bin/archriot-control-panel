@@ -1767,6 +1767,13 @@ class BackgroundWidget(BaseControlWidget):
         add_bg_button.connect("clicked", self.on_add_background)
         self.title_row.append(add_bg_button)
 
+        # Dynamic theming toggle
+        dynamic_theming_enabled = self.get_dynamic_theming_enabled()
+        toggle_container, self.dynamic_toggle = self.create_toggle(
+            "Dynamic Theming", dynamic_theming_enabled, self.on_dynamic_theming_changed
+        )
+        self.controls_box.append(toggle_container)
+
         # Background slider (using reusable function)
         if len(self.backgrounds) > 0:
             # Create marks with visual distinction for user backgrounds
@@ -1979,6 +1986,21 @@ class BackgroundWidget(BaseControlWidget):
             except:
                 pass
 
+            # Update theme colors if dynamic theming is enabled
+            archriot_bin = os.path.expanduser("~/.local/share/archriot/install/archriot")
+            if os.path.isfile(archriot_bin):
+                try:
+                    print(f"DEBUG: Calling theming system with path: {new_bg}")
+                    result = subprocess.run([archriot_bin, '--apply-wallpaper-theme', new_bg],
+                                 check=False, capture_output=True, text=True)
+                    print(f"DEBUG: Theming command result: {result.returncode}")
+                    if result.stdout:
+                        print(f"DEBUG: stdout: {result.stdout}")
+                    if result.stderr:
+                        print(f"DEBUG: stderr: {result.stderr}")
+                except Exception as e:
+                    print(f"DEBUG: Exception calling theming system: {e}")
+
             # Update UI
             self.current_bg_label.set_markup(f'<span size="11000" alpha="75%">Current: {os.path.basename(new_bg)}</span>')
 
@@ -2006,8 +2028,8 @@ class BackgroundWidget(BaseControlWidget):
 
         preferences = {
             "current_background": current_bg,
-            "user_backgrounds": sorted(user_backgrounds),
-            "last_system_count": len([bg for bg in self.backgrounds if 'riot_' in os.path.basename(bg)])
+            "user_backgrounds": user_backgrounds,
+            "dynamic_theming": bool(getattr(self, 'dynamic_theming_enabled', False))
         }
 
         try:
@@ -2024,6 +2046,46 @@ class BackgroundWidget(BaseControlWidget):
         """Apply any pending changes"""
         # Background changes are applied immediately
         pass
+
+    def get_dynamic_theming_enabled(self):
+        """Get the current dynamic theming setting"""
+        import json
+        import os
+
+        prefs_file = os.path.expanduser("~/.config/archriot/background-prefs.json")
+        if os.path.exists(prefs_file):
+            try:
+                with open(prefs_file, 'r') as f:
+                    prefs = json.load(f)
+                    return prefs.get("dynamic_theming", False)
+            except:
+                pass
+        return False
+
+    def on_dynamic_theming_changed(self, switch, state):
+        """Handle dynamic theming toggle change"""
+        import subprocess
+        import os
+
+        self.dynamic_theming_enabled = state
+
+        # Call ArchRiot binary to toggle dynamic theming
+        archriot_bin = os.path.expanduser("~/.local/share/archriot/install/archriot")
+        if os.path.isfile(archriot_bin):
+            try:
+                subprocess.run([archriot_bin, '--toggle-dynamic-theming', str(state).lower()],
+                             check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+                # Apply current wallpaper to trigger color update (static or dynamic)
+                if self.backgrounds and 0 <= self.current_index < len(self.backgrounds):
+                    current_bg = self.backgrounds[self.current_index]
+                    subprocess.run([archriot_bin, '--apply-wallpaper-theme', current_bg],
+                                 check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except:
+                pass
+
+        # Save preferences
+        self.save_background_preferences()
 
 class SecurityWidget(BaseControlWidget):
     """Security control widget"""

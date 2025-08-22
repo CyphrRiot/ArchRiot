@@ -6,236 +6,100 @@ This document tracks outstanding development tasks for the ArchRiot installer an
 
 ## 🚧 OUTSTANDING TASKS
 
-### TASK 1: Matugen Dynamic Color Theming Integration (TOP PRIORITY)
+### TASK 1: Matugen Dynamic Color Theming Integration - IN PROGRESS
 
-### Problem Analysis
+### Current Status: PARTIAL IMPLEMENTATION
 
-The current ArchRiot theming system has limitations that reduce user customization and visual coherence:
+**✅ COMPLETED:**
 
-1. **Static color scheme** - Fixed CypherRiot colors regardless of wallpaper
-2. **Hardcoded theme values** - Colors defined statically across multiple files (Go TUI, GTK, Waybar, Hyprland)
-3. **Disconnected wallpaper system** - Wallpaper changes don't influence overall system aesthetics
-4. **Limited personalization** - Users cannot have themes that match their chosen wallpapers
-5. **Manual theme maintenance** - Any color changes require editing multiple configuration files
+- Central color system using waybar's `@define-color` syntax
+- Waybar CSS integration with colors.css import working
+- Go theming package with matugen integration
+- CLI commands: `--apply-wallpaper-theme` and `--toggle-dynamic-theming`
+- Control panel toggle for dynamic theming
+- Wallpaper change hooks in swaybg-next and control panel
+- Package dependency: matugen added to packages.yaml
 
-### Root Cause
+**❌ REMAINING WORK:**
 
-Current implementation uses hardcoded CypherRiot color values throughout the system without any dynamic color extraction or template-based theming approach.
+- Go theming system needs to generate waybar `@define-color` syntax (not CSS variables)
+- Hyprland config integration (string replacement approach)
+- GTK theme integration
+- Testing and validation of complete end-to-end flow
 
-### Implementation Strategy
+### Critical Lessons Learned
 
-Integrate `matugen` (Material Design 3 color extraction tool) to create **optional** dynamic themes based on wallpaper colors. The system defaults to the carefully crafted CypherRiot theme with riot_01.jpg wallpaper, with dynamic theming available as an opt-in toggle in the archriot-control-panel.
+**WAYBAR CSS SYNTAX:**
 
-## PHASE 1: Color Analysis and Template System
+- Waybar does NOT support CSS variables (`:root { --var: value }`)
+- Waybar uses `@define-color colorname #value;` syntax only
+- Import works with local files: `@import url("colors.css");`
+- References use `@colorname` syntax (not `var(--colorname)`)
 
-### Objective
+**IMPLEMENTATION APPROACH:**
 
-Analyze current color usage and create template system for dynamic theming
+- Colors.css lives in waybar directory, gets installed with waybar configs
+- No separate config copying needed - waybar/\* pattern handles it
+- Go theming system writes to `~/.config/waybar/colors.css`
+- Must generate `@define-color` format, not CSS variables
 
-### Implementation
+## Next Implementation Steps
 
-- **Audit color usage**: Catalog all hardcoded colors across system components
-- **Create color templates**: Convert static configs to templated versions for:
-    - Hyprland configuration (`hyprland.conf`)
-    - Waybar styling (`style.css`)
-    - GTK 3/4 themes (`gtk.css`)
-    - Terminal colors (Ghostty, Fish shell)
-    - Python control panel colors
-- **Design color mapping**: Map matugen's Material Design 3 palette to ArchRiot component needs
-- **Template engine**: Implement templating system (likely using Go `text/template` or simple string replacement)
+### IMMEDIATE PRIORITY: Fix Go Theming System
 
-### Testing Requirements
+**Problem:** Current Go code generates CSS variables, but waybar requires `@define-color` syntax.
 
-1. **Color Audit Test**: Verify all hardcoded colors are identified and cataloged
-2. **Template Generation Test**: Ensure templates generate valid configuration files
-3. **Fallback Test**: Verify CypherRiot colors work when matugen unavailable
-4. **Syntax Test**: Validate all templated configs have correct syntax
+**Solution:** Update `GenerateColorsCSS()` function in `source/theming/theming.go` to output:
 
-## PHASE 2: Matugen Integration
+```
+@define-color primary_color #7aa2f7;
+@define-color accent_color #bb9af7;
+```
 
-### Objective
+Instead of:
 
-Integrate matugen binary and color extraction workflow
+```
+:root {
+  --primary-color: #7aa2f7;
+  --accent-color: #bb9af7;
+}
+```
 
-### Implementation
+### REMAINING COMPONENTS TO INTEGRATE
 
-- **Package installation**: Add `matugen` to ArchRiot package dependencies
-- **Color extraction function**: Create Go function to run matugen on wallpaper files
-- **JSON processing**: Parse matugen's JSON output for color values
-- **Default behavior**: System starts with CypherRiot theme + riot_01.jpg wallpaper (dynamic theming disabled)
-- **Error handling**: Graceful fallback to CypherRiot theme if extraction fails
-- **Color validation**: Ensure extracted colors meet accessibility/contrast requirements
+1. **Hyprland Configuration** - String replacement approach for:
+    - `col.active_border = rgba(89b4fa88)` → extracted primary color
+    - `col.inactive_border`, shadow colors, group colors
 
-### Testing Requirements
+2. **GTK Theme Integration** - Apply colors to:
+    - `config/gtk-3.0/gtk.css` background/text colors
+    - Selection and interactive element colors
 
-1. **Package Test**: Verify matugen installs correctly on target systems
-2. **Extraction Test**: Test color extraction on various image formats (jpg, png, webp)
-3. **JSON Parse Test**: Validate parsing of matugen output across different images
-4. **Fallback Test**: Ensure system works when matugen binary missing or fails
-5. **Edge Case Test**: Test with problematic images (very dark, very bright, monochrome)
+3. **End-to-End Testing** - Verify complete workflow:
+    - Toggle dynamic theming ON/OFF via control panel
+    - Change wallpaper → colors update automatically
+    - Fallback to CypherRiot when disabled
 
-## PHASE 3: Template Application System
+### TECHNICAL IMPLEMENTATION NOTES
 
-### Objective
+**File Structure:**
 
-Implement system to apply extracted colors to configuration templates
+- `colors.css` lives in waybar directory (`~/.config/waybar/colors.css`)
+- Go theming system writes to waybar location
+- Waybar imports with `@import url("colors.css");`
 
-### Implementation
+**Color Format Conversion:**
 
-- **Template processor**: Function to replace template variables with extracted colors
-- **File generation**: Write templated configs to appropriate locations
-- **Backup system**: Preserve original configs before applying dynamic themes
-- **Live reload integration**: Trigger config reloads for affected applications
-- **Color scheme caching**: Cache generated themes to avoid regeneration on startup
-- **Settings preservation**: Save dynamic theming toggle state to existing `background-prefs.json` for upgrade preservation
+- Matugen outputs: `"primary": "#7aa2f7"`
+- Must generate: `@define-color primary_color #7aa2f7;`
+- Waybar references: `color: @primary_color;`
 
-### Testing Requirements
+**Integration Points Working:**
 
-1. **Template Processing Test**: Verify color substitution works correctly
-2. **File Generation Test**: Confirm configs written to correct locations with proper permissions
-3. **Backup Test**: Verify original configs are preserved and restorable
-4. **Live Reload Test**: Test that applications pick up new colors without restart
-5. **Cache Test**: Validate color scheme caching and invalidation logic
-6. **Upgrade Preservation Test**: Verify dynamic theming setting survives ArchRiot upgrades
-
-## PHASE 4: Wallpaper System Integration
-
-### Objective
-
-Integrate dynamic theming with existing wallpaper management system
-
-### Implementation
-
-- **Hook integration**: Modify wallpaper change system to trigger theme generation
-- **Control panel integration**: Add "Dynamic Theming" toggle (YES/NO) to `archriot-control-panel`
-- **CLI integration**: Add theme commands to main ArchRiot binary
-- **Background scanning**: Extend background scanner to cache color palettes
-- **Theme preview**: Allow users to preview themes before applying
-
-### Testing Requirements
-
-1. **Hook Test**: Verify theme regeneration on wallpaper changes
-2. **Control Panel Test**: Test new theming controls in GUI
-3. **CLI Test**: Validate command-line theme management
-4. **Preview Test**: Ensure theme preview functionality works correctly
-5. **Performance Test**: Measure impact on wallpaper switching speed
-
-## PHASE 5: Advanced Features and Polish
-
-### Objective
-
-Implement advanced theming features and user experience improvements
-
-### Implementation
-
-- **Theme variants**: Support light/dark mode variants from same wallpaper
-- **Color adjustment**: Allow user fine-tuning of extracted colors (saturation, brightness)
-- **Theme persistence**: Save and restore user-customized themes
-- **Upgrade integration**: Add dynamic theming toggle to existing `background-prefs.json` preservation system
-- **Automatic scheduling**: Support time-based theme/wallpaper combinations
-- **Theme sharing**: Export/import theme configurations
-
-### Testing Requirements
-
-1. **Variant Test**: Verify light/dark theme generation works correctly
-2. **Adjustment Test**: Test color modification controls and real-time preview
-3. **Persistence Test**: Verify themes survive system restarts and updates
-4. **Upgrade Integration Test**: Verify dynamic theming setting preserved across ArchRiot upgrades
-5. **Scheduling Test**: Test automatic theme changes based on time/conditions
-6. **Import/Export Test**: Validate theme sharing functionality
-
-## COMPREHENSIVE TESTING STRATEGY
-
-### Pre-Implementation Testing
-
-- [ ] Research matugen capabilities and limitations
-- [ ] Test matugen manually on various wallpaper types
-- [ ] Verify Material Design 3 color mapping appropriateness
-
-### Per-Phase Testing
-
-- [ ] Unit tests for each color extraction and template function
-- [ ] Integration tests for wallpaper-to-theme pipeline
-- [ ] Visual regression tests for theme consistency
-- [ ] Performance tests for theme generation speed
-
-### Final Integration Testing
-
-- [ ] End-to-end testing: wallpaper change to full system theme update
-- [ ] Multiple wallpaper testing: various image types, colors, compositions
-- [ ] Accessibility testing: ensure contrast ratios meet WCAG guidelines
-- [ ] Upgrade testing: verify themes persist across ArchRiot updates
-
-### Success Criteria
-
-- [ ] System theme automatically adapts to wallpaper changes within 2 seconds
-- [ ] Generated themes maintain visual coherence across all applications
-- [ ] Fallback to CypherRiot theme works seamlessly when needed
-- [ ] User can fine-tune extracted colors through control panel
-- [ ] Theme generation doesn't negatively impact system performance
-- [ ] All existing ArchRiot functionality remains unchanged
-
-## FUNCTIONAL SPECIFICATIONS
-
-### Core Requirements
-
-**FR1: Dynamic Color Extraction**
-
-- System MUST extract color palette from current wallpaper using matugen
-- System MUST generate Material Design 3 compliant color scheme
-- System MUST complete color extraction within 5 seconds for typical wallpapers
-
-**FR2: System-Wide Theme Application**
-
-- System MUST apply extracted colors to all major components:
-    - Hyprland window manager (borders, decorations)
-    - Waybar status bar (background, text, modules)
-    - GTK applications (buttons, headers, selections)
-    - Terminal applications (background, foreground, ANSI colors)
-    - Control panel interface
-- System MUST maintain visual consistency across all components
-
-**FR3: Automatic Theme Updates**
-
-- System MUST automatically regenerate theme when wallpaper changes
-- System MUST reload affected applications without requiring logout/restart
-- System MUST preserve user workflow during theme transitions
-
-**FR4: Fallback and Recovery**
-
-- System MUST fall back to CypherRiot theme if matugen fails, unavailable, or dynamic theming disabled
-- System MUST preserve original configurations for recovery
-- System MUST handle corrupted or invalid wallpaper files gracefully
-
-**FR5: User Control**
-
-- System MUST provide "Dynamic Theming" toggle (YES/NO) in archriot-control-panel
-- System MUST default to CypherRiot theme with riot_01.jpg wallpaper (dynamic theming OFF)
-- System MUST preserve dynamic theming toggle state across ArchRiot upgrades
-- System SHOULD allow manual theme regeneration when dynamic theming enabled
-- System SHOULD support theme preview before application
-- System MAY support user adjustment of extracted colors
-
-### Non-Functional Requirements
-
-**NFR1: Performance**
-
-- Theme generation MUST complete within 5 seconds
-- System MUST NOT block wallpaper changes during theme processing
-- Memory usage SHOULD NOT increase by more than 50MB during theme generation
-
-**NFR2: Reliability**
-
-- System MUST work with all supported image formats (jpg, png, webp)
-- System MUST handle edge cases (monochrome, very dark/bright images)
-- Fallback mechanism MUST activate within 2 seconds of matugen failure
-
-**NFR3: Compatibility**
-
-- System MUST maintain backward compatibility with existing ArchRiot installations
-- System MUST preserve user customizations not related to colors
-- System MUST integrate with ArchRiot's existing upgrade preservation system
-- System MUST work across all supported hardware configurations
+- ✅ swaybg-next calls `--apply-wallpaper-theme`
+- ✅ Control panel calls theming system
+- ✅ CLI commands implemented
+- ✅ Dynamic theming toggle saves to `background-prefs.json`
 
 ### TASK 2: Secure Boot Implementation Overhaul
 

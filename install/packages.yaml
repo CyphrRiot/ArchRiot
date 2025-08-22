@@ -86,6 +86,7 @@ desktop:
             - hypridle
             - swaybg
             - hyprshot
+            - matugen
         configs:
             - pattern: hypr/*
               preserve_if_exists: [monitors.conf]

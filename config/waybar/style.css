@@ -1,31 +1,10 @@
 /* ArchRiot Waybar Styling */
 /* Core waybar CSS for ArchRiot desktop environment */
 
-@define-color critical #ff0000; /* critical color */
-@define-color warning #f3f809; /* warning color */
-@define-color fgcolor #ffffff; /* foreground color */
-@define-color bgcolor #303030; /* background color */
-@define-color bgcolor #222436; /* background color */
-@define-color alert   #df3320;
+/* Import central color definitions */
+@import url("colors.css");
 
-@define-color accent1 #ff7a93;
-@define-color accent2 #0db9d7;
-@define-color accent3 #ff9e64;
-@define-color accent4 #bb9af7;
-@define-color accent5 #7da6ff;
-@define-color accent6 #0db9d7;
-
-/* New blue colors for workspaces */
-@define-color workspace_active #9d7bd8; /* Slightly darker purple */
-@define-color workspace_hover #b8a2e6; /* Lighter purple for hover */
-
-/* New colors for CPU, Memory, and Window title */
-@define-color cpu_color #6a7de8; /* Blueish-purple */
-@define-color memory_color #8a95e8; /* Lighter blueish-purple */
-@define-color temp_color #547ae0; /* Blue with a hint of purple for temperature */
-@define-color power_color #a45ad0; /* More reddish purple for power icon */
-@define-color lock_color #9c7ce8; /* Light purple for lock icon */
-@define-color window_color #4a2b7a; /* 35% darker purple for window title */
+/* Using CSS variables directly - no @define-color needed */
 
 * {
     font-family: "Hack Nerd Font";
@@ -37,8 +16,8 @@
 }
 
 window#waybar {
-    background-color: rgba(0, 0, 0, 0.3);
-    color: #ffffff;
+    background-color: @waybar_bg_alpha;
+    color: @foreground_primary;
     transition-property: background-color;
     transition-duration: 0.5s;
     border-radius: 10px;
@@ -49,18 +28,18 @@ window#waybar.hidden {
 }
 
 tooltip {
-    background: #1e1e2e;
+    background: @waybar_tooltip_bg;
     opacity: 0.6;
     border-radius: 10px;
     border-width: 2px;
     border-style: solid;
-    border-color: #11111b;
+    border-color: @border_inactive;
 }
 
 #taskbar button,
 #workspaces button {
     background-color: transparent;
-    color: #3a3a4a; /* Barely brighter than before for inactive workspace circles */
+    color: @workspace_inactive;
     box-shadow: none;
     text-shadow: none;
     border: none;
@@ -76,7 +55,7 @@ tooltip {
 #taskbar button.active,
 #workspaces button.active {
     background-color: transparent;
-    color: #3584e8; /* Active workspace now uses the old inactive color (bright blue) */
+    color: @workspace_active;
     border: none;
     outline: none;
     box-shadow: none;
@@ -91,7 +70,7 @@ tooltip {
 #taskbar button:hover,
 #workspaces button:hover {
     background: rgba(0, 0, 0, 0.2);
-    color: #6b8ba6; /* Lighter than inactive, darker than active for hover */
+    color: @workspace_hover;
     border: none;
     outline: none;
     box-shadow: none;
@@ -105,7 +84,7 @@ tooltip {
 
 #workspaces button.focused {
     background-color: transparent;
-    color: #3584e8; /* Use new active color for focused state too */
+    color: @workspace_active;
     border: none;
     outline: none;
     box-shadow: none;
@@ -252,7 +231,7 @@ tooltip {
 }
 
 #battery.critical:not(.charging) {
-    color: @critical;
+    color: @error_color;
     animation-name: blink;
     animation-duration: 3s;
     animation-timing-function: steps(12);
@@ -292,8 +271,8 @@ label:focus {
 
 @keyframes blink {
     to {
-        background-color: @critical;
-        color: @bgcolor;
+        background-color: @error_color;
+        color: @background_tertiary;
     }
 }
 
@@ -315,7 +294,7 @@ label:focus {
 }
 
 #custom-tomato-timer.finished {
-    color: @critical;
+    color: @error_color;
     animation: blink 1s linear infinite alternate;
 }
 
@@ -377,14 +356,14 @@ label:focus {
 }
 
 #network {
-    color: @accent5; /* Changed from @accent3 (orange) to @accent5 (blue) */
+    color: @accent5; /* Changed from accent3 (orange) to accent5 (blue) */
     padding-left: 3px; /* Reduced padding */
     padding-right: 2px; /* Reduced padding on right side */
     min-width: 20px; /* Ensure minimum width */
 }
 
 #network.disconnected {
-    color: @alert;
+    color: @error_color;
 }
 
 #pulseaudio {
@@ -571,7 +550,7 @@ label:focus {
 
 /* Window title styling */
 #window {
-    color: @workspace_active; /* Use the same purple as active workspace */
+    color: @secondary_color; /* Use the same purple as active workspace */
     font-size: 95%; /* Slightly smaller font for window titles */
 }
 

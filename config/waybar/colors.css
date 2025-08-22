@@ -1,0 +1,65 @@
+/* ArchRiot Central Color Definitions */
+/* Waybar @define-color syntax for Dynamic Theming System */
+/* This file is the single source of truth for all ArchRiot colors */
+
+/* Primary CypherRiot Colors */
+@define-color primary_color #7aa2f7;
+@define-color accent_color #bb9af7;
+@define-color secondary_color #9d7bd8;
+
+/* Background Colors */
+@define-color background_primary #0a0b10;
+@define-color background_secondary #0f1016;
+@define-color background_tertiary #1a1b26;
+@define-color background_sidebar #16161e;
+@define-color background_surface #292e42;
+
+/* Foreground/Text Colors */
+@define-color foreground_primary #c0caf5;
+@define-color foreground_secondary #a9b1d6;
+@define-color foreground_dim #565f89;
+
+/* Interactive Elements */
+@define-color border_active #89b4fa;
+@define-color border_inactive #414868;
+
+/* Semantic Colors (Keep Static) */
+@define-color success_color #9ece6a;
+@define-color warning_color #e0af68;
+@define-color error_color #f7768e;
+@define-color info_color #0db9d7;
+
+/* Waybar Specific Colors */
+@define-color waybar_bg_alpha rgba(0, 0, 0, 0.3);
+@define-color waybar_tooltip_bg #1e1e2e;
+@define-color workspace_active #3584e8;
+@define-color workspace_inactive #3a3a4a;
+@define-color workspace_hover #6b8ba6;
+
+/* Component Specific Colors */
+@define-color cpu_color #6a7de8;
+@define-color memory_color #8a95e8;
+@define-color temp_color #547ae0;
+@define-color power_color #a45ad0;
+@define-color lock_color #9c7ce8;
+@define-color window_color #4a2b7a;
+
+/* Accent Palette */
+@define-color accent1 #ff7a93;
+@define-color accent2 #0db9d7;
+@define-color accent3 #ff9e64;
+@define-color accent4 #bb9af7;
+@define-color accent5 #7da6ff;
+@define-color accent6 #0db9d7;
+
+/* Selection/Highlight Colors */
+@define-color selection_bg rgba(122, 162, 247, 0.2);
+@define-color hover_bg rgba(122, 162, 247, 0.1);
+
+/* Shadow Colors */
+@define-color shadow_color rgba(26, 27, 38, 0.8);
+@define-color shadow_inactive rgba(26, 27, 38, 0.67);
+
+/* Dynamic Theming Flag */
+/* This will be modified by the theming system */
+/* dynamic_theming_enabled: false */

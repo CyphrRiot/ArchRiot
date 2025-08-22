@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.17-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-2.18-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -222,17 +222,26 @@ _Capture your ArchRiot greatness and share it with the world_
 | `SUPER + SHIFT + F` | Full screen - Show off your entire desktop              |
 | `Kooha`             | Screen recorder - Make tutorials (launch via `SUPER+D`) |
 
-### 🎨 Wallpaper Management
+### 🎨 Wallpaper Management & Dynamic Theming
 
-_Keep your desktop fresh with ArchRiot's intelligent wallpaper system_
+_Keep your desktop fresh with ArchRiot's intelligent wallpaper system and automatic color theming_
 
 | Keybinding             | Action                                    |
 | ---------------------- | ----------------------------------------- |
 | `SUPER + CTRL + SPACE` | Cycle backgrounds - Fresh vibes on demand |
 
+**🌈 Dynamic Color Theming:**
+
+- **Optional intelligent theming** - Enable in Control Panel to extract colors from your wallpaper using `matugen`
+- **Real-time waybar updates** - When enabled, workspace colors, CPU indicators, and accents change instantly to match your wallpaper
+- **Toggle control** - Enable/disable dynamic theming in the Control Panel or keep classic CypherRiot colors
+- **Smart fallback** - Always reverts to beautiful CypherRiot theme when disabled
+- **⚠️ Upgrade note** - System upgrades will reset dynamic theming to CypherRiot defaults (simply re-enable in Control Panel)
+
 **🎛️ Control Panel Magic:**
 
 - Launch ArchRiot Control Panel for drag-and-drop wallpaper management
+- Dynamic theming toggle - Enable wallpaper-based colors or stick with CypherRiot classics
 - System wallpapers (1-20) + your custom collection (U1, U2, etc.) perfectly organized
 - Changes apply instantly - no restarts, no waiting, just beauty
 

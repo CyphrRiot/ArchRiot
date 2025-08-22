@@ -16,6 +16,7 @@ import (
 	"archriot-installer/installer"
 	"archriot-installer/logger"
 	"archriot-installer/orchestrator"
+	"archriot-installer/theming"
 	"archriot-installer/tools"
 	"archriot-installer/tui"
 	"archriot-installer/version"
@@ -277,6 +278,28 @@ func main() {
 			// Run Secure Boot continuation after reboot
 			if err := runSecureBootContinuation(); err != nil {
 				log.Fatalf("❌ Secure Boot continuation failed: %v", err)
+			}
+			return
+
+		case "--apply-wallpaper-theme":
+			// Apply wallpaper-based theming
+			if len(os.Args) < 3 {
+				log.Fatalf("❌ --apply-wallpaper-theme requires wallpaper path argument")
+			}
+			wallpaperPath := os.Args[2]
+			if err := theming.ApplyWallpaperTheme(wallpaperPath); err != nil {
+				log.Fatalf("❌ Failed to apply wallpaper theme: %v", err)
+			}
+			return
+
+		case "--toggle-dynamic-theming":
+			// Toggle dynamic theming on/off
+			if len(os.Args) < 3 {
+				log.Fatalf("❌ --toggle-dynamic-theming requires true/false argument")
+			}
+			enabled := os.Args[2] == "true"
+			if err := theming.ToggleDynamicTheming(enabled); err != nil {
+				log.Fatalf("❌ Failed to toggle dynamic theming: %v", err)
 			}
 			return
 
@@ -685,7 +708,9 @@ Usage:
   archriot --help       Show this help message
 
 Options:
-  -t, --tools          Access optional advanced tools (Secure Boot, etc.)
+  -t, --tools                    Access optional advanced tools (Secure Boot, etc.)
+  --apply-wallpaper-theme PATH   Apply dynamic theming based on wallpaper
+  --toggle-dynamic-theming BOOL  Enable/disable dynamic theming (true/false)
       --validate       Validate configuration without installing
   -v, --version        Display version information
   -h, --help           Display this help message

@@ -58,6 +58,12 @@ pkill -x swaybg 2>/dev/null
 sleep 0.5
 nohup setsid swaybg -i "$NEW_BACKGROUND" -m fill >/dev/null 2>&1 & disown
 
+# Update theme colors if dynamic theming is enabled
+ARCHRIOT_BIN="$HOME/.local/share/archriot/install/archriot"
+if [[ -f "$ARCHRIOT_BIN" ]]; then
+    "$ARCHRIOT_BIN" --apply-wallpaper-theme "$NEW_BACKGROUND" 2>/dev/null || echo "⚠ Theme update may have failed"
+fi
+
 # Verify swaybg started
 sleep 1
 if pgrep -x swaybg >/dev/null; then
