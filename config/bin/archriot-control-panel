@@ -2040,9 +2040,21 @@ class BackgroundWidget(BaseControlWidget):
 
         preferences = {
             "current_background": current_bg,
-            "user_backgrounds": user_backgrounds,
-            "dynamic_theming": bool(getattr(self, 'dynamic_theming_enabled', False))
+            "user_backgrounds": user_backgrounds
         }
+
+        # Don't overwrite dynamic_theming setting - let ArchRiot binary manage it
+        # Read existing config to preserve dynamic_theming setting
+        if os.path.exists(prefs_file):
+            try:
+                with open(prefs_file, 'r') as f:
+                    existing_prefs = json.load(f)
+                    if "dynamic_theming" in existing_prefs:
+                        preferences["dynamic_theming"] = existing_prefs["dynamic_theming"]
+                    if "generated_palette" in existing_prefs:
+                        preferences["generated_palette"] = existing_prefs["generated_palette"]
+            except:
+                pass
 
         try:
             with open(prefs_file, 'w') as f:
@@ -2074,11 +2086,12 @@ class BackgroundWidget(BaseControlWidget):
                 pass
         return False
 
-    def on_dynamic_theming_changed(self, switch, state):
+    def on_dynamic_theming_changed(self, switch, param):
         """Handle dynamic theming toggle change"""
         import subprocess
         import os
 
+        state = switch.get_active()
         self.dynamic_theming_enabled = state
 
         # Call ArchRiot binary to toggle dynamic theming
@@ -2089,15 +2102,36 @@ class BackgroundWidget(BaseControlWidget):
                              check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
                 # Apply current wallpaper to trigger color update (static or dynamic)
-                if self.backgrounds and 0 <= self.current_index < len(self.backgrounds):
-                    current_bg = self.backgrounds[self.current_index]
-                    subprocess.run([archriot_bin, '--apply-wallpaper-theme', current_bg],
+                # Read current background from saved config, not UI state
+                current_bg_path = self.get_current_background_from_config()
+                if current_bg_path:
+                    subprocess.run([archriot_bin, '--apply-wallpaper-theme', current_bg_path],
                                  check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             except:
                 pass
 
         # Save preferences
         self.save_background_preferences()
+
+    def get_current_background_from_config(self):
+        """Get the current background path from saved config"""
+        import json
+        import os
+
+        prefs_file = os.path.expanduser("~/.config/archriot/background-prefs.json")
+        backgrounds_dir = os.path.expanduser("~/.local/share/archriot/backgrounds")
+
+        if os.path.exists(prefs_file):
+            try:
+                with open(prefs_file, 'r') as f:
+                    prefs = json.load(f)
+                    current_bg = prefs.get("current_background", "riot_01.jpg")
+                    return os.path.join(backgrounds_dir, current_bg)
+            except:
+                pass
+
+        # Fallback to default
+        return os.path.join(backgrounds_dir, "riot_01.jpg")
 
 class SecurityWidget(BaseControlWidget):
     """Security control widget"""
