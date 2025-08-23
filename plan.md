@@ -19,80 +19,84 @@
 
 - Fixed reboot handling and continuation flow
 
+### ✅ TASK 4: Text Editor Dynamic Theming - COMPLETED (v2.21)
+
+- Complete text editor applier for GNOME Text Editor
+- Dynamic XML theme generation from matugen colors
+- Proper gtksourceview-5/styles integration with gsettings theme switching
+- Dynamic theme: `cypherriot-dynamic.xml` ↔ Static theme: `cypherriot.xml`
+- Core ArchRiot application now fully themed
+
 ## 🚧 CURRENT TASKS
 
-### TASK 4: System-Wide Dynamic Theming Extension
+### TASK 5: System-Wide Dynamic Theming Extension
 
 **PRIORITY: HIGH**
 
 **Current Status:**
 
-- ✅ **Waybar** - Complete integration, real-time updates
+- ✅ **Waybar** - Complete integration, real-time updates via SIGUSR2
 - ✅ **Zed Editor** - Full theme override system with fallback
-- ✅ **Ghostty Terminal** - Color palette updates (no real-time reload)
+- ✅ **Ghostty Terminal** - Color palette updates (static file updates only)
 - ✅ **Hyprland Window Manager** - Border color coordination
-- ✅ **Architecture** - `ThemeApplier` interface and `ThemeRegistry` system
-- ✅ **v2.20 Production Fixes** - Template paths, config saving, complete color definitions
+- ✅ **Text Editor** - XML theme generation with gsettings switching
+- ✅ **Architecture** - Complete modular `ThemeRegistry` system
 
-**Current Modular Architecture:**
-
-```
-source/theming/
-├── theming.go          // Core matugen integration + config
-├── interfaces.go       // ThemeApplier interface + ThemeRegistry
-└── [monolithic code]   // Needs refactoring into appliers/
-```
-
-**Current Clean Architecture:**
+**Clean Modular Architecture (v2.21):**
 
 ```
 source/theming/
-├── theming.go              // Core orchestration + matugen
-├── interfaces.go           // Legacy (mostly unused)
-├── registry.go             // Coordinates all applications
+├── theming.go              // Core orchestration + matugen integration
+├── registry.go             // Coordinates all theme appliers
 └── applications/
     ├── types.go           // Shared MatugenColors + ThemeApplier interface
-    ├── waybar.go          // Waybar colors.css + SIGUSR2 reload (~130 lines)
-    ├── zed.go             // Zed theme_overrides (~170 lines)
-    ├── ghostty.go         // Ghostty terminal palette (~160 lines)
-    └── hyprland.go        // Hyprland window borders (~100 lines)
+    ├── waybar.go          // Waybar colors.css + SIGUSR2 reload
+    ├── zed.go             // Zed theme_overrides
+    ├── ghostty.go         // Ghostty terminal palette
+    ├── hyprland.go        // Hyprland window borders
+    └── texteditor.go      // Text Editor XML themes + gsettings
 ```
 
 ## ⏭️ IMMEDIATE NEXT STEPS
 
-### 🔄 Phase 1: Missing ArchRiot Applications
+### 🔄 Phase 1: Remaining ArchRiot Applications
 
-**CRITICAL - Our Own Applications Missing from Theming:**
+**NEXT TARGET: Fuzzel Application Launcher**
 
-1. **Text Editor** (`config/text-editor/`) - Our default markdown editor
-    - Has `cypherriot.xml` and `tokyo-night.xml` theme files
-    - Should generate dynamic XML themes from matugen colors
-    - Core ArchRiot application that users see daily
+- **fuzzel** (`config/fuzzel/`) - Application launcher colors
+- Simple configuration, likely easy implementation
+- Part of core ArchRiot user experience
 
-2. **Real-time Reload Issues:**
-    - Ghostty needs config reload signal (like waybar's SIGUSR2)
-    - Users should see theme changes immediately without restarting terminals
+**Research needed:**
 
-### 🔄 Phase 2: Config Directory Audit
+- How fuzzel themes are applied in `packages.yaml`
+- Configuration file format and color properties
+- Real-time reload capabilities
 
-**Potential Theming Candidates from `config/` directories:**
+### 🔄 Phase 2: System Enhancement
+
+**KNOWN ISSUE: Ghostty Real-time Reload**
+
+- Current: Static file updates (users must manually reload)
+- Research status: SIGUSR2 not implemented in Ghostty 1.0/1.1
+- Alternative approaches being investigated
+
+**Additional Applications:**
 
 - **btop** (`config/btop/`) - System monitor with color themes
 - **mako** (`config/mako/`) - Notification daemon styling
-- **fuzzel** (`config/fuzzel/`) - Application launcher colors
 - **fastfetch** (`config/fastfetch/`) - System info display colors
+
+### 🔄 Phase 3: Advanced Integration
+
 - **fish** (`config/fish/`) - Shell prompt and syntax highlighting
 - **gtk-3.0/gtk-4.0** (`config/gtk-*/`) - System-wide application theming
 - **Thunar** (`config/Thunar/`) - File manager theming
-
-### 🔄 Phase 3: Extended System Integration
-
-4. **Neovim** - Dynamic colorscheme generation
-5. **System-wide GTK theming** - Consistent application colors
+- **Neovim** - Dynamic colorscheme generation
 
 ## 🚧 OTHER TASKS
 
-### TASK 5: Secure Boot Implementation Overhaul
+### TASK 6: Secure Boot Implementation Overhaul
 
 **PRIORITY: MEDIUM**
 
@@ -104,40 +108,40 @@ source/theming/
 
 ### System-Wide Dynamic Theming
 
-- [✅] Core modular architecture with ThemeRegistry
-- [✅] Waybar real-time dynamic theming with complete color definitions
-- [✅] Zed Editor theme override system with proper syntax colors
-- [✅] Ghostty terminal color integration (static file updates)
-- [✅] Hyprland window manager border color coordination
-- [✅] Clean applier refactor complete (all applications modularized)
+**Core System (COMPLETED):**
+
+- [✅] Modular architecture with ThemeRegistry
+- [✅] Waybar real-time dynamic theming
+- [✅] Zed Editor theme override system
+- [✅] Ghostty terminal color integration
+- [✅] Hyprland window manager border coordination
+- [✅] Text Editor XML theme generation and switching
 - [✅] All components respect dynamic/static toggle
-- [✅] Critical v2.20 production fixes (template paths, config saving)
-- [ ] **Text Editor** - ArchRiot's markdown editor XML theme generation
-- [ ] **Ghostty real-time reload** - Config refresh without terminal restart
+
+**Next Targets:**
+
+- [ ] **Fuzzel launcher** - Application launcher theming
+- [ ] **Ghostty real-time reload** - Config refresh without restart
 - [ ] **btop system monitor** - Color theme coordination
 - [ ] **mako notification daemon** - Notification styling
+
+**Long-term Goals:**
+
 - [ ] **System-wide consistency** - All ArchRiot applications themed
+- [ ] **GTK integration** - System-wide application theming
 
 ### Key Principles
 
 - **Matugen does color science** - appliers just update config files
 - **Single responsibility** - each applier handles one application
 - **Graceful failure** - individual applier errors don't break system
-- **~20-30 lines per applier** - focused, maintainable code
+- **Research-driven** - understand existing mechanisms before implementing
 
 ## 🔧 TECHNICAL DEBT
 
 - Control Panel JSON boolean serialization issues
-- CLI `--toggle-dynamic-theming` save functionality
 - Installation process optimization
-
-### 🎯 PRIORITY ORDER
-
-1. **URGENT:** Text Editor applier - Core ArchRiot application missing theming
-2. **HIGH:** Ghostty real-time reload - Improve user experience
-3. **MEDIUM:** btop, mako, fuzzel - Complete ArchRiot ecosystem
-4. **LOW:** GTK system-wide, Neovim - External application support
 
 ---
 
-**Next Action:** Add text-editor applier for ArchRiot's markdown editor
+**Next Action:** Research and implement fuzzel application launcher theming
