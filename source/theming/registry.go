@@ -21,6 +21,7 @@ func NewRegistry() *Registry {
 	registry.Register(&applications.ZedApplier{})
 	registry.Register(&applications.GhosttyApplier{})
 	registry.Register(&applications.HyprlandApplier{})
+	registry.Register(&applications.TextEditorApplier{})
 
 	return registry
 }
