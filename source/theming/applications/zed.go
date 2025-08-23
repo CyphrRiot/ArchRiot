@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"archriot-installer/theming"
 )
 
 // ZedApplier handles Zed editor theming
@@ -27,12 +25,16 @@ func (z *ZedApplier) GetConfigPath() (string, error) {
 }
 
 // getTemplatePath returns the path to the original Zed template
-func (z *ZedApplier) getTemplatePath() string {
-	return "config/zed/settings.json"
+func (z *ZedApplier) getTemplatePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("getting home directory: %w", err)
+	}
+	return filepath.Join(homeDir, ".local", "share", "archriot", "config", "zed", "settings.json"), nil
 }
 
 // ApplyTheme applies colors to Zed editor
-func (z *ZedApplier) ApplyTheme(colors *theming.MatugenColors, dynamicEnabled bool) error {
+func (z *ZedApplier) ApplyTheme(colors *MatugenColors, dynamicEnabled bool) error {
 	configPath, err := z.GetConfigPath()
 	if err != nil {
 		return fmt.Errorf("getting Zed config path: %w", err)
@@ -74,24 +76,21 @@ func (z *ZedApplier) ApplyTheme(colors *theming.MatugenColors, dynamicEnabled bo
 
 // ZedThemeOverrides represents Zed's theme override structure
 type ZedThemeOverrides struct {
-	EditorGutterBackground string `json:"editor.gutter.background"`
-	PanelBackground        string `json:"panel.background"`
-	BackgroundAppearance   string `json:"background.appearance"`
-	ToolbarBackground      string `json:"toolbar.background"`
-	EditorIndentGuide      string `json:"editor.indent_guide"`
-	TitleBarBackground     string `json:"title_bar.background"`
-	StatusBarBackground    string `json:"status_bar.background"`
-	Background             string `json:"background"`
-	EditorBackground       string `json:"editor.background"`
-	TerminalBackground     string `json:"terminal.background"`
-	SyntaxComment          string `json:"syntax.comment"`
-	SyntaxString           string `json:"syntax.string"`
-	SyntaxProperty         string `json:"syntax.property"`
-	SyntaxTitle            string `json:"syntax.title"`
+	EditorGutterBackground string                 `json:"editor.gutter.background"`
+	PanelBackground        string                 `json:"panel.background"`
+	BackgroundAppearance   string                 `json:"background.appearance"`
+	ToolbarBackground      string                 `json:"toolbar.background"`
+	EditorIndentGuide      string                 `json:"editor.indent_guide"`
+	TitleBarBackground     string                 `json:"title_bar.background"`
+	StatusBarBackground    string                 `json:"status_bar.background"`
+	Background             string                 `json:"background"`
+	EditorBackground       string                 `json:"editor.background"`
+	TerminalBackground     string                 `json:"terminal.background"`
+	Syntax                 map[string]interface{} `json:"syntax"`
 }
 
 // generateThemeOverrides creates theme overrides based on colors and dynamic state
-func (z *ZedApplier) generateThemeOverrides(colors *theming.MatugenColors, dynamicEnabled bool) ZedThemeOverrides {
+func (z *ZedApplier) generateThemeOverrides(colors *MatugenColors, dynamicEnabled bool) ZedThemeOverrides {
 	if dynamicEnabled && colors != nil {
 		// Use dynamic colors from wallpaper
 		return ZedThemeOverrides{
@@ -105,41 +104,51 @@ func (z *ZedApplier) generateThemeOverrides(colors *theming.MatugenColors, dynam
 			Background:             colors.Colors.Dark.Background,
 			EditorBackground:       colors.Colors.Dark.Background,
 			TerminalBackground:     colors.Colors.Dark.Background,
-			SyntaxComment:          colors.Colors.Dark.OnSurface,
-			SyntaxString:           colors.Colors.Dark.Secondary,
-			SyntaxProperty:         colors.Colors.Dark.Tertiary,
-			SyntaxTitle:            colors.Colors.Dark.Primary,
+			Syntax: map[string]interface{}{
+				"comment":         map[string]string{"color": colors.Colors.Dark.OnSurface},
+				"string":          map[string]string{"color": colors.Colors.Dark.Secondary},
+				"emphasis.strong": map[string]string{"color": colors.Colors.Dark.Primary},
+				"title":           map[string]string{"color": colors.Colors.Dark.Primary},
+				"property":        map[string]string{"color": colors.Colors.Dark.Tertiary},
+				"variable":        map[string]string{"color": colors.Colors.Dark.Tertiary},
+			},
 		}
-	}
-
-	// Load original ArchRiot theme from template
-	originalOverrides, err := z.loadOriginalThemeOverrides()
-	if err != nil {
-		// Fallback to hardcoded values if template loading fails
-		return ZedThemeOverrides{
-			EditorGutterBackground: "#000000",
-			PanelBackground:        "#000000",
-			BackgroundAppearance:   "opaque",
-			ToolbarBackground:      "#000000",
-			EditorIndentGuide:      "#2d2d2d",
-			TitleBarBackground:     "#000000",
-			StatusBarBackground:    "#000000",
-			Background:             "#000000",
-			EditorBackground:       "#000000",
-			TerminalBackground:     "#000000",
-			SyntaxComment:          "#666666",
-			SyntaxString:           "#a855f7",
-			SyntaxProperty:         "#c084fc",
-			SyntaxTitle:            "#8b5cf6",
+	} else {
+		// Use original ArchRiot theme from template
+		originalOverrides, err := z.loadOriginalThemeOverrides()
+		if err != nil {
+			// Fallback to hardcoded values if template loading fails
+			return ZedThemeOverrides{
+				EditorGutterBackground: "#000000",
+				PanelBackground:        "#000000",
+				BackgroundAppearance:   "opaque",
+				ToolbarBackground:      "#000000",
+				EditorIndentGuide:      "#000002",
+				TitleBarBackground:     "#000000",
+				StatusBarBackground:    "#000000",
+				Background:             "#000000",
+				EditorBackground:       "#000000",
+				TerminalBackground:     "#000000",
+				Syntax: map[string]interface{}{
+					"comment":         map[string]string{"color": "#4d6878"},
+					"string":          map[string]string{"color": "#9d7dd8"},
+					"emphasis.strong": map[string]string{"color": "#4a90e2"},
+					"title":           map[string]string{"color": "#7dd3fc"},
+					"property":        map[string]string{"color": "#60a5fa"},
+					"variable":        map[string]string{"color": "#60a5fa"},
+				},
+			}
 		}
+		return *originalOverrides
 	}
-
-	return *originalOverrides
 }
 
 // loadOriginalThemeOverrides loads the original theme from the template file
 func (z *ZedApplier) loadOriginalThemeOverrides() (*ZedThemeOverrides, error) {
-	templatePath := z.getTemplatePath()
+	templatePath, err := z.getTemplatePath()
+	if err != nil {
+		return nil, fmt.Errorf("getting template path: %w", err)
+	}
 
 	data, err := os.ReadFile(templatePath)
 	if err != nil {

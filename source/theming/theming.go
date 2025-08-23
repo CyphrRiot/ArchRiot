@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"archriot-installer/theming/applications"
 )
 
 // ThemeConfig represents the theming configuration
@@ -77,7 +79,7 @@ func SaveThemeConfig(config *ThemeConfig) error {
 }
 
 // ExtractColorsFromWallpaper uses matugen to extract colors from wallpaper
-func ExtractColorsFromWallpaper(wallpaperPath string) (*MatugenColors, error) {
+func ExtractColorsFromWallpaper(wallpaperPath string) (*applications.MatugenColors, error) {
 	// Check if matugen is installed
 	if _, err := exec.LookPath("matugen"); err != nil {
 		return nil, fmt.Errorf("matugen not found: %w", err)
@@ -90,7 +92,7 @@ func ExtractColorsFromWallpaper(wallpaperPath string) (*MatugenColors, error) {
 		return nil, fmt.Errorf("running matugen: %w", err)
 	}
 
-	var colors MatugenColors
+	var colors applications.MatugenColors
 	if err := json.Unmarshal(output, &colors); err != nil {
 		return nil, fmt.Errorf("parsing matugen output: %w", err)
 	}
@@ -109,7 +111,7 @@ func ApplyWallpaperTheme(wallpaperPath string) error {
 	// Update current background
 	config.CurrentBackground = filepath.Base(wallpaperPath)
 
-	var colors *MatugenColors
+	var colors *applications.MatugenColors
 	if config.DynamicThemingEnabled {
 		// Extract colors from wallpaper
 		colors, err = ExtractColorsFromWallpaper(wallpaperPath)
@@ -155,6 +157,11 @@ func ToggleDynamicTheming(enabled bool) error {
 	// Update setting
 	config.DynamicThemingEnabled = enabled
 
+	// Save config FIRST before any early returns
+	if err := SaveThemeConfig(config); err != nil {
+		return fmt.Errorf("saving theme config: %w", err)
+	}
+
 	// If we're enabling dynamic theming and have a current background, apply it
 	if enabled && config.CurrentBackground != "" {
 		homeDir, err := os.UserHomeDir()
@@ -172,11 +179,6 @@ func ToggleDynamicTheming(enabled bool) error {
 		if _, err := os.Stat(wallpaperPath); err == nil {
 			return ApplyWallpaperTheme(wallpaperPath)
 		}
-	}
-
-	// Save config
-	if err := SaveThemeConfig(config); err != nil {
-		return fmt.Errorf("saving theme config: %w", err)
 	}
 
 	// Apply static theme to all registered applications

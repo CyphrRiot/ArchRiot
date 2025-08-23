@@ -1,34 +1,37 @@
 package theming
 
 import (
+	"archriot-installer/theming/applications"
 	"fmt"
 )
 
 // Registry manages all theme appliers and coordinates batch operations
 type Registry struct {
-	appliers []ThemeApplier
+	appliers []applications.ThemeApplier
 }
 
 // NewRegistry creates a new theme registry with all supported applications
 func NewRegistry() *Registry {
 	registry := &Registry{
-		appliers: make([]ThemeApplier, 0),
+		appliers: make([]applications.ThemeApplier, 0),
 	}
 
-	// Applications will register themselves
-	// registry.Register(&applications.WaybarApplier{})
-	// registry.Register(&applications.ZedApplier{})
+	// Register all supported applications
+	registry.Register(&applications.WaybarApplier{})
+	registry.Register(&applications.ZedApplier{})
+	registry.Register(&applications.GhosttyApplier{})
+	registry.Register(&applications.HyprlandApplier{})
 
 	return registry
 }
 
 // Register adds a theme applier to the registry
-func (r *Registry) Register(applier ThemeApplier) {
+func (r *Registry) Register(applier applications.ThemeApplier) {
 	r.appliers = append(r.appliers, applier)
 }
 
 // ApplyAll applies theme to all registered appliers
-func (r *Registry) ApplyAll(colors *MatugenColors, dynamicEnabled bool) []error {
+func (r *Registry) ApplyAll(colors *applications.MatugenColors, dynamicEnabled bool) []error {
 	var errors []error
 
 	for _, applier := range r.appliers {
@@ -41,12 +44,12 @@ func (r *Registry) ApplyAll(colors *MatugenColors, dynamicEnabled bool) []error 
 }
 
 // GetAppliers returns all registered appliers
-func (r *Registry) GetAppliers() []ThemeApplier {
+func (r *Registry) GetAppliers() []applications.ThemeApplier {
 	return r.appliers
 }
 
 // GetApplierByName returns a specific applier by name
-func (r *Registry) GetApplierByName(name string) ThemeApplier {
+func (r *Registry) GetApplierByName(name string) applications.ThemeApplier {
 	for _, applier := range r.appliers {
 		if applier.Name() == name {
 			return applier
