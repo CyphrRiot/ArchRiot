@@ -15,7 +15,7 @@ readonly NC='\033[0m'
 
 # Constants with safety checks
 readonly HOME="${HOME:-$(getent passwd "$(whoami)" | cut -d: -f6)}"
-readonly REPO_URL="https://github.com/CyphrRiot/ArchRiot.git"
+readonly REPO_URL="https://github.com/CyphrRiot/ArchRiot/archive/refs/heads/master.tar.gz"
 readonly INSTALL_DIR="$HOME/.local/share/archriot"
 readonly INSTALLER_PATH="$INSTALL_DIR/install/archriot"
 
@@ -194,14 +194,32 @@ setup_repository() {
     else
         info_msg "Fresh installation..."
 
-        # Remove any non-git directory and create parent
+        # Remove any existing directory and create parent
         [[ -d "$INSTALL_DIR" ]] && rm -rf "$INSTALL_DIR"
         mkdir -p "$(dirname "$INSTALL_DIR")" || error_exit "Cannot create directory structure"
 
-        # Clone repository
-        git clone --depth 1 "$REPO_URL" "$INSTALL_DIR" || error_exit "Failed to clone repository"
+        # Download and extract release tarball (much faster than git clone)
+        info_msg "Downloading latest release..."
+        local temp_file="/tmp/archriot-latest.tar.gz"
 
-        success_msg "Repository cloned"
+        # Download tarball
+        curl -fSL "$REPO_URL" -o "$temp_file" || error_exit "Failed to download repository"
+
+        # Extract to temporary directory first
+        local temp_dir="/tmp/archriot-extract"
+        mkdir -p "$temp_dir" || error_exit "Cannot create temp directory"
+
+        # Extract tarball (GitHub creates a subdirectory named ArchRiot-master)
+        tar -xzf "$temp_file" -C "$temp_dir" || error_exit "Failed to extract repository"
+
+        # Move from temp location to final location
+        mv "$temp_dir/ArchRiot-master" "$INSTALL_DIR" || error_exit "Failed to move extracted files"
+
+        # Cleanup
+        rm -f "$temp_file"
+        rm -rf "$temp_dir"
+
+        success_msg "Repository downloaded and extracted (no git history)"
     fi
 }
 
