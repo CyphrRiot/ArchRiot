@@ -87,6 +87,7 @@ desktop:
             - swaybg
             - hyprshot
             - matugen
+            # - featherwallet-bin
         configs:
             - pattern: hypr/*
               preserve_if_exists: [monitors.conf]

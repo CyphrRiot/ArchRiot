@@ -93,3 +93,16 @@ end
 if status is-login && test (tty) = /dev/tty1
     exec Hyprland
 end
+
+# Right-hand Prompt Function
+function fish_right_prompt
+    set_color purple
+    printf "("
+    set_color cyan
+    printf "%s" (hostname)
+    set_color purple
+    printf ") "
+    set_color blue
+    printf "%s" (date "+%H:%M:%S")
+    set_color normal
+end
