@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# ArchRiot Startup Background Script
+# Reads saved theme configuration and applies correct background on startup
+# Simplified version to prevent startup failures
+
+CONFIG_FILE="$HOME/.config/archriot/background-prefs.json"
+BACKGROUNDS_DIR="$HOME/.local/share/archriot/backgrounds"
+CURRENT_BACKGROUND_FILE="$HOME/.config/archriot/.current-background"
+
+# Default fallback background
+DEFAULT_BACKGROUND="riot_01.jpg"
+
+# Function to get background path
+get_background_path() {
+    local bg_name="$1"
+    echo "$BACKGROUNDS_DIR/$bg_name"
+}
+
+# Function to safely extract JSON value using python
+get_json_value() {
+    local key="$1"
+    local file="$2"
+
+    if [[ -f "$file" ]]; then
+        python3 -c "
+import json
+import sys
+try:
+    with open('$file', 'r') as f:
+        data = json.load(f)
+        print(data.get('$key', ''))
+except:
+    pass
+" 2>/dev/null
+    fi
+}
+
+# Read saved configuration safely
+CURRENT_BACKGROUND=""
+if [[ -f "$CONFIG_FILE" ]]; then
+    CURRENT_BACKGROUND=$(get_json_value "current_background" "$CONFIG_FILE")
+fi
+
+# Use default if no saved background or empty
+if [[ -z "$CURRENT_BACKGROUND" ]] || [[ "$CURRENT_BACKGROUND" == "null" ]]; then
+    CURRENT_BACKGROUND="$DEFAULT_BACKGROUND"
+fi
+
+# Get full path to background
+BACKGROUND_PATH=$(get_background_path "$CURRENT_BACKGROUND")
+
+# Verify background file exists, fallback to default if not
+if [[ ! -f "$BACKGROUND_PATH" ]]; then
+    CURRENT_BACKGROUND="$DEFAULT_BACKGROUND"
+    BACKGROUND_PATH=$(get_background_path "$CURRENT_BACKGROUND")
+fi
+
+# Final check for default background - if this fails, use absolute fallback
+if [[ ! -f "$BACKGROUND_PATH" ]]; then
+    # Try to find any background file as last resort
+    FALLBACK_BG=$(find "$BACKGROUNDS_DIR" -name "*.jpg" -o -name "*.png" | head -1 2>/dev/null)
+    if [[ -f "$FALLBACK_BG" ]]; then
+        BACKGROUND_PATH="$FALLBACK_BG"
+        CURRENT_BACKGROUND=$(basename "$FALLBACK_BG")
+    else
+        # Complete failure - let hyprland continue without background
+        echo "⚠ No background files found, skipping background setup"
+        exit 0
+    fi
+fi
+
+# Update current background state file for swaybg-next compatibility
+mkdir -p "$(dirname "$CURRENT_BACKGROUND_FILE")" 2>/dev/null
+echo "$BACKGROUND_PATH" > "$CURRENT_BACKGROUND_FILE" 2>/dev/null
+
+# Kill any existing swaybg process
+pkill -x swaybg 2>/dev/null || true
+sleep 0.3
+
+# Start swaybg with saved background - never fail
+echo "🖼️ Setting startup background: $CURRENT_BACKGROUND"
+swaybg -i "$BACKGROUND_PATH" -m fill >/dev/null 2>&1 &
+
+# Give swaybg time to start
+sleep 0.5
+
+# Don't apply themes during startup - this can interfere with waybar
+# Theme application will happen when user changes settings or manually applies
+echo "✓ Background set, theme application deferred to avoid startup conflicts"
+
+exit 0
