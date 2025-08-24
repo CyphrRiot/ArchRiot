@@ -167,9 +167,9 @@ check_prerequisites() {
         sudo pacman -Sy --noconfirm --needed git || error_exit "Failed to install git"
     fi
 
-    # Test git functionality with actual repository
+    # Test repository connectivity with HTTP request
     info_msg "Testing repository connectivity..."
-    if ! git ls-remote --exit-code --heads "$REPO_URL" >/dev/null 2>&1; then
+    if ! curl -fsSL --connect-timeout 10 --max-time 30 --head "$REPO_URL" >/dev/null 2>&1; then
         error_exit "Cannot connect to ArchRiot repository - check network connection"
     fi
 
