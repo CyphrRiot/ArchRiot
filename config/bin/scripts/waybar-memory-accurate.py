@@ -76,7 +76,7 @@ def get_memory_info():
 
     output = {
         "text": f"{bar} 󰾆",
-        "tooltip": f"Used (Modern): {used_modern_gb:.1f}GB | Used (Traditional): {used_traditional_gb:.1f}GB | Available: {avail_gb:.1f}GB | Total: {total_gb:.1f}GB ({percentage:.1f}%)",
+        "tooltip": f"Used (Modern): {used_modern_gb:.1f}GB\nUsed (Traditional): {used_traditional_gb:.1f}GB\nAvailable: {avail_gb:.1f}GB\nTotal: {total_gb:.1f}GB ({percentage:.1f}%)",
         "class": css_class,
         "percentage": round(percentage)
     }

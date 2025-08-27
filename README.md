@@ -686,7 +686,7 @@ _The elevator pitch - everything that makes ArchRiot special in one place_
 
 **🪟 Wayland Excellence:** Hyprland compositor with smooth animations, intelligent tiling, and zero XWayland compromises
 
-**💻 Developer Paradise:** Fish shell, Zed editor, Neovim, modern CLI tools (lsd, bat, ripgrep), and containers that just work
+**💻 Developer Paradise:** Fish shell, Zed editor, Neovim, modern CLI tools (lsd, ripgrep), and containers that just work
 
 **🛡️ Privacy Arsenal:** Brave browser, Proton Mail, Mullvad VPN, Signal messaging, and Feather Wallet - all with native Wayland support
 

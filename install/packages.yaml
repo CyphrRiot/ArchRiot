@@ -7,7 +7,7 @@ core:
             - git
             - rsync
             - bc
-            - go-yq
+            # - go-yq
             - python
             - python-psutil
             - fastfetch
@@ -53,14 +53,15 @@ core:
             - fd
             - fzf
             - ripgrep
-            - zoxide
-            - bat
+            # - zoxide
+            # - bat
             - lsd
             - wl-clipboard
             - man
             - less
-            - whois
-            - tldr
+            # - whois
+            # - doxx
+            # - tldr
             - plocate
         configs:
             - pattern: fish/*
@@ -149,7 +150,7 @@ desktop:
     archive:
         packages:
             - unzip
-            - p7zip
+            - 7zip
         depends: [core.base]
         start: "Installing archive tools"
         end: "Archive tools configured"
@@ -233,7 +234,7 @@ desktop:
             - gnome-system-monitor
             - iwgtk
             - file-roller
-            - secrets
+            # - secrets
             - fragments
             - wget
         configs:
