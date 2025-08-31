@@ -269,13 +269,13 @@ development:
 
     helpers:
         packages:
-            - clang
-            - cmake
-            - ninja
-            - rust
-            - python-pip
-            - go
-            - github-cli
+            #- clang
+            #- cmake
+            #- ninja
+            #- rust
+            #- python-pip
+            #- go
+            #- github-cli
             - jq
             - zip
             - tmux

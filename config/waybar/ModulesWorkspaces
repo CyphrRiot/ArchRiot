@@ -181,6 +181,7 @@
 		"class<twitter-x>": "<span font='11'>𝕏 </span>",
 		"class<cake_wallet>": "<span font='11'>󰿦 </span>",
 		"class<feather>": "<span font='11'>󱟘 </span>",
+		"class<Trezor Suite>": "<span font='11'>󰌆 </span>",
 		"class<Exodus|exodus>": "<span font='11'>Ⓧ </span>",
 		"class<tor browser>": "<span font='11'> </span>",
 		"class<firefox-developer-edition>": "<span font='11'>󰈹 </span>",
