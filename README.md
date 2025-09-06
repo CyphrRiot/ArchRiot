@@ -65,8 +65,8 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 ### ⚡ Method 2: ArchRiot ISO
 
 1. **📥 Download ArchRiot ISO**
-    - **[Download ArchRiot 2025 ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.iso)**
-    - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.7.2/archriot-2025.sha256)**
+    - **[Download ArchRiot ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**
+    - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.sha256)**
 
 2. **💾 Download Ventoy**
     - Download [Ventoy](https://www.ventoy.net/) and create a bootable USB drive
