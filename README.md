@@ -39,6 +39,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 ## 🚀 Choose Your ArchRiot Experience
 
 ### 🔥 Method 1: Install Script
+#### You already have Arch Linux installed
 
 **Transform your current Arch system into ArchRiot**
 
@@ -63,6 +64,9 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 #### **Note:** For fresh installations, we also have an **ArchRiot ISO available** (See below "Method 2")
 
 ### ⚡ Method 2: ArchRiot ISO
+#### You do NOT have Arch Linux installed
+
+**Note: This ISO is still very early stages and could have issues. Be patient.**
 
 1. **📥 Download ArchRiot ISO**
     - **[Download ArchRiot ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**
