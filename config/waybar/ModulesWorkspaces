@@ -194,7 +194,7 @@
 		"class<[Tt]hunderbird|[Tt]hunderbird-esr>": "<span font='11'> </span>",
 		"class<eu.betterbird.Betterbird>": "<span font='11'> </span>",
 		"class<org.gnome.Evolution>": "<span font='11'>󰊫 </span>",
-		"class<claws-mail>": "<span font='11'> </span>",
+		"class<claws-mail>": "<span font='11'>󰇮 </span>",
 		"class<org.gnome.Geary>": "<span font='11'>󰊫 </span>",
 		"title<.*gmail.*>": "<span font='11'>󰊫 </span>",
 		"title<.*proton.*mail.*>": "<span font='11'>󰊫 </span>",
@@ -270,6 +270,7 @@
     "class<PrusaSlicer|UltiMaker-Cura|OrcaSlicer>": "<span font='11'>󰹛 </span>",
 		"class<ghostwriter|org.kde.ghostwriter>": "<span font='11'>󰷈 </span>",
 		"class<org.gnome.TextEditor>": "<span font='11'>󰷈 </span>",
+		"class<org.gnome.Papers>": "<span font='11'>󰈦 </span>",
 		"class<org.gnome.Nautilus|nautilus>": "<span font='11'>󰝰 </span>",
 		"class<org.gnome.Contacts>": "<span font='11'>󰀉 </span>",
     "class<org.pwmt.zathura>": "<span font='11'>󰈦 </span>"
