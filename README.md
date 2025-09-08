@@ -85,7 +85,19 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 4. **⚡ Boot ArchRiot ISO**
     - Boot from USB (disable Secure Boot if your BIOS is being difficult)
     - Select ArchRiot ISO from Ventoy menu
-    - Type `riot` and watch the magic happen
+    - Boot and run archinstall
+
+Note: If you need wifi
+
+1. iwctl
+2. device list
+3. station {device} scan
+4. station {device} get-networks
+5. station connect {network}
+6. station {device} show
+7. exit
+
+Then run `archinstall`
 
 **Perfect for:**
 
