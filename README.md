@@ -68,6 +68,8 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 
 #### You do NOT have Arch Linux installed
 
+![ArchRiot Installation Demo](config/images/riot.gif)
+
 #### ⚠️ Warning: Pre Release ISO (may have issues) ⚠️
 
 1. **📥 Download ArchRiot Linux ISO**
@@ -117,8 +119,6 @@ exit
 - Boot ISO → Run `riot` → Complete guided setup
 - Hyprland, themes, apps all pre-configured
 - No manual setup required
-
-![ArchRiot Installation Demo](config/images/riot.gif)
 
 ---
 
