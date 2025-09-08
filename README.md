@@ -39,6 +39,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 ## 🚀 Choose Your ArchRiot Experience
 
 ### 🔥 Method 1: Install Script
+
 #### You already have Arch Linux installed
 
 **Transform your current Arch system into ArchRiot**
@@ -64,10 +65,10 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 #### **Note:** For fresh installations, we also have an **ArchRiot ISO available** (See below "Method 2")
 
 ### ⚡ Method 2: ArchRiot ISO
+
 #### You do NOT have Arch Linux installed
 
 #### ⚠️ Warning: Pre Release ISO (may have issues) ⚠️
-
 
 1. **📥 Download ArchRiot Linux ISO**
     - **[ArchRiot Linux ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**
@@ -85,7 +86,7 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
     - Boot from USB (disable Secure Boot if your BIOS is being difficult)
     - Select ArchRiot ISO from Ventoy menu
 
-*Note: In some weird, rare cases, dhcpd is not running. In this case, run:*
+_Note: In some weird, rare cases, dhcpd is not running. In this case, run:_
 
 `sudo systemctl start dhcpcd`
 
@@ -94,7 +95,6 @@ Then run `curl -fsSL https://ArchRiot.org/setup.sh | bash` to continue the final
 Note: If There's a wifi issue (after first boot)
 
 ```bash
-
 iwctl
 device list
 station {device} scan
@@ -102,7 +102,6 @@ station {device} get-networks
 station connect {network}
 station {device} show
 exit
-```
 ```
 
 **Perfect for:**
