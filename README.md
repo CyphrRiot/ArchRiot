@@ -66,12 +66,11 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 ### ⚡ Method 2: ArchRiot ISO
 #### You do NOT have Arch Linux installed
 
-## ⚠️ ArchRiot Offline ISO is having Wifi problems. ⚠️
+## ⚠️ Warning: Pre Release ISO (may have issues) ⚠️
 
-> For now, download and install the Arch Linux ISO until this is resolved. After installation, follow Method 1 above.
 
-1. **📥 Download Arch Linux ISO**
-    - **[Download Arch Linux ISO](https://geo.mirror.pkgbuild.com/iso/2025.09.01/archlinux-2025.09.01-x86_64.iso)**
+1. **📥 Download ArchRiot Linux ISO**
+    - **[ArchRiot Linux ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**
     - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.sha256)**
 
 2. **💾 Download Ventoy**
@@ -87,7 +86,7 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
     - Select ArchRiot ISO from Ventoy menu
     - Boot and run archinstall
 
-Note: If you need wifi
+Note: If There's a wifi issue (after first boot)
 
 1. iwctl
 2. device list
@@ -96,8 +95,6 @@ Note: If you need wifi
 5. station connect {network}
 6. station {device} show
 7. exit
-
-Then run `archinstall`
 
 **Perfect for:**
 
