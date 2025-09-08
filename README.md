@@ -84,7 +84,12 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 4. **⚡ Boot ArchRiot ISO**
     - Boot from USB (disable Secure Boot if your BIOS is being difficult)
     - Select ArchRiot ISO from Ventoy menu
-    - Boot and run archinstall
+
+*Note: In some weird, rare cases, dhcpd is not running. In this case, run:*
+
+`sudo systemctl start dhcpcd`
+
+Then run `curl -fsSL https://ArchRiot.org/setup.sh | bash` to continue the final step of the installation.
 
 Note: If There's a wifi issue (after first boot)
 
