@@ -93,13 +93,17 @@ Then run `curl -fsSL https://ArchRiot.org/setup.sh | bash` to continue the final
 
 Note: If There's a wifi issue (after first boot)
 
-1. iwctl
-2. device list
-3. station {device} scan
-4. station {device} get-networks
-5. station connect {network}
-6. station {device} show
-7. exit
+```bash
+
+iwctl
+device list
+station {device} scan
+station {device} get-networks
+station connect {network}
+station {device} show
+exit
+```
+```
 
 **Perfect for:**
 
