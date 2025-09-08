@@ -66,10 +66,12 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 ### ⚡ Method 2: ArchRiot ISO
 #### You do NOT have Arch Linux installed
 
-⚠️ Offline ISO is having Wifi problems. If you have Wifi, DO NOT USE THIS ISO YET. ⚠️
+## ⚠️ Offline ISO is having Wifi problems. If you have Wifi, DO NOT USE THIS ISO YET. ⚠️
 
-1. **📥 Download ArchRiot ISO**
-    - **[Download ArchRiot ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**
+> For now, download and install the Arch Linux ISO until this is resolved. After installation, follow Method 1 above.
+
+1. **📥 Download Arch Linux ISO**
+    - **[Download Arch Linux ISO](https://geo.mirror.pkgbuild.com/iso/2025.09.01/archlinux-2025.09.01-x86_64.iso)**
     - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.sha256)**
 
 2. **💾 Download Ventoy**
