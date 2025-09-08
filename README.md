@@ -66,7 +66,7 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 ### ⚡ Method 2: ArchRiot ISO
 #### You do NOT have Arch Linux installed
 
-## ⚠️ Warning: Pre Release ISO (may have issues) ⚠️
+#### ⚠️ Warning: Pre Release ISO (may have issues) ⚠️
 
 
 1. **📥 Download ArchRiot Linux ISO**
