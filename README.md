@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-2.27-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-2.28-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -70,7 +70,7 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 
 ![ArchRiot Installation Demo](config/images/riot.gif)
 
-#### ⚠️ Warning: Pre Release ISO (may have issues) ⚠️
+#### ⚠️ Warning: ISO will replace a drive with ArchRiot Linux. ⚠️
 
 1. **📥 Download ArchRiot Linux ISO**
     - **[ArchRiot Linux ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**

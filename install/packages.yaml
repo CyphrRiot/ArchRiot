@@ -449,7 +449,7 @@ system:
                   done
                   # Video files
                   for mime in video/mp4 video/x-msvideo video/x-matroska video/x-flv video/x-ms-wmv video/mpeg video/ogg video/webm video/quicktime video/3gpp video/3gpp2 video/x-ms-asf video/x-ogm+ogg video/x-theora+ogg application/ogg; do
-                    xdg-mime default mpv.desktop "$mime"
+                    xdg-mime default org.gnome.Showtime.desktop "$mime"
                   done
                 fi
         depends: [desktop.apps, desktop.sources]
@@ -520,7 +520,7 @@ system:
 media:
     players:
         packages:
-            - mpv
+            - showtime
             - lollypop
             - ffmpeg
         configs: []
