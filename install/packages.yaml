@@ -282,7 +282,9 @@ development:
         commands:
             - "mkdir -p ~/.local/bin"
             - "curl -L -o ~/.local/bin/migrate https://raw.githubusercontent.com/CyphrRiot/Migrate/main/bin/migrate"
+            - "curl -L -o ~/.local/bin/garp https://raw.githubusercontent.com/CyphrRiot/garp/main/bin/garp"
             - "chmod +x ~/.local/bin/migrate"
+            - "chmod +x ~/.local/bin/garp"
         depends: [core.base]
         start: "Installing development helpers"
         end: "Development helpers installed"
