@@ -113,12 +113,10 @@ def get_temp_bar():
     bar = get_visual_bar(temp_percentage, show_empty=True)
 
     # Determine color class based on temperature
-    if temp >= 95:
+    if temp >= 90:
         css_class = "critical"
-    elif temp >= 85:
+    elif temp >= 80:
         css_class = "warning"
-    elif temp >= 75:
-        css_class = "hot"
     else:
         css_class = "normal"
 
