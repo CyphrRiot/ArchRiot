@@ -8,11 +8,7 @@
 "temperature": {
 	"interval": 10,
 	"tooltip": true,
-	"hwmon-path": [
-		"/sys/class/hwmon/hwmon6/temp1_input",
-		"/sys/class/thermal/thermal_zone9/temp",
-		"/sys/class/thermal/thermal_zone0/temp"
-	],
+
 	"critical-threshold": 82,
 	"format-critical": "{temperatureC}°{icon}",
 	"format": "{temperatureC}°{icon}",
@@ -262,7 +258,7 @@
 },
 
 "network": {
-	"interface": "wlan0",
+
 	"format": "{ifname}",
 	"format-wifi": "{icon}",
 	"format-ethernet": "󰌘",

@@ -6,6 +6,11 @@
 
 /* Using CSS variables directly - no @define-color needed */
 
+/* Active recording indicator (Kooha) */
+.recording {
+    color: #ff4d4d;
+}
+
 * {
     font-family: "Hack Nerd Font";
     font-weight: bold;

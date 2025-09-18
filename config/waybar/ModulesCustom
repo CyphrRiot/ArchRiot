@@ -20,6 +20,15 @@
     	"tooltip-format": "󰷛 Screen Lock",
     },
 
+    "custom/rec-dot": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 2,
+    	"exec": "$HOME/.config/waybar/scripts/recording-indicator.sh",
+    	"on-click": "$HOME/.config/waybar/scripts/recording-indicator.sh --click",
+    	"tooltip": true
+    },
+
     // Tomato Timer (Pomodoro) - 25 minute work timer
     "custom/tomato-timer": {
     	"format": "{}",

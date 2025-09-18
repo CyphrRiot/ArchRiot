@@ -88,6 +88,9 @@ desktop:
             - swaybg
             - hyprshot
             - matugen
+            - xdg-desktop-portal
+            - xdg-desktop-portal-hyprland
+            - xdg-desktop-portal-gtk
             # - featherwallet-bin
         configs:
             - pattern: hypr/*
@@ -105,7 +108,7 @@ desktop:
             - "chmod +x ~/.local/share/archriot/config/bin/*"
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
             - "chmod +x ~/.config/waybar/scripts/*"
-            - "sleep 1 && if pgrep -x waybar >/dev/null 2>&1; then pkill waybar && sleep 1 && nohup waybar >/dev/null 2>&1 & disown; fi"
+            - "sleep 1 && if pgrep -x waybar >/dev/null 2>&1; then pkill -SIGUSR2 waybar; fi"
             - "~/.local/share/archriot/config/bin/setup-temperature"
             - "mkdir -p ~/.local/share/applications"
             - "update-desktop-database ~/.local/share/applications/"
@@ -137,6 +140,9 @@ desktop:
             - ufw
             - kooha
             - gnome-disk-utility
+            - abiword
+            - gnumeric
+            - unrar
         configs:
             - pattern: xdg-desktop-portal/*
         commands:
@@ -371,6 +377,7 @@ system:
             - exfatprogs
         commands:
             - "sudo systemctl enable --now udisks2.service"
+
         depends: [core.base]
         start: "Installing filesystem support"
         end: "Filesystem support configured"
@@ -404,6 +411,7 @@ system:
             - sof-firmware
             - alsa-firmware
             - linux-firmware
+            - rtkit
 
         commands:
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire.service; else systemctl --user enable pipewire.service; fi"
@@ -420,6 +428,7 @@ system:
     memory:
         commands:
             - "sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf"
+            - "total_kb=$(awk \"/MemTotal/ {print \\$2}\" /proc/meminfo); calc=$(awk -v t=\"\\$total_kb\" \"BEGIN {m=int(t*0.05); if (m > 1048576) m=1048576; print m}\"); sudo sed -i \"s/^vm\\\\.min_free_kbytes=.*/vm.min_free_kbytes=\\$calc/\" /etc/sysctl.d/99-memory-optimization.conf"
             - "sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf"
             - "sleep 2 && if ! pgrep -x waybar >/dev/null 2>&1; then nohup waybar >/dev/null 2>&1 & disown; fi"
         depends: [core.base]
@@ -481,6 +490,16 @@ system:
             - "sudo sed -i '/^#\\[multilib\\]/,/^#Include/ s/^#//' /etc/pacman.conf"
             - "sudo pacman -Sy"
             - "systemctl --user set-environment GSK_RENDERER=gl"
+            - |
+                if lspci | grep -qi "NVIDIA Corporation"; then
+                  sudo pacman -S --needed --noconfirm nvidia nvidia-utils nvidia-settings || true
+                fi
+                if lspci | grep -qi "AMD/ATI"; then
+                  sudo pacman -S --needed --noconfirm mesa vulkan-radeon libva-mesa-driver || true
+                fi
+                if lspci | grep -qi "Intel Corporation.*Graphics"; then
+                  sudo pacman -S --needed --noconfirm mesa vulkan-intel intel-media-driver libva-intel-driver || true
+                fi
         depends: [core.base]
         start: "Setting up basic hardware support"
         end: "Basic hardware support configured"
@@ -526,6 +545,7 @@ media:
             - mpv
             - lollypop
             - ffmpeg
+            - libva-utils
         configs: []
         commands: []
         depends: [desktop.hyprland]

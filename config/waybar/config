@@ -4,7 +4,7 @@
     // "output": ["DP-1", "eDP-1", "HDMI-A-1"],  // Commented out to prevent dual Waybar when disconnecting from monitors
     "modules-right": [
         "custom/separator#blank_3",
-        "tray", "custom/separator#blank", "group/system-metrics", "custom/separator#blank", "custom/volume-bar",
+        "custom/rec-dot", "tray", "custom/separator#blank", "group/system-metrics", "custom/separator#blank", "custom/volume-bar",
         "custom/separator#line-tray", "bluetooth", "custom/separator#blank", "custom/tomato-timer", "custom/separator#blank", "network", "custom/mullvad", "custom/separator#blank", "battery", "custom/separator#blank", "custom/archriot-update", "custom/separator#blank", "group/status", "custom/lock"
     ],
     "modules-center": ["clock"],
