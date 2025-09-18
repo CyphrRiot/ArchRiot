@@ -143,7 +143,7 @@ exit
 - [📋 System Requirements](#-system-requirements) - What you need to run ArchRiot
 - [🖥️ VM & Hardware Notes](#️-vm--hardware-notes) - Compatibility and hardware info
 - [🔀 Differences from Omarchy](#-differences-from-omarchy) - Why ArchRiot is not Omarchy
-- [v3.0 Release Notes](#-ArchRiot-3.0-Release-Notes) - All about v3.0 release and settings
+- [v3.0 Release Notes](#archriot-30-release-notes) - All about v3.0 release and settings
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
