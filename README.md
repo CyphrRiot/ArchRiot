@@ -143,6 +143,7 @@ exit
 - [📋 System Requirements](#-system-requirements) - What you need to run ArchRiot
 - [🖥️ VM & Hardware Notes](#️-vm--hardware-notes) - Compatibility and hardware info
 - [🔀 Differences from Omarchy](#-differences-from-omarchy) - Why ArchRiot is not Omarchy
+- [v3.0 Release Notes](#-ArchRiot-3.0-Release-Notes) - All about v3.0 release and settings
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
@@ -851,3 +852,58 @@ _Note: ArchRiot began as a unique rice[^1] and evolved from [DHH's Omarchy](http
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), enabling community contributions and modifications.
 
 # 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
+
+# ArchRiot 3.0 Release Notes
+
+Focused on reliability, portability, and predictable behavior across diverse hardware — while staying true to ArchRiot’s privacy-first, dev-centric philosophy.
+
+## Highlights
+
+- Waybar portability
+  - Network module no longer hardcodes interface names; auto-detects reliably.
+  - Temperature module no longer hardcodes hwmon paths; auto-detects sensors across hardware.
+  - Flicker-free reloads via SIGUSR2 (no kill/restart).
+
+- Screen recording indicator
+  - Kooha recording dot shown as the left-most item on the right; click-to-stop recording.
+  - Clean, lightweight PipeWire-based detection; zero idle footprint when idle.
+
+- Portals stack aligned with Hyprland
+  - Added xdg-desktop-portal, xdg-desktop-portal-hyprland, xdg-desktop-portal-gtk for consistent screencast/screenshot/file chooser behavior.
+
+- Audio reliability
+  - rtkit added for PipeWire/WirePlumber realtime scheduling under load.
+
+- Memory tuning that adapts to your RAM
+  - vm.min_free_kbytes scaled to 5% of total RAM (capped at 1GB), preserving responsiveness across hardware tiers.
+
+- GPU auto-detect
+  - Installs the correct NVIDIA/AMD/Intel driver and VA stack based on lspci detection.
+
+- Hyprlock polish
+  - CPU and memory label refresh reduced to 5s to lower background CPU use while locked.
+
+- Fuzzel stays
+  - We do not use Walker; Fuzzel remains the launcher.
+
+## Safer defaults
+
+- TRIM disabled by default
+  - No automatic fstrim.timer enablement (especially important for LUKS+btrfs). If you want weekly TRIM, enable `fstrim.timer` yourself and consider adding `discard` to your LUKS mapping (with the usual privacy trade-offs).
+
+- Brave VA-API flags not forced
+  - We didn’t add aggressive browser flags by default; if you want hardware decode, verify with `vainfo` and adjust your browser flags locally as needed.
+
+## Deferred for a later update
+
+- Secure Boot guided sbctl flow (end-to-end).
+- Optional systemd-oomd integration (opt-in with protected slices).
+
+## Upgrade
+
+Run the one-liner:
+```
+curl -fsSL https://ArchRiot.org/setup.sh | bash
+```
+
+Thanks for the feedback and testing that shaped 3.0. This release focuses on rock-solid defaults and cross-hardware portability without compromising ArchRiot’s principles.
