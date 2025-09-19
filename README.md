@@ -849,6 +849,8 @@ _Note: ArchRiot began as a unique rice[^1] and evolved from [DHH's Omarchy](http
 
 🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
+And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLit/Arch-Hyprland)!
+
 ## 📄 License
 
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), enabling community contributions and modifications.
