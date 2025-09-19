@@ -36,6 +36,9 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qrraIOvAcdg?si=eWu0iaUK64njmqEL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+_Beautiful overview from [It's FOSS](https://x.com/itsfoss2/status/1969078216808702362)_
+
 ## 🚀 Choose Your ArchRiot Experience
 
 ### 🔥 Method 1: Install Script
