@@ -79,8 +79,9 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
     - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.sha256)**
 
   Note: *Do not use wget* for this. Curl is your friend:
+
 ```bash
-   curl -L -o archriot.iso https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso
+curl -L -o archriot.iso https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso
 ```
 
 2. **💾 Download Ventoy**
