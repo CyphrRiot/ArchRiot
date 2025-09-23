@@ -400,10 +400,8 @@ system:
             - pipewire
             - pipewire-alsa
             - pipewire-pulse
-            - pipewire-audio
             - pipewire-jack
             - gst-plugin-pipewire
-            - libpipewire
             - wireplumber
             - pavucontrol
             - pamixer
@@ -415,7 +413,7 @@ system:
 
         commands:
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire.service; else systemctl --user enable pipewire.service; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire-pulse.service; else systemctl --user enable pipewire-pulse.service; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire-pulse.socket; else systemctl --user enable pipewire-pulse.socket; fi"
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now wireplumber.service; else systemctl --user enable wireplumber.service; fi"
             - "sleep 2"
             - "if command -v pamixer && systemctl --user is-active --quiet pipewire.service; then current_vol=$(pamixer --get-volume) && if [ $current_vol -gt 78 ]; then pamixer --set-volume 25; fi; fi"
