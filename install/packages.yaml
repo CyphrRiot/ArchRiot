@@ -137,8 +137,8 @@ desktop:
             - gnome-calculator
             - nwg-drawer
             - loupe
-            - ufw
-            - kooha
+            #- ufw
+            #- kooha
             - gnome-disk-utility
             - abiword
             - gnumeric
