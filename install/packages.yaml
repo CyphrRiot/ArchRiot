@@ -226,7 +226,7 @@ desktop:
             - iwgtk
             - file-roller
             # - secrets
-            #- fragments
+            - fragments
             #- wget
         configs:
             - pattern: applications/*
@@ -386,10 +386,10 @@ system:
             - pipewire-alsa
             - pipewire-pulse
             - pipewire-jack
-            - gst-plugin-pipewire
-            - wireplumber
-            - pavucontrol
-            - pamixer
+            #- gst-plugin-pipewire
+            #- wireplumber
+            #- pavucontrol
+            #- pamixer
             - playerctl
             - sof-firmware
             - alsa-firmware
