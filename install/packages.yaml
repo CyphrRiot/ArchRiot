@@ -178,21 +178,6 @@ desktop:
         type: "Package"
         critical: false
 
-    gstreamer:
-        packages:
-            - gst-plugins-base
-            - gst-plugins-good
-            - gst-plugins-bad
-            - gst-plugins-ugly
-            - gst-libav
-            - gst-plugin-pipewire
-            - gstreamer-vaapi
-        depends: [core.base]
-        start: "Installing GStreamer multimedia framework"
-        end: "GStreamer configured"
-        type: "Package"
-        critical: false
-
     sources:
         packages:
             - ghostty
