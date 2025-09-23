@@ -137,12 +137,12 @@ desktop:
             - gnome-calculator
             - nwg-drawer
             - loupe
-            - ufw
+            # - ufw
             - kooha
             - gnome-disk-utility
-            - abiword
-            - gnumeric
-            - unrar
+            # - abiword
+            #- gnumeric
+            #- unrar
         configs:
             - pattern: xdg-desktop-portal/*
         commands:
