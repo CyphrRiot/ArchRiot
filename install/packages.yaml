@@ -226,8 +226,8 @@ desktop:
             - iwgtk
             - file-roller
             # - secrets
-            - fragments
-            - wget
+            #- fragments
+            #- wget
         configs:
             - pattern: applications/*
         commands:
