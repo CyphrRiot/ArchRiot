@@ -129,20 +129,20 @@ desktop:
         packages:
             - thunar
             - thunar-volman
-            #- thunar-archive-plugin
+            - thunar-archive-plugin
             - signal-desktop
-            - brightnessctl
+            #- brightnessctl
             - xdg-user-dirs
             - hyprsunset
             - gnome-calculator
             - nwg-drawer
             - loupe
-            # - ufw
+            - ufw
             - kooha
             - gnome-disk-utility
-            # - abiword
-            #- gnumeric
-            #- unrar
+            - abiword
+            - gnumeric
+            - unrar
         configs:
             - pattern: xdg-desktop-portal/*
         commands:
