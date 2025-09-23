@@ -129,7 +129,7 @@ desktop:
         packages:
             - thunar
             - thunar-volman
-            - thunar-archive-plugin
+            #- thunar-archive-plugin
             - signal-desktop
             - brightnessctl
             - xdg-user-dirs
