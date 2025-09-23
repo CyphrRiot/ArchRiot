@@ -223,7 +223,7 @@ desktop:
     utilities:
         packages:
             - gnome-system-monitor
-            - iwgtk
+            #- iwgtk
             - file-roller
             # - secrets
             - fragments
