@@ -137,6 +137,7 @@ desktop:
             - gnome-calculator
             - nwg-drawer
             - loupe
+            - glycin
             #- ufw
             #- kooha
             - gnome-disk-utility
