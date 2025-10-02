@@ -389,8 +389,8 @@ system:
             - pipewire-jack
             #- gst-plugin-pipewire
             #- wireplumber
-            #- pavucontrol
-            #- pamixer
+            - pavucontrol
+            - pamixer
             - playerctl
             - sof-firmware
             - alsa-firmware
