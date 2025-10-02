@@ -863,6 +863,25 @@ ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT
 
 # 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
 
+# ArchRiot 3.1 Release Notes
+
+Focused on stability and UX polish related to Waybar modules, audio, and app bindings.
+
+## Highlights
+
+- AMD CPU temperature detection for Waybar custom temp module (k10temp/zenpower), plus Intel and generic fallbacks
+- Waybar audio resiliency: volume module degrades gracefully when pamixer/PipeWire aren't ready, preventing crashes
+- Hardware volume keys in Hyprland: XF86AudioRaiseVolume, XF86AudioLowerVolume, XF86AudioMute, XF86AudioMicMute wired to Volume.sh
+- Keyboard settings launcher now respects $VISUAL/$EDITOR and falls back across common editors
+- Bluesky launcher (.desktop) and PWA window rules for a consistent floating panel experience
+- Waybar Mullvad module definition present; shows disconnected when Mullvad isn't installed
+
+## Upgrade
+
+```
+curl -fsSL https://ArchRiot.org/setup.sh | bash
+```
+
 # ArchRiot 3.0 Release Notes
 
 Focused on reliability, portability, and predictable behavior across diverse hardware — while staying true to ArchRiot’s privacy-first, dev-centric philosophy.
