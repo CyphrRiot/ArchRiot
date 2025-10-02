@@ -3,8 +3,29 @@
 Volume meter for Waybar with visual bar indicators
 Shows speaker and microphone volume with bar progression
 """
+
 import json
 import subprocess
+import shutil
+
+
+def have_pamixer():
+    return shutil.which("pamixer") is not None
+
+
+def pipewire_ready():
+    try:
+        subprocess.run(
+            ["pactl", "info"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
+            timeout=0.8,
+        )
+        return True
+    except Exception:
+        return False
+
 
 def get_visual_bar(percentage, show_empty=True):
     """
@@ -34,42 +55,51 @@ def get_visual_bar(percentage, show_empty=True):
     else:
         return "█"
 
+
 def get_volume_info():
     """Get speaker volume and mute status using pamixer"""
+    if not have_pamixer() or not pipewire_ready():
+        return None, None
     try:
-        # Check if speaker is muted
         mute_result = subprocess.run(
-            ['pamixer', '--get-mute'],
+            ["pamixer", "--get-mute"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            timeout=0.8,
         )
-        is_muted = mute_result.stdout.strip() == 'true'
-
-        # Get speaker volume
+        is_muted = mute_result.stdout.strip() == "true"
         volume_result = subprocess.run(
-            ['pamixer', '--get-volume'],
+            ["pamixer", "--get-volume"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            timeout=0.8,
         )
         volume = int(volume_result.stdout.strip())
-
         return is_muted, volume
-    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
-        return False, 0  # Assume unmuted with 0 volume if command fails
+    except Exception:
+        return None, None
+
 
 def get_volume_bar():
     """Get volume with visual bar indicator"""
     is_muted, volume = get_volume_info()
 
-    if is_muted:
+    if is_muted is None or volume is None:
+        return {
+            "text": "▁ 󰖁",
+            "tooltip": "Audio not ready",
+            "class": "muted",
+            "percentage": 0,
+        }
+    elif is_muted:
         # Muted - show flat line bar with muted icon
         output = {
             "text": "▁ 󰖁",
             "tooltip": f"Speaker: Muted (was {volume}%)",
             "class": "muted",
-            "percentage": 0
+            "percentage": 0,
         }
     else:
         # Get visual bar using reusable function
@@ -97,10 +127,11 @@ def get_volume_bar():
             "text": f"{bar} {icon}",
             "tooltip": f"Speaker Volume: {volume}%",
             "class": css_class,
-            "percentage": volume
+            "percentage": volume,
         }
 
     return output
+
 
 if __name__ == "__main__":
     try:
@@ -108,9 +139,13 @@ if __name__ == "__main__":
         print(json.dumps(result))
     except Exception as e:
         # Fallback output if something goes wrong
-        print(json.dumps({
-            "text": "-- 󰕿",
-            "tooltip": f"Volume Error: {str(e)}",
-            "class": "critical",
-            "percentage": 0
-        }))
+        print(
+            json.dumps(
+                {
+                    "text": "-- 󰕿",
+                    "tooltip": f"Volume Error: {str(e)}",
+                    "class": "critical",
+                    "percentage": 0,
+                }
+            )
+        )

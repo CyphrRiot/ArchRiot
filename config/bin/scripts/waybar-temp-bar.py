@@ -3,9 +3,11 @@
 Temperature meter for Waybar with visual bar indicators
 Shows CPU temperature with bar progression and color coding
 """
+
 import json
 import glob
 import os
+
 
 def get_visual_bar(percentage, show_empty=True):
     """
@@ -35,45 +37,47 @@ def get_visual_bar(percentage, show_empty=True):
     else:
         return "█"
 
+
 def find_temp_sensor():
     """Find the best CPU temperature sensor"""
     # Priority order for sensor types
     sensor_paths = []
 
     # 1. Look for coretemp hwmon (Intel/AMD)
-    for hwmon_path in glob.glob('/sys/class/hwmon/hwmon*'):
-        name_file = os.path.join(hwmon_path, 'name')
+    for hwmon_path in glob.glob("/sys/class/hwmon/hwmon*"):
+        name_file = os.path.join(hwmon_path, "name")
         if os.path.exists(name_file):
             try:
-                with open(name_file, 'r') as f:
+                with open(name_file, "r") as f:
                     name = f.read().strip()
-                if name == 'coretemp':
-                    temp_file = os.path.join(hwmon_path, 'temp1_input')
+                if name in ("coretemp", "k10temp", "zenpower"):
+                    temp_file = os.path.join(hwmon_path, "temp1_input")
                     if os.path.exists(temp_file):
                         sensor_paths.append(temp_file)
             except:
                 continue
 
     # 2. Look for x86_pkg_temp thermal zone
-    for zone_path in glob.glob('/sys/class/thermal/thermal_zone*'):
-        type_file = os.path.join(zone_path, 'type')
+    for zone_path in glob.glob("/sys/class/thermal/thermal_zone*"):
+        type_file = os.path.join(zone_path, "type")
         if os.path.exists(type_file):
             try:
-                with open(type_file, 'r') as f:
+                with open(type_file, "r") as f:
                     zone_type = f.read().strip()
-                if zone_type == 'x86_pkg_temp':
-                    temp_file = os.path.join(zone_path, 'temp')
+                if zone_type == "x86_pkg_temp":
+                    temp_file = os.path.join(zone_path, "temp")
                     if os.path.exists(temp_file):
                         sensor_paths.append(temp_file)
             except:
                 continue
 
     # 3. Fallback to thermal_zone0
-    fallback = '/sys/class/thermal/thermal_zone0/temp'
+    fallback = "/sys/class/thermal/thermal_zone0/temp"
     if os.path.exists(fallback):
         sensor_paths.append(fallback)
 
     return sensor_paths[0] if sensor_paths else None
+
 
 def read_temperature():
     """Read CPU temperature in Celsius"""
@@ -83,7 +87,7 @@ def read_temperature():
         return None
 
     try:
-        with open(temp_sensor, 'r') as f:
+        with open(temp_sensor, "r") as f:
             temp_raw = int(f.read().strip())
 
         # Convert from millidegrees to degrees
@@ -91,6 +95,7 @@ def read_temperature():
         return temp_celsius
     except:
         return None
+
 
 def get_temp_bar():
     """Get temperature with visual bar indicator"""
@@ -101,7 +106,7 @@ def get_temp_bar():
             "text": "-- 󰈸",
             "tooltip": "Temperature sensor not available",
             "class": "critical",
-            "percentage": 0
+            "percentage": 0,
         }
 
     temp_int = int(temp)
@@ -125,10 +130,11 @@ def get_temp_bar():
         "text": f"{bar} 󰈸",
         "tooltip": f"CPU Temperature: {temp:.1f}°C",
         "class": css_class,
-        "percentage": temp_int
+        "percentage": temp_int,
     }
 
     return output
+
 
 if __name__ == "__main__":
     try:
@@ -136,9 +142,13 @@ if __name__ == "__main__":
         print(json.dumps(result))
     except Exception as e:
         # Fallback output if something goes wrong
-        print(json.dumps({
-            "text": "-- 󰈸",
-            "tooltip": f"Temperature Error: {str(e)}",
-            "class": "critical",
-            "percentage": 0
-        }))
+        print(
+            json.dumps(
+                {
+                    "text": "-- 󰈸",
+                    "tooltip": f"Temperature Error: {str(e)}",
+                    "class": "critical",
+                    "percentage": 0,
+                }
+            )
+        )

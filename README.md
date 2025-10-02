@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.0-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.1-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -78,7 +78,7 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
     - **[ArchRiot Linux ISO](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso)**
     - **[SHA256 Checksum](https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.sha256)**
 
-  Note: *Do not use wget* for this. Curl is your friend:
+Note: _Do not use wget_ for this. Curl is your friend:
 
 ```bash
 curl -L -o archriot.iso https://github.com/CyphrRiot/ArchRiot/releases/download/v2.27/archriot.iso
@@ -870,39 +870,39 @@ Focused on reliability, portability, and predictable behavior across diverse har
 ## Highlights
 
 - Waybar portability
-  - Network module no longer hardcodes interface names; auto-detects reliably.
-  - Temperature module no longer hardcodes hwmon paths; auto-detects sensors across hardware.
-  - Flicker-free reloads via SIGUSR2 (no kill/restart).
+    - Network module no longer hardcodes interface names; auto-detects reliably.
+    - Temperature module no longer hardcodes hwmon paths; auto-detects sensors across hardware.
+    - Flicker-free reloads via SIGUSR2 (no kill/restart).
 
 - Screen recording indicator
-  - Kooha recording dot shown as the left-most item on the right; click-to-stop recording.
-  - Clean, lightweight PipeWire-based detection; zero idle footprint when idle.
+    - Kooha recording dot shown as the left-most item on the right; click-to-stop recording.
+    - Clean, lightweight PipeWire-based detection; zero idle footprint when idle.
 
 - Portals stack aligned with Hyprland
-  - Added xdg-desktop-portal, xdg-desktop-portal-hyprland, xdg-desktop-portal-gtk for consistent screencast/screenshot/file chooser behavior.
+    - Added xdg-desktop-portal, xdg-desktop-portal-hyprland, xdg-desktop-portal-gtk for consistent screencast/screenshot/file chooser behavior.
 
 - Audio reliability
-  - rtkit added for PipeWire/WirePlumber realtime scheduling under load.
+    - rtkit added for PipeWire/WirePlumber realtime scheduling under load.
 
 - Memory tuning that adapts to your RAM
-  - vm.min_free_kbytes scaled to 5% of total RAM (capped at 1GB), preserving responsiveness across hardware tiers.
+    - vm.min_free_kbytes scaled to 5% of total RAM (capped at 1GB), preserving responsiveness across hardware tiers.
 
 - GPU auto-detect
-  - Installs the correct NVIDIA/AMD/Intel driver and VA stack based on lspci detection.
+    - Installs the correct NVIDIA/AMD/Intel driver and VA stack based on lspci detection.
 
 - Hyprlock polish
-  - CPU and memory label refresh reduced to 5s to lower background CPU use while locked.
+    - CPU and memory label refresh reduced to 5s to lower background CPU use while locked.
 
 - Fuzzel stays
-  - We do not use Walker; Fuzzel remains the launcher.
+    - We do not use Walker; Fuzzel remains the launcher.
 
 ## Safer defaults
 
 - TRIM disabled by default
-  - No automatic fstrim.timer enablement (especially important for LUKS+btrfs). If you want weekly TRIM, enable `fstrim.timer` yourself and consider adding `discard` to your LUKS mapping (with the usual privacy trade-offs).
+    - No automatic fstrim.timer enablement (especially important for LUKS+btrfs). If you want weekly TRIM, enable `fstrim.timer` yourself and consider adding `discard` to your LUKS mapping (with the usual privacy trade-offs).
 
 - Brave VA-API flags not forced
-  - We didn’t add aggressive browser flags by default; if you want hardware decode, verify with `vainfo` and adjust your browser flags locally as needed.
+    - We didn’t add aggressive browser flags by default; if you want hardware decode, verify with `vainfo` and adjust your browser flags locally as needed.
 
 ## Deferred for a later update
 
@@ -912,6 +912,7 @@ Focused on reliability, portability, and predictable behavior across diverse har
 ## Upgrade
 
 Run the one-liner:
+
 ```
 curl -fsSL https://ArchRiot.org/setup.sh | bash
 ```

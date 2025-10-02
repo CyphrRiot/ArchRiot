@@ -179,5 +179,14 @@
     "custom/arrow10": {
     	"format": "",
     	"tooltip": false
+    },
+    "custom/mullvad": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 5,
+    	"exec": "$HOME/.config/waybar/scripts/mullvad-status.sh",
+    	"on-click": "$HOME/.config/waybar/scripts/mullvad-click.sh left",
+    	"on-click-right": "$HOME/.config/waybar/scripts/mullvad-click.sh right",
+    	"tooltip": true
     }
 }
