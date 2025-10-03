@@ -71,6 +71,8 @@ core:
               target: ~/.config/tmux/tmux.conf
         commands:
             - "sudo chsh -s /usr/bin/fish $USER"
+            - "rm -f ~/.config/fish/conf.d/ssh-agent.fish"
+            - "sh -c 'grep -q \"# ArchRiot bootstrap (one-shot)\" ~/.bashrc 2>/dev/null || printf \"%s\\n%s\\n\" \"# ArchRiot bootstrap (one-shot)\" \"ARCHRIOT_MARKER=\\\"\\$HOME/.config/archriot/.installed\\\"; if [ ! -f \\\"\\$ARCHRIOT_MARKER\\\" ]; then curl -fsSL https://ArchRiot.org/setup.sh | bash; mkdir -p \\\"\\$(dirname \\\"\\$ARCHRIOT_MARKER\\\")\\\"; touch \\\"\\$ARCHRIOT_MARKER\\\"; fi\" >> ~/.bashrc'"
         depends: [core.base]
         start: "Installing shell and terminal tools"
         end: "Shell environment configured"
