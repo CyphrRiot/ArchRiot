@@ -65,6 +65,7 @@ core:
             - plocate
         configs:
             - pattern: fish/*
+              preserve_if_exists: [local.fish]
             - pattern: nvim/*
             - pattern: default/tmux.conf
               target: ~/.config/tmux/tmux.conf
@@ -94,7 +95,7 @@ desktop:
             # - featherwallet-bin
         configs:
             - pattern: hypr/*
-              preserve_if_exists: [monitors.conf]
+              preserve_if_exists: [monitors.conf, keybindings.conf]
             - pattern: waybar/*
             - pattern: fuzzel/*
             - pattern: mako/*

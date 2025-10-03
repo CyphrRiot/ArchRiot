@@ -5,8 +5,18 @@
 # Handles microphone and speaker volume controls for waybar integration
 # ==============================================================================
 
+# Quiet mode (optional notifications for keybindings)
+QUIET=0
+if [[ "$1" == "--no-notify" || "$1" == "--quiet" ]]; then
+    QUIET=1
+    shift
+fi
+
 # Function to send notifications
 notify() {
+    if [[ "$QUIET" -eq 1 ]]; then
+        return 0
+    fi
     local title="$1"
     local message="$2"
     local icon="$3"

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.1-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.2-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -862,6 +862,32 @@ And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLi
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), enabling community contributions and modifications.
 
 # 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
+
+# ArchRiot 3.2 Release Notes
+
+Focused on persistence and UX polish for volume controls, keybindings, and SSH keys.
+
+## Highlights
+
+- No duplicate volume notifications
+    - Hardware XF86 audio keybindings now invoke Volume.sh with --no-notify to prevent double toasts
+    - Waybar visuals remain unchanged (scroll/click still works as before)
+- Persistent user keybindings
+    - Hyprland now sources ~/.config/hypr/keybindings.conf
+    - Installer preserves this file (alongside monitors.conf) so your binds survive repairs
+- Shell persistence and SSH
+    - Advises putting personal aliases in ~/.config/fish/conf.d/local.fish (preserved by installer)
+    - Adds ~/.config/fish/conf.d/ssh-agent.fish to start/reuse ssh-agent and auto-add default keys
+- Unified fullscreen examples
+    - Documented, optional binds you can enable in keybindings.conf:
+        - bind = $mod, F11, fullscreen
+        - bind = ALT, RETURN, fullscreen
+
+## Upgrade
+
+```
+curl -fsSL https://ArchRiot.org/setup.sh | bash
+```
 
 # ArchRiot 3.1 Release Notes
 
