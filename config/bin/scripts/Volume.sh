@@ -79,7 +79,7 @@ case "$1" in
         ;;
 
     --mic-inc)
-        if pamixer --default-source --increase 5; then
+        if pamixer --default-source --increase 5 --unmute; then
             status=$(get_mic_status)
             notify "Microphone Volume" "$status" "microphone-sensitivity-high"
         else
@@ -88,7 +88,7 @@ case "$1" in
         ;;
 
     --mic-dec)
-        if pamixer --default-source --decrease 5; then
+        if pamixer --default-source --decrease 5 --unmute; then
             status=$(get_mic_status)
             notify "Microphone Volume" "$status" "microphone-sensitivity-low"
         else
@@ -110,7 +110,7 @@ case "$1" in
         ;;
 
     --inc)
-        if pamixer --increase 5; then
+        if pamixer --increase 5 --unmute; then
             status=$(get_speaker_status)
             notify "Volume Up" "$status" "audio-volume-high"
         else
@@ -119,7 +119,7 @@ case "$1" in
         ;;
 
     --dec)
-        if pamixer --decrease 5; then
+        if pamixer --decrease 5 --unmute; then
             status=$(get_speaker_status)
             notify "Volume Down" "$status" "audio-volume-low"
         else
