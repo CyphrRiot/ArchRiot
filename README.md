@@ -882,6 +882,14 @@ Focused on a unified default font, UI polish, and Wayland-friendly scaling.
     - Background slider wrapped in a horizontal scroller
     - Current wallpaper label wraps/ellipsizes to preserve layout
 
+### Font credit and usage
+
+Paper Mono by Paper Design is used as the default system monospace font in ArchRiot 3.4.
+
+- Project: https://github.com/paper-design/paper-mono/tree/main
+- The font files are included under `config/fonts` and are installed to `~/.local/share/fonts` during setup.
+- Please refer to the upstream repository for license and attribution details.
+
 ## Upgrade
 
 ```
