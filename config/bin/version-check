@@ -12,40 +12,42 @@ import textwrap
 
 # GTK imports for direct dialog integration
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('Gdk', '3.0')
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("Gdk", "3.0")
 from gi.repository import Gtk, Gdk, GLib, Pango
+
 
 # Shared utility functions
 def load_css_styling(config_dir):
     """Load CSS styling from file or return default embedded styles"""
     default_css = """
         * {
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         window {
             background: #1a1b26;
             color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         label {
             color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         textview {
             background: #1a1b26;
             color: #cdd6f4;
             border: none;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         textview text {
             background: #1a1b26;
             color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         button {
@@ -55,7 +57,7 @@ def load_css_styling(config_dir):
             border-radius: 8px;
             padding: 8px 16px;
             font-weight: bold;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         button:hover {
@@ -70,17 +72,24 @@ def load_css_styling(config_dir):
 
     # Try to load from external file first
     if config_dir:
-        css_file = os.path.join(config_dir, 'dialog-style.css')
+        css_file = os.path.join(config_dir, "dialog-style.css")
         try:
             if os.path.exists(css_file):
-                with open(css_file, 'r') as f:
+                with open(css_file, "r") as f:
                     custom_css = f.read()
-                    log_with_timestamp(f"Loaded custom CSS from {css_file}", "INFO", config_dir)
+                    log_with_timestamp(
+                        f"Loaded custom CSS from {css_file}", "INFO", config_dir
+                    )
                     return custom_css
         except Exception as e:
-            log_with_timestamp(f"Error loading custom CSS file: {e}, using default", "WARNING", config_dir)
+            log_with_timestamp(
+                f"Error loading custom CSS file: {e}, using default",
+                "WARNING",
+                config_dir,
+            )
 
     return default_css
+
 
 def log_with_timestamp(message, level="INFO", config_dir=None):
     """Log message with timestamp and optional file logging"""
@@ -91,13 +100,14 @@ def log_with_timestamp(message, level="INFO", config_dir=None):
     # Also log to file for persistent debugging if config_dir is provided
     if config_dir:
         try:
-            log_dir = os.path.join(config_dir, 'logs')
+            log_dir = os.path.join(config_dir, "logs")
             os.makedirs(log_dir, exist_ok=True)
-            log_file = os.path.join(log_dir, 'version-check.log')
-            with open(log_file, 'a') as f:
-                f.write(log_message + '\n')
+            log_file = os.path.join(log_dir, "version-check.log")
+            with open(log_file, "a") as f:
+                f.write(log_message + "\n")
         except Exception:
             pass  # Don't let logging errors break the application
+
 
 def load_config(config_file):
     """Load version check configuration"""
@@ -105,14 +115,14 @@ def load_config(config_file):
         "ignore_notifications": False,
         "last_check": None,
         "last_notified_version": None,
-        "check_interval_hours": 4
+        "check_interval_hours": 4,
     }
 
     if not os.path.exists(config_file):
         return default_config
 
     try:
-        with open(config_file, 'r') as f:
+        with open(config_file, "r") as f:
             config = json.load(f)
             # Merge with defaults to handle missing keys
             for key, value in default_config.items():
@@ -123,25 +133,30 @@ def load_config(config_file):
         log_with_timestamp(f"Error loading config: {e}", "ERROR")
         return default_config
 
+
 def save_config(config_file, config_dir, config):
     """Save version check configuration"""
     try:
         os.makedirs(config_dir, exist_ok=True)
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             json.dump(config, f, indent=2)
     except Exception as e:
         log_with_timestamp(f"Error saving config: {e}", "ERROR")
 
+
 class UpdateDialog:
     """Handles the GUI dialog for displaying update information and user interactions."""
-    def __init__(self, local_version, remote_version, commit_messages=None, disable_timeout=False):
+
+    def __init__(
+        self, local_version, remote_version, commit_messages=None, disable_timeout=False
+    ):
         self.local_version = local_version
         self.remote_version = remote_version
         self.commit_messages = commit_messages or []
         self.disable_timeout = disable_timeout
-        self.home_dir = os.path.expanduser('~')
-        self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
-        self.config_file = os.path.join(self.config_dir, 'versions.cfg')
+        self.home_dir = os.path.expanduser("~")
+        self.config_dir = os.path.join(self.home_dir, ".config", "archriot")
+        self.config_file = os.path.join(self.config_dir, "versions.cfg")
         self.lock_file = "/tmp/archriot_upgrade.lock"
         self.user_interacted = False  # Track if user actually interacted with dialog
         self.dialog_timeout_id = None  # Track timeout for visibility check
@@ -194,16 +209,24 @@ class UpdateDialog:
         self.window.show_all()
 
         # Log dialog creation for debugging
-        log_with_timestamp(f"Dialog created for update {local_version} -> {remote_version}", "DIALOG", self.config_dir)
+        log_with_timestamp(
+            f"Dialog created for update {local_version} -> {remote_version}",
+            "DIALOG",
+            self.config_dir,
+        )
 
         # Set up timeout to check if dialog is actually visible to user
         # Skip timeout if explicitly disabled (for GUI mode)
         if not self.disable_timeout:
             # If no interaction after 5 minutes, send fallback notification
-            self.dialog_timeout_id = GLib.timeout_add_seconds(300, self.on_dialog_timeout)
+            self.dialog_timeout_id = GLib.timeout_add_seconds(
+                300, self.on_dialog_timeout
+            )
         else:
             self.dialog_timeout_id = None
-            log_with_timestamp("Timeout disabled for explicit GUI mode", "DIALOG", self.config_dir)
+            log_with_timestamp(
+                "Timeout disabled for explicit GUI mode", "DIALOG", self.config_dir
+            )
 
     def create_lock_file(self):
         """Create lock file with PID and cleanup handling using atomic operations"""
@@ -211,7 +234,7 @@ class UpdateDialog:
             # Clean up stale lock files first
             if os.path.exists(self.lock_file):
                 try:
-                    with open(self.lock_file, 'r') as f:
+                    with open(self.lock_file, "r") as f:
                         old_pid = f.read().strip()
 
                     # Check if the process is still running
@@ -231,8 +254,11 @@ class UpdateDialog:
             try:
                 # Use os.open with O_CREAT|O_EXCL for atomic creation
                 import fcntl
-                fd = os.open(self.lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
-                with os.fdopen(fd, 'w') as f:
+
+                fd = os.open(
+                    self.lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644
+                )
+                with os.fdopen(fd, "w") as f:
                     f.write(str(os.getpid()))
                 return True
             except FileExistsError:
@@ -240,7 +266,9 @@ class UpdateDialog:
                 return False
 
         except Exception as e:
-            log_with_timestamp(f"Could not create lock file: {e}", "WARNING", self.config_dir)
+            log_with_timestamp(
+                f"Could not create lock file: {e}", "WARNING", self.config_dir
+            )
             return False
 
     def cleanup_lock_file(self):
@@ -254,20 +282,24 @@ class UpdateDialog:
     def clear_waybar_state(self):
         """Clear waybar update state files"""
         try:
-            update_flag_file = os.path.join(self.config_dir, 'update_available')
-            update_state_file = os.path.join(self.config_dir, 'update_state')
+            update_flag_file = os.path.join(self.config_dir, "update_available")
+            update_state_file = os.path.join(self.config_dir, "update_state")
 
             if os.path.exists(update_flag_file):
                 os.remove(update_flag_file)
             if os.path.exists(update_state_file):
                 os.remove(update_state_file)
         except Exception as e:
-            log_with_timestamp(f"Could not clear waybar state: {e}", "WARNING", self.config_dir)
+            log_with_timestamp(
+                f"Could not clear waybar state: {e}", "WARNING", self.config_dir
+            )
 
     def add_title(self, container):
         """Add main title"""
         title_label = Gtk.Label()
-        title_label.set_markup('<span size="24000" weight="bold">◆ Update Available ◆</span>')
+        title_label.set_markup(
+            '<span size="24000" weight="bold">◆ Update Available ◆</span>'
+        )
         title_label.set_halign(Gtk.Align.CENTER)
         title_label.set_margin_bottom(10)
         container.pack_start(title_label, False, False, 0)
@@ -278,7 +310,9 @@ class UpdateDialog:
         version_box.set_halign(Gtk.Align.CENTER)
 
         version_label = Gtk.Label()
-        version_label.set_markup(f'<span size="14000">Update: <b>{self.local_version}</b> → <b><span foreground="#89b4fa">v{self.remote_version}</span></b></span>')
+        version_label.set_markup(
+            f'<span size="14000">Update: <b>{self.local_version}</b> → <b><span foreground="#89b4fa">v{self.remote_version}</span></b></span>'
+        )
         version_label.set_halign(Gtk.Align.CENTER)
         version_box.pack_start(version_label, False, False, 0)
 
@@ -294,20 +328,22 @@ class UpdateDialog:
             formatted_messages = []
             for msg in self.commit_messages[:8]:
                 # Handle multi-line commit messages properly
-                msg_lines = msg.split('\n')
+                msg_lines = msg.split("\n")
                 formatted_msg_lines = []
 
                 for i, line in enumerate(msg_lines):
                     if i == 0:
                         # First line gets bullet point with hanging indent
-                        wrapped = textwrap.fill(f"• {line}", width=50,
-                                              subsequent_indent="  ")
+                        wrapped = textwrap.fill(
+                            f"• {line}", width=50, subsequent_indent="  "
+                        )
                         formatted_msg_lines.append(wrapped)
                     else:
                         # Subsequent lines get hanging indent
                         if line.strip():  # Only wrap non-empty lines
-                            wrapped = textwrap.fill(f"  {line}", width=50,
-                                                  subsequent_indent="  ")
+                            wrapped = textwrap.fill(
+                                f"  {line}", width=50, subsequent_indent="  "
+                            )
                             formatted_msg_lines.append(wrapped)
                         else:
                             formatted_msg_lines.append("  ")
@@ -348,12 +384,14 @@ Choose an option below to proceed."""
         css_provider = Gtk.CssProvider()
         css_provider.load_from_data(b"""
         label {
-            font-family: "Hack Nerd Font Mono";
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
             font-size: 14px;
         }
         """)
         style_context = instructions_label.get_style_context()
-        style_context.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        style_context.add_provider(
+            css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
         # Wrap in scrolled window to handle tall content
         scrolled_window = Gtk.ScrolledWindow()
@@ -402,7 +440,7 @@ Choose an option below to proceed."""
             self.dialog_timeout_id = None
 
         # Clear waybar state file if managed by waybar
-        if hasattr(self, 'waybar_managed') and self.waybar_managed:
+        if hasattr(self, "waybar_managed") and self.waybar_managed:
             self.clear_waybar_state()
         try:
             # Create the update command
@@ -410,12 +448,16 @@ Choose an option below to proceed."""
 
             # Use hyprctl dispatch to launch terminal EXACTLY like SUPER+SHIFT+ENTER
             # Change to home directory first to avoid getcwd errors
-            terminal_cmd = f"ghostty --class=com.mitchellh.ghostty-floating -e bash -c 'cd $HOME; echo \"Starting ArchRiot update...\"; {update_command}; echo \"Update complete. Press Enter to close.\"; read'"
+            terminal_cmd = f'ghostty --class=com.mitchellh.ghostty-floating -e bash -c \'cd $HOME; echo "Starting ArchRiot update..."; {update_command}; echo "Update complete. Press Enter to close."; read\''
 
             try:
                 # Use hyprctl dispatch exec to launch exactly like SUPER+SHIFT+ENTER
-                result = subprocess.run(['hyprctl', 'dispatch', 'exec', terminal_cmd],
-                                      capture_output=True, text=True, timeout=10)
+                result = subprocess.run(
+                    ["hyprctl", "dispatch", "exec", terminal_cmd],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
 
                 if result.returncode == 0:
                     print("Successfully launched update terminal via hyprctl dispatch")
@@ -426,7 +468,9 @@ Choose an option below to proceed."""
 
             # Keep dialog open briefly to show success
             print("Update terminal launched successfully")
-            GLib.timeout_add_seconds(2, lambda: (self.cleanup_lock_file(), Gtk.main_quit()))
+            GLib.timeout_add_seconds(
+                2, lambda: (self.cleanup_lock_file(), Gtk.main_quit())
+            )
 
         except Exception as e:
             log_with_timestamp(f"Error launching update: {e}", "ERROR", self.config_dir)
@@ -442,7 +486,7 @@ Choose an option below to proceed."""
             self.dialog_timeout_id = None
         try:
             config = load_config(self.config_file)
-            config['ignore_notifications'] = True
+            config["ignore_notifications"] = True
             save_config(self.config_file, self.config_dir, config)
 
             dialog = Gtk.MessageDialog(
@@ -450,9 +494,11 @@ Choose an option below to proceed."""
                 flags=0,
                 message_type=Gtk.MessageType.INFO,
                 buttons=Gtk.ButtonsType.OK,
-                message_format="Notifications Disabled"
+                message_format="Notifications Disabled",
             )
-            dialog.format_secondary_text("Future update notifications have been disabled.\n\nYou can re-enable them by running:\nversion-check --reset")
+            dialog.format_secondary_text(
+                "Future update notifications have been disabled.\n\nYou can re-enable them by running:\nversion-check --reset"
+            )
             dialog.run()
             dialog.destroy()
 
@@ -460,7 +506,9 @@ Choose an option below to proceed."""
             Gtk.main_quit()
 
         except Exception as e:
-            log_with_timestamp(f"Error ignoring notifications: {e}", "ERROR", self.config_dir)
+            log_with_timestamp(
+                f"Error ignoring notifications: {e}", "ERROR", self.config_dir
+            )
 
     def on_close_clicked(self, button):
         """Handle close button click"""
@@ -482,7 +530,11 @@ Choose an option below to proceed."""
             self.dialog_timeout_id = None
 
         # Log dialog destruction
-        log_with_timestamp(f"Dialog destroyed (user_interacted: {self.user_interacted})", "DIALOG", self.config_dir)
+        log_with_timestamp(
+            f"Dialog destroyed (user_interacted: {self.user_interacted})",
+            "DIALOG",
+            self.config_dir,
+        )
 
         # Only mark as interacted if dialog was visible for reasonable time
         # This prevents marking as interacted when dialog fails to show
@@ -492,20 +544,33 @@ Choose an option below to proceed."""
     def on_dialog_timeout(self):
         """Handle dialog timeout - send fallback notification if no user interaction"""
         if not self.user_interacted:
-            log_with_timestamp("Dialog timeout - no user interaction detected", "DIALOG", self.config_dir)
-            print("Dialog timeout - user may not have seen GTK dialog, sending fallback notification")
+            log_with_timestamp(
+                "Dialog timeout - no user interaction detected",
+                "DIALOG",
+                self.config_dir,
+            )
+            print(
+                "Dialog timeout - user may not have seen GTK dialog, sending fallback notification"
+            )
             # Send system notification as fallback
             try:
-                subprocess.run([
-                    'notify-send',
-                    '--urgency=critical',
-                    '--icon=system-software-update',
-                    'ArchRiot Update Available',
-                    f'New version {self.remote_version} is available!\nCurrent: {self.local_version}\n\nRun: python3 bin/version-check --force'
-                ], check=False)
+                subprocess.run(
+                    [
+                        "notify-send",
+                        "--urgency=critical",
+                        "--icon=system-software-update",
+                        "ArchRiot Update Available",
+                        f"New version {self.remote_version} is available!\nCurrent: {self.local_version}\n\nRun: python3 bin/version-check --force",
+                    ],
+                    check=False,
+                )
                 print("Fallback notification sent")
             except Exception as e:
-                log_with_timestamp(f"Failed to send fallback notification: {e}", "WARNING", self.config_dir)
+                log_with_timestamp(
+                    f"Failed to send fallback notification: {e}",
+                    "WARNING",
+                    self.config_dir,
+                )
 
             # Close the invisible dialog
             self.cleanup_lock_file()
@@ -514,8 +579,6 @@ Choose an option below to proceed."""
         # Remove timeout
         self.dialog_timeout_id = None
         return False  # Don't repeat timeout
-
-
 
     def load_config(self):
         """Load version check configuration"""
@@ -533,16 +596,21 @@ Choose an option below to proceed."""
 
         # Apply CSS to default screen
         screen = Gdk.Screen.get_default()
-        Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        Gtk.StyleContext.add_provider_for_screen(
+            screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+        )
+
 
 class VersionChecker:
     """Manages version checking, comparison, and notification logic for ArchRiot updates."""
-    def __init__(self):
-        self.home_dir = os.path.expanduser('~')
-        self.config_dir = os.path.join(self.home_dir, '.config', 'archriot')
-        self.config_file = os.path.join(self.config_dir, 'versions.cfg')
-        self.version_file = os.path.join(self.home_dir, '.local', 'share', 'archriot', 'VERSION')
 
+    def __init__(self):
+        self.home_dir = os.path.expanduser("~")
+        self.config_dir = os.path.join(self.home_dir, ".config", "archriot")
+        self.config_file = os.path.join(self.config_dir, "versions.cfg")
+        self.version_file = os.path.join(
+            self.home_dir, ".local", "share", "archriot", "VERSION"
+        )
 
     def load_config(self):
         """Load version check configuration"""
@@ -555,7 +623,7 @@ class VersionChecker:
     def get_local_version(self):
         """Read local ArchRiot version from VERSION file"""
         try:
-            with open(self.version_file, 'r') as f:
+            with open(self.version_file, "r") as f:
                 version = f.read().strip()
                 return version
         except Exception as e:
@@ -568,7 +636,7 @@ class VersionChecker:
             # Primary method: Direct VERSION file from ArchRiot website
             url = "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/VERSION"
             req = urllib.request.Request(url)
-            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
+            req.add_header("User-Agent", "ArchRiot-VersionChecker/1.0")
 
             with urllib.request.urlopen(req, timeout=10) as response:
                 version = response.read().decode().strip()
@@ -581,13 +649,13 @@ class VersionChecker:
             # Fallback method: GitHub API
             url = "https://api.github.com/repos/CyphrRiot/ArchRiot/releases/latest"
             req = urllib.request.Request(url)
-            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
+            req.add_header("User-Agent", "ArchRiot-VersionChecker/1.0")
 
             with urllib.request.urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode())
-                tag_name = data.get('tag_name', '')
+                tag_name = data.get("tag_name", "")
                 # Remove 'v' prefix if present
-                version = tag_name.lstrip('v')
+                version = tag_name.lstrip("v")
                 return version
 
         except Exception as e:
@@ -601,19 +669,21 @@ class VersionChecker:
 
         # Handle common version prefixes (v1.2.3, version-1.2.3, etc.)
         version_str = version_str.strip()
-        if version_str.lower().startswith('v'):
+        if version_str.lower().startswith("v"):
             version_str = version_str[1:]
-        elif version_str.lower().startswith('version'):
-            version_str = version_str[7:].lstrip('-_')
+        elif version_str.lower().startswith("version"):
+            version_str = version_str[7:].lstrip("-_")
 
         # Extract the numeric part before any non-numeric suffix (e.g., "1.2.3-beta" -> "1.2.3")
-        version_match = re.match(r'^(\d+(?:\.\d+)*)', version_str)
+        version_match = re.match(r"^(\d+(?:\.\d+)*)", version_str)
         if not version_match:
-            print(f"Warning: Could not parse version string '{version_str}', using (0, 0, 0)")
+            print(
+                f"Warning: Could not parse version string '{version_str}', using (0, 0, 0)"
+            )
             return (0, 0, 0)
 
         clean_version = version_match.group(1)
-        parts = clean_version.split('.')
+        parts = clean_version.split(".")
 
         try:
             # Convert to integers, filtering out any empty parts
@@ -627,7 +697,9 @@ class VersionChecker:
                 int_parts.append(0)
             return tuple(int_parts[:3])
         except ValueError as e:
-            print(f"Warning: Error parsing version '{version_str}': {e}, using (0, 0, 0)")
+            print(
+                f"Warning: Error parsing version '{version_str}': {e}, using (0, 0, 0)"
+            )
             return (0, 0, 0)
 
     def is_newer_version(self, local_version, remote_version):
@@ -639,26 +711,26 @@ class VersionChecker:
 
     def should_check_now(self, config):
         """Determine if we should check for updates now"""
-        if config.get('ignore_notifications', False):
+        if config.get("ignore_notifications", False):
             return False
 
-        last_check = config.get('last_check')
+        last_check = config.get("last_check")
         if not last_check:
             return True
 
         try:
-            last_check_time = datetime.fromisoformat(last_check.replace('Z', '+00:00'))
+            last_check_time = datetime.fromisoformat(last_check.replace("Z", "+00:00"))
             now = datetime.now(timezone.utc)
             hours_since_check = (now - last_check_time).total_seconds() / 3600
 
-            interval = config.get('check_interval_hours', 4)
+            interval = config.get("check_interval_hours", 4)
             return hours_since_check >= interval
         except Exception:
             return True
 
     def should_notify_version(self, config, remote_version):
         """Check if we should notify about this specific version"""
-        last_notified = config.get('last_notified_version')
+        last_notified = config.get("last_notified_version")
         if not last_notified:
             return True
 
@@ -671,39 +743,48 @@ class VersionChecker:
             # First try with version tags
             url = f"https://api.github.com/repos/CyphrRiot/ArchRiot/compare/v{local_version}...v{remote_version}"
             req = urllib.request.Request(url)
-            req.add_header('User-Agent', 'ArchRiot-VersionChecker/1.0')
-            req.add_header('Accept', 'application/vnd.github.v3+json')
+            req.add_header("User-Agent", "ArchRiot-VersionChecker/1.0")
+            req.add_header("Accept", "application/vnd.github.v3+json")
 
             with urllib.request.urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode())
 
-                commits = data.get('commits', [])
+                commits = data.get("commits", [])
                 commit_messages = []
 
                 for commit in commits:
-                    message = commit.get('commit', {}).get('message', '').strip()
+                    message = commit.get("commit", {}).get("message", "").strip()
                     if message:
                         # Take first 2-3 lines of commit message for more detail
-                        lines = message.split('\n')
+                        lines = message.split("\n")
                         # Get title and first few non-empty lines
                         display_lines = []
                         for line in lines[:4]:  # Max 4 lines to check
                             clean_line = line.strip()
-                            if clean_line and len(display_lines) < 3:  # Max 3 lines to show
+                            if (
+                                clean_line and len(display_lines) < 3
+                            ):  # Max 3 lines to show
                                 display_lines.append(clean_line)
 
-                        if display_lines and not display_lines[0].startswith('Merge'):  # Skip merge commits
+                        if display_lines and not display_lines[0].startswith(
+                            "Merge"
+                        ):  # Skip merge commits
                             # Join lines with newlines to preserve formatting
-                            formatted_message = '\n'.join(display_lines)
+                            formatted_message = "\n".join(display_lines)
                             commit_messages.append(formatted_message)
 
                 return commit_messages[:10]  # Limit to 10 most recent commits
 
         except urllib.error.HTTPError as e:
             if e.code == 404:
-                log_with_timestamp(f"Version tags not found for comparison (local: v{local_version}, remote: v{remote_version}) - commits unavailable", "WARNING")
+                log_with_timestamp(
+                    f"Version tags not found for comparison (local: v{local_version}, remote: v{remote_version}) - commits unavailable",
+                    "WARNING",
+                )
             else:
-                log_with_timestamp(f"HTTP error fetching commits ({e.code}): {e}", "WARNING")
+                log_with_timestamp(
+                    f"HTTP error fetching commits ({e.code}): {e}", "WARNING"
+                )
             return []
         except Exception as e:
             log_with_timestamp(f"Error fetching version commits: {e}", "WARNING")
@@ -715,7 +796,7 @@ class VersionChecker:
         lock_file = "/tmp/archriot_upgrade.lock"
         if os.path.exists(lock_file):
             try:
-                with open(lock_file, 'r') as f:
+                with open(lock_file, "r") as f:
                     lock_pid = f.read().strip()
                 # Check if the PID is still running
                 if os.path.exists(f"/proc/{lock_pid}"):
@@ -728,10 +809,14 @@ class VersionChecker:
                 print(f"Warning: Could not check lock file: {e}")
 
         try:
-            print(f"Launching direct GTK dialog with LOCAL={local_version}, REMOTE={remote_version}")
+            print(
+                f"Launching direct GTK dialog with LOCAL={local_version}, REMOTE={remote_version}"
+            )
 
             # Fetch commit messages for dynamic content
-            commit_messages = self.get_commits_between_versions(local_version, remote_version)
+            commit_messages = self.get_commits_between_versions(
+                local_version, remote_version
+            )
             print(f"Fetched {len(commit_messages)} commit messages")
             if commit_messages:
                 print("Commit messages to display:")
@@ -739,7 +824,9 @@ class VersionChecker:
                     print(f"  {i}. {msg}")
 
             # Create and show dialog directly - no subprocess needed!
-            dialog = UpdateDialog(local_version, remote_version, commit_messages, disable_timeout=True)
+            dialog = UpdateDialog(
+                local_version, remote_version, commit_messages, disable_timeout=True
+            )
 
             # Run GTK main loop
             Gtk.main()
@@ -759,36 +846,34 @@ class VersionChecker:
             log_with_timestamp(f"Error launching update dialog: {e}", "ERROR")
             return False
 
-
-
     def update_check_timestamp(self, config):
         """Update the last check timestamp"""
-        config['last_check'] = datetime.now(timezone.utc).isoformat()
+        config["last_check"] = datetime.now(timezone.utc).isoformat()
         save_config(self.config_file, self.config_dir, config)
 
     def update_notified_version(self, config, version):
         """Update the last notified version"""
-        config['last_notified_version'] = version
+        config["last_notified_version"] = version
         save_config(self.config_file, self.config_dir, config)
 
     def is_running_from_systemd(self):
         """Check if we're running from systemd using multiple indicators"""
         # Check for systemd-specific environment variables
-        if os.environ.get('INVOCATION_ID'):  # Set by systemd for all services
+        if os.environ.get("INVOCATION_ID"):  # Set by systemd for all services
             return True
 
         # Check if parent process is systemd
         try:
             ppid = os.getppid()
-            with open(f'/proc/{ppid}/comm', 'r') as f:
+            with open(f"/proc/{ppid}/comm", "r") as f:
                 parent_name = f.read().strip()
-            if parent_name == 'systemd':
+            if parent_name == "systemd":
                 return True
         except:
             pass
 
         # Fallback to original method as last resort
-        return not os.environ.get('TERM') and not sys.stdin.isatty()
+        return not os.environ.get("TERM") and not sys.stdin.isatty()
 
     def run_check(self, force=False):
         """Main version check logic"""
@@ -828,14 +913,20 @@ class VersionChecker:
                 if is_systemd:
                     print("Running from systemd - creating waybar notification flag")
                     # Create flag file for waybar to show update icon
-                    update_flag_file = os.path.join(self.config_dir, 'update_available')
+                    update_flag_file = os.path.join(self.config_dir, "update_available")
                     try:
-                        with open(update_flag_file, 'w') as f:
-                            f.write(f"UPDATE_AVAILABLE:{local_version}->{remote_version}\n")
-                        print(f"Update flag created: {local_version} -> {remote_version}")
+                        with open(update_flag_file, "w") as f:
+                            f.write(
+                                f"UPDATE_AVAILABLE:{local_version}->{remote_version}\n"
+                            )
+                        print(
+                            f"Update flag created: {local_version} -> {remote_version}"
+                        )
                         # Don't mark as notified - let user click the waybar icon
                     except Exception as e:
-                        log_with_timestamp(f"Failed to create update flag: {e}", "ERROR")
+                        log_with_timestamp(
+                            f"Failed to create update flag: {e}", "ERROR"
+                        )
                 else:
                     print("Running interactively - launching GUI notification...")
                     success = self.launch_update_dialog(local_version, remote_version)
@@ -845,11 +936,14 @@ class VersionChecker:
                         self.update_notified_version(config, remote_version)
                         print("Update notification completed successfully")
                     else:
-                        print("GUI notification failed or user did not interact - will retry on next check")
+                        print(
+                            "GUI notification failed or user did not interact - will retry on next check"
+                        )
             else:
                 print("Already notified about this version")
         else:
             print("No update available")
+
 
 def main():
     """Main entry point"""
@@ -875,19 +969,19 @@ def main():
                 "ignore_notifications": False,
                 "last_check": None,
                 "last_notified_version": None,
-                "check_interval_hours": 4
+                "check_interval_hours": 4,
             }
             save_config(checker.config_file, checker.config_dir, config)
             print("Configuration reset")
         elif sys.argv[1] == "--reset-notifications":
             # Reset only notification state, keep other settings
             config = load_config(checker.config_file)
-            config['last_notified_version'] = None
+            config["last_notified_version"] = None
             save_config(checker.config_file, checker.config_dir, config)
             print("Notification state reset - will notify about current updates")
         elif sys.argv[1] == "--clear-flag":
             # Clear waybar update flag
-            update_flag_file = os.path.join(checker.config_dir, 'update_available')
+            update_flag_file = os.path.join(checker.config_dir, "update_available")
             try:
                 if os.path.exists(update_flag_file):
                     os.remove(update_flag_file)
@@ -916,25 +1010,39 @@ def main():
                     print(f"Dynamic GUI launch: {local_version} -> {remote_version}")
 
                     # Fetch commit messages for dynamic content
-                    commit_messages = checker.get_commits_between_versions(local_version, remote_version)
-                    print(f"Fetched {len(commit_messages)} commit messages for dynamic waybar dialog")
+                    commit_messages = checker.get_commits_between_versions(
+                        local_version, remote_version
+                    )
+                    print(
+                        f"Fetched {len(commit_messages)} commit messages for dynamic waybar dialog"
+                    )
 
                     # Launch dialog with live data
-                    dialog = UpdateDialog(local_version, remote_version, commit_messages, disable_timeout=True)
+                    dialog = UpdateDialog(
+                        local_version,
+                        remote_version,
+                        commit_messages,
+                        disable_timeout=True,
+                    )
                     dialog.waybar_managed = True  # Flag to prevent auto-notification
                     Gtk.main()
                 else:
-                    print(f"No update available - local {local_version} is up to date with remote {remote_version}")
+                    print(
+                        f"No update available - local {local_version} is up to date with remote {remote_version}"
+                    )
 
             except Exception as e:
                 log_with_timestamp(f"Error in dynamic GUI mode: {e}", "ERROR")
                 log_with_timestamp(f"Error launching GUI: {e}", "ERROR")
         else:
-            print("Usage: version-check [--force|--test|--reset|--reset-notifications|--clear-flag|--gui]")
+            print(
+                "Usage: version-check [--force|--test|--reset|--reset-notifications|--clear-flag|--gui]"
+            )
             sys.exit(1)
     else:
         # Normal check
         checker.run_check()
+
 
 if __name__ == "__main__":
     main()

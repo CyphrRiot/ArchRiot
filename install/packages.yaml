@@ -305,11 +305,13 @@ development:
 system:
     fonts:
         packages:
-            - ttf-hack-nerd
-            - ttf-cascadia-mono-nerd
+            # - ttf-hack-nerd
+            # - ttf-cascadia-mono-nerd
+            - ttf-nerd-fonts-symbols
             - noto-fonts-emoji
         commands:
             - "fc-cache -f"
+            - "mkdir -p ~/.local/share/fonts/ && cp ~/.local/share/archriot/config/fonts/* ~/.local/share/fonts/"
         depends: [core.base]
         start: "Installing system fonts"
         end: "Fonts installed and cached"

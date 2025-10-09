@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('Gdk', '3.0')
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("Gdk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango  # type: ignore
 import os
 import json
 import sys
+
 
 class WelcomeWindow:
     def __init__(self):
@@ -52,9 +54,9 @@ class WelcomeWindow:
 
     def add_welcome_image(self, container):
         # Add Welcome image - use image directly from repository
-        home_dir = os.environ.get('HOME') or os.path.expanduser('~')
+        home_dir = os.environ.get("HOME") or os.path.expanduser("~")
         image_path = os.path.join(
-            home_dir, '.local', 'share', 'archriot', 'config', 'images', 'welcome.png'
+            home_dir, ".local", "share", "archriot", "config", "images", "welcome.png"
         )
 
         if os.path.exists(image_path):
@@ -99,7 +101,7 @@ class WelcomeWindow:
 
         # Set font family and size for text view
         font_desc = Pango.FontDescription()
-        font_desc.set_family("Hack Nerd Font Mono")
+        font_desc.set_family("Paper Mono")
         font_desc.set_size(13 * Pango.SCALE)
         text_view.override_font(font_desc)
 
@@ -124,7 +126,7 @@ class WelcomeWindow:
             "• SUPER + C  →  Control Panel\n\n",
             "🎯 PHILOSOPHY\n\n",
             "ArchRiot respects your abilities while providing an intuitive experience. Everything is configurable, and you're encouraged to make it your own.\n\n",
-            "Enjoy exploring your new environment! 🏴‍☠️"
+            "Enjoy exploring your new environment! 🏴‍☠️",
         ]
 
         # Insert text parts
@@ -142,7 +144,9 @@ class WelcomeWindow:
         iter_end = buffer.get_end_iter()
 
         # Insert clickable link for Twitter
-        twitter_tag = buffer.create_tag("twitter_link", foreground="#89b4fa", underline=True)
+        twitter_tag = buffer.create_tag(
+            "twitter_link", foreground="#89b4fa", underline=True
+        )
         buffer.insert_with_tags(iter_end, "Cypher Riot on X", twitter_tag)
         iter_end = buffer.get_end_iter()
 
@@ -150,10 +154,11 @@ class WelcomeWindow:
         iter_end = buffer.get_end_iter()
 
         # Insert clickable link for GitHub
-        github_tag = buffer.create_tag("github_link", foreground="#89b4fa", underline=True)
+        github_tag = buffer.create_tag(
+            "github_link", foreground="#89b4fa", underline=True
+        )
         buffer.insert_with_tags(iter_end, "ArchRiot on GitHub", github_tag)
         iter_end = buffer.get_end_iter()
-
 
         # Connect click events for links
         text_view.connect("button-press-event", self.on_text_clicked)
@@ -192,14 +197,11 @@ class WelcomeWindow:
         os.makedirs(config_dir, exist_ok=True)
 
         # Write welcome.json to indicate welcome has been dismissed
-        welcome_config = {
-            "dismissed": True,
-            "timestamp": GLib.get_real_time()
-        }
+        welcome_config = {"dismissed": True, "timestamp": GLib.get_real_time()}
 
         config_file = os.path.join(config_dir, "welcome.json")
         try:
-            with open(config_file, 'w') as f:
+            with open(config_file, "w") as f:
                 json.dump(welcome_config, f, indent=2)
             print("Welcome dismissed forever")
         except Exception as e:
@@ -213,7 +215,9 @@ class WelcomeWindow:
     def on_text_clicked(self, text_view, event):
         """Handle clicks on text view to open links"""
         if event.button == 1:  # Left click
-            x, y = text_view.window_to_buffer_coords(Gtk.TextWindowType.WIDGET, int(event.x), int(event.y))
+            x, y = text_view.window_to_buffer_coords(
+                Gtk.TextWindowType.WIDGET, int(event.x), int(event.y)
+            )
             iter_result = text_view.get_iter_at_location(x, y)
 
             if iter_result[0]:  # Check if location was found
@@ -221,24 +225,26 @@ class WelcomeWindow:
                 tags = iter_pos.get_tags()
 
                 for tag in tags:
-                    if hasattr(tag, 'get_property'):
-                        tag_name = tag.get_property('name')
+                    if hasattr(tag, "get_property"):
+                        tag_name = tag.get_property("name")
                         if tag_name == "twitter_link":
                             os.system("xdg-open https://x.com/CyphrRiot &")
                             return True
                         elif tag_name == "github_link":
-                            os.system("xdg-open https://github.com/CyphrRiot/ArchRiot &")
+                            os.system(
+                                "xdg-open https://github.com/CyphrRiot/ArchRiot &"
+                            )
                             return True
 
         return False
 
     def get_archriot_version(self):
         """Read ArchRiot version from VERSION file"""
-        home_dir = os.environ.get('HOME') or os.path.expanduser('~')
-        version_path = os.path.join(home_dir, '.local', 'share', 'archriot', 'VERSION')
+        home_dir = os.environ.get("HOME") or os.path.expanduser("~")
+        version_path = os.path.join(home_dir, ".local", "share", "archriot", "VERSION")
 
         try:
-            with open(version_path, 'r') as f:
+            with open(version_path, "r") as f:
                 version = f.read().strip()
                 return version
         except Exception as e:
@@ -249,6 +255,7 @@ class WelcomeWindow:
         """Handle window destruction - quit this app's main loop only"""
         Gtk.main_quit()
 
+
 def should_show_welcome():
     """Check if welcome should be shown"""
     config_file = os.path.expanduser("~/.config/archriot/welcome.json")
@@ -257,11 +264,12 @@ def should_show_welcome():
         return True
 
     try:
-        with open(config_file, 'r') as f:
+        with open(config_file, "r") as f:
             config = json.load(f)
         return not config.get("dismissed", False)
     except:
         return True
+
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--force":
@@ -275,31 +283,31 @@ def main():
     css_provider = Gtk.CssProvider()
     css_data = """
     * {
-        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
     }
 
     window {
         background: rgba(0, 0, 0, 1.0);
         color: #cdd6f4;
-        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
     }
 
     label {
         color: #cdd6f4;
-        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
     }
 
     textview {
         background: rgba(0, 0, 0, 1.0);
         color: #cdd6f4;
         border: none;
-        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
     }
 
     textview text {
         background: rgba(0, 0, 0, 1.0);
         color: #cdd6f4;
-        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
     }
 
     button {
@@ -311,7 +319,7 @@ def main():
         font-weight: bold;
         min-width: 100px;
         min-height: 32px;
-        font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+        font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
     }
 
     button:hover {
@@ -328,12 +336,15 @@ def main():
 
     # Apply CSS to default screen
     screen = Gdk.Screen.get_default()
-    Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    Gtk.StyleContext.add_provider_for_screen(
+        screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+    )
 
     WelcomeWindow()
 
     # Run the main loop - this keeps the window alive
     Gtk.main()
+
 
 if __name__ == "__main__":
     main()

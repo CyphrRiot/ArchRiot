@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.3-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.4-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -862,6 +862,31 @@ And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLi
 ArchRiot is released under the [MIT License](https://opensource.org/licenses/MIT), enabling community contributions and modifications.
 
 # 🛡️⚔️🪐 Hack the Planet 🪐⚔️🛡️
+
+# ArchRiot 3.4 Release Notes
+
+Focused on a unified default font, UI polish, and Wayland-friendly scaling.
+
+## Highlights
+
+- Paper Mono as the default system monospace font
+    - Shipped in config/fonts and installed to ~/.local/share/fonts
+    - Applied across GTK3/GTK4, Waybar, Fuzzel, Ghostty, Control Panel, Welcome, and Zed
+    - Symbols coverage via ttf-nerd-fonts-symbols retained for icons/glyphs
+- Brave webapps and windows scale correctly at fractional monitor scales
+    - Added --force-device-scale-factor=1 --high-dpi-support=1 to Brave (Wayland)
+    - Prevents content shrinking inside PWAs when monitor scale is < 1.0 (e.g., 0.9)
+- Thunar “Open Terminal Here” launches Ghostty directly
+    - Reliable even without exo preferred apps configured
+- Control Panel wallpaper section no longer grows offscreen
+    - Background slider wrapped in a horizontal scroller
+    - Current wallpaper label wraps/ellipsizes to preserve layout
+
+## Upgrade
+
+```
+curl -fsSL https://ArchRiot.org/setup.sh | bash
+```
 
 # ArchRiot 3.2 Release Notes
 

@@ -49,7 +49,7 @@ palette = 16=#ff9e64
 palette = 17=#db4b4b
 
 # Font configuration
-font-family = "CaskaydiaMono Nerd Font Mono"
+font-family = "Paper Mono"
 font-size = 13
 
 # padding

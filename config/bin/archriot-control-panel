@@ -5,14 +5,16 @@ Centralized settings interface for ArchRiot components
 """
 
 import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Gdk', '4.0')
-gi.require_version('GdkPixbuf', '2.0')
+
+gi.require_version("Gtk", "4.0")
+gi.require_version("Gdk", "4.0")
+gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import Gtk, Gdk, GLib, Pango, GdkPixbuf, Gio
 import os
 import sys
 import time
 from pathlib import Path
+
 
 class ArchRiotDialog:
     """Reusable ArchRiot-themed dialog with proper background"""
@@ -40,7 +42,9 @@ class ArchRiotDialog:
 
         # Title
         title_label = Gtk.Label()
-        title_label.set_markup(f'<span size="28000" weight="bold" foreground="#bb9af7" font_family="Hack Nerd Font Mono">{title}</span>')
+        title_label.set_markup(
+            f'<span size="28000" weight="bold" foreground="#bb9af7" font_family="Paper Mono">{title}</span>'
+        )
         title_label.set_halign(Gtk.Align.CENTER)
         main_box.append(title_label)
 
@@ -57,7 +61,9 @@ class ArchRiotDialog:
 
         # Content text
         content_label = Gtk.Label()
-        content_label.set_markup(f'<span size="12000" font_family="Hack Nerd Font Mono">{content}</span>')
+        content_label.set_markup(
+            f'<span size="12000" font_family="Paper Mono">{content}</span>'
+        )
         content_label.set_wrap(True)
         content_label.set_halign(Gtk.Align.START)
         content_box.append(content_label)
@@ -70,7 +76,9 @@ class ArchRiotDialog:
         close_button.set_halign(Gtk.Align.CENTER)
         close_button.connect("clicked", lambda x: self.dialog.close())
         # Apply Hack Nerd Font to button
-        close_button.get_child().set_markup('<span font_family="Hack Nerd Font Mono">Close</span>')
+        close_button.get_child().set_markup(
+            '<span font_family="Paper Mono">Close</span>'
+        )
         main_box.append(close_button)
 
         self.dialog.set_child(main_box)
@@ -78,6 +86,7 @@ class ArchRiotDialog:
     def show(self):
         """Show the dialog"""
         self.dialog.present()
+
 
 # Import our configuration manager
 def import_config_module():
@@ -90,73 +99,101 @@ def import_config_module():
         script_dir = os.getcwd()
 
     # Try from same directory first (development)
-    config_script = os.path.join(script_dir, 'archriot-config')
+    config_script = os.path.join(script_dir, "archriot-config")
 
     if os.path.exists(config_script):
         # Execute the config script to get the ArchRiotConfig class
         global_vars = {}
-        with open(config_script, 'r') as f:
+        with open(config_script, "r") as f:
             exec(f.read(), global_vars)
-        return global_vars['ArchRiotConfig']
+        return global_vars["ArchRiotConfig"]
     else:
         # Try from installed location
-        home_bin = str(Path.home() / '.local' / 'share' / 'archriot' / 'config' / 'bin' / 'archriot-config')
+        home_bin = str(
+            Path.home()
+            / ".local"
+            / "share"
+            / "archriot"
+            / "config"
+            / "bin"
+            / "archriot-config"
+        )
         if os.path.exists(home_bin):
             global_vars = {}
-            with open(home_bin, 'r') as f:
+            with open(home_bin, "r") as f:
                 exec(f.read(), global_vars)
-            return global_vars['ArchRiotConfig']
+            return global_vars["ArchRiotConfig"]
         else:
             # Create a minimal fallback config class
             class FallbackConfig:
                 def __init__(self):
                     pass
+
                 def get_pomodoro_config(self):
-                    return {'enabled': True, 'duration': 25}
+                    return {"enabled": True, "duration": 25}
+
                 def get_bluelight_config(self):
                     import re
                     from pathlib import Path
 
                     # Read current settings from hyprland.conf
-                    hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+                    hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
                     enabled = True
                     temperature = 3500  # fallback
 
                     if hyprland_config.exists():
                         content = hyprland_config.read_text()
                         # Check if hyprsunset line is commented out (disabled)
-                        if re.search(r'^\s*#.*hyprsunset', content, re.MULTILINE):
+                        if re.search(r"^\s*#.*hyprsunset", content, re.MULTILINE):
                             enabled = False
                         # Extract temperature from active hyprsunset line
-                        match = re.search(r'exec-once = hyprsunset -t (\d+)', content)
+                        match = re.search(r"exec-once = hyprsunset -t (\d+)", content)
                         if match:
                             temperature = int(match.group(1))
                             enabled = True
 
-                    return {'enabled': enabled, 'temperature': temperature}
+                    return {"enabled": enabled, "temperature": temperature}
+
                 def get_mullvad_config(self):
-                    return {'enabled': False, 'account_number': '', 'auto_connect': False}
+                    return {
+                        "enabled": False,
+                        "account_number": "",
+                        "auto_connect": False,
+                    }
+
                 def get_display_config(self):
-                    return {'enabled': True, 'resolution': 1920, 'scaling': 100}
+                    return {"enabled": True, "resolution": 1920, "scaling": 100}
+
                 def get_power_config(self):
-                    return {'enabled': True, 'profile': 'balanced'}
+                    return {"enabled": True, "profile": "balanced"}
+
                 def set_pomodoro_config(self, enabled, duration):
                     pass
+
                 def set_bluelight_config(self, enabled, temperature):
                     # This is handled by the BlueLightWidget directly updating hyprland.conf
                     # No separate config file needed since hyprland.conf is the source of truth
                     pass
-                def set_mullvad_config(self, enabled, account_number='', auto_connect=False):
+
+                def set_mullvad_config(
+                    self, enabled, account_number="", auto_connect=False
+                ):
                     pass
+
                 def set_display_config(self, enabled, resolution, scaling):
                     pass
+
                 def set_power_config(self, enabled, profile):
                     pass
+
                 def backup_config(self, name=None):
                     return "/tmp/fallback-backup"
+
             return FallbackConfig
 
+
 ArchRiotConfig = import_config_module()
+
 
 class BaseControlWidget:
     """Base class for control widgets with toggle and value control"""
@@ -188,7 +225,9 @@ class BaseControlWidget:
 
         # Title
         title_label = Gtk.Label()
-        title_label.set_markup(f'<span size="14000" weight="bold" foreground="#bb9af7">{self.icon} {self.title}</span>')
+        title_label.set_markup(
+            f'<span size="14000" weight="bold" foreground="#bb9af7">{self.icon} {self.title}</span>'
+        )
         title_label.set_halign(Gtk.Align.START)
         title_label.set_hexpand(True)
         self.title_row.append(title_label)
@@ -217,7 +256,18 @@ class BaseControlWidget:
         row.append(switch)
         return row, switch
 
-    def create_slider(self, label_text, min_val, max_val, step, current_val, enabled, marks, callback, snap_increment=None):
+    def create_slider(
+        self,
+        label_text,
+        min_val,
+        max_val,
+        step,
+        current_val,
+        enabled,
+        marks,
+        callback,
+        snap_increment=None,
+    ):
         """Create a slider with optional label and snapping - single reusable function for all sliders"""
         container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
@@ -227,13 +277,16 @@ class BaseControlWidget:
             label.set_halign(Gtk.Align.START)
             container.append(label)
 
-        scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, min_val, max_val, step)
+        scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, min_val, max_val, step
+        )
         scale.set_value(current_val)
         scale.set_draw_value(False)
         scale.set_sensitive(enabled)
 
         # Create snapping wrapper if snap_increment provided
         if snap_increment:
+
             def snapping_callback(scale):
                 value = scale.get_value()
                 snapped_value = round(value / snap_increment) * snap_increment
@@ -241,6 +294,7 @@ class BaseControlWidget:
                     scale.set_value(snapped_value)
                     return
                 callback(scale)
+
             scale.connect("value-changed", snapping_callback)
         else:
             scale.connect("value-changed", callback)
@@ -258,11 +312,14 @@ class BaseControlWidget:
             GLib.source_remove(self.timeout_id)
         self.timeout_id = GLib.timeout_add(delay_ms, save_function)
 
+
 class PomodoroWidget(BaseControlWidget):
     """Pomodoro timer control widget"""
 
     def __init__(self, config, window=None):
-        super().__init__(config, "Pomodoro Timer", "Control the built-in Waybar Pomodoro timer", "🍅")
+        super().__init__(
+            config, "Pomodoro Timer", "Control the built-in Waybar Pomodoro timer", "🍅"
+        )
         self.window = window
         self.setup_controls()
 
@@ -272,7 +329,9 @@ class PomodoroWidget(BaseControlWidget):
 
         # Duration label (add to title row)
         self.duration_label = Gtk.Label()
-        self.duration_label.set_markup(f'<span size="11000" alpha="75%">Duration: {pomodoro_config["duration"]} minutes</span>')
+        self.duration_label.set_markup(
+            f'<span size="11000" alpha="75%">Duration: {pomodoro_config["duration"]} minutes</span>'
+        )
         self.duration_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.duration_label)
 
@@ -284,7 +343,7 @@ class PomodoroWidget(BaseControlWidget):
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(pomodoro_config['enabled'])
+        self.switch.set_active(pomodoro_config["enabled"])
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
@@ -292,10 +351,12 @@ class PomodoroWidget(BaseControlWidget):
         duration_marks = [(i, f"{i}m") for i in range(5, 65, 5)]
         slider_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        self.duration_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 5, 60, 1)
-        self.duration_scale.set_value(pomodoro_config['duration'])
+        self.duration_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 5, 60, 1
+        )
+        self.duration_scale.set_value(pomodoro_config["duration"])
         self.duration_scale.set_draw_value(False)
-        self.duration_scale.set_sensitive(pomodoro_config['enabled'])
+        self.duration_scale.set_sensitive(pomodoro_config["enabled"])
         self.duration_scale.connect("value-changed", self.on_duration_changed)
 
         # Add tick marks
@@ -330,7 +391,9 @@ class PomodoroWidget(BaseControlWidget):
             return
 
         duration = int(snapped_value)
-        self.duration_label.set_markup(f'<span size="11000" alpha="75%">Duration: {duration} minutes</span>')
+        self.duration_label.set_markup(
+            f'<span size="11000" alpha="75%">Duration: {duration} minutes</span>'
+        )
 
         # Apply duration change immediately to waybar
         self.apply_duration_change(duration)
@@ -342,10 +405,11 @@ class PomodoroWidget(BaseControlWidget):
         """Apply toggle change immediately to waybar"""
         try:
             import subprocess
+
             # Save config immediately so waybar script can read it
             self.config.set_pomodoro_config(enabled, duration)
             # Refresh waybar pomodoro module
-            subprocess.run(['pkill', '-RTMIN+8', 'waybar'], check=False)
+            subprocess.run(["pkill", "-RTMIN+8", "waybar"], check=False)
         except Exception as e:
             print(f"Pomodoro waybar update error: {e}")
 
@@ -353,11 +417,12 @@ class PomodoroWidget(BaseControlWidget):
         """Apply duration change immediately to waybar"""
         try:
             import subprocess
+
             enabled = self.switch.get_active()
             # Save config immediately so waybar script can read it
             self.config.set_pomodoro_config(enabled, duration)
             # Refresh waybar pomodoro module
-            subprocess.run(['pkill', '-RTMIN+8', 'waybar'], check=False)
+            subprocess.run(["pkill", "-RTMIN+8", "waybar"], check=False)
         except Exception as e:
             print(f"Pomodoro waybar update error: {e}")
 
@@ -398,7 +463,9 @@ class PomodoroWidget(BaseControlWidget):
 
         # Title
         title_label = Gtk.Label()
-        title_label.set_markup('<span size="28000" weight="bold" foreground="#bb9af7" font_family="Hack Nerd Font Mono">🍅 Pomodoro Technique</span>')
+        title_label.set_markup(
+            '<span size="28000" weight="bold" foreground="#bb9af7" font_family="Paper Mono">🍅 Pomodoro Technique</span>'
+        )
         title_label.set_halign(Gtk.Align.CENTER)
         main_box.append(title_label)
 
@@ -416,7 +483,14 @@ class PomodoroWidget(BaseControlWidget):
         try:
             import os
             import sys
-            script_file = sys.argv[0] if sys.argv and sys.argv[0] else os.path.expanduser("~/.local/share/archriot/config/bin/archriot-control-panel")
+
+            script_file = (
+                sys.argv[0]
+                if sys.argv and sys.argv[0]
+                else os.path.expanduser(
+                    "~/.local/share/archriot/config/bin/archriot-control-panel"
+                )
+            )
             script_dir = os.path.dirname(os.path.abspath(script_file))
             archriot_dir = os.path.dirname(script_dir)
             image_path = os.path.join(archriot_dir, "config", "images", "pomodoro.png")
@@ -434,7 +508,15 @@ class PomodoroWidget(BaseControlWidget):
                 # Function to scale pixbuf based on dialog width
                 def scale_pixbuf(widget, pixbuf):
                     # Get the dialog's current width, accounting for margins
-                    dialog_width = widget.get_allocated_width() - main_box.get_margin_start() - main_box.get_margin_end() - content_box.get_margin_start() - content_box.get_margin_end() - content_frame.get_margin_start() - content_frame.get_margin_end()
+                    dialog_width = (
+                        widget.get_allocated_width()
+                        - main_box.get_margin_start()
+                        - main_box.get_margin_end()
+                        - content_box.get_margin_start()
+                        - content_box.get_margin_end()
+                        - content_frame.get_margin_start()
+                        - content_frame.get_margin_end()
+                    )
                     if dialog_width <= 0:
                         dialog_width = 800  # Fallback to default width
 
@@ -447,7 +529,9 @@ class PomodoroWidget(BaseControlWidget):
                     new_height = int(orig_height * scale_factor)
 
                     # Scale the pixbuf
-                    scaled_pixbuf = pixbuf.scale_simple(dialog_width, new_height, GdkPixbuf.InterpType.BILINEAR)
+                    scaled_pixbuf = pixbuf.scale_simple(
+                        dialog_width, new_height, GdkPixbuf.InterpType.BILINEAR
+                    )
                     image.set_from_pixbuf(scaled_pixbuf)
 
                 # Initial scaling
@@ -487,7 +571,9 @@ class PomodoroWidget(BaseControlWidget):
     ArchRiot's built-in Pomodoro timer integrates directly with your Waybar, making it easy to stay focused while working in your Hyprland environment."""
 
         content_label = Gtk.Label()
-        content_label.set_markup(f'<span size="12000" font_family="Hack Nerd Font Mono">{content}</span>')
+        content_label.set_markup(
+            f'<span size="12000" font_family="Paper Mono">{content}</span>'
+        )
         content_label.set_wrap(True)
         content_label.set_halign(Gtk.Align.START)
         content_box.append(content_label)
@@ -499,17 +585,25 @@ class PomodoroWidget(BaseControlWidget):
         close_button = Gtk.Button(label="Close")
         close_button.set_halign(Gtk.Align.CENTER)
         close_button.connect("clicked", lambda x: dialog.close())
-        close_button.get_child().set_markup('<span font_family="Hack Nerd Font Mono">Close</span>')
+        close_button.get_child().set_markup(
+            '<span font_family="Paper Mono">Close</span>'
+        )
         main_box.append(close_button)
 
         dialog.set_child(main_box)
         dialog.present()
 
+
 class BlueLightWidget(BaseControlWidget):
     """Blue light filter control widget"""
 
     def __init__(self, config, window=None):
-        super().__init__(config, "Blue Light Filter", "Control the built-in hyprsunset blue light filter", "💡")
+        super().__init__(
+            config,
+            "Blue Light Filter",
+            "Control the built-in hyprsunset blue light filter",
+            "💡",
+        )
         self.window = window
         self.setup_controls()
 
@@ -518,22 +612,22 @@ class BlueLightWidget(BaseControlWidget):
         import re
         from pathlib import Path
 
-        hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+        hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
         enabled = True
         temperature = 3500  # fallback
 
         if hyprland_config.exists():
             content = hyprland_config.read_text()
             # Check if hyprsunset line is commented out (disabled)
-            if re.search(r'^\s*#.*hyprsunset', content, re.MULTILINE):
+            if re.search(r"^\s*#.*hyprsunset", content, re.MULTILINE):
                 enabled = False
             # Extract temperature from active hyprsunset line
-            match = re.search(r'exec-once = hyprsunset -t (\d+)', content)
+            match = re.search(r"exec-once = hyprsunset -t (\d+)", content)
             if match:
                 temperature = int(match.group(1))
                 enabled = True
 
-        return {'enabled': enabled, 'temperature': temperature}
+        return {"enabled": enabled, "temperature": temperature}
 
     def setup_controls(self):
         """Setup blue light filter controls"""
@@ -541,21 +635,29 @@ class BlueLightWidget(BaseControlWidget):
 
         # Temperature label (add to title row)
         self.temp_label = Gtk.Label()
-        self.temp_label.set_markup(f'<span size="11000" alpha="75%">Temperature: {bluelight_config["temperature"]}K</span>')
+        self.temp_label.set_markup(
+            f'<span size="11000" alpha="75%">Temperature: {bluelight_config["temperature"]}K</span>'
+        )
         self.temp_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.temp_label)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(bluelight_config['enabled'])
+        self.switch.set_active(bluelight_config["enabled"])
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
         # Temperature slider (using reusable function)
         temp_marks = [(i, f"{i}K") for i in range(2500, 5500, 500)]
         slider_container, _, self.temp_scale = self.create_slider(
-            "", 2500, 5000, 100, bluelight_config['temperature'],
-            bluelight_config['enabled'], temp_marks, self.on_temperature_changed
+            "",
+            2500,
+            5000,
+            100,
+            bluelight_config["temperature"],
+            bluelight_config["enabled"],
+            temp_marks,
+            self.on_temperature_changed,
         )
         self.controls_box.append(slider_container)
 
@@ -587,7 +689,9 @@ class BlueLightWidget(BaseControlWidget):
             return
 
         temperature = int(snapped_value)
-        self.temp_label.set_markup(f'<span size="11000" alpha="75%">Temperature: {temperature}K</span>')
+        self.temp_label.set_markup(
+            f'<span size="11000" alpha="75%">Temperature: {temperature}K</span>'
+        )
 
         # Apply temperature change immediately
         if self.switch.get_active():
@@ -604,21 +708,27 @@ class BlueLightWidget(BaseControlWidget):
             import time
 
             # Kill any existing hyprsunset processes (ensure only one instance)
-            subprocess.run(['pkill', '-f', 'hyprsunset'], check=False)
+            subprocess.run(["pkill", "-f", "hyprsunset"], check=False)
             # Wait a moment for processes to fully terminate
             time.sleep(0.1)
             # Start hyprsunset with new temperature as detached process
-            subprocess.Popen(['hyprsunset', '-t', str(temperature)],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                           preexec_fn=os.setsid)
+            subprocess.Popen(
+                ["hyprsunset", "-t", str(temperature)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                preexec_fn=os.setsid,
+            )
 
             # Update Hyprland config to make change persistent
-            hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+            hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
             if hyprland_config.exists():
                 content = hyprland_config.read_text()
                 # Replace hyprsunset line with new temperature
-                content = re.sub(r'exec-once = hyprsunset -t \d+',
-                               f'exec-once = hyprsunset -t {temperature}', content)
+                content = re.sub(
+                    r"exec-once = hyprsunset -t \d+",
+                    f"exec-once = hyprsunset -t {temperature}",
+                    content,
+                )
                 hyprland_config.write_text(content)
 
             # Save to external config file for persistence
@@ -634,17 +744,20 @@ class BlueLightWidget(BaseControlWidget):
             from pathlib import Path
 
             # Kill any existing hyprsunset processes (ensure complete shutdown)
-            subprocess.run(['pkill', '-f', 'hyprsunset'], check=False)
+            subprocess.run(["pkill", "-f", "hyprsunset"], check=False)
             # Wait a moment for processes to fully terminate
             time.sleep(0.1)
 
             # Comment out hyprsunset line in Hyprland config
-            hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+            hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
             if hyprland_config.exists():
                 content = hyprland_config.read_text()
                 # Comment out the hyprsunset line
-                content = re.sub(r'exec-once = hyprsunset -t \d+',
-                               '# exec-once = hyprsunset -t 3500  # Disabled via Control Panel', content)
+                content = re.sub(
+                    r"exec-once = hyprsunset -t \d+",
+                    "# exec-once = hyprsunset -t 3500  # Disabled via Control Panel",
+                    content,
+                )
                 hyprland_config.write_text(content)
 
             # Save to external config file for persistence
@@ -659,7 +772,7 @@ class BlueLightWidget(BaseControlWidget):
             import os
             from pathlib import Path
 
-            config_file = Path.home() / '.config' / 'archriot' / 'archriot.conf'
+            config_file = Path.home() / ".config" / "archriot" / "archriot.conf"
             config = configparser.ConfigParser()
 
             # Read existing config if it exists
@@ -667,16 +780,16 @@ class BlueLightWidget(BaseControlWidget):
                 config.read(config_file)
 
             # Ensure bluelight section exists
-            if not config.has_section('bluelight'):
-                config.add_section('bluelight')
+            if not config.has_section("bluelight"):
+                config.add_section("bluelight")
 
             # Update bluelight settings
-            config.set('bluelight', 'enabled', str(enabled).lower())
-            config.set('bluelight', 'temperature', str(temperature))
+            config.set("bluelight", "enabled", str(enabled).lower())
+            config.set("bluelight", "temperature", str(temperature))
 
             # Write back to file
             os.makedirs(config_file.parent, exist_ok=True)
-            with open(config_file, 'w') as f:
+            with open(config_file, "w") as f:
                 config.write(f)
 
         except Exception as e:
@@ -693,11 +806,14 @@ class BlueLightWidget(BaseControlWidget):
         # No separate config file needed
         pass
 
+
 class MullvadWidget(BaseControlWidget):
     """Mullvad VPN control widget"""
 
     def __init__(self, config, window=None):
-        super().__init__(config, "Mullvad VPN", "Manage VPN connection and account settings", "🛡️")
+        super().__init__(
+            config, "Mullvad VPN", "Manage VPN connection and account settings", "🛡️"
+        )
         self.window = window
         self.setup_controls()
 
@@ -709,11 +825,15 @@ class MullvadWidget(BaseControlWidget):
 
         # Use actual system values
         account_number = current_account or ""
-        actual_auto_connect = current_auto_connect if current_auto_connect is not None else False
+        actual_auto_connect = (
+            current_auto_connect if current_auto_connect is not None else False
+        )
 
         # Auto-connect label (add to title row)
         self.auto_connect_label = Gtk.Label()
-        self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if actual_auto_connect else "Off"}</span>')
+        self.auto_connect_label.set_markup(
+            f'<span size="11000" alpha="75%">Auto-connect: {"On" if actual_auto_connect else "Off"}</span>'
+        )
         self.auto_connect_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.auto_connect_label)
 
@@ -775,7 +895,9 @@ class MullvadWidget(BaseControlWidget):
         account_number = self.account_entry.get_text()
 
         # Update label
-        self.auto_connect_label.set_markup(f'<span size="11000" alpha="75%">Auto-connect: {"On" if state else "Off"}</span>')
+        self.auto_connect_label.set_markup(
+            f'<span size="11000" alpha="75%">Auto-connect: {"On" if state else "Off"}</span>'
+        )
 
         # Apply changes immediately to system
         self.apply_toggle_change(state, account_number)
@@ -786,9 +908,9 @@ class MullvadWidget(BaseControlWidget):
     def format_account_number(self, account_number):
         """Format account number with spaces every 4 digits"""
         # Remove any existing spaces
-        clean = account_number.replace(' ', '')
+        clean = account_number.replace(" ", "")
         # Add spaces every 4 digits
-        formatted = ' '.join(clean[i:i+4] for i in range(0, len(clean), 4))
+        formatted = " ".join(clean[i : i + 4] for i in range(0, len(clean), 4))
         return formatted
 
     def on_account_changed(self, entry):
@@ -797,10 +919,10 @@ class MullvadWidget(BaseControlWidget):
         cursor_pos = entry.get_position()
 
         # Only allow digits and spaces
-        filtered = ''.join(c for c in text if c.isdigit() or c == ' ')
+        filtered = "".join(c for c in text if c.isdigit() or c == " ")
 
         # Remove all spaces and re-format
-        digits_only = ''.join(c for c in filtered if c.isdigit())
+        digits_only = "".join(c for c in filtered if c.isdigit())
 
         # Limit to 16 digits
         if len(digits_only) > 16:
@@ -812,8 +934,12 @@ class MullvadWidget(BaseControlWidget):
         # Update field if changed
         if formatted != text:
             # Calculate new cursor position accounting for added spaces
-            digits_before_cursor = len(''.join(c for c in text[:cursor_pos] if c.isdigit()))
-            spaces_before_cursor = (digits_before_cursor - 1) // 4 if digits_before_cursor > 0 else 0
+            digits_before_cursor = len(
+                "".join(c for c in text[:cursor_pos] if c.isdigit())
+            )
+            spaces_before_cursor = (
+                (digits_before_cursor - 1) // 4 if digits_before_cursor > 0 else 0
+            )
             new_pos = digits_before_cursor + spaces_before_cursor
 
             entry.set_text(formatted)
@@ -822,7 +948,7 @@ class MullvadWidget(BaseControlWidget):
     def on_account_activate(self, entry):
         """Handle account number validation when user presses Enter"""
         text = entry.get_text()
-        clean_text = text.replace(' ', '')
+        clean_text = text.replace(" ", "")
 
         # Apply account change immediately
         self.apply_account_change(clean_text)
@@ -834,11 +960,14 @@ class MullvadWidget(BaseControlWidget):
         """Get current Mullvad account number from system"""
         try:
             import subprocess
-            result = subprocess.run(['mullvad', 'account', 'get'], capture_output=True, text=True)
+
+            result = subprocess.run(
+                ["mullvad", "account", "get"], capture_output=True, text=True
+            )
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
-                    if 'Mullvad account:' in line:
-                        account = line.split(':')[1].strip()
+                for line in result.stdout.split("\n"):
+                    if "Mullvad account:" in line:
+                        account = line.split(":")[1].strip()
                         return account
         except Exception:
             pass
@@ -848,16 +977,19 @@ class MullvadWidget(BaseControlWidget):
         """Get current auto-connect status from Mullvad"""
         try:
             import subprocess
-            result = subprocess.run(['mullvad', 'auto-connect', 'get'], capture_output=True, text=True)
+
+            result = subprocess.run(
+                ["mullvad", "auto-connect", "get"], capture_output=True, text=True
+            )
             if result.returncode == 0:
-                return 'on' in result.stdout.lower()
+                return "on" in result.stdout.lower()
         except Exception:
             pass
         return None
 
     def update_eye_button(self):
         """Update eye button appearance based on visibility state"""
-        if hasattr(self, 'is_account_visible') and self.is_account_visible:
+        if hasattr(self, "is_account_visible") and self.is_account_visible:
             self.eye_button.set_label("👁️")  # Open eye = visible
         else:
             self.eye_button.set_label("🔒")  # Lock = hidden
@@ -876,25 +1008,25 @@ class MullvadWidget(BaseControlWidget):
 
             # Set auto-connect
             if enabled:
-                subprocess.run(['mullvad', 'auto-connect', 'set', 'on'], check=False)
+                subprocess.run(["mullvad", "auto-connect", "set", "on"], check=False)
 
                 # Update Hyprland config to start Mullvad GUI
-                hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+                hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
                 if hyprland_config.exists():
                     content = hyprland_config.read_text()
-                    if 'exec-once = mullvad-vpn' not in content:
+                    if "exec-once = mullvad-vpn" not in content:
                         # Add Mullvad GUI to exec-once
-                        content += '\nexec-once = mullvad-vpn\n'
+                        content += "\nexec-once = mullvad-vpn\n"
                         hyprland_config.write_text(content)
             else:
-                subprocess.run(['mullvad', 'auto-connect', 'set', 'off'], check=False)
+                subprocess.run(["mullvad", "auto-connect", "set", "off"], check=False)
 
                 # Remove Mullvad GUI from Hyprland config
-                hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+                hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
                 if hyprland_config.exists():
                     content = hyprland_config.read_text()
-                    content = content.replace('exec-once = mullvad-vpn\n', '')
-                    content = content.replace('\nexec-once = mullvad-vpn', '')
+                    content = content.replace("exec-once = mullvad-vpn\n", "")
+                    content = content.replace("\nexec-once = mullvad-vpn", "")
                     hyprland_config.write_text(content)
         except Exception as e:
             print(f"Mullvad toggle error: {e}")
@@ -903,8 +1035,11 @@ class MullvadWidget(BaseControlWidget):
         """Apply account login immediately"""
         try:
             import subprocess
+
             if account_number and len(account_number) >= 10:
-                subprocess.run(['mullvad', 'account', 'login', account_number], check=False)
+                subprocess.run(
+                    ["mullvad", "account", "login", account_number], check=False
+                )
         except Exception as e:
             print(f"Mullvad account error: {e}")
 
@@ -922,7 +1057,9 @@ class MullvadWidget(BaseControlWidget):
     def on_get_mullvad_clicked(self, button):
         """Open Mullvad VPN website"""
         import subprocess
-        subprocess.Popen(['xdg-open', 'https://mullvad.net'])
+
+        subprocess.Popen(["xdg-open", "https://mullvad.net"])
+
 
 class AudioWidget(BaseControlWidget):
     """Audio system control widget"""
@@ -939,7 +1076,9 @@ class AudioWidget(BaseControlWidget):
 
         # Audio enabled label (add to title row)
         self.audio_label = Gtk.Label()
-        self.audio_label.set_markup(f'<span size="11000" alpha="75%">Audio: {"On" if current_status else "Off"}</span>')
+        self.audio_label.set_markup(
+            f'<span size="11000" alpha="75%">Audio: {"On" if current_status else "Off"}</span>'
+        )
         self.audio_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.audio_label)
 
@@ -954,7 +1093,9 @@ class AudioWidget(BaseControlWidget):
         state = switch.get_active()
 
         # Update label
-        self.audio_label.set_markup(f'<span size="11000" alpha="75%">Audio: {"On" if state else "Off"}</span>')
+        self.audio_label.set_markup(
+            f'<span size="11000" alpha="75%">Audio: {"On" if state else "Off"}</span>'
+        )
 
         # Apply audio system change immediately
         self.apply_audio_change(state)
@@ -966,11 +1107,15 @@ class AudioWidget(BaseControlWidget):
         """Get current audio mute status"""
         try:
             import subprocess
+
             # Check if audio is muted using pactl
-            result = subprocess.run(['pactl', 'get-sink-mute', '@DEFAULT_SINK@'],
-                                  capture_output=True, text=True)
+            result = subprocess.run(
+                ["pactl", "get-sink-mute", "@DEFAULT_SINK@"],
+                capture_output=True,
+                text=True,
+            )
             if result.returncode == 0:
-                return 'no' in result.stdout.lower()  # 'no' means not muted = audio on
+                return "no" in result.stdout.lower()  # 'no' means not muted = audio on
             return True  # Default to on if we can't detect
         except Exception:
             return True  # Default to on if we can't detect
@@ -979,12 +1124,17 @@ class AudioWidget(BaseControlWidget):
         """Apply audio mute/unmute change immediately"""
         try:
             import subprocess
+
             if enabled:
                 # Unmute audio
-                subprocess.run(['pactl', 'set-sink-mute', '@DEFAULT_SINK@', '0'], check=False)
+                subprocess.run(
+                    ["pactl", "set-sink-mute", "@DEFAULT_SINK@", "0"], check=False
+                )
             else:
                 # Mute audio
-                subprocess.run(['pactl', 'set-sink-mute', '@DEFAULT_SINK@', '1'], check=False)
+                subprocess.run(
+                    ["pactl", "set-sink-mute", "@DEFAULT_SINK@", "1"], check=False
+                )
         except Exception as e:
             print(f"Audio mute error: {e}")
 
@@ -998,11 +1148,14 @@ class AudioWidget(BaseControlWidget):
         # Audio changes are already applied in real-time
         pass
 
+
 class CameraWidget(BaseControlWidget):
     """Camera system control widget"""
 
     def __init__(self, config, window=None):
-        super().__init__(config, "Camera", "Camera control and resolution settings", "📷")
+        super().__init__(
+            config, "Camera", "Camera control and resolution settings", "📷"
+        )
         self.window = window
         self.setup_controls()
 
@@ -1014,7 +1167,9 @@ class CameraWidget(BaseControlWidget):
 
         # Resolution label (add to title row)
         self.resolution_label = Gtk.Label()
-        self.resolution_label.set_markup(f'<span size="11000" alpha="75%">Resolution: {current_resolution}</span>')
+        self.resolution_label.set_markup(
+            f'<span size="11000" alpha="75%">Resolution: {current_resolution}</span>'
+        )
         self.resolution_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.resolution_label)
 
@@ -1032,10 +1187,18 @@ class CameraWidget(BaseControlWidget):
         self.title_row.append(self.switch)
 
         # Resolution slider
-        self.available_resolutions = ["640x480", "960x540", "960x720", "1280x720", "1920x1080"]
+        self.available_resolutions = [
+            "640x480",
+            "960x540",
+            "960x720",
+            "1280x720",
+            "1920x1080",
+        ]
         resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, len(self.available_resolutions)-1, 1)
+        self.resolution_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 0, len(self.available_resolutions) - 1, 1
+        )
 
         # Set to current resolution
         current_index = 0
@@ -1088,7 +1251,9 @@ class CameraWidget(BaseControlWidget):
         index = int(snapped_value)
         if 0 <= index < len(self.available_resolutions):
             resolution = self.available_resolutions[index]
-            self.resolution_label.set_markup(f'<span size="11000" alpha="75%">Resolution: {resolution}</span>')
+            self.resolution_label.set_markup(
+                f'<span size="11000" alpha="75%">Resolution: {resolution}</span>'
+            )
             self.apply_resolution_change(resolution)
 
         # Mark changes pending
@@ -1102,8 +1267,9 @@ class CameraWidget(BaseControlWidget):
         """Get current camera device status"""
         try:
             import os
+
             # Check if camera devices exist and are accessible
-            camera_devices = ['/dev/video0', '/dev/video1']
+            camera_devices = ["/dev/video0", "/dev/video1"]
             for device in camera_devices:
                 if os.path.exists(device) and os.access(device, os.R_OK):
                     return True
@@ -1115,12 +1281,17 @@ class CameraWidget(BaseControlWidget):
         """Get current camera resolution"""
         try:
             import subprocess
-            result = subprocess.run(['v4l2-ctl', '--get-fmt-video', '-d', '/dev/video0'], capture_output=True, text=True)
+
+            result = subprocess.run(
+                ["v4l2-ctl", "--get-fmt-video", "-d", "/dev/video0"],
+                capture_output=True,
+                text=True,
+            )
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
-                    if 'Width/Height' in line:
+                for line in result.stdout.split("\n"):
+                    if "Width/Height" in line:
                         # Extract resolution from "Width/Height      : 960/720"
-                        parts = line.split(':')[1].strip().split('/')
+                        parts = line.split(":")[1].strip().split("/")
                         if len(parts) == 2:
                             width = parts[0].strip()
                             height = parts[1].strip()
@@ -1135,18 +1306,18 @@ class CameraWidget(BaseControlWidget):
             import subprocess
             import os
 
-            camera_devices = ['/dev/video0', '/dev/video1']
+            camera_devices = ["/dev/video0", "/dev/video1"]
 
             if enabled:
                 # Enable camera access by setting proper permissions
                 for device in camera_devices:
                     if os.path.exists(device):
-                        subprocess.run(['sudo', 'chmod', '666', device], check=False)
+                        subprocess.run(["sudo", "chmod", "666", device], check=False)
             else:
                 # Disable camera access by removing permissions
                 for device in camera_devices:
                     if os.path.exists(device):
-                        subprocess.run(['sudo', 'chmod', '000', device], check=False)
+                        subprocess.run(["sudo", "chmod", "000", device], check=False)
         except Exception as e:
             print(f"Camera access error: {e}")
 
@@ -1154,9 +1325,20 @@ class CameraWidget(BaseControlWidget):
         """Apply camera resolution change immediately"""
         try:
             import subprocess
-            width, height = resolution.split('x')
+
+            width, height = resolution.split("x")
             # Set camera resolution using v4l2-ctl
-            subprocess.run(['v4l2-ctl', '-d', '/dev/video0', '--set-fmt-video=width={},height={},pixelformat=MJPG'.format(width, height)], check=False)
+            subprocess.run(
+                [
+                    "v4l2-ctl",
+                    "-d",
+                    "/dev/video0",
+                    "--set-fmt-video=width={},height={},pixelformat=MJPG".format(
+                        width, height
+                    ),
+                ],
+                check=False,
+            )
         except Exception as e:
             print(f"Camera resolution error: {e}")
 
@@ -1184,7 +1366,9 @@ class CameraWidget(BaseControlWidget):
 
             # Header
             title_label = Gtk.Label()
-            title_label.set_markup('<span size="28000" weight="bold" foreground="#bb9af7">📷 Camera Video Test</span>')
+            title_label.set_markup(
+                '<span size="28000" weight="bold" foreground="#bb9af7">📷 Camera Video Test</span>'
+            )
             title_label.set_halign(Gtk.Align.CENTER)
             main_box.append(title_label)
 
@@ -1207,7 +1391,9 @@ class CameraWidget(BaseControlWidget):
             # Close button
             close_button = Gtk.Button(label="Close")
             close_button.set_halign(Gtk.Align.CENTER)
-            close_button.connect("clicked", lambda x: self.stop_camera_and_close(dialog))
+            close_button.connect(
+                "clicked", lambda x: self.stop_camera_and_close(dialog)
+            )
             main_box.append(close_button)
 
             dialog.set_child(main_box)
@@ -1222,7 +1408,11 @@ class CameraWidget(BaseControlWidget):
         except ImportError:
             # Fallback if OpenCV not available
             content = "Camera preview requires OpenCV (python-opencv). Please install it:\n\nsudo pacman -S python-opencv"
-            fallback_dialog = ArchRiotDialog("📷 Camera Preview", content, self.window.window if self.window else None)
+            fallback_dialog = ArchRiotDialog(
+                "📷 Camera Preview",
+                content,
+                self.window.window if self.window else None,
+            )
             fallback_dialog.show()
         except Exception as e:
             print(f"Camera preview error: {e}")
@@ -1230,7 +1420,7 @@ class CameraWidget(BaseControlWidget):
     def stop_camera_and_close(self, dialog):
         """Stop camera and close dialog"""
         self.camera_running = False
-        if hasattr(self, 'cap'):
+        if hasattr(self, "cap"):
             self.cap.release()
         dialog.close()
 
@@ -1238,6 +1428,7 @@ class CameraWidget(BaseControlWidget):
         """Camera feed loop running in background thread"""
         try:
             import cv2
+
             self.cap = cv2.VideoCapture(0)
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -1257,13 +1448,13 @@ class CameraWidget(BaseControlWidget):
                         8,
                         width,
                         height,
-                        width * channels
+                        width * channels,
                     )
 
                     # Update image on main thread
                     GLib.idle_add(self.update_camera_image, pixbuf)
 
-                time.sleep(1/30)  # 30 FPS
+                time.sleep(1 / 30)  # 30 FPS
 
             self.cap.release()
         except Exception as e:
@@ -1271,7 +1462,7 @@ class CameraWidget(BaseControlWidget):
 
     def update_camera_image(self, pixbuf):
         """Update camera image on main thread"""
-        if hasattr(self, 'camera_image'):
+        if hasattr(self, "camera_image"):
             self.camera_image.set_from_pixbuf(pixbuf)
         return False
 
@@ -1285,11 +1476,14 @@ class CameraWidget(BaseControlWidget):
         # Camera changes are already applied in real-time
         pass
 
+
 class DisplayWidget(BaseControlWidget):
     """Display settings control widget"""
 
     def __init__(self, config, window=None):
-        super().__init__(config, "Display Settings", "Monitor configuration and scaling", "🖥️")
+        super().__init__(
+            config, "Display Settings", "Monitor configuration and scaling", "🖥️"
+        )
         self.window = window
         self.setup_controls()
 
@@ -1301,38 +1495,62 @@ class DisplayWidget(BaseControlWidget):
             from fractions import Fraction
 
             # Try hyprctl first
-            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
+            result = subprocess.run(
+                ["hyprctl", "monitors"], capture_output=True, text=True, timeout=5
+            )
             current_resolution = "1920x1080"
 
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
+                for line in result.stdout.split("\n"):
                     # Get current resolution from tab-indented line like "\t2560x1440@60.00100 at 0x0"
-                    if '@' in line and 'x' in line and not 'availableModes:' in line:
-                        if line.strip() and line.startswith('\t') and ' at ' in line:
+                    if "@" in line and "x" in line and not "availableModes:" in line:
+                        if line.strip() and line.startswith("\t") and " at " in line:
                             try:
-                                resolution_part = line.strip().split('@')[0]
-                                if 'x' in resolution_part:
+                                resolution_part = line.strip().split("@")[0]
+                                if "x" in resolution_part:
                                     current_resolution = resolution_part
                             except (ValueError, IndexError):
                                 pass
 
             # Generate smart resolutions based on current resolution's aspect ratio
             try:
-                width, height = map(int, current_resolution.split('x'))
+                width, height = map(int, current_resolution.split("x"))
                 aspect_ratio = Fraction(width, height)
 
                 # Common resolution sets by aspect ratio
                 resolution_sets = {
-                    Fraction(16, 9): ["3840x2160", "2560x1440", "1920x1080", "1600x900", "1366x768", "1280x720"],
-                    Fraction(16, 10): ["3840x2400", "2560x1600", "1920x1200", "1680x1050", "1440x900", "1280x800"],
-                    Fraction(4, 3): ["2048x1536", "1600x1200", "1400x1050", "1024x768", "800x600"],
+                    Fraction(16, 9): [
+                        "3840x2160",
+                        "2560x1440",
+                        "1920x1080",
+                        "1600x900",
+                        "1366x768",
+                        "1280x720",
+                    ],
+                    Fraction(16, 10): [
+                        "3840x2400",
+                        "2560x1600",
+                        "1920x1200",
+                        "1680x1050",
+                        "1440x900",
+                        "1280x800",
+                    ],
+                    Fraction(4, 3): [
+                        "2048x1536",
+                        "1600x1200",
+                        "1400x1050",
+                        "1024x768",
+                        "800x600",
+                    ],
                     Fraction(21, 9): ["3440x1440", "2560x1080"],  # Ultrawide
                     Fraction(32, 9): ["3840x1080"],  # Super ultrawide
                 }
 
                 # Find the closest matching aspect ratio
-                best_match = min(resolution_sets.keys(),
-                               key=lambda ratio: abs(float(ratio) - float(aspect_ratio)))
+                best_match = min(
+                    resolution_sets.keys(),
+                    key=lambda ratio: abs(float(ratio) - float(aspect_ratio)),
+                )
 
                 # Get resolutions for this aspect ratio
                 smart_resolutions = resolution_sets[best_match]
@@ -1341,7 +1559,7 @@ class DisplayWidget(BaseControlWidget):
                 max_pixels = width * height
                 filtered_resolutions = []
                 for res in smart_resolutions:
-                    res_width, res_height = map(int, res.split('x'))
+                    res_width, res_height = map(int, res.split("x"))
                     if res_width * res_height <= max_pixels:
                         filtered_resolutions.append(res)
 
@@ -1364,21 +1582,36 @@ class DisplayWidget(BaseControlWidget):
                 pass
 
             # Final fallback - 16:9 resolutions
-            return ["2560x1440", "1920x1080", "1600x900", "1366x768", "1280x720"], current_resolution
+            return [
+                "2560x1440",
+                "1920x1080",
+                "1600x900",
+                "1366x768",
+                "1280x720",
+            ], current_resolution
 
         except Exception as e:
-            return ["1920x1080", "1600x900", "1366x768", "1280x720", "1024x768"], "1920x1080"
+            return [
+                "1920x1080",
+                "1600x900",
+                "1366x768",
+                "1280x720",
+                "1024x768",
+            ], "1920x1080"
 
     def get_current_scaling(self):
         """Get current monitor scaling from hyprctl"""
         try:
             import subprocess
-            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True, timeout=5)
+
+            result = subprocess.run(
+                ["hyprctl", "monitors"], capture_output=True, text=True, timeout=5
+            )
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
-                    if line.strip().startswith('scale:'):
+                for line in result.stdout.split("\n"):
+                    if line.strip().startswith("scale:"):
                         try:
-                            scale_value = float(line.strip().split(':')[1].strip())
+                            scale_value = float(line.strip().split(":")[1].strip())
                             return int(scale_value * 100)  # Convert to percentage
                         except (ValueError, IndexError):
                             pass
@@ -1395,9 +1628,14 @@ class DisplayWidget(BaseControlWidget):
 
         # Get available resolutions and current resolution
         try:
-            self.available_resolutions, current_resolution = self.get_available_resolutions()
+            self.available_resolutions, current_resolution = (
+                self.get_available_resolutions()
+            )
         except Exception as e:
-            self.available_resolutions, current_resolution = ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"], "1920x1080"
+            self.available_resolutions, current_resolution = (
+                ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"],
+                "1920x1080",
+            )
 
         # Get actual current scaling from system
         current_scaling = self.get_current_scaling()
@@ -1411,18 +1649,27 @@ class DisplayWidget(BaseControlWidget):
         # Resolution slider
         resolution_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-
         # Create evenly spaced resolution scale (0 to 4 positions)
 
         # Ensure we have at least 2 resolutions for a valid slider range
         if len(self.available_resolutions) < 2:
-            self.available_resolutions = ["1920x1200", "1920x1080", "1680x1050", "1600x1200", "1440x900"]
+            self.available_resolutions = [
+                "1920x1200",
+                "1920x1080",
+                "1680x1050",
+                "1600x1200",
+                "1440x900",
+            ]
             current_resolution = "1920x1080"
 
-        max_range = max(1, len(self.available_resolutions)-1)  # Ensure max is at least 1
+        max_range = max(
+            1, len(self.available_resolutions) - 1
+        )  # Ensure max is at least 1
 
         try:
-            self.resolution_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, max_range, 1)
+            self.resolution_scale = Gtk.Scale.new_with_range(
+                Gtk.Orientation.HORIZONTAL, 0, max_range, 1
+            )
         except Exception as e:
             print(f"Failed to create resolution_scale: {e}")
             raise
@@ -1434,7 +1681,6 @@ class DisplayWidget(BaseControlWidget):
                 current_index = i
                 break
 
-
         try:
             self.resolution_scale.set_value(current_index)
         except Exception as e:
@@ -1444,15 +1690,11 @@ class DisplayWidget(BaseControlWidget):
         try:
             self.resolution_scale.set_draw_value(False)
 
-
             self.resolution_scale.set_sensitive(enabled)
-
 
             self.resolution_scale.set_margin_start(50)
 
-
             self.resolution_scale.set_margin_end(50)
-
 
             self.resolution_scale.connect("value-changed", self.on_resolution_changed)
 
@@ -1462,17 +1704,27 @@ class DisplayWidget(BaseControlWidget):
         # Add tick marks with actual available resolutions
         for i, resolution in enumerate(self.available_resolutions):
             # Convert "1920x1080" to "1920×1080" for display
-            display_res = resolution.replace('x', '×')
+            display_res = resolution.replace("x", "×")
             self.resolution_scale.add_mark(i, Gtk.PositionType.BOTTOM, display_res)
 
         resolution_box.append(self.resolution_scale)
         self.controls_box.append(resolution_box)
 
         # Scaling slider - all valid Hyprland scaling factors
-        scaling_values = [100, 107, 120, 125, 150, 175, 200]  # 1.0, 1.066, 1.2, 1.25, 1.5, 1.75, 2.0
+        scaling_values = [
+            100,
+            107,
+            120,
+            125,
+            150,
+            175,
+            200,
+        ]  # 1.0, 1.066, 1.2, 1.25, 1.5, 1.75, 2.0
         scaling_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        self.scaling_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 100, 200, 1)
+        self.scaling_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 100, 200, 1
+        )
         self.scaling_scale.set_value(current_scaling)
         self.scaling_scale.set_draw_value(False)
         self.scaling_scale.set_sensitive(enabled)
@@ -1481,7 +1733,9 @@ class DisplayWidget(BaseControlWidget):
         # Add scaling tick marks with proper labels
         scaling_labels = ["100%", "107%", "120%", "125%", "150%", "175%", "200%"]
         for i, scaling in enumerate(scaling_values):
-            self.scaling_scale.add_mark(scaling, Gtk.PositionType.BOTTOM, scaling_labels[i])
+            self.scaling_scale.add_mark(
+                scaling, Gtk.PositionType.BOTTOM, scaling_labels[i]
+            )
 
         scaling_box.append(self.scaling_scale)
         self.controls_box.append(scaling_box)
@@ -1539,15 +1793,26 @@ class DisplayWidget(BaseControlWidget):
         """Apply resolution change immediately to system"""
         try:
             import subprocess
+
             # Find current monitor - get the first active monitor
-            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True)
+            result = subprocess.run(
+                ["hyprctl", "monitors"], capture_output=True, text=True
+            )
             if result.returncode == 0:
-                lines = result.stdout.split('\n')
+                lines = result.stdout.split("\n")
                 for line in lines:
-                    if line.startswith('Monitor ') and '(ID' in line:
-                        monitor_name = line.split(' ')[1]
+                    if line.startswith("Monitor ") and "(ID" in line:
+                        monitor_name = line.split(" ")[1]
                         # Set resolution on this monitor using the full resolution string
-                        subprocess.run(['hyprctl', 'keyword', 'monitor', f'{monitor_name},{resolution},0x0,1'], check=False)
+                        subprocess.run(
+                            [
+                                "hyprctl",
+                                "keyword",
+                                "monitor",
+                                f"{monitor_name},{resolution},0x0,1",
+                            ],
+                            check=False,
+                        )
                         break
         except Exception as e:
             print(f"Resolution change error: {e}")
@@ -1556,19 +1821,32 @@ class DisplayWidget(BaseControlWidget):
         """Apply scaling change immediately to system"""
         try:
             import subprocess
+
             scale_factor = scaling / 100.0
             # Find current monitor and apply scaling
-            result = subprocess.run(['hyprctl', 'monitors'], capture_output=True, text=True)
+            result = subprocess.run(
+                ["hyprctl", "monitors"], capture_output=True, text=True
+            )
             if result.returncode == 0:
-                lines = result.stdout.split('\n')
+                lines = result.stdout.split("\n")
                 for line in lines:
-                    if line.startswith('Monitor ') and '(ID' in line:
-                        monitor_name = line.split(' ')[1]
+                    if line.startswith("Monitor ") and "(ID" in line:
+                        monitor_name = line.split(" ")[1]
                         # Get current resolution from the monitor output
                         for monitor_line in lines:
-                            if monitor_line.strip().startswith('2560x') or monitor_line.strip().startswith('1920x'):
-                                current_res = monitor_line.strip().split('@')[0]
-                                subprocess.run(['hyprctl', 'keyword', 'monitor', f'{monitor_name},{current_res},0x0,{scale_factor}'], check=False)
+                            if monitor_line.strip().startswith(
+                                "2560x"
+                            ) or monitor_line.strip().startswith("1920x"):
+                                current_res = monitor_line.strip().split("@")[0]
+                                subprocess.run(
+                                    [
+                                        "hyprctl",
+                                        "keyword",
+                                        "monitor",
+                                        f"{monitor_name},{current_res},0x0,{scale_factor}",
+                                    ],
+                                    check=False,
+                                )
                                 break
                         break
         except Exception:
@@ -1585,46 +1863,57 @@ class DisplayWidget(BaseControlWidget):
         # No separate config file needed - system state is the source of truth
         pass
 
+
 class InputWidget(BaseControlWidget):
     """Input devices control widget"""
 
     def __init__(self, config):
-        super().__init__(config, "Input Devices", "Keyboard/mouse/touchpad settings", "⌨️")
+        super().__init__(
+            config, "Input Devices", "Keyboard/mouse/touchpad settings", "⌨️"
+        )
         self.setup_controls()
 
     def setup_controls(self):
         """Setup input devices controls"""
         placeholder = Gtk.Label()
-        placeholder.set_markup('<span alpha="60%">Input device settings will be added here</span>')
+        placeholder.set_markup(
+            '<span alpha="60%">Input device settings will be added here</span>'
+        )
         placeholder.set_margin_top(10)
         placeholder.set_margin_bottom(10)
         self.controls_box.append(placeholder)
+
 
 class PowerWidget(BaseControlWidget):
     """Power management control widget"""
 
     def __init__(self, config, window=None):
-        super().__init__(config, "Power Management", "Battery and performance profiles", "🔋")
+        super().__init__(
+            config, "Power Management", "Battery and performance profiles", "🔋"
+        )
         self.window = window
         self.setup_controls()
 
     def get_available_profiles(self):
         """Get available power profiles from powerprofilesctl"""
         # Standard profiles only
-        standard_profiles = ['power-saver', 'balanced', 'performance']
+        standard_profiles = ["power-saver", "balanced", "performance"]
 
         try:
             import subprocess
-            result = subprocess.run(['powerprofilesctl', 'get'], capture_output=True, text=True)
+
+            result = subprocess.run(
+                ["powerprofilesctl", "get"], capture_output=True, text=True
+            )
             if result.returncode == 0:
                 current_profile = result.stdout.strip()
                 # Ensure current profile is in standard list
                 if current_profile not in standard_profiles:
-                    current_profile = 'balanced'
+                    current_profile = "balanced"
                 return standard_profiles, current_profile
-            return standard_profiles, 'balanced'  # fallback
+            return standard_profiles, "balanced"  # fallback
         except Exception:
-            return standard_profiles, 'balanced'  # fallback
+            return standard_profiles, "balanced"  # fallback
 
     def setup_controls(self):
         """Setup power management controls"""
@@ -1635,7 +1924,7 @@ class PowerWidget(BaseControlWidget):
 
         # Use actual system profile, not config
         if current_profile in self.available_profiles:
-            power_config['profile'] = current_profile
+            power_config["profile"] = current_profile
 
         # Profile label (add to title row)
         profile_names = ["Power Saver", "Balanced", "Performance"]
@@ -1645,13 +1934,15 @@ class PowerWidget(BaseControlWidget):
                 current_index = i
                 break
         self.profile_label = Gtk.Label()
-        self.profile_label.set_markup(f'<span size="11000" alpha="75%">Profile: {profile_names[current_index]}</span>')
+        self.profile_label.set_markup(
+            f'<span size="11000" alpha="75%">Profile: {profile_names[current_index]}</span>'
+        )
         self.profile_label.set_halign(Gtk.Align.END)
         self.title_row.append(self.profile_label)
 
         # Enable/Disable toggle (add to title row - RIGHTMOST)
         self.switch = Gtk.Switch()
-        self.switch.set_active(power_config['enabled'])
+        self.switch.set_active(power_config["enabled"])
         self.switch.connect("notify::active", self.on_toggle)
         self.title_row.append(self.switch)
 
@@ -1659,7 +1950,9 @@ class PowerWidget(BaseControlWidget):
         self.available_profiles = ["power-saver", "balanced", "performance"]
         power_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
-        self.profile_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, len(self.available_profiles)-1, 1)
+        self.profile_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 0, len(self.available_profiles) - 1, 1
+        )
 
         # Set to current profile
         current_index = 0
@@ -1670,7 +1963,7 @@ class PowerWidget(BaseControlWidget):
 
         self.profile_scale.set_value(current_index)
         self.profile_scale.set_draw_value(False)
-        self.profile_scale.set_sensitive(power_config['enabled'])
+        self.profile_scale.set_sensitive(power_config["enabled"])
         self.profile_scale.set_margin_start(100)
         self.profile_scale.set_margin_end(100)
         self.profile_scale.connect("value-changed", self.on_profile_changed)
@@ -1707,12 +2000,15 @@ class PowerWidget(BaseControlWidget):
         index = int(snapped_value)
         if 0 <= index < len(self.available_profiles):
             profile_names = ["Power Saver", "Balanced", "Performance"]
-            self.profile_label.set_markup(f'<span size="11000" alpha="75%">Profile: {profile_names[index]}</span>')
+            self.profile_label.set_markup(
+                f'<span size="11000" alpha="75%">Profile: {profile_names[index]}</span>'
+            )
 
             profile = self.available_profiles[index]
             try:
                 import subprocess
-                subprocess.run(['powerprofilesctl', 'set', profile], check=False)
+
+                subprocess.run(["powerprofilesctl", "set", profile], check=False)
             except Exception:
                 pass
 
@@ -1728,7 +2024,11 @@ class PowerWidget(BaseControlWidget):
         """Apply all pending changes"""
         enabled = self.switch.get_active()
         selected_index = int(self.profile_scale.get_value())
-        profile = self.available_profiles[selected_index] if selected_index < len(self.available_profiles) else 'balanced'
+        profile = (
+            self.available_profiles[selected_index]
+            if selected_index < len(self.available_profiles)
+            else "balanced"
+        )
 
         # Save to config
         self.config.set_power_config(enabled, profile)
@@ -1737,15 +2037,19 @@ class PowerWidget(BaseControlWidget):
         if enabled:
             try:
                 import subprocess
-                subprocess.run(['powerprofilesctl', 'set', profile], check=True)
+
+                subprocess.run(["powerprofilesctl", "set", profile], check=True)
             except Exception:
                 pass  # Silently fail if powerprofilesctl is not available
+
 
 class BackgroundWidget(BaseControlWidget):
     """Wallpaper management widget"""
 
     def __init__(self, config, parent_window):
-        super().__init__(config, "Wallpaper Management", "Customize wallpapers and themes", "🎨")
+        super().__init__(
+            config, "Wallpaper Management", "Customize wallpapers and themes", "🎨"
+        )
         self.parent_window = parent_window
         self.backgrounds = []
         self.current_index = 0
@@ -1773,9 +2077,14 @@ class BackgroundWidget(BaseControlWidget):
 
         # Current background label (left-aligned)
         self.current_bg_label = Gtk.Label()
-        self.current_bg_label.set_markup(f'<span size="11000" alpha="75%">Current: {self.get_current_background_name()}</span>')
+        self.current_bg_label.set_markup(
+            f'<span size="11000" alpha="75%">Current: {self.get_current_background_name()}</span>'
+        )
         self.current_bg_label.set_halign(Gtk.Align.START)
         self.current_bg_label.set_hexpand(True)
+        self.current_bg_label.set_wrap(True)
+        self.current_bg_label.set_max_width_chars(40)
+        self.current_bg_label.set_ellipsize(Pango.EllipsizeMode.END)
         wallpaper_row.append(self.current_bg_label)
 
         # Add custom background button (right-aligned)
@@ -1790,7 +2099,9 @@ class BackgroundWidget(BaseControlWidget):
         if len(self.backgrounds) > 0:
             # Create marks with visual distinction for user backgrounds
             slider_marks = []
-            system_count = len([bg for bg in self.backgrounds if 'riot_' in os.path.basename(bg)])
+            system_count = len(
+                [bg for bg in self.backgrounds if "riot_" in os.path.basename(bg)]
+            )
 
             for i in range(len(self.backgrounds)):
                 mark_text = str(i + 1)
@@ -1799,10 +2110,23 @@ class BackgroundWidget(BaseControlWidget):
                 slider_marks.append((i + 1, mark_text))
 
             slider_container, _, self.bg_slider = self.create_slider(
-                "", 1, len(self.backgrounds), 1, self.current_index + 1, True,
-                slider_marks, self.on_background_changed, snap_increment=1
+                "",
+                1,
+                len(self.backgrounds),
+                1,
+                self.current_index + 1,
+                True,
+                slider_marks,
+                self.on_background_changed,
+                snap_increment=1,
             )
-            self.controls_box.append(slider_container)
+            scroller = Gtk.ScrolledWindow()
+            scroller.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
+            scroller.set_min_content_width(600)
+            scroller.set_max_content_width(900)
+            scroller.set_hexpand(True)
+            scroller.set_child(slider_container)
+            self.controls_box.append(scroller)
 
     def scan_backgrounds(self):
         """Scan for available background images"""
@@ -1818,20 +2142,25 @@ class BackgroundWidget(BaseControlWidget):
 
         # Scan system backgrounds
         if os.path.exists(system_bg_dir):
-            patterns = ['*.jpg', '*.jpeg', '*.png', '*.webp']
+            patterns = ["*.jpg", "*.jpeg", "*.png", "*.webp"]
             for pattern in patterns:
-                system_backgrounds.extend(glob.glob(os.path.join(system_bg_dir, pattern)))
+                system_backgrounds.extend(
+                    glob.glob(os.path.join(system_bg_dir, pattern))
+                )
 
         # Scan user backgrounds
         if os.path.exists(user_bg_dir):
-            patterns = ['*.jpg', '*.jpeg', '*.png', '*.webp']
+            patterns = ["*.jpg", "*.jpeg", "*.png", "*.webp"]
             for pattern in patterns:
                 user_backgrounds.extend(glob.glob(os.path.join(user_bg_dir, pattern)))
 
         # Sort each group separately with natural sorting, then combine: system first, user at end
         import re
+
         def natural_sort_key(text):
-            return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', text)]
+            return [
+                int(c) if c.isdigit() else c.lower() for c in re.split(r"(\d+)", text)
+            ]
 
         system_backgrounds.sort(key=lambda x: natural_sort_key(os.path.basename(x)))
         user_backgrounds.sort(key=lambda x: natural_sort_key(os.path.basename(x)))
@@ -1841,7 +2170,7 @@ class BackgroundWidget(BaseControlWidget):
         current_bg_file = os.path.expanduser("~/.config/archriot/.current-background")
         if os.path.exists(current_bg_file):
             try:
-                with open(current_bg_file, 'r') as f:
+                with open(current_bg_file, "r") as f:
                     current_bg = f.read().strip()
                 if current_bg in self.backgrounds:
                     self.current_index = self.backgrounds.index(current_bg)
@@ -1855,6 +2184,7 @@ class BackgroundWidget(BaseControlWidget):
         """Get the name of current background"""
         if self.backgrounds and self.current_index < len(self.backgrounds):
             import os
+
             return os.path.basename(self.backgrounds[self.current_index])
         return "None"
 
@@ -1870,16 +2200,14 @@ class BackgroundWidget(BaseControlWidget):
         import os
 
         dialog = Gtk.FileChooserDialog(
-            title="Select Background Image",
-            action=Gtk.FileChooserAction.OPEN
+            title="Select Background Image", action=Gtk.FileChooserAction.OPEN
         )
         dialog.set_transient_for(self.parent_window.window)
         dialog.set_modal(True)
         dialog.set_size_request(800, 700)
 
         dialog.add_buttons(
-            "_Cancel", Gtk.ResponseType.CANCEL,
-            "_Open", Gtk.ResponseType.OK
+            "_Cancel", Gtk.ResponseType.CANCEL, "_Open", Gtk.ResponseType.OK
         )
 
         # Set default directory to Pictures
@@ -1949,14 +2277,16 @@ class BackgroundWidget(BaseControlWidget):
 
         if new_count != old_count:
             # Remove old slider
-            if hasattr(self, 'bg_slider') and self.bg_slider.get_parent():
+            if hasattr(self, "bg_slider") and self.bg_slider.get_parent():
                 self.controls_box.remove(self.bg_slider.get_parent())
 
             # Create new slider with updated range (using reusable function)
             if len(self.backgrounds) > 0:
                 # Create marks with visual distinction for user backgrounds
                 bg_marks = []
-                system_count = len([bg for bg in self.backgrounds if 'riot_' in os.path.basename(bg)])
+                system_count = len(
+                    [bg for bg in self.backgrounds if "riot_" in os.path.basename(bg)]
+                )
 
                 for i in range(len(self.backgrounds)):
                     mark_text = str(i + 1)
@@ -1965,10 +2295,23 @@ class BackgroundWidget(BaseControlWidget):
                     bg_marks.append((i + 1, mark_text))
 
                 slider_container, _, self.bg_slider = self.create_slider(
-                    "", 1, len(self.backgrounds), 1, self.current_index + 1, True,
-                    bg_marks, self.on_background_changed, snap_increment=1
+                    "",
+                    1,
+                    len(self.backgrounds),
+                    1,
+                    self.current_index + 1,
+                    True,
+                    bg_marks,
+                    self.on_background_changed,
+                    snap_increment=1,
                 )
-                self.controls_box.append(slider_container)
+                scroller = Gtk.ScrolledWindow()
+                scroller.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
+                scroller.set_min_content_width(600)
+                scroller.set_max_content_width(900)
+                scroller.set_hexpand(True)
+                scroller.set_child(slider_container)
+                self.controls_box.append(scroller)
 
     def apply_background_change(self):
         """Apply the selected background"""
@@ -1979,32 +2322,44 @@ class BackgroundWidget(BaseControlWidget):
             new_bg = self.backgrounds[self.current_index]
 
             # Update current background file
-            current_bg_file = os.path.expanduser("~/.config/archriot/.current-background")
+            current_bg_file = os.path.expanduser(
+                "~/.config/archriot/.current-background"
+            )
             try:
                 os.makedirs(os.path.dirname(current_bg_file), exist_ok=True)
-                with open(current_bg_file, 'w') as f:
+                with open(current_bg_file, "w") as f:
                     f.write(new_bg)
             except:
                 pass
 
             # Apply background via swaybg (with proper process detachment like swaybg-next)
             try:
-                subprocess.run(['pkill', '-x', 'swaybg'], check=False)
+                subprocess.run(["pkill", "-x", "swaybg"], check=False)
                 import time
+
                 time.sleep(0.5)
-                subprocess.Popen(['nohup', 'setsid', 'swaybg', '-i', new_bg, '-m', 'fill'],
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                               preexec_fn=os.setsid)
+                subprocess.Popen(
+                    ["nohup", "setsid", "swaybg", "-i", new_bg, "-m", "fill"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    preexec_fn=os.setsid,
+                )
             except:
                 pass
 
             # Update theme colors if dynamic theming is enabled
-            archriot_bin = os.path.expanduser("~/.local/share/archriot/install/archriot")
+            archriot_bin = os.path.expanduser(
+                "~/.local/share/archriot/install/archriot"
+            )
             if os.path.isfile(archriot_bin):
                 try:
                     print(f"DEBUG: Calling theming system with path: {new_bg}")
-                    result = subprocess.run([archriot_bin, '--apply-wallpaper-theme', new_bg],
-                                 check=False, capture_output=True, text=True)
+                    result = subprocess.run(
+                        [archriot_bin, "--apply-wallpaper-theme", new_bg],
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
                     print(f"DEBUG: Theming command result: {result.returncode}")
                     if result.stdout:
                         print(f"DEBUG: stdout: {result.stdout}")
@@ -2014,7 +2369,9 @@ class BackgroundWidget(BaseControlWidget):
                     print(f"DEBUG: Exception calling theming system: {e}")
 
             # Update UI
-            self.current_bg_label.set_markup(f'<span size="11000" alpha="75%">Current: {os.path.basename(new_bg)}</span>')
+            self.current_bg_label.set_markup(
+                f'<span size="11000" alpha="75%">Current: {os.path.basename(new_bg)}</span>'
+            )
 
             # Save preferences after background change
             self.save_background_preferences()
@@ -2035,29 +2392,36 @@ class BackgroundWidget(BaseControlWidget):
         user_bg_dir = os.path.expanduser("~/.config/archriot/backgrounds")
         user_backgrounds = []
         if os.path.exists(user_bg_dir):
-            user_backgrounds = [f for f in os.listdir(user_bg_dir)
-                              if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
+            user_backgrounds = [
+                f
+                for f in os.listdir(user_bg_dir)
+                if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+            ]
 
         preferences = {
             "current_background": current_bg,
-            "user_backgrounds": user_backgrounds
+            "user_backgrounds": user_backgrounds,
         }
 
         # Don't overwrite dynamic_theming setting - let ArchRiot binary manage it
         # Read existing config to preserve dynamic_theming setting
         if os.path.exists(prefs_file):
             try:
-                with open(prefs_file, 'r') as f:
+                with open(prefs_file, "r") as f:
                     existing_prefs = json.load(f)
                     if "dynamic_theming" in existing_prefs:
-                        preferences["dynamic_theming"] = existing_prefs["dynamic_theming"]
+                        preferences["dynamic_theming"] = existing_prefs[
+                            "dynamic_theming"
+                        ]
                     if "generated_palette" in existing_prefs:
-                        preferences["generated_palette"] = existing_prefs["generated_palette"]
+                        preferences["generated_palette"] = existing_prefs[
+                            "generated_palette"
+                        ]
             except:
                 pass
 
         try:
-            with open(prefs_file, 'w') as f:
+            with open(prefs_file, "w") as f:
                 json.dump(preferences, f, indent=2)
         except Exception as e:
             print(f"Warning: Could not save background preferences: {e}")
@@ -2079,7 +2443,7 @@ class BackgroundWidget(BaseControlWidget):
         prefs_file = os.path.expanduser("~/.config/archriot/background-prefs.json")
         if os.path.exists(prefs_file):
             try:
-                with open(prefs_file, 'r') as f:
+                with open(prefs_file, "r") as f:
                     prefs = json.load(f)
                     return prefs.get("dynamic_theming", False)
             except:
@@ -2098,15 +2462,23 @@ class BackgroundWidget(BaseControlWidget):
         archriot_bin = os.path.expanduser("~/.local/share/archriot/install/archriot")
         if os.path.isfile(archriot_bin):
             try:
-                subprocess.run([archriot_bin, '--toggle-dynamic-theming', str(state).lower()],
-                             check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(
+                    [archriot_bin, "--toggle-dynamic-theming", str(state).lower()],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
 
                 # Apply current wallpaper to trigger color update (static or dynamic)
                 # Read current background from saved config, not UI state
                 current_bg_path = self.get_current_background_from_config()
                 if current_bg_path:
-                    subprocess.run([archriot_bin, '--apply-wallpaper-theme', current_bg_path],
-                                 check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.run(
+                        [archriot_bin, "--apply-wallpaper-theme", current_bg_path],
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
             except:
                 pass
 
@@ -2123,7 +2495,7 @@ class BackgroundWidget(BaseControlWidget):
 
         if os.path.exists(prefs_file):
             try:
-                with open(prefs_file, 'r') as f:
+                with open(prefs_file, "r") as f:
                     prefs = json.load(f)
                     current_bg = prefs.get("current_background", "riot_01.jpg")
                     return os.path.join(backgrounds_dir, current_bg)
@@ -2132,6 +2504,7 @@ class BackgroundWidget(BaseControlWidget):
 
         # Fallback to default
         return os.path.join(backgrounds_dir, "riot_01.jpg")
+
 
 class SecurityWidget(BaseControlWidget):
     """Security control widget"""
@@ -2143,10 +2516,13 @@ class SecurityWidget(BaseControlWidget):
     def setup_controls(self):
         """Setup security controls"""
         placeholder = Gtk.Label()
-        placeholder.set_markup('<span alpha="60%">Security settings will be added here</span>')
+        placeholder.set_markup(
+            '<span alpha="60%">Security settings will be added here</span>'
+        )
         placeholder.set_margin_top(10)
         placeholder.set_margin_bottom(10)
         self.controls_box.append(placeholder)
+
 
 class ControlPanelWindow:
     """Main control panel window that assembles all widgets"""
@@ -2157,8 +2533,6 @@ class ControlPanelWindow:
 
         # Initialize state tracking
         self.has_unsaved_changes = False
-
-
 
         # Create main window
         self.window = Gtk.Window()
@@ -2200,7 +2574,9 @@ class ControlPanelWindow:
         # Main title with version
         version = self.get_archriot_version()
         title_label = Gtk.Label()
-        title_label.set_markup(f'<span size="20000" weight="bold" foreground="#bb9af7">ArchRiot <span alpha="60%">v{version}</span> Control Panel</span>')
+        title_label.set_markup(
+            f'<span size="20000" weight="bold" foreground="#bb9af7">ArchRiot <span alpha="60%">v{version}</span> Control Panel</span>'
+        )
         title_label.set_halign(Gtk.Align.CENTER)
         header_box.append(title_label)
 
@@ -2263,23 +2639,35 @@ class ControlPanelWindow:
 
     def apply_all_changes(self):
         """Apply all pending changes from all widgets"""
-        if hasattr(self, 'pomodoro_widget') and hasattr(self.pomodoro_widget, 'apply_changes'):
+        if hasattr(self, "pomodoro_widget") and hasattr(
+            self.pomodoro_widget, "apply_changes"
+        ):
             self.pomodoro_widget.apply_changes()
-        if hasattr(self, 'bluelight_widget') and hasattr(self.bluelight_widget, 'apply_changes'):
+        if hasattr(self, "bluelight_widget") and hasattr(
+            self.bluelight_widget, "apply_changes"
+        ):
             self.bluelight_widget.apply_changes()
-        if hasattr(self, 'mullvad_widget') and hasattr(self.mullvad_widget, 'apply_changes'):
+        if hasattr(self, "mullvad_widget") and hasattr(
+            self.mullvad_widget, "apply_changes"
+        ):
             self.mullvad_widget.apply_changes()
         # Audio widget removed
         # if hasattr(self, 'audio_widget') and hasattr(self.audio_widget, 'apply_changes'):
         #     self.audio_widget.apply_changes()
-        if hasattr(self, 'camera_widget') and hasattr(self.camera_widget, 'apply_changes'):
+        if hasattr(self, "camera_widget") and hasattr(
+            self.camera_widget, "apply_changes"
+        ):
             self.camera_widget.apply_changes()
-        if hasattr(self, 'display_widget') and hasattr(self.display_widget, 'apply_changes'):
+        if hasattr(self, "display_widget") and hasattr(
+            self.display_widget, "apply_changes"
+        ):
             self.display_widget.apply_changes()
         # TODO: Re-enable these widgets later
         # if hasattr(self, 'input_widget') and hasattr(self.input_widget, 'apply_changes'):
         #     self.input_widget.apply_changes()
-        if hasattr(self, 'power_widget') and hasattr(self.power_widget, 'apply_changes'):
+        if hasattr(self, "power_widget") and hasattr(
+            self.power_widget, "apply_changes"
+        ):
             self.power_widget.apply_changes()
         # TODO: Re-enable these widgets later
         # if hasattr(self, 'security_widget') and hasattr(self.security_widget, 'apply_changes'):
@@ -2288,29 +2676,24 @@ class ControlPanelWindow:
         self.has_unsaved_changes = False
         print("All changes applied!")
 
-
-
     def on_window_close(self, window):
         """Handle window close request"""
-        if hasattr(self, 'app'):
+        if hasattr(self, "app"):
             self.app.quit()
         return False
-
-
-
-
 
     def get_archriot_version(self):
         """Read ArchRiot version from VERSION file"""
         home_dir = Path.home()
-        version_path = home_dir / '.local' / 'share' / 'archriot' / 'VERSION'
+        version_path = home_dir / ".local" / "share" / "archriot" / "VERSION"
 
         try:
-            with open(version_path, 'r') as f:
+            with open(version_path, "r") as f:
                 version = f.read().strip()
                 return version
         except Exception:
             return "unknown"
+
 
 class ControlPanelApplication(Gtk.Application):
     """GTK Application wrapper"""
@@ -2336,18 +2719,18 @@ class ControlPanelApplication(Gtk.Application):
         css_provider = Gtk.CssProvider()
         css_data = """
         * {
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         window {
             background: rgba(0, 0, 0, 1.0);
             color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         label {
             color: #cdd6f4;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         frame {
@@ -2365,7 +2748,7 @@ class ControlPanelApplication(Gtk.Application):
             padding: 4px 12px;
             font-weight: bold;
             min-height: 24px;
-            font-family: "Hack Nerd Font Mono", "Hack Nerd Font", monospace;
+            font-family: "Paper Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", monospace;
         }
 
         button:hover {
@@ -2398,18 +2781,20 @@ class ControlPanelApplication(Gtk.Application):
         # Apply CSS to default display
         display = Gdk.Display.get_default()
         Gtk.StyleContext.add_provider_for_display(
-            display,
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER
+            display, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
+
 
 def main():
     """Main entry point"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='ArchRiot Control Panel')
-    parser.add_argument('--reapply', action='store_true',
-                       help='Re-apply saved settings to fresh config files')
+    parser = argparse.ArgumentParser(description="ArchRiot Control Panel")
+    parser.add_argument(
+        "--reapply",
+        action="store_true",
+        help="Re-apply saved settings to fresh config files",
+    )
 
     args = parser.parse_args()
 
@@ -2419,6 +2804,7 @@ def main():
 
     app = ControlPanelApplication()
     return app.run(sys.argv)
+
 
 def reapply_saved_settings():
     """Re-apply all saved user settings to fresh config files"""
@@ -2434,10 +2820,10 @@ def reapply_saved_settings():
         # Re-apply blue light filter setting
         bluelight_config = config.get_bluelight_config()
 
-        if bluelight_config['enabled'] and bluelight_config['temperature'] != 3500:
-            apply_bluelight_setting(bluelight_config['temperature'])
+        if bluelight_config["enabled"] and bluelight_config["temperature"] != 3500:
+            apply_bluelight_setting(bluelight_config["temperature"])
             print(f"Re-applied blue light filter: {bluelight_config['temperature']}K")
-        elif not bluelight_config['enabled']:
+        elif not bluelight_config["enabled"]:
             disable_bluelight_setting()
             print("Re-applied blue light filter: disabled")
 
@@ -2446,29 +2832,38 @@ def reapply_saved_settings():
     except Exception as e:
         print(f"Error re-applying settings: {e}")
 
+
 def apply_bluelight_setting(temperature):
     """Apply blue light temperature setting to hyprland.conf"""
     import re
     from pathlib import Path
 
-    hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+    hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
     if hyprland_config.exists():
         content = hyprland_config.read_text()
-        content = re.sub(r'exec-once = hyprsunset -t \d+',
-                        f'exec-once = hyprsunset -t {temperature}', content)
+        content = re.sub(
+            r"exec-once = hyprsunset -t \d+",
+            f"exec-once = hyprsunset -t {temperature}",
+            content,
+        )
         hyprland_config.write_text(content)
+
 
 def disable_bluelight_setting():
     """Disable blue light filter in hyprland.conf"""
     import re
     from pathlib import Path
 
-    hyprland_config = Path.home() / '.config' / 'hypr' / 'hyprland.conf'
+    hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
     if hyprland_config.exists():
         content = hyprland_config.read_text()
-        content = re.sub(r'exec-once = hyprsunset -t \d+',
-                        '# exec-once = hyprsunset -t 3500  # Disabled via Control Panel', content)
+        content = re.sub(
+            r"exec-once = hyprsunset -t \d+",
+            "# exec-once = hyprsunset -t 3500  # Disabled via Control Panel",
+            content,
+        )
         hyprland_config.write_text(content)
+
 
 if __name__ == "__main__":
     exit_code = main()
