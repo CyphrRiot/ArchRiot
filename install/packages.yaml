@@ -161,6 +161,7 @@ desktop:
             - hyprsunset
             - gnome-calculator
             - nwg-drawer
+            - yad
             # - python-opencv
             - loupe
             - glycin

@@ -592,12 +592,66 @@ func main() {
 			upProgram := tea.NewProgram(upModel)
 			logger.SetProgram(upProgram)
 			upgrade.SetProgram(upProgram)
+
+			// 🛡️ Mullvad VPN connection guard (auto-reconnect during upgrade if it drops)
+			var stopMullvadGuard chan struct{}
+			if _, err := exec.LookPath("mullvad"); err == nil {
+				connectedAtStart := false
+				if out, err := exec.Command("mullvad", "status").CombinedOutput(); err == nil {
+					s := strings.ToLower(string(out))
+					if strings.Contains(s, "connected") {
+						connectedAtStart = true
+					}
+				}
+				// Only guard if user was connected when starting the upgrade
+				if connectedAtStart {
+					stopMullvadGuard = make(chan struct{})
+					// Informational log in the TUI
+					upProgram.Send(tui.LogMsg("🛡️ Mullvad: connection guard active during upgrade"))
+
+					go func(stop <-chan struct{}) {
+						ticker := time.NewTicker(5 * time.Second)
+						defer ticker.Stop()
+						lastAttempt := time.Now().Add(-20 * time.Second)
+						for {
+							select {
+							case <-stop:
+								return
+							case <-ticker.C:
+								out, err := exec.Command("mullvad", "status").CombinedOutput()
+								if err != nil {
+									continue
+								}
+								ss := strings.ToLower(string(out))
+								// If still connected, nothing to do
+								if strings.Contains(ss, "connected") {
+									continue
+								}
+								// Only attempt reconnect if an account is present
+								if acc, err := exec.Command("mullvad", "account", "get").CombinedOutput(); err == nil && strings.Contains(strings.ToLower(string(acc)), "mullvad account") {
+									// Throttle reconnect attempts
+									if time.Since(lastAttempt) > 10*time.Second {
+										_ = exec.Command("mullvad", "connect").Start()
+										lastAttempt = time.Now()
+									}
+								}
+							}
+						}
+					}(stopMullvadGuard)
+				}
+			}
+
 			// Start upgrade prompt in background
 			go func() {
 				time.Sleep(100 * time.Millisecond)
 				if err := upgrade.PromptAndRun(); err != nil {
 					upProgram.Send(tui.LogMsg("❌ Upgrade failed: " + err.Error()))
 					upProgram.Send(tui.FailureMsg{Error: "Upgrade failed"})
+					// Stop Mullvad guard on failure
+					if stopMullvadGuard != nil {
+						close(stopMullvadGuard)
+						stopMullvadGuard = nil
+					}
 					return
 				}
 				// Success banner and finalization
@@ -619,6 +673,11 @@ func main() {
 			// Run TUI and exit
 			if _, err := upProgram.Run(); err != nil {
 				log.Fatalf("TUI error: %v", err)
+			}
+			// Stop Mullvad guard after TUI exits
+			if stopMullvadGuard != nil {
+				close(stopMullvadGuard)
+				stopMullvadGuard = nil
 			}
 			return
 		case "--signal":
@@ -2358,6 +2417,49 @@ func main() {
 						fmt.Println(line)
 					}
 				}
+			}
+			return
+
+		case "--help-binds-gtk":
+			// Native GTK window for keybindings using yad or zenity; fallback to HTML
+			self, _ := os.Executable()
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			home := os.Getenv("HOME")
+			outDir := filepath.Join(home, ".cache", "archriot", "help")
+			_ = os.MkdirAll(outDir, 0o755)
+			outFile := filepath.Join(outDir, "keybindings.txt")
+
+			// Generate text via existing printer
+			if self != "" {
+				if b, err := exec.Command(self, "--help-binds").Output(); err == nil && len(b) > 0 {
+					_ = os.WriteFile(outFile, b, 0o644)
+				} else {
+					_ = os.WriteFile(outFile, []byte("Hyprland keybindings (no data)\n"), 0o644)
+				}
+			}
+
+			if have("yad") {
+				_ = exec.Command("yad",
+					"--title=ArchRiot — Keybindings",
+					"--width=900", "--height=700", "--center",
+					"--fontname=monospace 11",
+					"--text-info",
+					"--wrap",
+					"--filename", outFile,
+				).Start()
+				return
+			}
+			if have("zenity") {
+				_ = exec.Command("zenity", "--text-info",
+					"--title=ArchRiot — Keybindings",
+					"--width=900", "--height=700",
+					"--filename", outFile,
+				).Start()
+				return
+			}
+			// Fallback HTML
+			if self != "" {
+				_ = exec.Command(self, "--help-binds-html").Start()
 			}
 			return
 

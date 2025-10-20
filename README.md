@@ -20,6 +20,12 @@
 
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted**
 
+## Table of Contents
+
+- [Choose Your ArchRiot Experience](#-choose-your-archriot-experience)
+- [Navigate This Guide](#-navigate-this-guide)
+- [Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
+
 **One Command. Complete Environment. Zero Compromises.**
 
 ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" We've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
@@ -156,262 +162,6 @@ exit
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
-## 🧰 ArchRiot CLI Flags
-
-These first-class CLI flags replace legacy helper scripts and are used directly in Hyprland keybinds. All of them execute the built binary at:
-$HOME/.local/share/archriot/install/archriot
-
-- --waybar-launch
-    - Purpose: Single-instance launcher with non-blocking lock and robust logging.
-    - Behavior: Ensures exactly one Waybar instance; writes logs to ~/.cache/archriot/runtime.log.
-    - Example (Hyprland exec-once): exec-once = $HOME/.local/share/archriot/install/archriot --waybar-launch
-
-- --waybar-reload
-    - Purpose: Robust Waybar reload. Uses SIGUSR2 when possible; fallback to controlled restart.
-    - Behavior: Dedupe PIDs and avoid duplicate Waybar after reloads/resume.
-    - Example (default bind): SUPER+SHIFT+SPACE → archriot --waybar-reload
-
-- --wallet
-    - Purpose: Focus-or-launch the configured wallet; avoids duplicate instances.
-    - Example (default bind): SUPER+R → archriot --wallet
-
-- --pomodoro-click
-    - Purpose: Simulate a click on the Waybar tomato timer (toggle/reset via module behavior).
-    - Example (default bind): SUPER+, → archriot --pomodoro-click
-
-- --upgrade-smoketest
-    - Purpose: Local upgrade smoketest used by the update dialog.
-    - Exit codes: 0 OK; 2 potential reintroductions; 3 unavailable. Honor allowlist at ~/.config/archriot/upgrade-allowlist.txt
-
-- --stay-awake
-    - Purpose: Prevent system suspend while a task runs; always detaches so your app isn't tied to the launcher.
-    - Usage:
-        - archriot --stay-awake curl -L -o file.iso https://example.com/file.iso
-        - archriot --stay-awake
-    - Notes: Uses systemd-inhibit to block sleep; does not affect screen lock.
-
-- --volume
-    - Purpose: Unified audio control for speakers and microphone across PipeWire/PulseAudio.
-    - Backend priority: wpctl (PipeWire with starred sink/source) → pamixer → pactl
-    - Usage:
-        - archriot --volume toggle # Toggle speaker mute
-        - archriot --volume inc # Increase volume 5%
-        - archriot --volume dec # Decrease volume 5%
-        - archriot --volume get # Get current volume percentage
-
-### Hypridle: Lock Not Triggering (exec syntax)
-
-Symptoms:
-
-- Screen never locks after idle timeout, but `hyprlock` works when launched manually.
-- Hypridle verbose logs show attempts to run `exec, /usr/bin/hyprlock` and errors like `exec,: command not found`.
-
-Cause:
-
-- Hyprland config style (`exec, ...`) was mistakenly used inside hypridle.conf.
-- Hypridle expects either `lock` (uses `lock_cmd`) or a direct executable path. It does not interpret `exec,`.
-
-Fix:
-
-1. In `~/.config/hypr/hypridle.conf`, replace:
-
-```ini
-on-timeout = exec, /usr/bin/hyprlock
-```
-
-with either:
-
-```ini
-on-timeout = lock
-```
-
-or (explicit path):
-
-```ini
-on-timeout = /usr/bin/hyprlock
-```
-
-2. Use absolute paths in `general {}` and listeners to avoid PATH/env issues under Hyprland:
-
-```ini
-general {
-  lock_cmd = /usr/bin/hyprlock
-  before_sleep_cmd = /usr/bin/loginctl lock-session
-  after_sleep_cmd = /usr/bin/hyprctl dispatch dpms on
-}
-```
-
-3. Restart hypridle:
-
-```bash
-pkill hypridle
-hyprctl dispatch exec hypridle
-```
-
-Notes:
-
-- Waybar’s `idle_inhibitor` module can block idle. Ensure it’s not activated if locks don’t trigger.
-- Brightness dim at 5 minutes won’t affect external HDMI/DP displays; consider adding DPMS off/on at lock for a visible cue on external monitors.
-
-                                      - archriot --volume mic-toggle # Toggle microphone mute
-                                      - archriot --volume mic-inc # Increase mic volume 5%
-                                      - archriot --volume mic-dec # Decrease mic volume 5%
-                                      - archriot --volume mic-get # Get current mic volume
-
-    - Troubleshooting:
-        - Check backend: wpctl status | head -30
-        - Test manually: archriot --volume get
-        - Waybar uses this for all volume controls (scroll, click, microphone)
-
-- --brightness
-    - Purpose: Backlight control for laptop displays.
-    - Usage:
-        - archriot --brightness up # Increase brightness
-        - archriot --brightness down # Decrease brightness
-    - Notes: Uses brightnessctl; integrates with Waybar backlight module scroll actions
-
-- --startup-background
-    - Purpose: Start wallpaper at login from saved preferences; avoids theme apply during boot to prevent races.
-    - Behavior: Reads ~/.config/archriot/background-prefs.json (key: current_background), falls back to riot_01.jpg or the first available image under ~/.local/share/archriot/backgrounds, writes the state file at ~/.config/archriot/.current-background, and restarts swaybg detached.
-    - Example (Hyprland exec-once): exec-once = $HOME/.local/share/archriot/install/archriot --startup-background
-
-- --swaybg-next
-    - Purpose: Cycle to the next wallpaper and refresh theming if dynamic theming is enabled.
-    - Behavior: Iterates images in ~/.local/share/archriot/backgrounds, updates ~/.config/archriot/.current-background, restarts swaybg detached, and triggers best-effort theme refresh.
-    - Example (default bind): SUPER+CTRL+SPACE → $HOME/.local/share/archriot/install/archriot --swaybg-next
-
-- --waybar-workspace-click
-    - Purpose: Safe Waybar workspace click handler (numeric-only).
-    - Usage: $HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name}
-    - Notes: Validates numeric workspace and dispatches: hyprctl dispatch workspace {name}
-    - Example (Waybar ModulesWorkspaces): "on-click": "$HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name} "
-
-- --waybar-cpu
-    - Purpose: Aggregate CPU usage meter for Waybar.
-    - Behavior: Reads /proc/stat deltas; renders a bar, percentage, and class via JSON.
-    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-cpu"
-
-- --waybar-temp
-    - Purpose: CPU temperature meter for Waybar.
-    - Behavior: Autodetects sensor (hwmon coretemp/k10temp/zenpower → temp1_input; x86_pkg_temp thermal zone; thermal_zone0 fallback), renders bar and class via JSON.
-    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-temp"
-
-- --waybar-volume
-    - Purpose: Speaker volume meter for Waybar.
-    - Backend priority: wpctl (PipeWire) → pamixer → pactl. Renders bar and icon via JSON; shows “audio not ready” gracefully.
-    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-volume"
-
-- --waybar-memory
-    - Purpose: Memory usage meter for Waybar.
-    - Behavior: Computes traditional percentage, shows modern vs traditional in tooltip; renders bar and class via JSON.
-    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-memory"
-
-- --stabilize-session
-    - Purpose: Session recovery utility. Dedupe Waybar and relaunch a single, managed instance; restart hypridle to ensure idle/lock policy is active.
-    - Usage:
-        - archriot --stabilize-session
-        - archriot --stabilize-session --inhibit # starts a detached sleep inhibitor for long-running work
-
-- --zed
-    - Purpose: Focus-or-launch Zed (native > Flatpak) with Wayland-friendly environment; focuses an existing window if present.
-    - Example (bind): SUPER+Z → $HOME/.local/share/archriot/install/archriot --zed
-    - Example (desktop entry Exec): $HOME/.local/share/archriot/install/archriot --zed %U
-
-- --welcome
-    - Purpose: Launch the ArchRiot Welcome window (Python GTK) in a detached manner.
-    - Example (Hyprland exec-once): sleep 2 && $HOME/.local/share/archriot/install/archriot --welcome
-
-### Hyprland bind examples (copy/paste)
-
-These are already present by default; use if you need to reapply or test live.
-
-```bash
-# Reload Waybar safely
-hyprctl keyword bind "$mod SHIFT, SPACE, exec, $HOME/.local/share/archriot/install/archriot --waybar-reload"
-
-# Wallet
-hyprctl keyword bind "$mod, R, exec, $HOME/.local/share/archriot/install/archriot --wallet"
-
-# Pomodoro
-hyprctl keyword bind "$mod, comma, exec, $HOME/.local/share/archriot/install/archriot --pomodoro-click"
-
-# Telegram (resilient focus-or-launch)
-hyprctl keyword bind "$mod, G, exec, $HOME/.local/share/archriot/install/archriot --telegram"
-```
-
-## Brave Wrapper and Handler Mapping
-
-ArchRiot routes all browser launches through a PATH-resolved wrapper: `archriot-brave`.
-
-- Executable resolution:
-    - The installer ensures the wrapper is on PATH.
-    - Any stale `/usr/local/bin/archriot-brave` is proactively removed during install/upgrade to avoid shadowing.
-
-- Defaults and overrides:
-    - Defaults enable Wayland/Ozone and GPU rasterization.
-    - User flags file: `~/.config/archriot/brave-flags.conf`
-    - Flag precedence: CLI flags > user flags file > wrapper defaults
-    - Example (user flags file; one flag per line):
-      --ozone-platform-hint=wayland
-      --enable-gpu-rasterization
-
-- Verify GPU acceleration:
-    - Open: `brave://gpu`
-    - Expectation: Most features show “Hardware accelerated.”
-    - If debugging issues, you can temporarily launch with a safe mode:
-      archriot-brave --disable-gpu
-    - Crash on workspace/monitor switch: test with the safe mode above. If stable, keep `--disable-gpu` temporarily and verify GPU drivers (Mesa/NVIDIA) and Wayland flags; report your GPU/driver combo.
-
-- Handler policy and verification:
-    - HTTP/HTTPS should resolve to the wrapper via the Brave desktop entry.
-    - Verify current defaults:
-      xdg-settings get default-web-browser
-      xdg-mime query default x-scheme-handler/http
-      xdg-mime query default x-scheme-handler/https
-    - Expected: ArchRiot’s wrapper desktop entry is the default (`archriot-brave.desktop`). Only “Brave” and “Brave (Private)” should appear as visible handlers in common menus.
-
-Notes:
-
-- This wrapper approach avoids `$HOME` expansion pitfalls and keeps a consistent Wayland configuration by default.
-- Use CLI flags for one-off tests; prefer the user flags file for persistent changes.
-
-## Waybar Logs and Reload Guidance
-
-ArchRiot manages Waybar with first-class CLI flags to ensure a single instance with robust reloads and actionable logs.
-
-- Launch (single-instance with logging):
-    - Hyprland exec-once uses:
-      $HOME/.local/share/archriot/install/archriot --waybar-launch
-    - Logs:
-      ~/.cache/archriot/runtime.log (tail -f ~/.cache/archriot/runtime.log)
-
-- Reload (SIGUSR2-first; dedupe; fallback restart):
-    - Command (quick log: tail -f ~/.cache/archriot/runtime.log):
-      $HOME/.local/share/archriot/install/archriot --waybar-reload
-    - Behavior:
-        - Sends SIGUSR2 to request a live config reload when possible
-        - Dedupe PIDs to avoid multiple Waybar instances
-        - Fallback to a controlled restart if SIGUSR2 is unavailable or fails
-    - Expectation:
-        - No duplicate Waybar after reloads or resume from sleep
-
-- Inspect and tail logs:
-    - Tail logs:
-      tail -f ~/.cache/archriot/runtime.log
-    - Reset current log (optional):
-      truncate -s 0 ~/.cache/archriot/runtime.log
-
-- Check running processes:
-    - pgrep -a waybar
-
-- Troubleshooting:
-    - If you suspect a stale instance, prefer the managed reload first:
-      $HOME/.local/share/archriot/install/archriot --waybar-reload
-    - As an advanced step, you may send SIGUSR2 manually:
-      pkill -SIGUSR2 waybar
-    - If you must restart cleanly:
-      pkill waybar && $HOME/.local/share/archriot/install/archriot --waybar-launch
-
 #### 🚀 One-Line Install or Upgrade
 
 **The only command you need to remember:**
@@ -425,228 +175,6 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 This downloads and runs our bulletproof Go binary installer with intelligent YAML configuration. Upgrading is exactly the same command - because simplicity is the ultimate sophistication.
 
 **What happens:** Automatic package installation, configuration deployment, and system setup with complete rollback capability if anything goes wrong.
-
-## 🔧 Troubleshooting
-
-### Installer Sync Recovery (pacman db lock / mirrors)
-
-If you see pacman errors like “could not lock database” or “failed to synchronize,” try these steps:
-
-Symptoms:
-
-- could not lock database (db.lck present)
-- failed to synchronize packages / failed retrieving file
-- temporary failure in name resolution
-
-Steps:
-
-1. Ensure no other package manager is running (pacman/yay/paru).
-2. Clear stale lock (safe if no pacman is running):
-   sudo rm -f /var/lib/pacman/db.lck
-3. Refresh databases:
-   sudo pacman -Sy
-    # If issues persist, force a full refresh:
-    sudo pacman -Syy
-4. Retry your install/upgrade and watch for transient mirror/network hiccups.
-
-### Preflight Audit (read-only)
-
-- Run: `~/.local/share/archriot/install/archriot --preflight`
-- What it checks (no changes made; safe to run anytime):
-    - Config: validates `packages.yaml`
-    - Binary path: confirms you’re using `$HOME/.local/share/archriot/install/archriot`
-    - Hyprland binds: verifies `SUPER+G` (Telegram) and `SUPER+S` (Signal)
-    - Exec-once: ensures Waybar uses `archriot --waybar-launch`
-    - Memory tuning: shows opt-in status (does not modify kernel settings)
-    - Waybar: shows instance count (does not kill any process); logs at ~/.cache/archriot/runtime.log
-
-### Memory Tuning (Opt-in)
-
-- By default, ArchRiot does not change kernel memory settings during install/upgrade.
-- To enable memory optimizations, create the file: ~/.config/archriot/enable-memory-optimizations and rerun the updater.
-
-#### Apply now (opt-in)
-
-- sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf
-- total_kb=$(awk "/MemTotal/ {print $2}" /proc/meminfo); calc=$(awk -v t="$total_kb" 'BEGIN {m=int(t*0.01); if (m > 262144) m=262144; print m}'); sudo sed -i "s/^vm.min_free_kbytes=.*/vm.min_free_kbytes=$calc/" /etc/sysctl.d/99-memory-optimization.conf
-- sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
-
-#### Revert quickly (if anything feels off)
-
-- sudo sed -i 's/^vm.overcommit*memory=.*/vm.overcommit*memory=0/; s/^vm.overcommit_ratio=.*/vm.overcommit_ratio=50/; s/^vm.min_free_kbytes=.\*/vm.min_free_kbytes=262144/' /etc/sysctl.d/99-memory-optimization.conf
-- sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
-
-Notes:
-
-- These settings use kernel heuristics (overcommit=0) and a conservative free-memory reserve to avoid fork/exec starvation.
-- Waybar and other helpers should not see “Cannot allocate memory” with these defaults. If you ever do, revert with the above commands and report the scenario.
-
-### Blinking Cursor Instead of Hyprland
-
-If your system boots to a **blinking cursor** instead of starting Hyprland:
-
-1. **Get to a terminal:** Press `CTRL+ALT+F3`
-2. **Login** with your username and password
-3. **Re-run the installer** to fix GPU/graphics issues:
-    ```bash
-    curl -fsSL https://ArchRiot.org/setup.sh | bash
-    ```
-4. **Reboot** after the script completes
-
-This issue is almost always GPU-related and the installer will detect and fix graphics driver problems automatically.
-
-### ISO Wi‑Fi Troubleshooting (Mediatek MT7921K)
-
-Live fix without rebuilding the ISO. Apply in this order:
-
-- Enable iwd and avoid conflicts:
-  sudo systemctl enable --now iwd
-  sudo systemctl mask wpa_supplicant
-
-- Unblock radio:
-  rfkill list
-  sudo rfkill unblock all
-
-- Reload Mediatek driver with ASPM disabled (stability fix):
-  sudo modprobe -r mt7921e
-  sudo modprobe mt7921e disable_aspm=1
-  If the module refuses to unload, disconnect the interface first (via iwctl), then retry.
-
-- Check for missing firmware:
-  dmesg | grep -i firmware
-  If you see missing Mediatek firmware messages:
-    - On an installed system with network:
-      sudo pacman -Syu linux-firmware
-      sudo modprobe -r mt7921e && sudo modprobe mt7921e disable_aspm=1
-    - On live ISO without network:
-      Copy required Mediatek firmware files to /lib/firmware/mediatek from another machine/USB, then reload the module.
-
-- Connect using iwd (iwctl):
-  iwctl
-  device list
-  station {device} scan
-  station {device} get-networks
-  station {device} connect {network}
-  station {device} show
-  exit
-
-- Persist after install (recommended):
-  Create /etc/modprobe.d/mt7921e.conf with:
-  options mt7921e disable_aspm=1
-
-- Verify:
-    - PCIe device bound to mt7921e:
-      lspci -k | grep -A3 -i 7921
-    - Radio unblocked:
-      rfkill list
-    - Link visible/connected:
-      iw dev
-
-### Prevent Idle Sleep and Keep Downloads Active
-
-If your system still sleeps after ~10 minutes and interrupts downloads, ensure idle suspend is disabled at logind and that Hypridle isn’t triggering suspend earlier than expected.
-
-1. Verify logind idle policy (no idle suspend)
-
-- Confirm the ArchRiot drop-in exists and disables idle action:
-
-```bash
-cat /etc/systemd/logind.conf.d/20-idle-ignore.conf
-# Expect:
-# [Login]
-# IdleAction=ignore
-```
-
-- Check effective settings:
-
-```bash
-loginctl show-logind -p IdleAction -p IdleActionUSec
-# Expect: IdleAction=ignore
-```
-
-- If missing, create the drop-in (requires reboot to take effect):
-
-```bash
-sudo mkdir -p /etc/systemd/logind.conf.d
-printf "[Login]\nIdleAction=ignore\n" | sudo tee /etc/systemd/logind.conf.d/20-idle-ignore.conf
-# Reboot to apply, or be aware that restarting logind can disrupt your session:
-# sudo systemctl restart systemd-logind
-```
-
-2. Hypridle behavior (lock vs suspend)
-
-- ArchRiot’s intended defaults:
-    - Lock at 10 minutes
-    - Suspend at 30 minutes, only when undocked (via suspend-if-undocked.sh)
-- Check if Hypridle is running:
-
-```bash
-pgrep -a hypridle || echo "hypridle not running"
-```
-
-- Temporarily stop Hypridle (for testing):
-
-```bash
-pkill hypridle
-```
-
-- If you want to keep downloads going (no auto-suspend):
-    - Edit your Hypridle config (commonly at ~/.config/hypr/hypridle.conf) to remove or comment the suspend on-timeout action that calls suspend-if-undocked.sh.
-    - Keep the 10-minute lock action if desired; remove only the suspend action.
-
-3. Make suspend opt-in during long downloads (inhibitor)
-
-- Use a one-off sleep inhibitor while running a download:
-
-```bash
-systemd-inhibit --what=sleep --why="Active download" your-download-command-here
-```
-
-- Or keep the session awake until you cancel:
-
-```bash
-systemd-inhibit --what=sleep --why="Keep awake for downloads" bash -c 'while :; do sleep 300; done'
-```
-
-4. Optional hard-disable of system sleep targets
-
-- If you want to completely prevent sleep system-wide:
-
-```bash
-sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
-```
-
-- Re-enable later:
-
-```bash
-sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target
-```
-
-5. Verification checklist
-
-- Logind shows idle ignore:
-
-```bash
-loginctl show-logind -p IdleAction -p IdleActionUSec
-```
-
-- No active Hypridle suspend action is present; only lock is configured (or Hypridle not running during long downloads).
-- Inhibitors show expected blockers during downloads:
-
-```bash
-systemd-inhibit --list
-```
-
-- The system remains awake past your previous timeout (e.g., run a 20-minute no-op test):
-
-```bash
-timeout 1200 bash -c 'date; sleep 1200; date'
-```
-
-Note:
-
-- ArchRiot does not restart systemd-logind during install/upgrade. After creating or modifying drop-ins under /etc/systemd/logind.conf.d, reboot to apply cleanly.
-- Keeping the lock at 10 minutes while disabling suspend preserves security without interrupting transfers.
 
 ## ⌨️ Master Your ArchRiot Desktop
 
@@ -1433,6 +961,484 @@ Enable Bluesky (opt-in):
 cp ~/.local/share/archriot/config/applications/xtras/Bluesky.desktop ~/.local/share/applications/
 update-desktop-database ~/.local/share/applications
 ```
+
+## Advanced Usage: ArchRiot CLI Flags
+
+These first-class CLI flags replace legacy helper scripts and are used directly in Hyprland keybinds. All of them execute the built binary at:
+$HOME/.local/share/archriot/install/archriot
+
+- --waybar-launch
+    - Purpose: Single-instance launcher with non-blocking lock and robust logging.
+    - Behavior: Ensures exactly one Waybar instance; writes logs to ~/.cache/archriot/runtime.log.
+    - Example (Hyprland exec-once): exec-once = $HOME/.local/share/archriot/install/archriot --waybar-launch
+
+- --waybar-reload
+    - Purpose: Robust Waybar reload. Uses SIGUSR2 when possible; fallback to controlled restart.
+    - Behavior: Dedupe PIDs and avoid duplicate Waybar after reloads/resume.
+    - Example (default bind): SUPER+SHIFT+SPACE → archriot --waybar-reload
+
+- --wallet
+    - Purpose: Focus-or-launch the configured wallet; avoids duplicate instances.
+    - Example (default bind): SUPER+R → archriot --wallet
+
+- --pomodoro-click
+    - Purpose: Simulate a click on the Waybar tomato timer (toggle/reset via module behavior).
+    - Example (default bind): SUPER+, → archriot --pomodoro-click
+
+- --upgrade-smoketest
+    - Purpose: Local upgrade smoketest used by the update dialog.
+    - Exit codes: 0 OK; 2 potential reintroductions; 3 unavailable. Honor allowlist at ~/.config/archriot/upgrade-allowlist.txt
+
+- --stay-awake
+    - Purpose: Prevent system suspend while a task runs; always detaches so your app isn't tied to the launcher.
+    - Usage:
+        - archriot --stay-awake curl -L -o file.iso https://example.com/file.iso
+        - archriot --stay-awake
+    - Notes: Uses systemd-inhibit to block sleep; does not affect screen lock.
+
+- --volume
+    - Purpose: Unified audio control for speakers and microphone across PipeWire/PulseAudio.
+    - Backend priority: wpctl (PipeWire with starred sink/source) → pamixer → pactl
+    - Usage:
+        - archriot --volume toggle # Toggle speaker mute
+        - archriot --volume inc # Increase volume 5%
+        - archriot --volume dec # Decrease volume 5%
+        - archriot --volume get # Get current volume percentage
+
+### Hypridle: Lock Not Triggering (exec syntax)
+
+Symptoms:
+
+- Screen never locks after idle timeout, but `hyprlock` works when launched manually.
+- Hypridle verbose logs show attempts to run `exec, /usr/bin/hyprlock` and errors like `exec,: command not found`.
+
+Cause:
+
+- Hyprland config style (`exec, ...`) was mistakenly used inside hypridle.conf.
+- Hypridle expects either `lock` (uses `lock_cmd`) or a direct executable path. It does not interpret `exec,`.
+
+Fix:
+
+1. In `~/.config/hypr/hypridle.conf`, replace:
+
+```ini
+on-timeout = exec, /usr/bin/hyprlock
+```
+
+with either:
+
+```ini
+on-timeout = lock
+```
+
+or (explicit path):
+
+```ini
+on-timeout = /usr/bin/hyprlock
+```
+
+2. Use absolute paths in `general {}` and listeners to avoid PATH/env issues under Hyprland:
+
+```ini
+general {
+  lock_cmd = /usr/bin/hyprlock
+  before_sleep_cmd = /usr/bin/loginctl lock-session
+  after_sleep_cmd = /usr/bin/hyprctl dispatch dpms on
+}
+```
+
+3. Restart hypridle:
+
+```bash
+pkill hypridle
+hyprctl dispatch exec hypridle
+```
+
+Notes:
+
+- Waybar’s `idle_inhibitor` module can block idle. Ensure it’s not activated if locks don’t trigger.
+- Brightness dim at 5 minutes won’t affect external HDMI/DP displays; consider adding DPMS off/on at lock for a visible cue on external monitors.
+
+                                                - archriot --volume mic-toggle # Toggle microphone mute
+                                                - archriot --volume mic-inc # Increase mic volume 5%
+                                                - archriot --volume mic-dec # Decrease mic volume 5%
+                                                - archriot --volume mic-get # Get current mic volume
+
+    - Troubleshooting:
+        - Check backend: wpctl status | head -30
+        - Test manually: archriot --volume get
+        - Waybar uses this for all volume controls (scroll, click, microphone)
+
+- --brightness
+    - Purpose: Backlight control for laptop displays.
+    - Usage:
+        - archriot --brightness up # Increase brightness
+        - archriot --brightness down # Decrease brightness
+    - Notes: Uses brightnessctl; integrates with Waybar backlight module scroll actions
+
+- --startup-background
+    - Purpose: Start wallpaper at login from saved preferences; avoids theme apply during boot to prevent races.
+    - Behavior: Reads ~/.config/archriot/background-prefs.json (key: current_background), falls back to riot_01.jpg or the first available image under ~/.local/share/archriot/backgrounds, writes the state file at ~/.config/archriot/.current-background, and restarts swaybg detached.
+    - Example (Hyprland exec-once): exec-once = $HOME/.local/share/archriot/install/archriot --startup-background
+
+- --swaybg-next
+    - Purpose: Cycle to the next wallpaper and refresh theming if dynamic theming is enabled.
+    - Behavior: Iterates images in ~/.local/share/archriot/backgrounds, updates ~/.config/archriot/.current-background, restarts swaybg detached, and triggers best-effort theme refresh.
+    - Example (default bind): SUPER+CTRL+SPACE → $HOME/.local/share/archriot/install/archriot --swaybg-next
+
+- --waybar-workspace-click
+    - Purpose: Safe Waybar workspace click handler (numeric-only).
+    - Usage: $HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name}
+    - Notes: Validates numeric workspace and dispatches: hyprctl dispatch workspace {name}
+    - Example (Waybar ModulesWorkspaces): "on-click": "$HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name} "
+
+- --waybar-cpu
+    - Purpose: Aggregate CPU usage meter for Waybar.
+    - Behavior: Reads /proc/stat deltas; renders a bar, percentage, and class via JSON.
+    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-cpu"
+
+- --waybar-temp
+    - Purpose: CPU temperature meter for Waybar.
+    - Behavior: Autodetects sensor (hwmon coretemp/k10temp/zenpower → temp1_input; x86_pkg_temp thermal zone; thermal_zone0 fallback), renders bar and class via JSON.
+    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-temp"
+
+- --waybar-volume
+    - Purpose: Speaker volume meter for Waybar.
+    - Backend priority: wpctl (PipeWire) → pamixer → pactl. Renders bar and icon via JSON; shows “audio not ready” gracefully.
+    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-volume"
+
+- --waybar-memory
+    - Purpose: Memory usage meter for Waybar.
+    - Behavior: Computes traditional percentage, shows modern vs traditional in tooltip; renders bar and class via JSON.
+    - Example (Waybar): "exec": "$HOME/.local/share/archriot/install/archriot --waybar-memory"
+
+- --stabilize-session
+    - Purpose: Session recovery utility. Dedupe Waybar and relaunch a single, managed instance; restart hypridle to ensure idle/lock policy is active.
+    - Usage:
+        - archriot --stabilize-session
+        - archriot --stabilize-session --inhibit # starts a detached sleep inhibitor for long-running work
+
+- --zed
+    - Purpose: Focus-or-launch Zed (native > Flatpak) with Wayland-friendly environment; focuses an existing window if present.
+    - Example (bind): SUPER+Z → $HOME/.local/share/archriot/install/archriot --zed
+    - Example (desktop entry Exec): $HOME/.local/share/archriot/install/archriot --zed %U
+
+- --welcome
+    - Purpose: Launch the ArchRiot Welcome window (Python GTK) in a detached manner.
+    - Example (Hyprland exec-once): sleep 2 && $HOME/.local/share/archriot/install/archriot --welcome
+
+### Hyprland bind examples (copy/paste)
+
+These are already present by default; use if you need to reapply or test live.
+
+```bash
+# Reload Waybar safely
+hyprctl keyword bind "$mod SHIFT, SPACE, exec, $HOME/.local/share/archriot/install/archriot --waybar-reload"
+
+# Wallet
+hyprctl keyword bind "$mod, R, exec, $HOME/.local/share/archriot/install/archriot --wallet"
+
+# Pomodoro
+hyprctl keyword bind "$mod, comma, exec, $HOME/.local/share/archriot/install/archriot --pomodoro-click"
+
+# Telegram (resilient focus-or-launch)
+hyprctl keyword bind "$mod, G, exec, $HOME/.local/share/archriot/install/archriot --telegram"
+```
+
+## Brave Wrapper and Handler Mapping
+
+ArchRiot routes all browser launches through a PATH-resolved wrapper: `archriot-brave`.
+
+- Executable resolution:
+    - The installer ensures the wrapper is on PATH.
+    - Any stale `/usr/local/bin/archriot-brave` is proactively removed during install/upgrade to avoid shadowing.
+
+- Defaults and overrides:
+    - Defaults enable Wayland/Ozone and GPU rasterization.
+    - User flags file: `~/.config/archriot/brave-flags.conf`
+    - Flag precedence: CLI flags > user flags file > wrapper defaults
+    - Example (user flags file; one flag per line):
+      --ozone-platform-hint=wayland
+      --enable-gpu-rasterization
+
+- Verify GPU acceleration:
+    - Open: `brave://gpu`
+    - Expectation: Most features show “Hardware accelerated.”
+    - If debugging issues, you can temporarily launch with a safe mode:
+      archriot-brave --disable-gpu
+    - Crash on workspace/monitor switch: test with the safe mode above. If stable, keep `--disable-gpu` temporarily and verify GPU drivers (Mesa/NVIDIA) and Wayland flags; report your GPU/driver combo.
+
+- Handler policy and verification:
+    - HTTP/HTTPS should resolve to the wrapper via the Brave desktop entry.
+    - Verify current defaults:
+      xdg-settings get default-web-browser
+      xdg-mime query default x-scheme-handler/http
+      xdg-mime query default x-scheme-handler/https
+    - Expected: ArchRiot’s wrapper desktop entry is the default (`archriot-brave.desktop`). Only “Brave” and “Brave (Private)” should appear as visible handlers in common menus.
+
+Notes:
+
+- This wrapper approach avoids `$HOME` expansion pitfalls and keeps a consistent Wayland configuration by default.
+- Use CLI flags for one-off tests; prefer the user flags file for persistent changes.
+
+## Waybar Logs and Reload Guidance
+
+ArchRiot manages Waybar with first-class CLI flags to ensure a single instance with robust reloads and actionable logs.
+
+- Launch (single-instance with logging):
+    - Hyprland exec-once uses:
+      $HOME/.local/share/archriot/install/archriot --waybar-launch
+    - Logs:
+      ~/.cache/archriot/runtime.log (tail -f ~/.cache/archriot/runtime.log)
+
+- Reload (SIGUSR2-first; dedupe; fallback restart):
+    - Command (quick log: tail -f ~/.cache/archriot/runtime.log):
+      $HOME/.local/share/archriot/install/archriot --waybar-reload
+    - Behavior:
+        - Sends SIGUSR2 to request a live config reload when possible
+        - Dedupe PIDs to avoid multiple Waybar instances
+        - Fallback to a controlled restart if SIGUSR2 is unavailable or fails
+    - Expectation:
+        - No duplicate Waybar after reloads or resume from sleep
+
+- Inspect and tail logs:
+    - Tail logs:
+      tail -f ~/.cache/archriot/runtime.log
+    - Reset current log (optional):
+      truncate -s 0 ~/.cache/archriot/runtime.log
+
+- Check running processes:
+    - pgrep -a waybar
+
+- Troubleshooting:
+    - If you suspect a stale instance, prefer the managed reload first:
+      $HOME/.local/share/archriot/install/archriot --waybar-reload
+    - As an advanced step, you may send SIGUSR2 manually:
+      pkill -SIGUSR2 waybar
+    - If you must restart cleanly:
+      pkill waybar && $HOME/.local/share/archriot/install/archriot --waybar-launch
+
+## 🔧 Troubleshooting
+
+### Installer Sync Recovery (pacman db lock / mirrors)
+
+If you see pacman errors like “could not lock database” or “failed to synchronize,” try these steps:
+
+Symptoms:
+
+- could not lock database (db.lck present)
+- failed to synchronize packages / failed retrieving file
+- temporary failure in name resolution
+
+Steps:
+
+1. Ensure no other package manager is running (pacman/yay/paru).
+2. Clear stale lock (safe if no pacman is running):
+   sudo rm -f /var/lib/pacman/db.lck
+3. Refresh databases:
+   sudo pacman -Sy
+    # If issues persist, force a full refresh:
+    sudo pacman -Syy
+4. Retry your install/upgrade and watch for transient mirror/network hiccups.
+
+### Preflight Audit (read-only)
+
+- Run: `~/.local/share/archriot/install/archriot --preflight`
+- What it checks (no changes made; safe to run anytime):
+    - Config: validates `packages.yaml`
+    - Binary path: confirms you’re using `$HOME/.local/share/archriot/install/archriot`
+    - Hyprland binds: verifies `SUPER+G` (Telegram) and `SUPER+S` (Signal)
+    - Exec-once: ensures Waybar uses `archriot --waybar-launch`
+    - Memory tuning: shows opt-in status (does not modify kernel settings)
+    - Waybar: shows instance count (does not kill any process); logs at ~/.cache/archriot/runtime.log
+
+### Memory Tuning (Opt-in)
+
+- By default, ArchRiot does not change kernel memory settings during install/upgrade.
+- To enable memory optimizations, create the file: ~/.config/archriot/enable-memory-optimizations and rerun the updater.
+
+#### Apply now (opt-in)
+
+- sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf
+- total_kb=$(awk "/MemTotal/ {print $2}" /proc/meminfo); calc=$(awk -v t="$total_kb" 'BEGIN {m=int(t*0.01); if (m > 262144) m=262144; print m}'); sudo sed -i "s/^vm.min_free_kbytes=.*/vm.min_free_kbytes=$calc/" /etc/sysctl.d/99-memory-optimization.conf
+- sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
+
+#### Revert quickly (if anything feels off)
+
+- sudo sed -i 's/^vm.overcommit*memory=.*/vm.overcommit*memory=0/; s/^vm.overcommit_ratio=.*/vm.overcommit_ratio=50/; s/^vm.min_free_kbytes=.\*/vm.min_free_kbytes=262144/' /etc/sysctl.d/99-memory-optimization.conf
+- sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
+
+Notes:
+
+- These settings use kernel heuristics (overcommit=0) and a conservative free-memory reserve to avoid fork/exec starvation.
+- Waybar and other helpers should not see “Cannot allocate memory” with these defaults. If you ever do, revert with the above commands and report the scenario.
+
+### Blinking Cursor Instead of Hyprland
+
+If your system boots to a **blinking cursor** instead of starting Hyprland:
+
+1. **Get to a terminal:** Press `CTRL+ALT+F3`
+2. **Login** with your username and password
+3. **Re-run the installer** to fix GPU/graphics issues:
+    ```bash
+    curl -fsSL https://ArchRiot.org/setup.sh | bash
+    ```
+4. **Reboot** after the script completes
+
+This issue is almost always GPU-related and the installer will detect and fix graphics driver problems automatically.
+
+### ISO Wi‑Fi Troubleshooting (Mediatek MT7921K)
+
+Live fix without rebuilding the ISO. Apply in this order:
+
+- Enable iwd and avoid conflicts:
+  sudo systemctl enable --now iwd
+  sudo systemctl mask wpa_supplicant
+
+- Unblock radio:
+  rfkill list
+  sudo rfkill unblock all
+
+- Reload Mediatek driver with ASPM disabled (stability fix):
+  sudo modprobe -r mt7921e
+  sudo modprobe mt7921e disable_aspm=1
+  If the module refuses to unload, disconnect the interface first (via iwctl), then retry.
+
+- Check for missing firmware:
+  dmesg | grep -i firmware
+  If you see missing Mediatek firmware messages:
+    - On an installed system with network:
+      sudo pacman -Syu linux-firmware
+      sudo modprobe -r mt7921e && sudo modprobe mt7921e disable_aspm=1
+    - On live ISO without network:
+      Copy required Mediatek firmware files to /lib/firmware/mediatek from another machine/USB, then reload the module.
+
+- Connect using iwd (iwctl):
+  iwctl
+  device list
+  station {device} scan
+  station {device} get-networks
+  station {device} connect {network}
+  station {device} show
+  exit
+
+- Persist after install (recommended):
+  Create /etc/modprobe.d/mt7921e.conf with:
+  options mt7921e disable_aspm=1
+
+- Verify:
+    - PCIe device bound to mt7921e:
+      lspci -k | grep -A3 -i 7921
+    - Radio unblocked:
+      rfkill list
+    - Link visible/connected:
+      iw dev
+
+### Prevent Idle Sleep and Keep Downloads Active
+
+If your system still sleeps after ~10 minutes and interrupts downloads, ensure idle suspend is disabled at logind and that Hypridle isn’t triggering suspend earlier than expected.
+
+1. Verify logind idle policy (no idle suspend)
+
+- Confirm the ArchRiot drop-in exists and disables idle action:
+
+```bash
+cat /etc/systemd/logind.conf.d/20-idle-ignore.conf
+# Expect:
+# [Login]
+# IdleAction=ignore
+```
+
+- Check effective settings:
+
+```bash
+loginctl show-logind -p IdleAction -p IdleActionUSec
+# Expect: IdleAction=ignore
+```
+
+- If missing, create the drop-in (requires reboot to take effect):
+
+```bash
+sudo mkdir -p /etc/systemd/logind.conf.d
+printf "[Login]\nIdleAction=ignore\n" | sudo tee /etc/systemd/logind.conf.d/20-idle-ignore.conf
+# Reboot to apply, or be aware that restarting logind can disrupt your session:
+# sudo systemctl restart systemd-logind
+```
+
+2. Hypridle behavior (lock vs suspend)
+
+- ArchRiot’s intended defaults:
+    - Lock at 10 minutes
+    - Suspend at 30 minutes, only when undocked (via suspend-if-undocked.sh)
+- Check if Hypridle is running:
+
+```bash
+pgrep -a hypridle || echo "hypridle not running"
+```
+
+- Temporarily stop Hypridle (for testing):
+
+```bash
+pkill hypridle
+```
+
+- If you want to keep downloads going (no auto-suspend):
+    - Edit your Hypridle config (commonly at ~/.config/hypr/hypridle.conf) to remove or comment the suspend on-timeout action that calls suspend-if-undocked.sh.
+    - Keep the 10-minute lock action if desired; remove only the suspend action.
+
+3. Make suspend opt-in during long downloads (inhibitor)
+
+- Use a one-off sleep inhibitor while running a download:
+
+```bash
+systemd-inhibit --what=sleep --why="Active download" your-download-command-here
+```
+
+- Or keep the session awake until you cancel:
+
+```bash
+systemd-inhibit --what=sleep --why="Keep awake for downloads" bash -c 'while :; do sleep 300; done'
+```
+
+4. Optional hard-disable of system sleep targets
+
+- If you want to completely prevent sleep system-wide:
+
+```bash
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+```
+
+- Re-enable later:
+
+```bash
+sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target
+```
+
+5. Verification checklist
+
+- Logind shows idle ignore:
+
+```bash
+loginctl show-logind -p IdleAction -p IdleActionUSec
+```
+
+- No active Hypridle suspend action is present; only lock is configured (or Hypridle not running during long downloads).
+- Inhibitors show expected blockers during downloads:
+
+```bash
+systemd-inhibit --list
+```
+
+- The system remains awake past your previous timeout (e.g., run a 20-minute no-op test):
+
+```bash
+timeout 1200 bash -c 'date; sleep 1200; date'
+```
+
+Note:
+
+- ArchRiot does not restart systemd-logind during install/upgrade. After creating or modifying drop-ins under /etc/systemd/logind.conf.d, reboot to apply cleanly.
+- Keeping the lock at 10 minutes while disabling suspend preserves security without interrupting transfers.
 
 ## 🛠️ Development Tools
 

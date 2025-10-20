@@ -70,7 +70,7 @@
 	"format-charging": " {capacity}%",
 	"format-plugged": "󱘖 {capacity}%",
 	// Removed format-alt settings to always show percentage
-	"format-full": "{icon} {capacity}%",
+	"format-full": "{icon} 100%",
 	"format-icons": [
 		"󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
 	],
