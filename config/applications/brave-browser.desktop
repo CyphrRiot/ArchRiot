@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Brave
+GenericName=Web Browser
+Comment=Local stub to shadow upstream brave-browser.desktop (hidden)
+Exec=brave %U
+Icon=brave-desktop
+Categories=Network;WebBrowser;
+NoDisplay=true
+Hidden=true

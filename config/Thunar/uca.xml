@@ -4,12 +4,13 @@
 	<icon>utilities-terminal</icon>
 	<name>Open Terminal Here</name>
 	<submenu></submenu>
-	<unique-id>1</unique-id>
-	<command>ghostty --working-directory %f</command>
-	<description>Example for a custom action</description>
+	<unique-id>open-terminal-here</unique-id>
+	<command>bash -lc 'p="%f"; d="%d"; dir=""; if [ -n "$p" ] && [ -d "$p" ]; then dir="$p"; else dir="$d"; fi; exec ghostty --working-directory="$dir"'</command>
+	<description>Open Ghostty terminal in this directory</description>
 	<range></range>
 	<patterns>*</patterns>
 	<startup-notify/>
 	<directories/>
+	<files/>
 </action>
 </actions>

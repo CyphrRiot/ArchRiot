@@ -50,7 +50,7 @@ palette = 17=#db4b4b
 
 # Font configuration
 font-family = "Paper Mono"
-font-size = 13
+font-size = 12
 
 # padding
 window-padding-x = 8

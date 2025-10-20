@@ -9,6 +9,7 @@ import urllib.error
 from datetime import datetime, timezone
 import re
 import textwrap
+import difflib
 
 # GTK imports for direct dialog integration
 import gi
@@ -97,16 +98,15 @@ def log_with_timestamp(message, level="INFO", config_dir=None):
     log_message = f"[{timestamp}] {level}: {message}"
     print(log_message)
 
-    # Also log to file for persistent debugging if config_dir is provided
-    if config_dir:
-        try:
-            log_dir = os.path.join(config_dir, "logs")
-            os.makedirs(log_dir, exist_ok=True)
-            log_file = os.path.join(log_dir, "version-check.log")
-            with open(log_file, "a") as f:
-                f.write(log_message + "\n")
-        except Exception:
-            pass  # Don't let logging errors break the application
+    # Also log to unified runtime log for persistent debugging
+    try:
+        cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "archriot")
+        os.makedirs(cache_dir, exist_ok=True)
+        log_file = os.path.join(cache_dir, "runtime.log")
+        with open(log_file, "a") as f:
+            f.write("[version-check] " + log_message + "\n")
+    except Exception:
+        pass  # Don't let logging errors break the application
 
 
 def load_config(config_file):
@@ -356,6 +356,9 @@ class UpdateDialog:
 
 The update process will backup your configuration and preserve your settings.
 
+This dialog is non-blocking; you can continue working while it's open.
+Logs: ~/.cache/archriot/runtime.log
+
 Choose an option below to proceed."""
         else:
             # Fallback to static message if no commit messages available
@@ -365,6 +368,9 @@ Choose an option below to proceed."""
     • Backup your current configuration
     • Update system files and scripts
     • Preserve your personal settings
+
+Logs: ~/.cache/archriot/runtime.log
+Note: This dialog is non-blocking; you can continue working while it's open.
 
 Choose an option below to proceed."""
 
@@ -443,8 +449,151 @@ Choose an option below to proceed."""
         if hasattr(self, "waybar_managed") and self.waybar_managed:
             self.clear_waybar_state()
         try:
-            # Create the update command
-            update_command = "curl https://ArchRiot.org/setup.sh | bash"
+            # Persisted choice + Local vs cURL upgrade path selection
+            cfg = self.load_config()
+            last_choice = cfg.get("upgrade_source", "curl")
+
+            choice_dialog = Gtk.MessageDialog(
+                transient_for=self.window,
+                flags=0,
+                message_type=Gtk.MessageType.INFO,
+                buttons=Gtk.ButtonsType.NONE,
+                message_format="Choose upgrade source",
+            )
+            choice_dialog.format_secondary_text(
+                "Install from cURL: uses maintainer packages.yaml (may reintroduce removed packages)\n"
+                "Install from Local: uses your local packages.yaml and respects removed packages.\n\n"
+                f"Last choice: {last_choice.upper()}"
+            )
+            choice_dialog.add_button("🌐 Install from cURL", Gtk.ResponseType.YES)
+            choice_dialog.add_button("📁 Install from Local", Gtk.ResponseType.APPLY)
+            choice_dialog.add_button("🧾 View Diff", Gtk.ResponseType.NO)
+            choice_dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
+
+            if last_choice == "local":
+                choice_dialog.set_default_response(Gtk.ResponseType.APPLY)
+            else:
+                choice_dialog.set_default_response(Gtk.ResponseType.YES)
+
+            response = choice_dialog.run()
+            choice_dialog.destroy()
+
+            if (
+                response == Gtk.ResponseType.CANCEL
+                or response == Gtk.ResponseType.DELETE_EVENT
+            ):
+                return
+
+            if response == Gtk.ResponseType.NO:
+                # Show a unified diff between local and maintainer packages.yaml
+                try:
+                    local_path = os.path.join(
+                        self.home_dir,
+                        ".local",
+                        "share",
+                        "archriot",
+                        "install",
+                        "packages.yaml",
+                    )
+                    try:
+                        with open(local_path, "r") as f:
+                            local_text = f.read()
+                    except Exception as e:
+                        local_text = ""
+                    # Fetch remote maintainer packages.yaml
+                    url = "https://raw.githubusercontent.com/CyphrRiot/ArchRiot/master/install/packages.yaml"
+                    req = urllib.request.Request(
+                        url, headers={"User-Agent": "ArchRiot-VersionChecker/1.0"}
+                    )
+                    with urllib.request.urlopen(req, timeout=10) as resp:
+                        remote_text = resp.read().decode("utf-8")
+                    diff_lines = difflib.unified_diff(
+                        local_text.splitlines(),
+                        remote_text.splitlines(),
+                        fromfile="local packages.yaml",
+                        tofile="maintainer packages.yaml",
+                        lineterm="",
+                    )
+                    diff_text = "\n".join(diff_lines)
+                    if not diff_text:
+                        diff_text = "No differences detected between local and maintainer packages.yaml."
+                    # Show diff in a scrollable dialog
+                    dialog = Gtk.Dialog(
+                        title="packages.yaml Diff", transient_for=self.window, flags=0
+                    )
+                    dialog.set_default_size(700, 500)
+                    content = dialog.get_content_area()
+                    sw = Gtk.ScrolledWindow()
+                    sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+                    tv = Gtk.TextView()
+                    tv.set_editable(False)
+                    tv.set_monospace(True)
+                    tv.get_buffer().set_text(diff_text)
+                    sw.add(tv)
+                    content.add(sw)
+                    dialog.add_button("Close", Gtk.ResponseType.CLOSE)
+                    dialog.show_all()
+                    dialog.run()
+                    dialog.destroy()
+                except Exception as e:
+                    err_dialog = Gtk.MessageDialog(
+                        transient_for=self.window,
+                        flags=0,
+                        message_type=Gtk.MessageType.ERROR,
+                        buttons=Gtk.ButtonsType.CLOSE,
+                        message_format="Failed to compute diff",
+                    )
+                    err_dialog.format_secondary_text(str(e))
+                    err_dialog.run()
+                    err_dialog.destroy()
+                return
+
+            # Compute update command based on choice and persist it
+            if response == Gtk.ResponseType.APPLY:
+                # Local: respect user's local packages.yaml and do not reintroduce removed packages
+                # Run Local upgrade smoke test to ensure removed packages are not reintroduced
+                try:
+                    binary_path = os.path.join(
+                        self.home_dir,
+                        ".local",
+                        "share",
+                        "archriot",
+                        "install",
+                        "archriot",
+                    )
+                    if os.path.exists(binary_path) and os.access(binary_path, os.X_OK):
+                        res = subprocess.run(
+                            [binary_path, "--upgrade-smoketest", "--quiet"],
+                            capture_output=True,
+                            text=True,
+                        )
+                        if res.returncode == 2:
+                            err_text = (
+                                res.stdout.strip()
+                                or "Local upgrade smoke test detected potential reintroductions. Edit your local packages.yaml or use the cURL path."
+                            )
+                            err_dialog = Gtk.MessageDialog(
+                                transient_for=self.window,
+                                flags=0,
+                                message_type=Gtk.MessageType.ERROR,
+                                buttons=Gtk.ButtonsType.CLOSE,
+                                message_format="Local upgrade blocked by smoke test",
+                            )
+                            err_dialog.format_secondary_text(err_text[:4000])
+                            err_dialog.run()
+                            err_dialog.destroy()
+                            return
+                except Exception as e:
+                    # Non-fatal: proceed with Local path if smoketest is unavailable or errors
+                    pass
+                update_command = 'if [ -x "$HOME/.local/share/archriot/install/archriot" ]; then "$HOME/.local/share/archriot/install/archriot" --validate && "$HOME/.local/share/archriot/install/archriot"; else echo "Local installer not found at ~/.local/share/archriot/install/archriot"; fi'
+                cfg["upgrade_source"] = "local"
+                self.save_config(cfg)
+            else:
+                # cURL: maintainer’s package set (current behavior)
+                update_command = "curl https://ArchRiot.org/setup.sh | bash"
+                cfg["upgrade_source"] = "curl"
+                self.save_config(cfg)
 
             # Use hyprctl dispatch to launch terminal EXACTLY like SUPER+SHIFT+ENTER
             # Change to home directory first to avoid getcwd errors
@@ -560,7 +709,7 @@ Choose an option below to proceed."""
                         "--urgency=critical",
                         "--icon=system-software-update",
                         "ArchRiot Update Available",
-                        f"New version {self.remote_version} is available!\nCurrent: {self.local_version}\n\nRun: python3 bin/version-check --force",
+                        f"New version {self.remote_version} is available!\nCurrent: {self.local_version}\n\nRun: python3 bin/version-check --force\nLogs: ~/.cache/archriot/runtime.log\n(Non-blocking: you can continue working.)",
                     ],
                     check=False,
                 )

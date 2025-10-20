@@ -137,3 +137,11 @@ var secureBootContinuationCallback func(bool)
 func SetSecureBootContinuationCallback(callback func(bool)) {
 	secureBootContinuationCallback = callback
 }
+
+// Retry callback function
+var retryCompletionCallback func(bool)
+
+// SetRetryCallback sets the callback function for failure retry handling
+func SetRetryCallback(callback func(bool)) {
+	retryCompletionCallback = callback
+}

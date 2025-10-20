@@ -170,8 +170,40 @@ func RunInstallation() {
 	logger.Log("Success", "System", "Module Exec", "All modules done")
 	logger.Log("Info", "System", "Log File", "Available at: "+logger.GetLogPath())
 
+	// Ensure Mullvad VPN connectivity (if installed and currently disconnected)
+	refreshMullvadIfActive()
+
+	// Explicit success banner in install.log
+	logger.LogMessage("SUCCESS", "Installation completed")
+
 	// Send success completion message
 	Program.Send(tui.DoneMsg{})
+}
+
+// refreshMullvadIfActive checks Mullvad status and reconnects if not connected.
+func refreshMullvadIfActive() {
+	if _, err := exec.LookPath("mullvad"); err != nil {
+		return
+	}
+	out, err := exec.Command("mullvad", "status").CombinedOutput()
+	if err != nil {
+		logger.Log("Warning", "VPN", "Mullvad", "status failed: "+err.Error())
+		return
+	}
+	s := strings.ToLower(string(out))
+	if strings.Contains(s, "connected") {
+		// Already connected; avoid disrupting an active session.
+		logger.Log("Info", "VPN", "Mullvad", "Already connected; no refresh needed")
+		return
+	}
+	// Attempt to reconnect when disconnected
+	Program.Send(tui.LogMsg("🔐 Refreshing Mullvad VPN connection..."))
+	_ = exec.Command("mullvad", "reconnect").Run()
+	if out2, err2 := exec.Command("mullvad", "status").CombinedOutput(); err2 == nil && strings.Contains(strings.ToLower(string(out2)), "connected") {
+		logger.Log("Success", "VPN", "Mullvad", "Connected")
+	} else {
+		logger.Log("Warning", "VPN", "Mullvad", "Still not connected after refresh")
+	}
 }
 
 // secureBootSetupDone channel for synchronization

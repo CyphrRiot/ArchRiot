@@ -2,7 +2,7 @@
 Version=1.0
 Name=Google Messages
 Comment=Google Messages
-Exec=sh -c 'brave --new-window --ozone-platform=wayland --new-window --ozone-platform=wayland --app="https://messages.google.com/web/conversations"'
+Exec=archriot-brave --new-window --app="https://messages.google.com/web/conversations"
 Terminal=false
 Type=Application
 Icon=applications-internet

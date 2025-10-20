@@ -228,7 +228,11 @@ verify_installer() {
     info_msg "Verifying installer..."
 
     [[ -f "$INSTALLER_PATH" ]] || error_exit "Installer binary not found at $INSTALLER_PATH"
-    [[ -x "$INSTALLER_PATH" ]] || error_exit "Installer binary is not executable"
+    if [[ ! -x "$INSTALLER_PATH" ]]; then
+        warn_msg "Installer is not executable; attempting to set executable bit"
+        chmod +x "$INSTALLER_PATH" || error_exit "Failed to set executable bit on installer"
+        [[ -x "$INSTALLER_PATH" ]] || error_exit "Installer binary is not executable after chmod"
+    fi
 
     # Test installer responds
     "$INSTALLER_PATH" --version >/dev/null 2>&1 || error_exit "Installer binary failed basic test"
@@ -247,6 +251,37 @@ main() {
     echo -e "${PURPLE}=====================${NC}"
     echo
 
+    # Parse mode flags (default: install). Show short usage when no flags.
+    MODE="install"
+    SHOW_USAGE=0
+    case "${1-}" in
+      "" )
+        SHOW_USAGE=1
+        ;;
+      --help|-h)
+        echo -e "${YELLOW}Usage:${NC} setup.sh [--install | --upgrade | --help]"
+        echo "  --install   Run the installer (default)"
+        echo "  --upgrade   Run the upgrade flow"
+        echo "  --help      Show this message and exit"
+        exit 0
+        ;;
+      --install)
+        MODE="install"
+        ;;
+      --upgrade)
+        MODE="upgrade"
+        ;;
+      *)
+        SHOW_USAGE=1
+        ;;
+    esac
+
+    if [[ $SHOW_USAGE -eq 1 ]]; then
+        echo -e "${YELLOW}Usage:${NC} setup.sh [--install | --upgrade | --help]"
+        echo "Defaulting to --install..."
+        echo
+    fi
+
     # Execute setup steps
     check_prerequisites
     setup_repository
@@ -256,8 +291,22 @@ main() {
     info_msg "Starting ArchRiot installer..."
     echo
 
-    # Hand off to the real installer
-    exec "$INSTALLER_PATH"
+    # Hand off to the real installer (pass through flags when supported; fallback safe)
+    if "$INSTALLER_PATH" --help >/dev/null 2>&1; then
+        if [[ "$MODE" == "upgrade" ]] && "$INSTALLER_PATH" --help 2>/dev/null | grep -q -- "--upgrade"; then
+            exec "$INSTALLER_PATH" --upgrade
+        elif [[ "$MODE" == "install" ]] && "$INSTALLER_PATH" --help 2>/dev/null | grep -q -- "--install"; then
+            exec "$INSTALLER_PATH" --install
+        else
+            if [[ "$MODE" == "upgrade" ]]; then
+                warn_msg "Installer does not support --upgrade; running default installer"
+            fi
+            exec "$INSTALLER_PATH"
+        fi
+    else
+        # Very old installer without --help: run without flags
+        exec "$INSTALLER_PATH"
+    fi
 }
 
 # Run main function

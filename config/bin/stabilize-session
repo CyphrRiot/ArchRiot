@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# stabilize-session
+#
+# Purpose:
+#   Stabilize the current Wayland session:
+#     1) Dedupe Waybar and relaunch a single, managed instance (with logging)
+#     2) Restart hypridle so it picks up the safe idle policy
+#     3) Optionally start a detached sleep inhibitor for long-running work
+#
+# Usage:
+#   stabilize-session            # dedupe Waybar + restart hypridle
+#   stabilize-session --inhibit  # same as above, plus start a sleep inhibitor
+#
+# Notes:
+#   - This script is safe to run repeatedly.
+#   - The inhibitor detaches and returns immediately.
+#   - Intended to be installed at: ~/.local/share/archriot/config/bin/stabilize-session
+
+set -euo pipefail
+
+log() {
+  printf '[stabilize-session] %s\n' "$*" >&2 || true
+}
+
+# Resolve archriot binary (prefer the installed path; fallback to PATH)
+ARCHRIOT_BIN_DEFAULT="$HOME/.local/share/archriot/install/archriot"
+if [[ -x "$ARCHRIOT_BIN_DEFAULT" ]]; then
+  ARCHRIOT="$ARCHRIOT_BIN_DEFAULT"
+elif command -v archriot >/dev/null 2>&1; then
+  ARCHRIOT="$(command -v archriot)"
+else
+  ARCHRIOT=""
+fi
+
+# 1) Kill runaway Waybar and start a single, managed instance
+log "Resetting Waybar to a single, managed instance…"
+pkill -x waybar 2>/dev/null || true
+
+if [[ -n "$ARCHRIOT" ]]; then
+  "$ARCHRIOT" --waybar-launch || true
+else
+  # Fallback: start Waybar directly (no logging/dedupe lock)
+  nohup waybar >/dev/null 2>&1 &
+fi
+
+# 2) Restart hypridle to load the safe idle policy
+#    - No DPMS toggles, 10m lock, suspend guarded by AC/HDMI (if configured)
+log "Restarting hypridle…"
+pkill hypridle 2>/dev/null || true
+if command -v hypridle >/dev/null 2>&1; then
+  nohup hypridle >/dev/null 2>&1 &
+else
+  log "hypridle not found in PATH (skipping start)."
+fi
+
+# 3) Optional: keep the system awake (detached inhibitor)
+if [[ "${1-}" == "--inhibit" ]]; then
+  if [[ -n "$ARCHRIOT" ]]; then
+    log "Starting detached sleep inhibitor…"
+    "$ARCHRIOT" --stay-awake || true
+  else
+    # Fallback if archriot binary is not available
+    log "Starting detached sleep inhibitor (fallback)…"
+    nohup systemd-inhibit --what=sleep --why="ArchRiot Stay Awake" bash -lc 'while :; do sleep 300; done' >/dev/null 2>&1 &
+  fi
+fi
+
+# 4) Status summary
+WAYBAR_COUNT="$(pgrep -x waybar 2>/dev/null | wc -l | tr -d '[:space:]' || echo 0)"
+log "Waybar instances: ${WAYBAR_COUNT}"
+if pgrep hypridle >/dev/null 2>&1; then
+  log "hypridle: running"
+else
+  log "hypridle: not running"
+fi
+
+log "Done. Tip: run with '--inhibit' to block suspend during long tasks."
+exit 0

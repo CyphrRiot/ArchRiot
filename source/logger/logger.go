@@ -173,20 +173,20 @@ func InitLogging() error {
 	}
 
 	logPath = filepath.Join(homeDir, ".cache", "archriot", "install.log")
-	errorLogPath = filepath.Join(homeDir, ".cache", "archriot", "install-errors.log")
+	errorLogPath = filepath.Join(homeDir, ".cache", "archriot", "runtime.log")
 
 	// Create directories
 	if err := os.MkdirAll(filepath.Dir(logPath), 0755); err != nil {
 		return fmt.Errorf("creating log directory: %w", err)
 	}
 
-	// Open log files - truncate at start, then append during session
+	// Open install log (truncate) and runtime log (append)
 	logFile, err = os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("opening log file: %w", err)
 	}
 
-	errorLogFile, err = os.OpenFile(errorLogPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	errorLogFile, err = os.OpenFile(errorLogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return fmt.Errorf("opening error log file: %w", err)
 	}
@@ -229,7 +229,11 @@ func LogMessage(level, message string) {
 func Log(status, logType, name, description string) {
 	// Log to file with traditional format
 	logLevel := mapStatusToLevel(status)
-	fileMessage := fmt.Sprintf("%s.%s - %s: %s", logType, name, status, description)
+	identifier := name
+	if !strings.HasPrefix(strings.ToLower(name), strings.ToLower(logType)+".") {
+		identifier = fmt.Sprintf("%s.%s", logType, name)
+	}
+	fileMessage := fmt.Sprintf("%s - %s: %s", identifier, status, description)
 	LogMessage(logLevel, fileMessage)
 
 	// Send to TUI with formatted display

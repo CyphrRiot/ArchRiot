@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# archriot-brave
+#
+# ArchRiot Brave wrapper:
+# - Enforces Wayland when available
+# - Enables GPU rasterization by default
+# - Supports per-user overrides via ~/.config/archriot/brave-flags.conf (one flag per line)
+#
+# Flag precedence (highest -> lowest):
+#   1) Command-line args passed to this wrapper
+#   2) Per-user overrides (~/.config/archriot/brave-flags.conf)
+#   3) ArchRiot defaults (Wayland + GPU rasterization)
+#
+# Notes:
+# - Duplicate flags are avoided by key (e.g., --ozone-platform=..., --enable-features=...).
+# - If you provide a flag via CLI, it will override both the override file and defaults.
+# - If you provide a flag in brave-flags.conf, it overrides the defaults.
+
+set -euo pipefail
+
+# Resolve the underlying Brave binary
+resolve_brave_bin() {
+  if command -v brave >/dev/null 2>&1; then
+    command -v brave
+  elif command -v brave-browser >/dev/null 2>&1; then
+    command -v brave-browser
+  else
+    echo "archriot-brave: 'brave' not found in PATH" >&2
+    exit 127
+  fi
+}
+
+BRAVE_BIN="$(resolve_brave_bin)"
+
+# Determine Wayland availability
+is_wayland_session() {
+  if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+    return 0
+  fi
+  if [[ "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
+    return 0
+  fi
+  if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    return 0
+  fi
+  return 1
+}
+
+# Default flags (lowest precedence)
+DEFAULT_FLAGS=()
+if is_wayland_session; then
+  # Wayland defaults (Chromium/Brave)
+  DEFAULT_FLAGS+=(--ozone-platform=wayland)
+  DEFAULT_FLAGS+=(--enable-features=UseOzonePlatform)
+fi
+# Stability/perf defaults
+DEFAULT_FLAGS+=(--enable-gpu-rasterization)
+
+# Load per-user overrides (medium precedence)
+USER_FLAGS_FILE="${HOME}/.config/archriot/brave-flags.conf"
+USER_FLAGS=()
+if [[ -f "${USER_FLAGS_FILE}" ]]; then
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Strip comments and trim whitespace
+    line="${line%%#*}"
+    # trim leading/trailing whitespace
+    line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    [[ -z "$line" ]] && continue
+    # Only consider lines that look like flags; ignore accidental plain text
+    if [[ "$line" == --* ]]; then
+      USER_FLAGS+=("$line")
+    fi
+  done < "${USER_FLAGS_FILE}"
+fi
+
+# Helper: extract a "key" for a flag (e.g., "--ozone-platform=wayland" -> "--ozone-platform")
+flag_key() {
+  local f="$1"
+  # Non-flag args have no key
+  [[ "$f" == --* ]] || { echo ""; return; }
+  if [[ "$f" == *=* ]]; then
+    echo "${f%%=*}"
+  else
+    echo "$f"
+  fi
+}
+
+# Build final flags:
+# 1) Start from defaults
+# 2) Skip defaults that are overridden by user flags
+# 3) Append user flags
+# 4) Skip any of the above if the CLI args already provide that flag key
+declare -A user_keys=()
+for uf in "${USER_FLAGS[@]}"; do
+  k="$(flag_key "$uf")"
+  [[ -n "$k" ]] && user_keys["$k"]=1
+done
+
+COMBINED_FLAGS=()
+for df in "${DEFAULT_FLAGS[@]}"; do
+  dk="$(flag_key "$df")"
+  if [[ -n "$dk" && -n "${user_keys[$dk]:-}" ]]; then
+    # User override exists; skip default
+    continue
+  fi
+  COMBINED_FLAGS+=("$df")
+done
+# Add user overrides after defaults
+COMBINED_FLAGS+=("${USER_FLAGS[@]}")
+
+# CLI args have highest precedence; capture keys present in CLI to suppress duplicates
+declare -A cli_keys=()
+for arg in "$@"; do
+  ck="$(flag_key "$arg")"
+  [[ -n "$ck" ]] && cli_keys["$ck"]=1
+done
+
+FINAL_FLAGS=()
+for cf in "${COMBINED_FLAGS[@]}"; do
+  fk="$(flag_key "$cf")"
+  if [[ -n "$fk" && -n "${cli_keys[$fk]:-}" ]]; then
+    # CLI provides this key; skip lower-precedence flag
+    continue
+  fi
+  FINAL_FLAGS+=("$cf")
+done
+
+# Exec underlying Brave with computed flags + all original args
+exec "$BRAVE_BIN" "${FINAL_FLAGS[@]}" "$@"

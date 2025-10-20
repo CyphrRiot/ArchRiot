@@ -35,7 +35,7 @@
     	"return-type": "json",
     	"interval": 2,
     	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py",
-    	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh",
+    	"on-click": "$HOME/.local/share/archriot/install/archriot --pomodoro-click",
     	"tooltip": true
     },
 
@@ -44,7 +44,7 @@
     	"format": "{}",
     	"return-type": "json",
     	"interval": 2,
-    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-cpu-aggregate.py",
+    	"exec": "$HOME/.local/share/archriot/install/archriot --waybar-cpu",
     	"on-click": "gnome-system-monitor",
     	"on-click-right": "gnome-system-monitor",
     	"tooltip": true
@@ -52,7 +52,7 @@
 
     "custom/power": {
     	"format": " ⏻ ",
-    	"on-click": "$HOME/.local/share/archriot/config/bin/power-menu",
+    	"on-click": "$HOME/.local/share/archriot/install/archriot --power-menu",
     	"tooltip": false
     },
 
@@ -61,7 +61,7 @@
     	"format": "{}",
     	"return-type": "json",
     	"interval": 10,
-    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-temp-bar.py",
+    	"exec": "$HOME/.local/share/archriot/install/archriot --waybar-temp",
     	"on-click": "gnome-system-monitor",
     	"on-click-right": "gnome-system-monitor",
     	"tooltip": true
@@ -72,11 +72,11 @@
     	"format": "{}",
     	"return-type": "json",
     	"interval": 1,
-    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-volume-bar.py",
-    	"on-click": "$HOME/.local/share/archriot/config/bin/scripts/Volume.sh --toggle",
+    	"exec": "$HOME/.local/share/archriot/install/archriot --waybar-volume",
+    	"on-click": "$HOME/.local/share/archriot/install/archriot --volume toggle",
     	"on-click-right": "pavucontrol -t 3",
-    	"on-scroll-up": "$HOME/.local/share/archriot/config/bin/scripts/Volume.sh --inc",
-    	"on-scroll-down": "$HOME/.local/share/archriot/config/bin/scripts/Volume.sh --dec",
+    	"on-scroll-up": "$HOME/.local/share/archriot/install/archriot --volume inc",
+    	"on-scroll-down": "$HOME/.local/share/archriot/install/archriot --volume dec",
     	"tooltip": true
     },
 
@@ -85,7 +85,7 @@
     	"format": "{}",
     	"return-type": "json",
     	"interval": 5,
-    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-memory-accurate.py",
+    	"exec": "$HOME/.local/share/archriot/install/archriot --waybar-memory",
     	"on-click": "gnome-system-monitor",
     	"on-click-right": "gnome-system-monitor",
     	"tooltip": true

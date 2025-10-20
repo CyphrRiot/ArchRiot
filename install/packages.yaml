@@ -7,7 +7,7 @@ core:
             - git
             - rsync
             - bc
-            # - go-yq
+            # - paru
             - python
             - python-psutil
             - fastfetch
@@ -88,6 +88,7 @@ desktop:
             - mako
             - hyprlock
             - hypridle
+            - kanshi
             - swaybg
             - hyprshot
             - matugen
@@ -106,21 +107,42 @@ desktop:
             - pattern: xfce4/xfconf/xfce-perchannel-xml/*
             - pattern: applications/*
               target: ~/.local/share/applications/
+            - pattern: bin/scripts/generate-keybindings-help.sh
+            - pattern: help/*
+              target: ~/.local/share/archriot/config/help/
+            - pattern: kanshi/*
+              target: ~/.config/kanshi/
         commands:
             - "mkdir -p ~/.local/bin"
+            - "sudo rm -f /usr/local/bin/archriot-brave"
+            - "ln -sf ~/.local/share/archriot/config/bin/archriot-brave ~/.local/bin/archriot-brave"
+
+            - "ln -sf ~/.local/share/archriot/config/bin/suspend-if-undocked.sh ~/.local/bin/suspend-if-undocked.sh"
+            - "true"
             - "chmod +x ~/.local/share/archriot/config/bin/*"
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
             - "chmod +x ~/.config/waybar/scripts/*"
             - "sleep 1 && if pgrep -x waybar >/dev/null 2>&1; then pkill -SIGUSR2 waybar; fi"
-            - "~/.local/share/archriot/config/bin/setup-temperature"
+            - "~/.local/share/archriot/install/archriot --setup-temperature"
             - "mkdir -p ~/.local/share/applications"
-            - "update-desktop-database ~/.local/share/applications/"
-            - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then sudo systemctl stop "$dm"; sudo systemctl disable "$dm"; sudo pacman -Rns --noconfirm "$dm"; fi; done'
+            - "rm -f ~/.local/share/applications/Bluesky.desktop ~/.local/share/applications/bluesky.desktop"
+            - "sudo rm -f /usr/local/share/applications/Bluesky.desktop /usr/local/share/applications/bluesky.desktop || true"
+            - "sudo rm -f /usr/share/applications/Bluesky.desktop /usr/share/applications/bluesky.desktop || true"
+            - "update-desktop-database ~/.local/share/applications/ || true"
+            - "sudo update-desktop-database || true"
+            - "mkdir -p ~/.config/archriot && [ -f ~/.config/archriot/upgrade-allowlist.txt ] || echo '# One package per line' > ~/.config/archriot/upgrade-allowlist.txt"
+            - 'for dm in sddm gdm lightdm lxdm; do if pacman -Qi "$dm" &>/dev/null; then if ! systemctl is-active --quiet "$dm"; then sudo systemctl disable "$dm" || true; sudo pacman -Rns --noconfirm "$dm"; else echo "Display manager $dm is active; skipping disable/remove"; fi; fi; done'
             - "sudo mkdir -p /etc/systemd/system/getty@tty1.service.d"
             - "bash -c 'ACTUAL_USER=$(logname || who am i | awk \"{print \\$1}\") && echo -e \"[Service]\\nExecStart=\\nExecStart=-/usr/bin/agetty --autologin $ACTUAL_USER --noclear %I \\$TERM\" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf'"
             - "systemctl --user daemon-reload"
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now version-check.timer; else systemctl --user enable version-check.timer; fi"
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now battery-monitor.timer; else systemctl --user enable battery-monitor.timer; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then systemctl --user disable --now hypr-dock-inhibit.service; else systemctl --user disable hypr-dock-inhibit.service; fi"
+            - "rm -f ~/.local/share/archriot/config/bin/waybar-launch ~/.local/share/archriot/config/bin/waybar-reload ~/.local/share/archriot/config/bin/scripts/trezor-launcher.sh ~/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh ~/.local/share/archriot/config/bin/scripts/archriot-upgrade-smoketest.sh ~/.local/share/archriot/config/bin/scripts/signal-launcher.sh ~/.local/share/archriot/config/bin/scripts/waybar-cpu-aggregate.py ~/.local/share/archriot/config/bin/scripts/waybar-temp-bar.py ~/.local/share/archriot/config/bin/scripts/waybar-volume-bar.py ~/.local/share/archriot/config/bin/scripts/waybar-memory-accurate.py ~/.local/share/archriot/config/bin/setup-temperature || true"
+            - "sudo mkdir -p /etc/systemd/logind.conf.d"
+            - "bash -c 'echo -e \"[Login]\\nHandleLidSwitch=suspend\\nHandleLidSwitchExternalPower=suspend\\nHandleLidSwitchDocked=ignore\" | sudo tee /etc/systemd/logind.conf.d/10-docked-ignore-lid.conf'"
+            - "bash -c 'echo -e \"[Login]\\nIdleAction=ignore\" | sudo tee /etc/systemd/logind.conf.d/20-idle-ignore.conf'"
+            # Skipped: never restart systemd-logind during install/upgrade; changes apply after reboot or manual restart
 
         depends: [core.base]
         start: "Installing Hyprland desktop"
@@ -139,10 +161,11 @@ desktop:
             - hyprsunset
             - gnome-calculator
             - nwg-drawer
+            # - python-opencv
             - loupe
             - glycin
             #- ufw
-            #- kooha
+            - kooha
             - gnome-disk-utility
             - abiword
             - gnumeric
@@ -236,7 +259,12 @@ desktop:
             - pattern: applications/*
         commands:
             - "mkdir -p ~/.local/share/applications"
+            - "for d in /usr/share/applications /usr/local/share/applications ~/.local/share/applications; do for f in \"$d\"/electron*.desktop; do [ -e \"$f\" ] || continue; id=\"$(basename \"$f\")\"; tgt=\"$HOME/.local/share/applications/$id\"; cp \"$f\" \"$tgt\" 2>/dev/null || true; if grep -qE '^(Hidden|NoDisplay)=' \"$tgt\"; then sed -i 's/^Hidden=.*/Hidden=true/; s/^NoDisplay=.*/NoDisplay=true/' \"$tgt\"; else printf '\\nHidden=true\\nNoDisplay=true\\n' >> \"$tgt\"; fi; done; done"
+            - "rm -f ~/.local/share/applications/Bluesky.desktop ~/.local/share/applications/bluesky.desktop; sudo rm -f /usr/local/share/applications/Bluesky.desktop /usr/local/share/applications/bluesky.desktop; sudo rm -f /usr/share/applications/Bluesky.desktop /usr/share/applications/bluesky.desktop || true"
             - "update-desktop-database ~/.local/share/applications/"
+            - "sudo mkdir -p /etc/NetworkManager/conf.d"
+            - "bash -lc 'printf \"[connection]\\nwifi.powersave=2\\n\" | sudo tee /etc/NetworkManager/conf.d/40-wifi-powersave.conf >/dev/null'"
+            - "sudo systemctl reload NetworkManager || true"
         depends: [core.base]
         start: "Installing desktop utilities"
         end: "Desktop utilities installed"
@@ -308,7 +336,10 @@ system:
             # - ttf-hack-nerd
             # - ttf-cascadia-mono-nerd
             - ttf-nerd-fonts-symbols
+            - noto-fonts
             - noto-fonts-emoji
+            - noto-fonts-cjk
+            - noto-fonts-extra
         commands:
             - "fc-cache -f"
             - "mkdir -p ~/.local/share/fonts/ && cp ~/.local/share/archriot/config/fonts/* ~/.local/share/fonts/"
@@ -407,7 +438,7 @@ system:
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now pipewire-pulse.socket; else systemctl --user enable pipewire-pulse.socket; fi"
             - "if systemctl --user is-active --quiet dbus.service; then systemctl --user enable --now wireplumber.service; else systemctl --user enable wireplumber.service; fi"
             - "sleep 2"
-            - "if command -v pamixer && systemctl --user is-active --quiet pipewire.service; then current_vol=$(pamixer --get-volume) && if [ $current_vol -gt 78 ]; then pamixer --set-volume 25; fi; fi"
+
         depends: [core.base]
         start: "Installing PipeWire audio system"
         end: "Audio system configured"
@@ -416,13 +447,19 @@ system:
 
     memory:
         commands:
-            - "sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf"
-            - "total_kb=$(awk \"/MemTotal/ {print \\$2}\" /proc/meminfo); calc=$(awk -v t=\"\\$total_kb\" \"BEGIN {m=int(t*0.05); if (m > 1048576) m=1048576; print m}\"); sudo sed -i \"s/^vm\\\\.min_free_kbytes=.*/vm.min_free_kbytes=\\$calc/\" /etc/sysctl.d/99-memory-optimization.conf"
-            - "sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf"
-            - "sleep 2 && if ! pgrep -x waybar >/dev/null 2>&1; then nohup waybar >/dev/null 2>&1 & disown; fi"
+            - |
+                if [ -f "$HOME/.config/archriot/enable-memory-optimizations" ]; then
+                  sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf
+                  total_kb=$(awk "/MemTotal/ {print \$2}" /proc/meminfo)
+                  calc=$(awk -v t="$total_kb" 'BEGIN {m=int(t*0.01); if (m > 262144) m=262144; print m}')
+                  sudo sed -i "s/^vm\.min_free_kbytes=.*/vm.min_free_kbytes=$calc/" /etc/sysctl.d/99-memory-optimization.conf
+                  sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
+                else
+                  echo "Skipping memory optimization (opt-in disabled). Create ~/.config/archriot/enable-memory-optimizations to enable."
+                fi
         depends: [core.base]
-        start: "Optimizing memory settings"
-        end: "Memory optimization applied"
+        start: "Optimizing memory settings (opt-in)"
+        end: "Memory optimization checked"
         type: "System"
         critical: false
 
@@ -439,9 +476,9 @@ system:
                   # Documents
                   xdg-mime default org.gnome.Papers.desktop application/pdf
                   # Web browser
-                  xdg-settings set default-web-browser brave-browser.desktop
+                  xdg-settings set default-web-browser archriot-brave.desktop
                   for scheme in x-scheme-handler/http x-scheme-handler/https; do
-                    xdg-mime default brave-browser.desktop "$scheme"
+                    xdg-mime default archriot-brave.desktop "$scheme"
                   done
                   # Text files
                   for mime in text/plain text/markdown text/x-markdown application/x-markdown; do

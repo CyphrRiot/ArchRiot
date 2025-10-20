@@ -2,7 +2,7 @@
 Version=1.0
 Name=Proton Mail
 Comment=Proton Mail
-Exec=sh -c 'brave --new-window --ozone-platform=wayland --new-window --ozone-platform=wayland --app="https://mail.proton.me/u/11/inbox"'
+Exec=archriot-brave --new-window --app="https://mail.proton.me/u/11/inbox"
 Terminal=false
 Type=Application
 Icon=internet-mail

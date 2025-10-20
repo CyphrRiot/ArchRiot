@@ -1,0 +1,16 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Brave
+GenericName=Web Browser
+Comment=Browse the web with Brave
+Icon=brave-desktop
+Categories=Network;WebBrowser;
+StartupNotify=true
+StartupWMClass=brave-browser
+NoDisplay=false
+TryExec=archriot-brave
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;x-scheme-handler/http;x-scheme-handler/https;
+
+# Prefer ArchRiot wrapper if available, fall back to PATH wrapper, then upstream brave
+Exec=archriot-brave %U

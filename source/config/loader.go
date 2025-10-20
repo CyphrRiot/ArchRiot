@@ -12,6 +12,7 @@ import (
 func FindConfigFile() string {
 	locations := []string{
 		filepath.Join(os.Getenv("HOME"), ".local/share/archriot/install/packages.yaml"),
+		filepath.Join("install", "packages.yaml"),
 	}
 
 	for _, path := range locations {

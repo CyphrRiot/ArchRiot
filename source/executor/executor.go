@@ -290,6 +290,20 @@ func executeModuleCategoryWithProgress(category string, modules map[string]confi
 			if err := reapplyControlPanelSettings(); err != nil {
 				logger.Log("Warning", "Config", "Settings Restore", "Failed: "+err.Error())
 			}
+			// Ensure idle/lock setup
+			logger.Log("Progress", "System", "Idle/Lock", "Ensuring hypridle/hyprlock and autostart")
+			if err := ensureIdleLockSetup(); err != nil {
+				logger.Log("Warning", "System", "Idle/Lock", "Failed: "+err.Error())
+			} else {
+				logger.Log("Success", "System", "Idle/Lock", "Configured")
+				// Ensure Waybar single-instance launcher autostart
+				logger.Log("Progress", "System", "Waybar", "Ensuring single-instance launcher autostart")
+				if err := ensureWaybarLaunchSetup(); err != nil {
+					logger.Log("Warning", "System", "Waybar", "Failed: "+err.Error())
+				} else {
+					logger.Log("Success", "System", "Waybar", "Launcher configured")
+				}
+			}
 		}
 
 		logger.LogMessage("INFO", fmt.Sprintf("Completed module: %s - %s", fullName, module.End))
@@ -333,5 +347,92 @@ func reapplyControlPanelSettings() error {
 	}
 
 	logger.LogMessage("SUCCESS", fmt.Sprintf("Control panel reapply completed successfully: %s", string(output)))
+	return nil
+}
+
+// ensureWaybarLaunchSetup ensures Waybar is launched via the single-instance ArchRiot launcher
+func ensureWaybarLaunchSetup() error {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	hyprDir := filepath.Join(homeDir, ".config", "hypr")
+	if err := os.MkdirAll(hyprDir, 0755); err != nil {
+		return fmt.Errorf("ensuring hypr config dir: %w", err)
+	}
+
+	hyprlandConf := filepath.Join(hyprDir, "hyprland.conf")
+	b, err := os.ReadFile(hyprlandConf)
+	if err != nil {
+		// Not fatal; user may not have a hyprland.conf yet
+		logger.LogMessage("WARNING", fmt.Sprintf("Hyprland config not readable: %v", err))
+		return nil
+	}
+	txt := string(b)
+
+	// If already configured (either managed launcher or direct waybar), do nothing
+	if strings.Contains(txt, "--waybar-launch") || strings.Contains(txt, "waybar") {
+		return nil
+	}
+
+	// Append managed launcher exec-once
+	if !strings.HasSuffix(txt, "\n") {
+		txt += "\n"
+	}
+	txt += "# Autostart Waybar via ArchRiot single-instance launcher\n"
+	txt += "exec-once = $HOME/.local/share/archriot/install/archriot --waybar-launch\n"
+
+	if err := os.WriteFile(hyprlandConf, []byte(txt), 0644); err != nil {
+		return fmt.Errorf("writing hyprland.conf: %w", err)
+	}
+
+	logger.LogMessage("INFO", "Added Waybar autostart via archriot --waybar-launch")
+	return nil
+}
+
+// ensureIdleLockSetup ensures hypridle/hyprlock are installed and config/autostart are set
+func ensureIdleLockSetup() error {
+	// Ensure required packages
+	if err := installer.InstallPackages([]string{"hypridle", "hyprlock"}); err != nil {
+		return fmt.Errorf("installing hypridle/hyprlock: %w", err)
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("getting home directory: %w", err)
+	}
+
+	hyprDir := filepath.Join(homeDir, ".config", "hypr")
+	if err := os.MkdirAll(hyprDir, 0755); err != nil {
+		return fmt.Errorf("ensuring hypr config dir: %w", err)
+	}
+
+	// Ensure hypridle autostart in hyprland.conf
+	hyprlandConf := filepath.Join(hyprDir, "hyprland.conf")
+	if b, err := os.ReadFile(hyprlandConf); err == nil {
+		txt := string(b)
+		if !strings.Contains(txt, "hypridle") {
+			txt = txt + "\n# Autostart hypridle to enable idle lock\nexec-once = hypridle\n"
+			if writeErr := os.WriteFile(hyprlandConf, []byte(txt), 0644); writeErr != nil {
+				return fmt.Errorf("writing hyprland.conf: %w", writeErr)
+			}
+			logger.LogMessage("INFO", "Added hypridle autostart to hyprland.conf")
+		}
+	} else {
+		// Not fatal; user may not have a hyprland.conf yet
+		logger.LogMessage("WARNING", fmt.Sprintf("Hyprland config not readable: %v", err))
+	}
+
+	// Ensure minimal hypridle.conf exists
+	hypridleConf := filepath.Join(hyprDir, "hypridle.conf")
+	if _, err := os.Stat(hypridleConf); os.IsNotExist(err) {
+		content := "general {\n  lock_cmd = hyprlock\n}\n\nlistener {\n  timeout = 600\n  on-timeout = lock\n  on-resume = unlock\n}\n"
+		if writeErr := os.WriteFile(hypridleConf, []byte(content), 0644); writeErr != nil {
+			return fmt.Errorf("writing hypridle.conf: %w", writeErr)
+		}
+		logger.LogMessage("INFO", "Created default hypridle.conf (10-minute lock)")
+	}
+
 	return nil
 }

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ArchRiot — Keybindings Help</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            :root {
+                --bg: #0f172a; /* slate-900 */
+                --bg2: #1a1b26; /* tokyonight bg */
+                --fg: #cbd5e1; /* slate-300 */
+                --muted: #94a3b8; /* slate-400 */
+                --accent: #7aa2f7; /* tokyonight blue */
+                --accent2: #bb9af7; /* tokyonight purple */
+                --line: #22263a;
+            }
+            html,
+            body {
+                background: var(--bg);
+                color: var(--fg);
+                margin: 0;
+                padding: 0;
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    "Liberation Mono", "DejaVu Sans Mono", monospace;
+                line-height: 1.35;
+            }
+            .wrap {
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 28px 20px 40px;
+            }
+            h1 {
+                color: var(--accent);
+                font-size: 28px;
+                margin: 0 0 14px 0;
+                line-height: 1.15;
+            }
+            h2 {
+                color: var(--accent2);
+                font-size: 18px;
+                margin: 22px 0 14px 0;
+            }
+            p.note {
+                color: var(--muted);
+                margin: 8px 0 18px 0;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: 280px 1fr;
+                gap: 6px 18px;
+                align-items: baseline;
+                background: var(--bg2);
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                padding: 14px 16px;
+            }
+            .k {
+                color: #c7d2fe;
+                white-space: pre-wrap;
+            }
+            .a {
+                color: var(--muted);
+            }
+            code,
+            kbd {
+                background: #11162a;
+                color: #e5e7eb;
+                padding: 2px 6px;
+                border-radius: 6px;
+                border: 1px solid var(--line);
+                font-size: 0.95em;
+            }
+            .hr {
+                height: 1px;
+                background: var(--line);
+                margin: 18px 0;
+            }
+            .footer {
+                color: var(--muted);
+                font-size: 12px;
+                margin-top: 22px;
+            }
+            a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            @media (max-width: 720px) {
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+                .k {
+                    margin-top: 6px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <h1>ArchRiot — Keybindings Help</h1>
+            <p class="note">
+                Local quick reference. Open with
+                <kbd>SUPER</kbd>+<kbd>SHIFT</kbd>+<kbd>H</kbd>. Website help
+                remains on <kbd>SUPER</kbd>+<kbd>H</kbd>.
+            </p>
+
+            <h2>Basics</h2>
+            <div class="grid">
+                <div class="k">SUPER + H</div>
+                <div class="a">Help (website)</div>
+                <div class="k">SUPER + SHIFT + H</div>
+                <div class="a">This keybindings help (local)</div>
+                <div class="k">SUPER + D</div>
+                <div class="a">App launcher (Fuzzel)</div>
+                <div class="k">SUPER + RETURN</div>
+                <div class="a">Terminal (Ghostty)</div>
+                <div class="k">SUPER + SHIFT + RETURN</div>
+                <div class="a">Floating terminal (overlay)</div>
+                <div class="k">SUPER + L</div>
+                <div class="a">Lock screen (Hyprlock)</div>
+                <div class="k">SUPER + ESCAPE</div>
+                <div class="a">Power menu</div>
+                <div class="k">SUPER + SPACE</div>
+                <div class="a">App launcher (Fuzzel)</div>
+            </div>
+
+            <h2>Window Management</h2>
+            <div class="grid">
+                <div class="k">SUPER + W / SUPER + Q</div>
+                <div class="a">Close window</div>
+                <div class="k">SUPER + V</div>
+                <div class="a">Toggle floating</div>
+                <div class="k">SUPER + J</div>
+                <div class="a">Toggle split</div>
+                <div class="k">SUPER + P</div>
+                <div class="a">Pseudo tiling</div>
+                <div class="k">SUPER + TAB</div>
+                <div class="a">Window switcher</div>
+                <div class="k">SUPER + SHIFT + TAB</div>
+                <div class="a">Fix off‑screen windows</div>
+                <div class="k">SUPER + ←/→/↑/↓</div>
+                <div class="a">Move focus</div>
+                <div class="k">SUPER + SHIFT + ←/→/↑/↓</div>
+                <div class="a">Swap windows</div>
+                <div class="k">SUPER + CTRL + ←/→/↑/↓</div>
+                <div class="a">Smart movement</div>
+            </div>
+
+            <h2>Workspaces</h2>
+            <div class="grid">
+                <div class="k">SUPER + 1..4 (or 1..0)</div>
+                <div class="a">Switch workspace</div>
+                <div class="k">SUPER + SHIFT + 1..4</div>
+                <div class="a">Move window to workspace</div>
+            </div>
+
+            <h2>Applications</h2>
+            <div class="grid">
+                <div class="k">SUPER + F</div>
+                <div class="a">File manager (Thunar)</div>
+                <div class="k">SUPER + B</div>
+                <div class="a">Browser (Brave via archriot-brave wrapper)</div>
+                <div class="k">SUPER + Z</div>
+                <div class="a">Zed (code editor)</div>
+                <div class="k">SUPER + N</div>
+                <div class="a">Neovim</div>
+                <div class="k">SUPER + O</div>
+                <div class="a">Text editor (GNOME)</div>
+                <div class="k">SUPER + T</div>
+                <div class="a">System monitor (btop)</div>
+                <div class="k">SUPER + G</div>
+                <div class="a">
+                    Telegram (focus-or-launch; native > Flatpak)
+                </div>
+                <div class="k">SUPER + S</div>
+                <div class="a">Signal (focus-or-launch; native > Flatpak)</div>
+                <div class="k">SUPER + R</div>
+                <div class="a">
+                    Wallet (focus/launch Trezor Suite or Ledger Live)
+                </div>
+            </div>
+
+            <h2>Screenshots & Recording</h2>
+            <div class="grid">
+                <div class="k">SUPER + SHIFT + S</div>
+                <div class="a">Region screenshot</div>
+                <div class="k">SUPER + SHIFT + W</div>
+                <div class="a">Window screenshot</div>
+                <div class="k">SUPER + SHIFT + F</div>
+                <div class="a">Fullscreen screenshot</div>
+                <div class="k">Kooha</div>
+                <div class="a">Screen recorder (launch via app launcher)</div>
+            </div>
+
+            <h2>Waybar & Theming</h2>
+            <div class="grid">
+                <div class="k">SUPER + SHIFT + SPACE</div>
+                <div class="a">Waybar reload (robust)</div>
+                <div class="k">SUPER + CTRL + SPACE</div>
+                <div class="a">Cycle backgrounds</div>
+                <div class="k">Pomodoro (Waybar)</div>
+                <div class="a">Single click: toggle; double click: reset</div>
+            </div>
+
+            <h2>Audio & Media</h2>
+            <div class="grid">
+                <div class="k">XF86AudioRaise/Lower/Mute</div>
+                <div class="a">Speaker volume</div>
+                <div class="k">XF86AudioMicMute</div>
+                <div class="a">Microphone mute</div>
+                <div class="k">Waybar volume module</div>
+                <div class="a">Click for settings; scroll to adjust</div>
+            </div>
+
+            <div class="hr"></div>
+            <p class="footer">
+                Close: <kbd>SUPER</kbd>+<kbd>Q</kbd> or <kbd>SUPER</kbd>+<kbd
+                    >W</kbd
+                ><br />
+                Tip: Many actions use <code>archriot</code> CLI flags under the
+                hood (e.g., <code>--waybar-reload</code>, <code>--wallet</code>,
+                <code>--pomodoro-click</code>).
+            </p>
+        </div>
+    </body>
+</html>

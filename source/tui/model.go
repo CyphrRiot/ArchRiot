@@ -111,20 +111,26 @@ func (m *InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.showConfirm {
 			switch msg.String() {
 			case "left", "h":
-				m.cursor = 0 // YES
+				if m.cursor > 0 {
+					m.cursor--
+				}
 				return m, nil
 			case "right", "l":
-				m.cursor = 1 // NO
+				maxOpt := 1
+				if m.confirmPrompt == "❌ Installation Failed - Exit?" {
+					maxOpt = 2 // YES, NO, RETRY
+				}
+				if m.cursor < maxOpt {
+					m.cursor++
+				}
 				return m, nil
 			case "enter", " ":
 				return m.handleConfirmSelection()
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			default:
-				// For failure messages, any key should exit
-				if m.confirmPrompt == "❌ Installation Failed - Exit?" {
-					return m, tea.Quit
-				}
+				// Ignored: do not quit on arbitrary keys during failure prompt.
+				// Keep TUI open for inspection and require explicit YES/NO selection.
 			}
 		} else if m.inputMode != "" {
 			switch msg.String() {
@@ -297,7 +303,7 @@ func (m *InstallModel) View() string {
 	s.WriteString(title + "\n")
 
 	versionStyle := lipgloss.NewStyle().Foreground(dimColor)
-	subtitle := versionStyle.Render("( Charm • Bubbletea • Cypher Riot )")
+	subtitle := versionStyle.Render(" (Charm • Bubbletea • Cyphr Riot)")
 	s.WriteString(subtitle + "\n\n")
 
 	// Info section - operation details
@@ -314,6 +320,7 @@ func (m *InstallModel) View() string {
 
 	// Scroll window - bordered content area
 	s.WriteString(m.renderScrollWindow())
+	s.WriteString("\n")
 
 	// Confirmation below scroll window if shown
 	if m.showConfirm {
@@ -325,8 +332,13 @@ func (m *InstallModel) View() string {
 			Foreground(dimColor).
 			Italic(true)
 
-		buttonRow := renderConfirmButtons(m.cursor)
+		three := m.confirmPrompt == "❌ Installation Failed - Exit?"
+		buttonRow := renderConfirmButtons(m.cursor, three)
 
+		if m.done {
+			bannerStyle := lipgloss.NewStyle().Foreground(successColor).Bold(true)
+			s.WriteString(bannerStyle.Render("🎉 Installation completed!") + "\n\n")
+		}
 		s.WriteString(fmt.Sprintf("\n\n%s  %s  %s",
 			promptStyle.Render(m.confirmPrompt),
 			buttonRow,
@@ -341,7 +353,7 @@ func (m *InstallModel) View() string {
 }
 
 // renderConfirmButtons creates styled YES/NO confirmation buttons
-func renderConfirmButtons(cursor int) string {
+func renderConfirmButtons(cursor int, threeOptions bool) string {
 	// Simple styled buttons that don't break layout
 	selectedStyle := lipgloss.NewStyle().
 		Bold(true).
@@ -353,8 +365,30 @@ func renderConfirmButtons(cursor int) string {
 		Foreground(fgColor).
 		Padding(0, 2)
 
-	var yesButton, noButton string
+	if threeOptions {
+		// YES / NO / RETRY layout
+		var yesButton, noButton, retryButton string
 
+		switch cursor {
+		case 0:
+			yesButton = selectedStyle.Render("✓ YES")
+			noButton = unselectedStyle.Render("✗ NO")
+			retryButton = unselectedStyle.Render("↻ RETRY")
+		case 1:
+			yesButton = unselectedStyle.Render("✓ YES")
+			noButton = selectedStyle.Render("✗ NO")
+			retryButton = unselectedStyle.Render("↻ RETRY")
+		default: // 2
+			yesButton = unselectedStyle.Render("✓ YES")
+			noButton = unselectedStyle.Render("✗ NO")
+			retryButton = selectedStyle.Render("↻ RETRY")
+		}
+
+		return lipgloss.JoinHorizontal(lipgloss.Center, yesButton, "   ", noButton, "   ", retryButton)
+	}
+
+	// Two-button (YES/NO) layout
+	var yesButton, noButton string
 	if cursor == 0 {
 		yesButton = selectedStyle.Render("✓ YES")
 		noButton = unselectedStyle.Render("✗ NO")
@@ -363,7 +397,6 @@ func renderConfirmButtons(cursor int) string {
 		noButton = selectedStyle.Render("✗ NO")
 	}
 
-	// Create button row with proper spacing
 	return lipgloss.JoinHorizontal(lipgloss.Center, yesButton, "   ", noButton)
 }
 
@@ -388,8 +421,22 @@ func (m *InstallModel) renderScrollWindow() string {
 
 	// Calculate available height for scroll window
 	// Account for: ASCII (7) + Title/subtitle (4) + Operation (2) + Progress (2) + Footer (3) + Buffer (2)
+	// Reserve extra lines when confirmation/banner is visible so the final message is always on-screen
 	usedHeight := 20
 	availableHeight := m.height - usedHeight
+
+	// Reserve space for final banner and confirmation buttons when visible
+	if m.showConfirm {
+		// Reserve rows: 2 for buttons/spacer; +2 more when done to show the banner clearly
+		reserve := 2
+		if m.done {
+			reserve = 4
+		}
+		if availableHeight > reserve {
+			availableHeight -= reserve
+		}
+	}
+
 	if availableHeight < 5 {
 		availableHeight = 5 // Minimum scroll window height
 	}
@@ -506,8 +553,26 @@ func (m *InstallModel) setInputMode(mode, prompt string) {
 // handleConfirmSelection processes YES/NO confirmation selection
 func (m *InstallModel) handleConfirmSelection() (tea.Model, tea.Cmd) {
 	if m.confirmPrompt == "❌ Installation Failed - Exit?" {
-		// Installation failed - exit immediately
-		return m, tea.Quit
+		// Respect selection: YES quits, NO keeps TUI open, RETRY triggers callback
+		if m.cursor == 0 { // YES selected
+			return m, tea.Quit
+		}
+		if m.cursor == 2 { // RETRY selected
+			// Reset state so UI shows progress again
+			m.failed = false
+			m.done = false
+			m.failureError = ""
+			m.showConfirm = false
+			m.setProgress(0.0)
+			m.setCurrentStep("Retrying installation...")
+			if retryCompletionCallback != nil {
+				retryCompletionCallback(true)
+			}
+			return m, nil
+		}
+		// NO selected: hide confirmation, keep failure view/logs visible
+		m.showConfirm = false
+		return m, nil
 	} else if strings.HasPrefix(m.confirmPrompt, "🔄 Reboot now?") {
 		// Reboot confirmation (handles both regular and kernel upgrade prompts)
 		if m.cursor == 0 && SetRebootFlag != nil { // YES selected

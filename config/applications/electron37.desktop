@@ -6,3 +6,4 @@ Exec=electron37 %u
 Categories=Development;GTK;
 StartupNotify=true
 NoDisplay=true
+Hidden=true

@@ -18,7 +18,7 @@
       "*": 4
 	},
 	"format-icons": {
-		"active": "⬤",
+		"active": "●",
 		"default": "◉",
 		"empty": "○",
 	},
@@ -141,7 +141,7 @@
 	"warp-on-scroll": false,
 	"sort-by-number": true,
 	"show-special": false,
-	"on-click": "$HOME/.local/share/archriot/config/bin/waybar-workspace-click.sh {name} ",
+	"on-click": "$HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name} ",
 	"on-scroll-up": "hyprctl dispatch workspace e+1 ",
 	"on-scroll-down": "hyprctl dispatch workspace e-1 ",
 	"persistent-workspaces": {
@@ -156,7 +156,7 @@
 	"format": "{icon}{windows}",
 	"window-rewrite-delay": 250,
 	"format-icons": {
-		"active": "<span font='14'>⬤</span> ",
+		"active": "<span font='14'>●</span> ",
 		"default": "<span font='14'>◉</span> ",
 		"empty": "<span font='14'>○</span> "
 	},

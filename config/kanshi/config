@@ -1,0 +1,27 @@
+# kanshi configuration for ArchRiot
+# Default profiles:
+# - undocked: enable laptop panel (eDP-1)
+# - docked:   enable external HDMI (HDMI-A-1) and disable laptop panel
+#
+# Notes:
+# - Output names may vary by device (e.g., eDP-1, eDP-2, HDMI-A-1, DP-1, USB-C-1).
+# - Use `hyprctl monitors` (recommended) or `kanshi -l` to confirm your output names.
+# - This config uses `enable/disable` without explicit modes for broad compatibility.
+#   If your setup requires explicit modes, uncomment and adjust the examples below.
+
+profile undocked {
+  # Laptop-only mode (when HDMI is not connected)
+  output eDP-1 enable scale 1
+
+  # Example explicit mode (uncomment and adjust if needed):
+  # output eDP-1 mode 2880x1800@120 scale 1
+}
+
+profile docked {
+  # Docked mode (when HDMI is connected)
+  output HDMI-A-1 enable scale 1
+  output eDP-1 disable
+
+  # Example explicit mode (uncomment and adjust if needed):
+  # output HDMI-A-1 mode 2560x1440@60 scale 1
+}

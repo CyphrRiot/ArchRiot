@@ -1,11 +1,18 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
+	"sort"
+	"strconv"
+	"strings"
+	"syscall"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -19,6 +26,7 @@ import (
 	"archriot-installer/theming"
 	"archriot-installer/tools"
 	"archriot-installer/tui"
+	"archriot-installer/upgrade"
 	"archriot-installer/version"
 )
 
@@ -307,6 +315,2636 @@ func main() {
 			showHelp()
 			return
 
+		case "--preflight":
+			// Read-only system audit: validate config, paths, binds, exec-once, memory opt-in, and Waybar status
+			home := os.Getenv("HOME")
+			fmt.Println("🔎 ArchRiot Preflight (read-only)")
+
+			// 1) Config validation
+			if err := validateConfig(); err != nil {
+				fmt.Printf("⚠️  Config: %v\n", err)
+			} else {
+				fmt.Println("✅ Config: packages.yaml is valid")
+			}
+
+			// 2) Binary path check
+			if self, err := os.Executable(); err == nil {
+				expected := filepath.Join(home, ".local", "share", "archriot", "install", "archriot")
+				if self == expected {
+					fmt.Println("✅ Binary path:", self)
+				} else {
+					fmt.Printf("⚠️  Binary path mismatch: using %s; expected %s\n", self, expected)
+				}
+			} else {
+				fmt.Println("⚠️  Binary path: could not determine")
+			}
+
+			// 3) Hyprland binds and exec-once (user config)
+			hyprCfg := filepath.Join(home, ".config", "hypr", "hyprland.conf")
+			if b, err := os.ReadFile(hyprCfg); err == nil {
+				txt := string(b)
+
+				if strings.Contains(txt, `bind = $mod, G, exec,`) &&
+					(strings.Contains(txt, "--telegram") ||
+						strings.Contains(txt, `org\.telegram\.desktop`) ||
+						strings.Contains(txt, "gtk-launch org.telegram.desktop") ||
+						strings.Contains(txt, "telegram-desktop")) {
+					fmt.Println("✅ Bind(G): Telegram mapping present")
+				} else {
+					fmt.Println("⚠️  Bind(G): Telegram mapping not found")
+				}
+
+				if strings.Contains(txt, `bind = $mod, S, exec,`) && strings.Contains(txt, "--signal") {
+					fmt.Println("✅ Bind(S): Signal mapping present")
+				} else {
+					fmt.Println("⚠️  Bind(S): Signal mapping not found")
+				}
+
+				if strings.Contains(txt, "$HOME/.local/share/archriot/install/archriot --waybar-launch") &&
+					strings.Contains(txt, "exec-once") {
+					fmt.Println("✅ Exec-once: Waybar uses archriot --waybar-launch")
+				} else {
+					fmt.Println("⚠️  Exec-once: Waybar launcher not found (expected archriot --waybar-launch)")
+				}
+			} else {
+				fmt.Printf("⚠️  Hyprland config not readable: %v\n", err)
+			}
+
+			// 4) Memory optimization (opt-in status)
+			if _, err := os.Stat(filepath.Join(home, ".config", "archriot", "enable-memory-optimizations")); err == nil {
+				fmt.Println("ℹ️  Memory: opt-in file present (~/.config/archriot/enable-memory-optimizations)")
+			} else {
+				fmt.Println("✅ Memory: no system VM tweaks (opt-in disabled)")
+			}
+
+			// 5) Waybar status (no changes, informational only)
+			if out, err := exec.Command("sh", "-lc", "pgrep -x waybar | wc -l").Output(); err == nil {
+				c := strings.TrimSpace(string(out))
+				switch c {
+				case "0":
+					fmt.Println("ℹ️  Waybar: not running")
+				case "1":
+					fmt.Println("✅ Waybar: single instance running")
+				default:
+					fmt.Printf("⚠️  Waybar: %s instances detected (consider archriot --waybar-launch)\n", c)
+				}
+			} else {
+				fmt.Println("⚠️  Waybar: unable to query status")
+			}
+
+			// Portals stack checks
+			fmt.Println("Portals:")
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			printKV := func(k, v string) { fmt.Printf("%-24s %s\n", k+":", v) }
+
+			printKV("xdg-desktop-portal", map[bool]string{true: "present", false: "missing"}[have("xdg-desktop-portal")])
+			printKV("portal-hyprland", map[bool]string{true: "present", false: "missing"}[have("xdg-desktop-portal-hyprland")])
+			printKV("portal-gtk", map[bool]string{true: "present", false: "missing"}[have("xdg-desktop-portal-gtk")])
+
+			// Running portal processes (brief)
+			if out, err := exec.Command("sh", "-lc", "ps -C xdg-desktop-portal -o pid,cmd --no-headers; ps -C xdg-desktop-portal-hyprland -o pid,cmd --no-headers; ps -C xdg-desktop-portal-gtk -o pid,cmd --no-headers").CombinedOutput(); err == nil {
+				if s := strings.TrimSpace(string(out)); s != "" {
+					fmt.Println("--- running portals ---")
+					fmt.Println(s)
+				}
+			}
+
+			// portals.conf default chain
+			confPath := ""
+			for _, p := range []string{
+				filepath.Join(home, ".config", "xdg-desktop-portal", "portals.conf"),
+				"/etc/xdg-desktop-portal/portals.conf",
+			} {
+				if _, err := os.Stat(p); err == nil {
+					confPath = p
+					break
+				}
+			}
+			if confPath != "" {
+				if b, err := os.ReadFile(confPath); err == nil {
+					def := ""
+					for _, ln := range strings.Split(string(b), "\n") {
+						s := strings.TrimSpace(ln)
+						if strings.HasPrefix(strings.ToLower(s), "default=") {
+							def = strings.TrimPrefix(s, "default=")
+							break
+						}
+					}
+					if def != "" {
+						printKV("portals.conf", confPath)
+						printKV("default chain", def)
+						if !strings.HasPrefix(def, "hyprland;") && strings.ToLower(def) != "hyprland" {
+							fmt.Println("⚠️  Tip: Put 'hyprland' first in the default chain for ScreenCast/Screenshot on Wayland.")
+						}
+					}
+				}
+			} else {
+				fmt.Println("ℹ️  No portals.conf found; system defaults apply (hyprland portal should be active).")
+			}
+
+			fmt.Println("WiFi power-save:")
+
+			// Check NetworkManager drop-in for wifi.powersave
+			psConf := "/etc/NetworkManager/conf.d/40-wifi-powersave.conf"
+			if b, err := os.ReadFile(psConf); err == nil {
+				line := string(b)
+				fmt.Printf("%-24s %s\n", "drop-in:", psConf)
+				val := "(not set)"
+				for _, ln := range strings.Split(line, "\n") {
+					s := strings.TrimSpace(ln)
+					if strings.HasPrefix(s, "wifi.powersave=") {
+						val = strings.TrimSpace(strings.TrimPrefix(s, "wifi.powersave="))
+						break
+					}
+				}
+				fmt.Printf("%-24s %s\n", "wifi.powersave:", val)
+				if val != "2" && val != "(not set)" {
+					fmt.Println("⚠️  Tip: set wifi.powersave=2 to avoid Wi‑Fi power saving")
+				}
+			} else {
+				fmt.Printf("%-24s %s\n", "drop-in:", "missing")
+				fmt.Println("⚠️  Tip: create /etc/NetworkManager/conf.d/40-wifi-powersave.conf with wifi.powersave=2")
+			}
+
+			// Runtime power save state on a wireless iface (if any)
+			iface := ""
+			if out, err := exec.Command("sh", "-lc", "iw dev | awk '/Interface/ {print $2; exit}'").CombinedOutput(); err == nil {
+				iface = strings.TrimSpace(string(out))
+			}
+			if iface != "" {
+				if out, err := exec.Command("sh", "-lc", "iw dev "+iface+" get power_save 2>/dev/null | awk '{print tolower($0)}'").CombinedOutput(); err == nil {
+					state := strings.TrimSpace(string(out))
+					if state == "" {
+						state = "unknown"
+					}
+					fmt.Printf("%-24s %s (%s)\n", "runtime power_save:", state, iface)
+					if strings.Contains(state, "on") {
+						fmt.Println("⚠️  Tip: runtime power save is ON; consider turning it off to avoid drops while locked")
+					}
+				}
+			} else {
+				fmt.Println("ℹ️  No wireless interface detected")
+			}
+
+			fmt.Println("✅ Preflight complete (warnings shown above if any)")
+			return
+
+		case "--idle-diagnostics":
+			// Inspect hypridle/hyprlock presence, running status, config, and suspend guard wiring
+			home := os.Getenv("HOME")
+			cfg := filepath.Join(home, ".config", "hypr", "hypridle.conf")
+			fmt.Println("🔎 ArchRiot Idle Diagnostics")
+
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			runOut := func(cmd string) string {
+				out, err := exec.Command("sh", "-lc", cmd).CombinedOutput()
+				if err != nil {
+					return strings.TrimSpace(string(out))
+				}
+				return strings.TrimSpace(string(out))
+			}
+			printKV := func(k, v string) { fmt.Printf("%-24s %s\n", k+":", v) }
+
+			// Binaries
+			printKV("hypridle in PATH", map[bool]string{true: "yes", false: "no"}[have("hypridle")])
+			printKV("hyprlock in PATH", map[bool]string{true: "yes", false: "no"}[have("hyprlock")])
+
+			// Processes
+			printKV("hypridle running", map[bool]string{true: "yes", false: "no"}[exec.Command("pgrep", "-x", "hypridle").Run() == nil])
+			if p := runOut("pgrep -a hypridle || true"); p != "" {
+				printKV("hypridle pgrep", p)
+			}
+
+			// Config
+			fmt.Println("Config:", cfg)
+			if b, err := os.ReadFile(cfg); err != nil {
+				fmt.Println("⚠️  Cannot read hypridle.conf:", err)
+			} else {
+				txt := string(b)
+				// lock_cmd presence
+				lockCmd := "(not found)"
+				for _, line := range strings.Split(txt, "\n") {
+					s := strings.TrimSpace(line)
+					if strings.HasPrefix(s, "lock_cmd") {
+						lockCmd = s
+						break
+					}
+				}
+				printKV("lock_cmd", lockCmd)
+
+				// look for a 10-minute lock listener
+				has10 := strings.Contains(txt, "timeout = 600") && strings.Contains(txt, "on-timeout = lock")
+				printKV("10m lock listener", map[bool]string{true: "present", false: "missing"}[has10])
+			}
+
+			// Suspend guard script
+			script := filepath.Join(home, ".local", "bin", "suspend-if-undocked.sh")
+			if st, err := os.Stat(script); err == nil && !st.IsDir() {
+				printKV("suspend-if-undocked.sh", "present")
+				printKV("executable", map[bool]string{true: "yes", false: "no"}[st.Mode().Perm()&0o111 != 0])
+			} else {
+				printKV("suspend-if-undocked.sh", "missing")
+			}
+
+			// Dock/AC state (informational)
+			if have("hyprctl") {
+				ms := runOut("hyprctl monitors | sed -n '1,60p'")
+				if ms != "" {
+					fmt.Println("--- hyprctl monitors ---")
+					fmt.Println(ms)
+				}
+			}
+			// AC / USB-PD online
+			ac := runOut(`for f in /sys/class/power_supply/*/online; do [ -f "$f" ] && n="$(basename "$(dirname "$f")")"; v="$(cat "$f" 2>/dev/null || true)"; [ -n "$v" ] && echo "$n: $v"; done`)
+			if ac != "" {
+				fmt.Println("--- power_supply online ---")
+				fmt.Println(ac)
+			}
+
+			// Logind drop-ins
+			ten := "/etc/systemd/logind.conf.d/10-docked-ignore-lid.conf"
+			twenty := "/etc/systemd/logind.conf.d/20-idle-ignore.conf"
+			fmt.Println("--- logind drop-ins ---")
+			if out := runOut("sudo sed -n '1,50p' " + ten + " 2>/dev/null || true"); out != "" {
+				fmt.Println(out)
+			}
+			if out := runOut("sudo sed -n '1,50p' " + twenty + " 2>/dev/null || true"); out != "" {
+				fmt.Println(out)
+			}
+
+			fmt.Println("✅ Idle diagnostics complete")
+			return
+
+		case "--install":
+			// Explicit install mode: continue to normal installation flow (no return)
+		case "--upgrade":
+			// Run upgrade flow in a standalone TUI and exit
+			if err := version.ReadVersion(); err != nil {
+				log.Fatalf("❌ Failed to read version: %v", err)
+			}
+			if err := logger.InitLogging(); err != nil {
+				log.Fatalf("❌ Failed to initialize logging: %v", err)
+			}
+			defer logger.CloseLogging()
+			tui.SetVersionGetter(func() string { return version.Get() })
+			tui.SetLogPathGetter(func() string { return logger.GetLogPath() })
+			upModel := tui.NewInstallModel()
+			upProgram := tea.NewProgram(upModel)
+			logger.SetProgram(upProgram)
+			upgrade.SetProgram(upProgram)
+			// Start upgrade prompt in background
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				if err := upgrade.PromptAndRun(); err != nil {
+					upProgram.Send(tui.LogMsg("❌ Upgrade failed: " + err.Error()))
+					upProgram.Send(tui.FailureMsg{Error: "Upgrade failed"})
+					return
+				}
+				// Success banner and finalization
+				upProgram.Send(tui.LogMsg("🎉 Upgrade completed!"))
+				logger.LogMessage("SUCCESS", "Upgrade completed")
+
+				// Refresh idle manager so 10m lock works immediately post-upgrade
+				upProgram.Send(tui.LogMsg("🔄 Refreshing idle manager (hypridle)…"))
+				_ = exec.Command("pkill", "hypridle").Run()
+				if _, err := exec.LookPath("hypridle"); err == nil {
+					cmd := exec.Command("hypridle")
+					cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+					_ = cmd.Start()
+				}
+
+				installer.FinalizePackageManagers()
+				upProgram.Send(tui.DoneMsg{})
+			}()
+			// Run TUI and exit
+			if _, err := upProgram.Run(); err != nil {
+				log.Fatalf("TUI error: %v", err)
+			}
+			return
+		case "--signal":
+			// Focus-or-launch Signal Desktop with Wayland flags and async focus
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			notify := func(title, msg string, ms int) {
+				if have("notify-send") {
+					_ = exec.Command("notify-send", "-t", fmt.Sprintf("%d", ms), title, msg).Start()
+				}
+			}
+			hyprClientsContains := func(substr string) bool {
+				out, err := exec.Command("hyprctl", "clients").Output()
+				return err == nil && strings.Contains(string(out), substr)
+			}
+			focusSignal := func() bool {
+				if exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(Signal)$").Run() == nil {
+					_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+					return true
+				}
+				if exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(signal)$").Run() == nil {
+					_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+					return true
+				}
+				return false
+			}
+			// If a Signal window exists, focus it
+			if hyprClientsContains("class: Signal") || hyprClientsContains("class: signal") {
+				if focusSignal() {
+					return
+				}
+			}
+			// Otherwise launch Signal (Wayland/Ozone) and focus when ready
+			notify("Signal", "Launching Signal Desktop…", 3000)
+			_ = exec.Command("env", "GDK_SCALE=1", "signal-desktop", "--ozone-platform=wayland", "--enable-features=UseOzonePlatform").Start()
+			go func() {
+				for i := 0; i < 20; i++ {
+					time.Sleep(250 * time.Millisecond)
+					if focusSignal() {
+						return
+					}
+				}
+			}()
+			return
+
+		case "--telegram":
+			// Focus-or-launch Telegram Desktop with async focus; broaden class matches; prefer desktop/Flatpak fallbacks
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			notify := func(title, msg string, ms int) {
+				if have("notify-send") {
+					_ = exec.Command("notify-send", "-t", fmt.Sprintf("%d", ms), title, msg).Start()
+				}
+			}
+			// Focus without scanning clients to avoid brittle parsing
+			focusTelegram := func() bool {
+				// Broad match set: org.telegram.desktop (Flatpak/native), telegram-desktop (native),
+				// TelegramDesktop (legacy), telegramdesktop/Telegram (rare)
+				if exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(org\\.telegram\\.desktop|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)$").Run() == nil {
+					_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+					return true
+				}
+				return false
+			}
+
+			// First, try to focus an existing window directly
+			if focusTelegram() {
+				return
+			}
+
+			// Launch Telegram with resilient sequence: desktop entry (multiple IDs) → Flatpak → native.
+			// Between attempts, wait briefly and check for a realized window to avoid duplicate spawns.
+			waitFocus := func(loops int) bool {
+				for i := 0; i < loops; i++ {
+					time.Sleep(250 * time.Millisecond)
+					if focusTelegram() {
+						return true
+					}
+				}
+				return false
+			}
+
+			// 1) Desktop entry (Fuzzel path), try common IDs and dynamically discovered ID
+			if have("gtk-launch") {
+				notify("Telegram", "Launching Telegram…", 3000)
+				// Try common desktop IDs first
+				candidates := []string{"org.telegram.desktop", "telegram-desktop"}
+				for _, id := range candidates {
+					_ = exec.Command("gtk-launch", id).Start()
+					if waitFocus(20) {
+						return
+					}
+				}
+				// Try to discover a Telegram desktop file dynamically
+				out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && basename \"${f%.desktop}\"; done; done | head -n 1").CombinedOutput()
+				dyn := strings.TrimSpace(string(out))
+				if dyn != "" {
+					_ = exec.Command("gtk-launch", dyn).Start()
+					if waitFocus(20) {
+						return
+					}
+				}
+			}
+
+			// 2) Flatpak
+			if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "org.telegram.desktop").Run() == nil {
+				notify("Telegram", "Launching Telegram Desktop (Flatpak)…", 3000)
+				_ = exec.Command("flatpak", "run", "org.telegram.desktop").Start()
+				if waitFocus(20) {
+					return
+				}
+			}
+
+			// 3) Native binary
+			if have("telegram-desktop") {
+				notify("Telegram", "Launching Telegram Desktop…", 3000)
+				_ = exec.Command("telegram-desktop").Start()
+				if waitFocus(20) {
+					return
+				}
+			}
+
+			notify("Telegram", "Unable to launch Telegram", 2000)
+			os.Exit(1)
+
+		case "--waybar-status":
+			// Print Waybar status: running or stopped
+			if exec.Command("pgrep", "-x", "waybar").Run() == nil {
+				fmt.Println("running")
+			} else {
+				fmt.Println("stopped")
+			}
+			return
+
+		case "--waybar-launch":
+			// Single-instance Waybar launcher with non-blocking lock and logging
+			home := os.Getenv("HOME")
+			logDir := filepath.Join(home, ".cache", "archriot")
+			_ = os.MkdirAll(logDir, 0o755)
+			lockPath := filepath.Join(logDir, "waybar-launch.lock")
+			logPath := filepath.Join(logDir, "runtime.log")
+			// Cap size at ~5MB: if exceeded, truncate to start a fresh session
+			if fi, err := os.Stat(logPath); err == nil && fi.Size() > 5*1024*1024 {
+				_ = os.Truncate(logPath, 0)
+			}
+
+			// Dedupe if multiple Waybar PIDs exist, then check running status
+			if out, err := exec.Command("sh", "-lc", "pgrep -x waybar | wc -l").Output(); err == nil {
+				c := strings.TrimSpace(string(out))
+				if c != "" && c != "0" && c != "1" {
+					_ = exec.Command("pkill", "-x", "waybar").Run()
+				}
+			}
+			// If Waybar already running (single), exit quietly
+			if exec.Command("pgrep", "-x", "waybar").Run() == nil {
+				return
+			}
+
+			// Acquire non-blocking lock
+			lockFile, err := os.OpenFile(lockPath, os.O_CREATE|os.O_WRONLY, 0644)
+			if err == nil {
+				if err := syscall.Flock(int(lockFile.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+					_ = lockFile.Close()
+					// Another launcher holds the lock; exit quietly
+					return
+				}
+				defer func() {
+					// Best-effort unlock on exit (closing fd releases lock)
+					_ = lockFile.Close()
+				}()
+			}
+
+			// Re-check after lock to avoid races
+			if exec.Command("pgrep", "-x", "waybar").Run() == nil {
+				return
+			}
+
+			// Open log file and start Waybar
+			logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+			if err != nil {
+				// Fallback: start without logging
+				_ = exec.Command("waybar").Start()
+				return
+			}
+			defer logFile.Close()
+
+			// Session header to delineate launches
+			_, _ = fmt.Fprintf(logFile, "\n==== Waybar session start %s ====\n", time.Now().Format(time.RFC3339))
+
+			cmd := exec.Command("waybar")
+			cmd.Stdout = logFile
+			cmd.Stderr = logFile
+
+			// Start Waybar in its own session (detached); do not wait, so closing the
+			// launching session/terminal won't kill Waybar.
+			cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+			cmd.Stdin = nil
+			_ = cmd.Start()
+			return
+
+		case "--trezor":
+			// Focus-or-launch Trezor Suite (native > Flatpak > AppImage), then async focus when ready
+			home := os.Getenv("HOME")
+			appImage := filepath.Join(home, ".local", "bin", "trezor-suite.AppImage")
+
+			have := func(name string) bool {
+				_, err := exec.LookPath(name)
+				return err == nil
+			}
+			trezorWindowPresent := func() bool {
+				// Check via hyprctl clients (no jq dependency)
+				if err := exec.Command("sh", "-lc", "hyprctl clients 2>/dev/null | grep -qE 'class:\\s*Trezor Suite\\b'").Run(); err == nil {
+					return true
+				}
+				return false
+			}
+			focusTrezor := func() bool {
+				// Focus by class match
+				if err := exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(Trezor Suite)$").Run(); err != nil {
+					return false
+				}
+				_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+				return true
+			}
+
+			// If window exists, focus and exit
+			if trezorWindowPresent() && focusTrezor() {
+				return
+			}
+
+			// Otherwise launch best available target
+			if have("trezor-suite") {
+				_ = exec.Command("trezor-suite").Start()
+			} else if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "com.trezor.TrezorSuite").Run() == nil {
+				_ = exec.Command("flatpak", "run", "com.trezor.TrezorSuite").Start()
+			} else if st, err := os.Stat(appImage); err == nil && !st.IsDir() {
+				_ = exec.Command(appImage).Start()
+			}
+
+			// Small async wait to focus when it appears (best effort)
+			go func() {
+				for i := 0; i < 30; i++ {
+					time.Sleep(250 * time.Millisecond)
+					if trezorWindowPresent() {
+						_ = exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(Trezor Suite)$").Run()
+						_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+						break
+					}
+				}
+			}()
+			return
+
+		case "--wallet":
+			// Focus-or-launch crypto wallet: prefer existing window; otherwise open whichever is installed
+			// Targets:
+			// - Trezor Suite (native/Flatpak/AppImage)
+			// - Ledger Live (native/Flatpak/AppImage)
+			home := os.Getenv("HOME")
+			trezorAppImage := filepath.Join(home, ".local", "bin", "trezor-suite.AppImage")
+			ledgerAppImage := filepath.Join(home, ".local", "bin", "ledger-live.AppImage")
+
+			// Wallet logging (Task 8 acceptance: logs helpful)
+			trezorLogDir := filepath.Join(home, ".cache", "archriot")
+			_ = os.MkdirAll(trezorLogDir, 0o755)
+			trezorLogFile := filepath.Join(trezorLogDir, "runtime.log")
+			logAppend := func(msg string) {
+				f, err := os.OpenFile(trezorLogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+				if err == nil {
+					defer f.Close()
+					ts := time.Now().Format("2006-01-02 15:04:05")
+					_, _ = f.WriteString(fmt.Sprintf("[%s] %s\n", ts, msg))
+				}
+			}
+
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			notify := func(title, msg string) {
+				if have("notify-send") {
+					_ = exec.Command("notify-send", "-t", "1500", title, msg).Start()
+				}
+			}
+			notifyDur := func(title, msg string, ms int) {
+				if have("notify-send") {
+					_ = exec.Command("notify-send", "-t", fmt.Sprintf("%d", ms), title, msg).Start()
+				}
+			}
+			hyprClientsContains := func(substr string) bool {
+				out, err := exec.Command("hyprctl", "clients").Output()
+				return err == nil && strings.Contains(string(out), substr)
+			}
+			focusClass := func(classRegex string) bool {
+				if err := exec.Command("hyprctl", "dispatch", "focuswindow", "class:^("+classRegex+")$").Run(); err != nil {
+					return false
+				}
+				_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+				return true
+			}
+
+			// Focus if a wallet window exists (Trezor first, then Ledger)
+			if hyprClientsContains("class: Trezor Suite") && focusClass("Trezor Suite") {
+				logAppend("Focusing Trezor Suite")
+				notify("Wallet", "Focusing Trezor Suite…")
+				return
+			}
+			if (hyprClientsContains("class: Ledger Live") || hyprClientsContains("class: ledger live")) && focusClass("Ledger Live|ledger live") {
+				logAppend("Focusing Ledger Live")
+				notify("Wallet", "Focusing Ledger Live…")
+				return
+			}
+
+			// Launch whichever is installed, preferring Trezor
+			launched := false
+			// Trezor: native > Flatpak > AppImage
+			switch {
+			case have("trezor-suite"):
+				logAppend("Launching Trezor Suite (native)")
+				notify("Wallet", "Opening Trezor Suite…")
+				_ = exec.Command("trezor-suite").Start()
+				launched = true
+			case have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "com.trezor.TrezorSuite").Run() == nil:
+				logAppend("Launching Trezor Suite (Flatpak)")
+				notify("Wallet", "Opening Trezor Suite (Flatpak)…")
+				_ = exec.Command("flatpak", "run", "com.trezor.TrezorSuite").Start()
+				launched = true
+			default:
+				if st, err := os.Stat(trezorAppImage); err == nil && !st.IsDir() {
+					logAppend("Launching Trezor Suite (AppImage)")
+					notify("Wallet", "Opening Trezor Suite (AppImage)…")
+					_ = exec.Command(trezorAppImage).Start()
+					launched = true
+				}
+			}
+
+			// If Trezor wasn’t launched, try Ledger: native > Flatpak > AppImage
+			if !launched {
+				switch {
+				case have("ledger-live") || have("ledger-live-desktop"):
+					logAppend("Launching Ledger Live (native)")
+					notifyDur("Wallet", "Opening Ledger Live…", 6000)
+					if have("ledger-live") {
+						_ = exec.Command("ledger-live").Start()
+					} else {
+						_ = exec.Command("ledger-live-desktop").Start()
+					}
+					launched = true
+				case have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "com.ledgerhq.LedgerLive").Run() == nil:
+					logAppend("Launching Ledger Live (Flatpak)")
+					notifyDur("Wallet", "Opening Ledger Live (Flatpak)…", 6000)
+					_ = exec.Command("flatpak", "run", "com.ledgerhq.LedgerLive").Start()
+					launched = true
+				default:
+					if st, err := os.Stat(ledgerAppImage); err == nil && !st.IsDir() {
+						logAppend("Launching Ledger Live (AppImage)")
+						notifyDur("Wallet", "Opening Ledger Live (AppImage)…", 6000)
+						_ = exec.Command(ledgerAppImage).Start()
+						launched = true
+					}
+				}
+			}
+
+			// Async focus once spawned (best-effort)
+			if launched {
+				go func() {
+					for i := 0; i < 40; i++ {
+						time.Sleep(250 * time.Millisecond)
+						if hyprClientsContains("class: Trezor Suite") {
+							_ = exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(Trezor Suite)$").Run()
+							_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+							logAppend("Focused Trezor Suite after launch")
+							return
+						}
+						if hyprClientsContains("class: Ledger Live") || hyprClientsContains("class: ledger live") {
+							_ = exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(Ledger Live|ledger live)$").Run()
+							_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+							logAppend("Focused Ledger Live after launch")
+							return
+						}
+					}
+				}()
+			}
+			return
+
+		case "--pomodoro-click":
+			// File-based click handler: double-click = reset, single-click = toggle (after short delay)
+			clickFile := "/tmp/waybar-tomato-click"
+			stateFile := "/tmp/waybar-tomato-timer.state"
+
+			// If a click marker exists, treat as double-click (reset)
+			if _, err := os.Stat(clickFile); err == nil {
+				_ = os.Remove(clickFile)
+				ts := time.Now().Unix()
+				_ = os.WriteFile(stateFile, []byte(fmt.Sprintf("{\n    \"action\": \"reset\",\n    \"timestamp\": %d\n}\n", ts)), 0644)
+				return
+			}
+
+			// First click: create marker and spawn delayed toggle worker
+			_ = os.WriteFile(clickFile, []byte(fmt.Sprintf("%d", time.Now().UnixNano())), 0644)
+
+			// Re-exec self with a delayed toggle worker (non-blocking)
+			if self, err := os.Executable(); err == nil {
+				_ = exec.Command(self, "--pomodoro-delay-toggle").Start()
+			}
+			return
+
+		case "--pomodoro-delay-toggle":
+			// After a brief delay, if click marker still exists, it's a single-click -> toggle
+			clickFile := "/tmp/waybar-tomato-click"
+			stateFile := "/tmp/waybar-tomato-timer.state"
+
+			time.Sleep(500 * time.Millisecond)
+			if _, err := os.Stat(clickFile); err == nil {
+				_ = os.Remove(clickFile)
+				ts := time.Now().Unix()
+				_ = os.WriteFile(stateFile, []byte(fmt.Sprintf("{\n    \"action\": \"toggle\",\n    \"timestamp\": %d\n}\n", ts)), 0644)
+			}
+			return
+
+		case "--swaybg-next":
+			home := os.Getenv("HOME")
+			bgsDir := filepath.Join(home, ".local", "share", "archriot", "backgrounds")
+			stateFile := filepath.Join(home, ".config", "archriot", ".current-background")
+
+			entries, err := os.ReadDir(bgsDir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Backgrounds directory not found: %s\n", bgsDir)
+				os.Exit(1)
+			}
+
+			var files []string
+			for _, e := range entries {
+				if e.IsDir() {
+					continue
+				}
+				name := e.Name()
+				lower := strings.ToLower(name)
+				if strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg") ||
+					strings.HasSuffix(lower, ".png") || strings.HasSuffix(lower, ".webp") {
+					files = append(files, filepath.Join(bgsDir, name))
+				}
+			}
+			if len(files) == 0 {
+				fmt.Fprintf(os.Stderr, "No background images found in %s\n", bgsDir)
+				os.Exit(1)
+			}
+			sort.Strings(files)
+
+			current := ""
+			if b, err := os.ReadFile(stateFile); err == nil {
+				current = strings.TrimSpace(string(b))
+			}
+			idx := -1
+			for i, f := range files {
+				if f == current {
+					idx = i
+					break
+				}
+			}
+			next := files[(idx+1)%len(files)]
+
+			_ = os.MkdirAll(filepath.Dir(stateFile), 0o755)
+			_ = os.WriteFile(stateFile, []byte(next+"\n"), 0o644)
+
+			_ = exec.Command("pkill", "-x", "swaybg").Run()
+			time.Sleep(500 * time.Millisecond)
+
+			cmd := exec.Command("swaybg", "-i", next, "-m", "fill")
+			cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+			cmd.Stdin = nil
+			cmd.Stdout = nil
+			cmd.Stderr = nil
+			_ = cmd.Start()
+
+			// Best-effort theme refresh
+			if self, err := os.Executable(); err == nil {
+				_ = exec.Command(self, "--apply-wallpaper-theme", next).Start()
+			}
+
+			time.Sleep(1 * time.Second)
+			if exec.Command("pgrep", "-x", "swaybg").Run() == nil {
+				fmt.Printf("🖼️  Switched to background: %s\n", filepath.Base(next))
+				fmt.Println("✓ Background service restarted")
+			} else {
+				fmt.Println("⚠ Background service may not have started properly")
+			}
+			return
+
+		case "--waybar-workspace-click":
+			// Usage: archriot --waybar-workspace-click <workspaceNumber>
+			if len(os.Args) < 3 {
+				return
+			}
+			ws := strings.TrimSpace(os.Args[2])
+
+			// Ensure hyprctl is available
+			if _, err := exec.LookPath("hyprctl"); err != nil {
+				return
+			}
+			// Validate numeric workspace name
+			if _, err := strconv.Atoi(ws); err != nil {
+				return
+			}
+			// Switch workspace
+			_ = exec.Command("hyprctl", "dispatch", "workspace", ws).Run()
+			return
+
+		case "--startup-background":
+			// Start wallpaper at login from saved preferences, without applying theme (to avoid startup races)
+			home := os.Getenv("HOME")
+			configFile := filepath.Join(home, ".config", "archriot", "background-prefs.json")
+			bgsDir := filepath.Join(home, ".local", "share", "archriot", "backgrounds")
+			stateFile := filepath.Join(home, ".config", "archriot", ".current-background")
+			defaultName := "riot_01.jpg"
+
+			// Read desired background name from JSON (current_background)
+			bgName := ""
+			if b, err := os.ReadFile(configFile); err == nil {
+				var obj map[string]interface{}
+				if json.Unmarshal(b, &obj) == nil {
+					if v, ok := obj["current_background"]; ok {
+						if s, ok2 := v.(string); ok2 {
+							bgName = s
+						}
+					}
+				}
+			}
+			if strings.TrimSpace(bgName) == "" || strings.EqualFold(bgName, "null") {
+				bgName = defaultName
+			}
+
+			// Resolve file path with fallbacks
+			pick := filepath.Join(bgsDir, bgName)
+			if st, err := os.Stat(pick); err != nil || st.IsDir() {
+				pick = filepath.Join(bgsDir, defaultName)
+			}
+			if st, err := os.Stat(pick); err != nil || st.IsDir() {
+				entries, _ := os.ReadDir(bgsDir)
+				for _, e := range entries {
+					if e.IsDir() {
+						continue
+					}
+					name := e.Name()
+					lower := strings.ToLower(name)
+					if strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg") ||
+						strings.HasSuffix(lower, ".png") || strings.HasSuffix(lower, ".webp") {
+						pick = filepath.Join(bgsDir, name)
+						break
+					}
+				}
+			}
+
+			if pick == "" {
+				// No backgrounds found; nothing to do
+				return
+			}
+
+			// Update state file for runtime cycling compatibility
+			_ = os.MkdirAll(filepath.Dir(stateFile), 0o755)
+			_ = os.WriteFile(stateFile, []byte(pick+"\n"), 0o644)
+
+			// Relaunch swaybg (detached); do not apply theme on startup to avoid conflicts
+			_ = exec.Command("pkill", "-x", "swaybg").Run()
+			time.Sleep(300 * time.Millisecond)
+			cmd := exec.Command("swaybg", "-i", pick, "-m", "fill")
+			cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+			cmd.Stdin = nil
+			cmd.Stdout = nil
+			cmd.Stderr = nil
+			_ = cmd.Start()
+			time.Sleep(500 * time.Millisecond)
+			return
+
+		case "--stabilize-session":
+			// Dedupe Waybar and restart hypridle; optional inhibitor via --inhibit
+			_ = exec.Command("pkill", "-x", "waybar").Run()
+			if self, err := os.Executable(); err == nil {
+				_ = exec.Command(self, "--waybar-launch").Start()
+			} else {
+				_ = exec.Command("waybar").Start()
+			}
+			_ = exec.Command("pkill", "hypridle").Run()
+			if _, err := exec.LookPath("hypridle"); err == nil {
+				cmd := exec.Command("hypridle")
+				cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+				cmd.Stdin = nil
+				cmd.Stdout = nil
+				cmd.Stderr = nil
+				_ = cmd.Start()
+			}
+			// Optional inhibitor if provided
+			for i := 2; i < len(os.Args); i++ {
+				if os.Args[i] == "--inhibit" {
+					if self, err := os.Executable(); err == nil {
+						_ = exec.Command(self, "--stay-awake").Start()
+					} else {
+						cmd := exec.Command("systemd-inhibit", "--what=sleep", "--why=ArchRiot Stay Awake", "bash", "-lc", "while :; do sleep 300; done")
+						cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+						cmd.Stdin = nil
+						cmd.Stdout = nil
+						cmd.Stderr = nil
+						_ = cmd.Start()
+					}
+					break
+				}
+			}
+			return
+
+		case "--zed":
+			// Focus-or-launch Zed (native > Flatpak) with Wayland-friendly env; async focus
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			focusZed := func() bool {
+				if exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(dev\\.zed\\.Zed|dev\\.zed\\.Zed-Preview)$").Run() == nil {
+					_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+					return true
+				}
+				return false
+			}
+
+			// If a Zed window exists, focus and return
+			if focusZed() {
+				return
+			}
+
+			// Launch: prefer native zeditor/zed, then Flatpak
+			launched := false
+			if have("zeditor") {
+				// Wayland env for child only (no global environment changes)
+				_ = exec.Command("env",
+					"WAYLAND_DISPLAY="+os.Getenv("WAYLAND_DISPLAY"),
+					"GDK_BACKEND=wayland",
+					"QT_QPA_PLATFORM=wayland",
+					"SDL_VIDEODRIVER=wayland",
+					"zeditor",
+				).Start()
+				launched = true
+			} else if have("zed") {
+				_ = exec.Command("env",
+					"WAYLAND_DISPLAY="+os.Getenv("WAYLAND_DISPLAY"),
+					"GDK_BACKEND=wayland",
+					"QT_QPA_PLATFORM=wayland",
+					"SDL_VIDEODRIVER=wayland",
+					"zed",
+				).Start()
+				launched = true
+			} else if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "dev.zed.Zed").Run() == nil {
+				_ = exec.Command("flatpak", "run", "dev.zed.Zed").Start()
+				launched = true
+			}
+
+			// Async focus when window appears
+			if launched {
+				go func() {
+					for i := 0; i < 40; i++ {
+						time.Sleep(250 * time.Millisecond)
+						if focusZed() {
+							return
+						}
+					}
+				}()
+			}
+			return
+
+		case "--welcome":
+			// Launch the existing welcome app non-blocking (if present)
+			// Path: $HOME/.local/share/archriot/config/bin/welcome
+			{
+				home := os.Getenv("HOME")
+				welcome := filepath.Join(home, ".local", "share", "archriot", "config", "bin", "welcome")
+				if _, err := os.Stat(welcome); err == nil {
+					cmd := exec.Command(welcome)
+					cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+					cmd.Stdin = nil
+					cmd.Stdout = nil
+					cmd.Stderr = nil
+					_ = cmd.Start()
+				}
+			}
+			return
+
+		case "--waybar-memory":
+			// Waybar memory module JSON: traditional percent, modern/traditional in tooltip
+			type memOut struct {
+				Text       string `json:"text"`
+				Tooltip    string `json:"tooltip"`
+				Class      string `json:"class"`
+				Percentage int    `json:"percentage"`
+			}
+			data, err := os.ReadFile("/proc/meminfo")
+			if err != nil {
+				fmt.Println(`{"text":"-- 󰾆","tooltip":"Memory Error: cannot read /proc/meminfo","class":"critical","percentage":0}`)
+				return
+			}
+			parse := func(key string) int64 {
+				for _, ln := range strings.Split(string(data), "\n") {
+					fields := strings.Fields(ln)
+					if len(fields) >= 2 && strings.TrimSuffix(fields[0], ":") == key {
+						val, _ := strconv.ParseInt(fields[1], 10, 64)
+						return val
+					}
+				}
+				return 0
+			}
+			memTotal := parse("MemTotal")
+			memAvailable := parse("MemAvailable")
+			memFree := parse("MemFree")
+			buffers := parse("Buffers")
+			cached := parse("Cached")
+
+			if memTotal <= 0 {
+				fmt.Println(`{"text":"-- 󰾆","tooltip":"Memory Error: invalid totals","class":"critical","percentage":0}`)
+				return
+			}
+
+			usedModernKB := memTotal - memAvailable
+			usedTraditionalKB := memTotal - memFree - buffers - cached
+
+			totalGB := float64(memTotal) / (1024.0 * 1024.0)
+			availGB := float64(memAvailable) / (1024.0 * 1024.0)
+			usedModernGB := float64(usedModernKB) / (1024.0 * 1024.0)
+			usedTraditionalGB := float64(usedTraditionalKB) / (1024.0 * 1024.0)
+
+			percent := (float64(usedTraditionalKB) / float64(memTotal)) * 100.0
+
+			bar := func(p float64) string {
+				switch {
+				case p <= 0:
+					return ""
+				case p <= 15:
+					return "▁"
+				case p <= 30:
+					return "▂"
+				case p <= 45:
+					return "▃"
+				case p <= 60:
+					return "▄"
+				case p <= 75:
+					return "▅"
+				case p <= 85:
+					return "▆"
+				case p <= 95:
+					return "▇"
+				default:
+					return "█"
+				}
+			}(percent)
+
+			class := "normal"
+			if percent >= 90 {
+				class = "critical"
+			} else if percent >= 75 {
+				class = "warning"
+			}
+
+			out := memOut{
+				Text:       fmt.Sprintf("%s 󰾆", bar),
+				Tooltip:    fmt.Sprintf("Used (Modern): %.1fGB\nUsed (Traditional): %.1fGB\nAvailable: %.1fGB\nTotal: %.1fGB (%.1f%%)", usedModernGB, usedTraditionalGB, availGB, totalGB, percent),
+				Class:      class,
+				Percentage: int(percent + 0.5),
+			}
+			if js, err := json.Marshal(out); err == nil {
+				fmt.Println(string(js))
+			} else {
+				fmt.Println(`{"text":"-- 󰾆","tooltip":"Memory Error: marshal","class":"critical","percentage":0}`)
+			}
+			return
+
+		case "--waybar-cpu":
+			// Waybar CPU aggregate usage JSON using /proc/stat deltas
+			type cpuOut struct {
+				Text       string `json:"text"`
+				Tooltip    string `json:"tooltip"`
+				Class      string `json:"class"`
+				Percentage int    `json:"percentage"`
+			}
+			readCPU := func() (idle, total uint64, ok bool) {
+				data, err := os.ReadFile("/proc/stat")
+				if err != nil {
+					return 0, 0, false
+				}
+				for _, ln := range strings.Split(string(data), "\n") {
+					if strings.HasPrefix(ln, "cpu ") {
+						fields := strings.Fields(ln)
+						if len(fields) < 8 {
+							return 0, 0, false
+						}
+						parse := func(s string) uint64 {
+							v, _ := strconv.ParseUint(s, 10, 64)
+							return v
+						}
+						user := parse(fields[1])
+						nice := parse(fields[2])
+						system := parse(fields[3])
+						idleVal := parse(fields[4])
+						iowait := parse(fields[5])
+						irq := parse(fields[6])
+						softirq := parse(fields[7])
+						steal := uint64(0)
+						if len(fields) > 8 {
+							steal = parse(fields[8])
+						}
+						idle = idleVal + iowait
+						total = user + nice + system + idleVal + iowait + irq + softirq + steal
+						return idle, total, true
+					}
+				}
+				return 0, 0, false
+			}
+			i1, t1, ok := readCPU()
+			if !ok {
+				fmt.Println(`{"text":"-- 󰍛","tooltip":"CPU Error: cannot read /proc/stat","class":"critical","percentage":0}`)
+				return
+			}
+			time.Sleep(120 * time.Millisecond)
+			i2, t2, ok := readCPU()
+			if !ok || t2 <= t1 || i2 < i1 {
+				fmt.Println(`{"text":"-- 󰍛","tooltip":"CPU Error: invalid delta","class":"critical","percentage":0}`)
+				return
+			}
+			dIdle := i2 - i1
+			dTotal := t2 - t1
+			usage := (float64(dTotal-dIdle) / float64(dTotal)) * 100.0
+
+			bar := func(p float64) string {
+				switch {
+				case p <= 0:
+					return ""
+				case p <= 15:
+					return "▁"
+				case p <= 30:
+					return "▂"
+				case p <= 45:
+					return "▃"
+				case p <= 60:
+					return "▄"
+				case p <= 75:
+					return "▅"
+				case p <= 85:
+					return "▆"
+				case p <= 95:
+					return "▇"
+				default:
+					return "█"
+				}
+			}(usage)
+
+			class := "normal"
+			if usage >= 90 {
+				class = "critical"
+			} else if usage >= 75 {
+				class = "warning"
+			}
+
+			out := cpuOut{
+				Text:       fmt.Sprintf("%s 󰍛", bar),
+				Tooltip:    fmt.Sprintf("CPU Usage: %.1f%%", usage),
+				Class:      class,
+				Percentage: int(usage + 0.5),
+			}
+			if js, err := json.Marshal(out); err == nil {
+				fmt.Println(string(js))
+			} else {
+				fmt.Println(`{"text":"-- 󰍛","tooltip":"CPU Error: marshal","class":"critical","percentage":0}`)
+			}
+			return
+
+		case "--waybar-temp":
+			// Waybar CPU temperature JSON with visual bar; sensor autodetect
+			type tempOut struct {
+				Text       string `json:"text"`
+				Tooltip    string `json:"tooltip"`
+				Class      string `json:"class"`
+				Percentage int    `json:"percentage"`
+			}
+
+			// Find best sensor path
+			findSensor := func() string {
+				// 1) hwmon: coretemp/k10temp/zenpower -> temp1_input
+				if entries, err := os.ReadDir("/sys/class/hwmon"); err == nil {
+					for _, e := range entries {
+						hp := filepath.Join("/sys/class/hwmon", e.Name())
+						nb, err := os.ReadFile(filepath.Join(hp, "name"))
+						if err != nil {
+							continue
+						}
+						name := strings.TrimSpace(string(nb))
+						switch name {
+						case "coretemp", "k10temp", "zenpower":
+							tf := filepath.Join(hp, "temp1_input")
+							if st, err := os.Stat(tf); err == nil && !st.IsDir() {
+								return tf
+							}
+						}
+					}
+				}
+				// 2) thermal zones: x86_pkg_temp -> temp
+				if entries, err := os.ReadDir("/sys/class/thermal"); err == nil {
+					for _, e := range entries {
+						if !strings.HasPrefix(e.Name(), "thermal_zone") {
+							continue
+						}
+						zp := filepath.Join("/sys/class/thermal", e.Name())
+						tb, err := os.ReadFile(filepath.Join(zp, "type"))
+						if err != nil {
+							continue
+						}
+						if strings.TrimSpace(string(tb)) == "x86_pkg_temp" {
+							tf := filepath.Join(zp, "temp")
+							if st, err := os.Stat(tf); err == nil && !st.IsDir() {
+								return tf
+							}
+						}
+					}
+				}
+				// 3) Fallback: thermal_zone0/temp
+				tf := "/sys/class/thermal/thermal_zone0/temp"
+				if st, err := os.Stat(tf); err == nil && !st.IsDir() {
+					return tf
+				}
+				return ""
+			}
+
+			readTempC := func() (float64, bool) {
+				s := findSensor()
+				if s == "" {
+					return 0, false
+				}
+				b, err := os.ReadFile(s)
+				if err != nil {
+					return 0, false
+				}
+				raw := strings.TrimSpace(string(b))
+				// Some sensors return millidegrees, some degrees
+				val, _ := strconv.ParseFloat(raw, 64)
+				if val == 0 {
+					// Try to parse when files contain e.g., "42000"
+					if iv, e := strconv.ParseInt(raw, 10, 64); e == nil {
+						if iv > 1000 {
+							return float64(iv) / 1000.0, true
+						}
+						return float64(iv), true
+					}
+					return 0, false
+				}
+				if val > 1000 {
+					return val / 1000.0, true
+				}
+				return val, true
+			}
+
+			tempC, ok := readTempC()
+			if !ok {
+				fmt.Println(`{"text":"-- 󰈸","tooltip":"Temperature sensor not available","class":"critical","percentage":0}`)
+				return
+			}
+
+			// Map temperature into a bar (like the Python helper)
+			// Percentage baseline: 60°C -> 0%, 95°C -> 100%
+			tempPct := (tempC - 60.0) * 100.0 / 35.0
+			if tempPct < 0 {
+				tempPct = 0
+			}
+			if tempPct > 100 {
+				tempPct = 100
+			}
+			bar := func(p float64) string {
+				switch {
+				case p <= 10:
+					return "▁"
+				case p <= 25:
+					return "▂"
+				case p <= 40:
+					return "▃"
+				case p <= 55:
+					return "▄"
+				case p <= 70:
+					return "▅"
+				case p <= 80:
+					return "▆"
+				case p <= 90:
+					return "▇"
+				default:
+					return "█"
+				}
+			}(tempPct)
+
+			class := "normal"
+			switch {
+			case tempC >= 90:
+				class = "critical"
+			case tempC >= 80:
+				class = "warning"
+			}
+
+			out := tempOut{
+				Text:       fmt.Sprintf("%s 󰈸", bar),
+				Tooltip:    fmt.Sprintf("CPU Temperature: %.1f°C", tempC),
+				Class:      class,
+				Percentage: int(tempC + 0.5),
+			}
+			if js, err := json.Marshal(out); err == nil {
+				fmt.Println(string(js))
+			} else {
+				fmt.Println(`{"text":"-- 󰈸","tooltip":"Temperature Error: marshal","class":"critical","percentage":0}`)
+			}
+			return
+
+		case "--waybar-volume":
+			// Waybar speaker volume JSON with visual bar (wpctl > pamixer > pactl)
+			{
+				have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+
+				vol := func() (int, bool) {
+					if have("wpctl") {
+						out, err := exec.Command("sh", "-lc", "wpctl get-volume $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") | awk '{print int($2*100+0.5)}'").Output()
+						if err == nil {
+							v, _ := strconv.Atoi(strings.TrimSpace(string(out)))
+							return v, true
+						}
+					}
+					if have("pamixer") {
+						// Ensure PipeWire/Pulse is ready
+						if have("pactl") && exec.Command("pactl", "info").Run() != nil {
+							return 0, false
+						}
+						out, err := exec.Command("pamixer", "--get-volume").Output()
+						if err == nil {
+							v, _ := strconv.Atoi(strings.TrimSpace(string(out)))
+							return v, true
+						}
+					}
+					if have("pactl") {
+						out, err := exec.Command("sh", "-lc", "pactl get-sink-volume @DEFAULT_SINK@ | grep -o '[0-9]\\+%' | head -n1 | tr -d '%'").Output()
+						if err == nil {
+							v, _ := strconv.Atoi(strings.TrimSpace(string(out)))
+							return v, true
+						}
+					}
+					return 0, false
+				}
+
+				muted := func() (bool, bool) {
+					if have("wpctl") {
+						err := exec.Command("sh", "-lc", "wpctl get-mute $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") | grep -qi yes").Run()
+						return err == nil, true
+					}
+					if have("pamixer") {
+						// Ensure PipeWire/Pulse is ready
+						if have("pactl") && exec.Command("pactl", "info").Run() != nil {
+							return false, false
+						}
+						out, err := exec.Command("pamixer", "--get-mute").Output()
+						if err == nil {
+							return strings.TrimSpace(string(out)) == "true", true
+						}
+					}
+					if have("pactl") {
+						err := exec.Command("sh", "-lc", "pactl get-sink-mute @DEFAULT_SINK@ | grep -qi yes").Run()
+						return err == nil, true
+					}
+					return false, false
+				}
+
+				v, vok := vol()
+				m, mok := muted()
+				if !vok || !mok {
+					fmt.Println(`{"text":"▁ 󰖁","tooltip":"Audio not ready","class":"muted","percentage":0}`)
+					return
+				}
+				if m {
+					fmt.Println(`{"text":"▁ 󰖁","tooltip":"Speaker: Muted","class":"muted","percentage":0}`)
+					return
+				}
+
+				var bar string
+				switch {
+				case v <= 2:
+					bar = "▁"
+				case v <= 5:
+					bar = "▂"
+				case v <= 10:
+					bar = "▃"
+				case v <= 20:
+					bar = "▄"
+				case v <= 35:
+					bar = "▅"
+				case v <= 50:
+					bar = "▆"
+				case v <= 75:
+					bar = "▇"
+				default:
+					bar = "█"
+				}
+
+				icon := "󰕾"
+				if v == 0 {
+					icon = "󰕿"
+				} else if v <= 33 {
+					icon = "󰖀"
+				} else if v <= 66 {
+					icon = "󰕾"
+				}
+
+				class := "normal"
+				if v >= 100 {
+					class = "critical"
+				} else if v >= 85 {
+					class = "warning"
+				}
+
+				fmt.Println(fmt.Sprintf(`{"text":"%s %s","tooltip":"Speaker Volume: %d%%","class":"%s","percentage":%d}`, bar, icon, v, class, v))
+			}
+			return
+
+		case "--waybar-reload":
+			// Robust Waybar reload: dedupe PIDs; prefer internal --waybar-launch instead of external script
+			// Dedupe if multiple Waybar PIDs exist
+			if out, err := exec.Command("sh", "-lc", "pgrep -x waybar | wc -l").Output(); err == nil {
+				c := strings.TrimSpace(string(out))
+				if c != "" && c != "0" && c != "1" {
+					_ = exec.Command("pkill", "-x", "waybar").Run()
+				}
+			}
+
+			// If Waybar isn't running, start via internal launcher
+			if err := exec.Command("pgrep", "-x", "waybar").Run(); err != nil {
+				if self, err2 := os.Executable(); err2 == nil {
+					_ = exec.Command(self, "--waybar-launch").Start()
+				} else {
+					_ = exec.Command("waybar").Start()
+				}
+				return
+			}
+
+			// Send SIGUSR2 to reload
+			_ = exec.Command("pkill", "-SIGUSR2", "waybar").Run()
+
+			// Short window to detect crash and auto-restart via internal launcher
+			crashed := false
+			for i := 0; i < 10; i++ {
+				time.Sleep(100 * time.Millisecond)
+				if err := exec.Command("pgrep", "-x", "waybar").Run(); err != nil {
+					crashed = true
+					break
+				}
+			}
+			if crashed {
+				if self, err := os.Executable(); err == nil {
+					_ = exec.Command(self, "--waybar-launch").Start()
+				} else {
+					_ = exec.Command("waybar").Start()
+				}
+			}
+			return
+
+		case "--upgrade-smoketest":
+			// Local upgrade smoke test:
+			// - Parses packages.yaml and collects all packages across modules
+			// - Compares with pacman -Qq
+			// - Exit codes: 0 OK; 2 potential reintroductions; 3 unavailable (missing tools/files)
+			// Flags: --config PATH, --json, --quiet
+			home := os.Getenv("HOME")
+			configPath := filepath.Join(home, ".local", "share", "archriot", "install", "packages.yaml")
+			allowlistPath := filepath.Join(home, ".config", "archriot", "upgrade-allowlist.txt")
+			outputJSON := false
+			quiet := false
+
+			// Parse simple flags
+			for i := 2; i < len(os.Args); i++ {
+				arg := os.Args[i]
+				switch arg {
+				case "--config":
+					if i+1 < len(os.Args) {
+						configPath = os.Args[i+1]
+						i++
+					} else {
+						fmt.Fprintln(os.Stderr, "Missing value for --config")
+						os.Exit(3)
+					}
+				case "--json":
+					outputJSON = true
+				case "--quiet":
+					quiet = true
+				case "-h", "--help":
+					if !outputJSON && !quiet {
+						fmt.Println("ArchRiot Local Upgrade Smoke Test")
+						fmt.Println("Usage: archriot --upgrade-smoketest [--config PATH] [--json] [--quiet]")
+					}
+					os.Exit(0)
+				default:
+					if !quiet {
+						fmt.Fprintf(os.Stderr, "Unknown argument: %s\n", arg)
+					}
+					os.Exit(3)
+				}
+			}
+
+			// Ensure pacman exists
+			if _, err := exec.LookPath("pacman"); err != nil {
+				if outputJSON {
+					payload := map[string]interface{}{
+						"status":    "unavailable",
+						"message":   "pacman not found in PATH; cannot assess installed packages",
+						"config":    configPath,
+						"allowlist": allowlistPath,
+						"missing":   []string{},
+					}
+					if b, e := json.Marshal(payload); e == nil {
+						fmt.Println(string(b))
+					} else {
+						fmt.Println(`{"status":"unavailable","message":"pacman not found in PATH","missing":[]}`)
+					}
+				} else if !quiet {
+					fmt.Fprintln(os.Stderr, "pacman not found; cannot assess installed packages.")
+				}
+				os.Exit(3)
+			}
+
+			// Ensure config exists
+			if _, err := os.Stat(configPath); err != nil {
+				if outputJSON {
+					payload := map[string]interface{}{
+						"status":    "unavailable",
+						"message":   fmt.Sprintf("packages.yaml not found at: %s", configPath),
+						"config":    configPath,
+						"allowlist": allowlistPath,
+						"missing":   []string{},
+					}
+					if b, e := json.Marshal(payload); e == nil {
+						fmt.Println(string(b))
+					} else {
+						fmt.Printf("{\"status\":\"unavailable\",\"message\":\"packages.yaml not found at: %s\",\"missing\":[]}\n", configPath)
+					}
+				} else if !quiet {
+					fmt.Fprintf(os.Stderr, "packages.yaml not found at: %s\n", configPath)
+				}
+				os.Exit(3)
+			}
+
+			// Load configuration
+			cfg, err := config.LoadConfig(configPath)
+			if err != nil {
+				if outputJSON {
+					payload := map[string]interface{}{
+						"status":    "unavailable",
+						"message":   fmt.Sprintf("failed to load packages.yaml: %v", err),
+						"config":    configPath,
+						"allowlist": allowlistPath,
+						"missing":   []string{},
+					}
+					if b, e := json.Marshal(payload); e == nil {
+						fmt.Println(string(b))
+					} else {
+						fmt.Printf("{\"status\":\"unavailable\",\"message\":\"failed to load packages.yaml\",\"missing\":[]}\n")
+					}
+				} else if !quiet {
+					fmt.Fprintf(os.Stderr, "failed to load packages.yaml: %v\n", err)
+				}
+				os.Exit(3)
+			}
+
+			// Collect desired packages from all module maps via reflection
+			desired := make(map[string]struct{})
+			cv := reflect.ValueOf(cfg).Elem()
+			ct := cv.Type()
+			for i := 0; i < cv.NumField(); i++ {
+				field := cv.Field(i)
+				if field.Kind() != reflect.Map || field.Type().String() != "map[string]config.Module" {
+					continue
+				}
+				iter := field.MapRange()
+				for iter.Next() {
+					modVal := iter.Value()
+					mod, ok := modVal.Interface().(config.Module)
+					if !ok {
+						continue
+					}
+					for _, p := range mod.Packages {
+						if p = strings.TrimSpace(p); p != "" {
+							desired[p] = struct{}{}
+						}
+					}
+				}
+			}
+			_ = ct // silence unused in case of build tag differences
+
+			// Load allowlist (optional)
+			allow := make(map[string]struct{})
+			if f, err := os.Open(allowlistPath); err == nil {
+				sc := bufio.NewScanner(f)
+				for sc.Scan() {
+					line := sc.Text()
+					if idx := strings.IndexByte(line, '#'); idx >= 0 {
+						line = line[:idx]
+					}
+					line = strings.TrimSpace(line)
+					if line != "" {
+						allow[line] = struct{}{}
+					}
+				}
+				_ = f.Close()
+			}
+
+			// Get installed packages
+			out, err := exec.Command("pacman", "-Qq").Output()
+			if err != nil {
+				if outputJSON {
+					payload := map[string]interface{}{
+						"status":    "unavailable",
+						"message":   "failed to query installed packages with pacman -Qq",
+						"config":    configPath,
+						"allowlist": allowlistPath,
+						"missing":   []string{},
+					}
+					if b, e := json.Marshal(payload); e == nil {
+						fmt.Println(string(b))
+					} else {
+						fmt.Println(`{"status":"unavailable","message":"failed to query installed packages","missing":[]}`)
+					}
+				} else if !quiet {
+					fmt.Fprintln(os.Stderr, "failed to query installed packages with pacman -Qq")
+				}
+				os.Exit(3)
+			}
+			installed := make(map[string]struct{})
+			{
+				sc := bufio.NewScanner(strings.NewReader(string(out)))
+				for sc.Scan() {
+					p := strings.TrimSpace(sc.Text())
+					if p != "" {
+						installed[p] = struct{}{}
+					}
+				}
+			}
+
+			// Compute missing (present in YAML but not installed, and not allowlisted)
+			var missing []string
+			for p := range desired {
+				if _, ok := allow[p]; ok {
+					continue
+				}
+				if _, ok := installed[p]; !ok {
+					missing = append(missing, p)
+				}
+			}
+
+			// Output
+			if outputJSON {
+				status := "ok"
+				message := "No potential reintroductions detected"
+				if len(missing) > 0 {
+					status = "warn"
+					message = "Potential reintroductions detected"
+				}
+				payload := map[string]interface{}{
+					"status":    status,
+					"message":   message,
+					"config":    configPath,
+					"allowlist": allowlistPath,
+					"missing":   missing,
+				}
+				if b, e := json.Marshal(payload); e == nil {
+					fmt.Println(string(b))
+				} else {
+					// Minimal fallback
+					fmt.Printf("{\"status\":\"%s\",\"message\":\"%s\",\"missing_count\":%d}\n", status, message, len(missing))
+				}
+			} else if !quiet {
+				fmt.Println("ArchRiot Local Upgrade Smoke Test")
+				fmt.Printf("Config:    %s\n", configPath)
+				if _, err := os.Stat(allowlistPath); err == nil {
+					fmt.Printf("Allowlist: %s\n", allowlistPath)
+				}
+				fmt.Println()
+				if len(missing) == 0 {
+					fmt.Println("✅ No potential reintroductions detected.")
+					fmt.Println("Local upgrade appears safe with respect to previously removed packages.")
+				} else {
+					fmt.Println("⚠️  Potential reintroductions detected (present in packages.yaml but not installed):")
+					for _, p := range missing {
+						fmt.Printf("  - %s\n", p)
+					}
+					fmt.Println()
+					fmt.Println("This suggests these packages were removed (or never installed) and would be installed by a Local upgrade.")
+					if _, err := os.Stat(allowlistPath); err == nil {
+						fmt.Printf("You can add specific packages to %s (one per line) to suppress this warning.\n", allowlistPath)
+					}
+				}
+			}
+
+			// Exit codes
+			if len(missing) == 0 {
+				os.Exit(0)
+			} else {
+				os.Exit(2)
+			}
+			return
+
+		case "--stay-awake":
+			// Always detach: run systemd-inhibit in its own session
+			if len(os.Args) > 2 {
+				// Pass the remainder as the inhibited command
+				args := append([]string{"--what=sleep", "--why=ArchRiot Stay Awake"}, os.Args[2:]...)
+				cmd := exec.Command("systemd-inhibit", args...)
+				cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+				// Detach stdio so parent exit doesn't affect child
+				cmd.Stdin = nil
+				cmd.Stdout = nil
+				cmd.Stderr = nil
+				_ = cmd.Start()
+			} else {
+				// Background inhibitor loop
+				cmd := exec.Command("systemd-inhibit", "--what=sleep", "--why=ArchRiot Stay Awake", "bash", "-lc", "while :; do sleep 300; done")
+				cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+				cmd.Stdin = nil
+				cmd.Stdout = nil
+				cmd.Stderr = nil
+				_ = cmd.Start()
+			}
+			return
+
+		case "--brightness":
+			// Usage:
+			//   archriot --brightness up
+			//   archriot --brightness down
+			//   archriot --brightness set <0-100>
+			//   archriot --brightness get
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			notify := func(title, msg, icon string) {
+				// Best-effort notifications; safe if not installed
+				if have("makoctl") {
+					_ = exec.Command("makoctl", "dismiss", "--all").Run()
+				}
+				if have("notify-send") {
+					_ = exec.Command("notify-send", "--replace-id=9999", "--app-name=Brightness Control", "--urgency=normal", "--icon", icon, title, msg).Start()
+				}
+			}
+			readPct := func() string {
+				out, err := exec.Command("sh", "-lc", "brightnessctl -m | cut -d, -f4 | tr -d '%'").Output()
+				if err != nil {
+					return "0"
+				}
+				return strings.TrimSpace(string(out))
+			}
+			iconFor := func(pct string) string {
+				// Thresholds: >=75 high, >=50 medium, >=25 low, else min
+				p := pct
+				if len(p) == 1 {
+					p = "0" + p
+				}
+				switch {
+				case p >= "75":
+					return "brightness-high"
+				case p >= "50":
+					return "brightness-medium"
+				case p >= "25":
+					return "brightness-low"
+				default:
+					return "brightness-min"
+				}
+			}
+			if !have("brightnessctl") {
+				notify("Brightness Error", "brightnessctl not found", "dialog-error")
+				fmt.Fprintln(os.Stderr, "Error: brightnessctl is not installed")
+				os.Exit(1)
+			}
+			if len(os.Args) < 3 {
+				fmt.Fprintln(os.Stderr, "Usage: archriot --brightness [up|down|set <0-100>|get]")
+				os.Exit(1)
+			}
+			switch os.Args[2] {
+			case "up":
+				_ = exec.Command("brightnessctl", "set", "5%+").Run()
+				pct := readPct()
+				notify("Brightness", pct+"%", iconFor(pct))
+			case "down":
+				_ = exec.Command("brightnessctl", "set", "5%-").Run()
+				pct := readPct()
+				notify("Brightness", pct+"%", iconFor(pct))
+			case "set":
+				if len(os.Args) < 4 {
+					fmt.Fprintln(os.Stderr, "Usage: archriot --brightness set <0-100>")
+					os.Exit(1)
+				}
+				val := strings.TrimSpace(os.Args[3])
+				if val == "" {
+					fmt.Fprintln(os.Stderr, "Usage: archriot --brightness set <0-100>")
+					os.Exit(1)
+				}
+				_ = exec.Command("brightnessctl", "set", val+"%").Run()
+				pct := readPct()
+				notify("Brightness", pct+"%", iconFor(pct))
+			case "get":
+				fmt.Println(readPct())
+			default:
+				fmt.Fprintln(os.Stderr, "Usage: archriot --brightness [up|down|set <0-100>|get]")
+				os.Exit(1)
+			}
+			return
+
+		case "--volume":
+			// Usage:
+			//   archriot --volume toggle|inc|dec|get
+			//   archriot --volume mic-toggle|mic-inc|mic-dec|mic-get
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			notify := func(title, msg, icon string) {
+				if have("makoctl") {
+					_ = exec.Command("makoctl", "dismiss", "--all").Run()
+				}
+				if have("notify-send") {
+					_ = exec.Command("notify-send", "--replace-id=8888", "--app-name=Volume Control", "--urgency=normal", "--icon", icon, title, msg).Start()
+				}
+			}
+			usePamixer := have("pamixer")
+			useWpctl := have("wpctl")
+			usePactl := have("pactl")
+			if !usePamixer && !useWpctl && !usePactl {
+				notify("Volume Error", "pamixer/wpctl/pactl not found", "dialog-error")
+				fmt.Fprintln(os.Stderr, "Error: pamixer/wpctl/pactl is not installed")
+				os.Exit(1)
+			}
+			vol := func() string {
+				// Prefer PipeWire (wpctl) first, then pamixer, then pactl
+				if useWpctl {
+					out, err := exec.Command("sh", "-lc", "wpctl get-volume $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") | awk '{print int($2*100+0.5)}'").Output()
+					if err != nil {
+						return "0"
+					}
+					return strings.TrimSpace(string(out))
+				}
+				if usePamixer {
+					out, err := exec.Command("pamixer", "--get-volume").Output()
+					if err != nil {
+						return "0"
+					}
+					return strings.TrimSpace(string(out))
+				}
+				// pactl fallback
+				out, err := exec.Command("sh", "-lc", "pactl get-sink-volume @DEFAULT_SINK@ | grep -o '[0-9]\\+%' | head -n1 | tr -d '%'").Output()
+				if err != nil {
+					return "0"
+				}
+				return strings.TrimSpace(string(out))
+			}
+			isMuted := func() bool {
+				// Prefer wpctl (PipeWire), then pamixer, then pactl
+				if useWpctl {
+					return exec.Command("sh", "-lc", "wpctl get-mute $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") | grep -qi yes").Run() == nil
+				}
+				if usePamixer {
+					return exec.Command("sh", "-lc", "pamixer --get-mute | grep -q true").Run() == nil
+				}
+				return exec.Command("sh", "-lc", "pactl get-sink-mute @DEFAULT_SINK@ | grep -qi yes").Run() == nil
+			}
+			micVol := func() string {
+				// Prefer wpctl first, then pamixer, then pactl
+				if useWpctl {
+					out, err := exec.Command("sh", "-lc", "wpctl get-volume $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") | awk '{print int($2*100+0.5)}'").Output()
+					if err != nil {
+						return "0"
+					}
+					return strings.TrimSpace(string(out))
+				}
+				if usePamixer {
+					out, err := exec.Command("pamixer", "--default-source", "--get-volume").Output()
+					if err != nil {
+						return "0"
+					}
+					return strings.TrimSpace(string(out))
+				}
+				// pactl fallback
+				out, err := exec.Command("sh", "-lc", "pactl get-source-volume @DEFAULT_SOURCE@ | grep -o '[0-9]\\+%' | head -n1 | tr -d '%'").Output()
+				if err != nil {
+					return "0"
+				}
+				return strings.TrimSpace(string(out))
+			}
+			micMuted := func() bool {
+				// Prefer wpctl (PipeWire), then pamixer, then pactl
+				if useWpctl {
+					return exec.Command("sh", "-lc", "wpctl get-mute $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") | grep -qi yes").Run() == nil
+				}
+				if usePamixer {
+					return exec.Command("sh", "-lc", "pamixer --default-source --get-mute | grep -q true").Run() == nil
+				}
+				return exec.Command("sh", "-lc", "pactl get-source-mute @DEFAULT_SOURCE@ | grep -qi yes").Run() == nil
+			}
+			if len(os.Args) < 3 {
+				fmt.Fprintln(os.Stderr, "Usage: archriot --volume [toggle|inc|dec|get|mic-toggle|mic-inc|mic-dec|mic-get]")
+				os.Exit(1)
+			}
+			switch os.Args[2] {
+			case "toggle":
+				// Prefer PipeWire native control first
+				if useWpctl {
+					_ = exec.Command("sh", "-lc", "wpctl set-mute $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") toggle").Run()
+				} else if usePamixer {
+					_ = exec.Command("pamixer", "--toggle-mute").Run()
+				} else {
+					_ = exec.Command("pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle").Run()
+				}
+				if isMuted() {
+					notify("Audio Muted", "Speaker: Muted", "audio-volume-muted")
+				} else {
+					notify("Audio Unmuted", "Speaker: "+vol()+"%", "audio-volume-high")
+				}
+			case "inc":
+				if useWpctl {
+					_ = exec.Command("sh", "-lc", "wpctl set-mute $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 0").Run()
+					_ = exec.Command("sh", "-lc", "wpctl set-volume $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 5%+").Run()
+				} else if usePamixer {
+					_ = exec.Command("pamixer", "--increase", "5", "--unmute").Run()
+				} else {
+					_ = exec.Command("pactl", "set-sink-mute", "@DEFAULT_SINK@", "0").Run()
+					_ = exec.Command("pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%").Run()
+				}
+				notify("Volume Up", "Speaker: "+vol()+"%", "audio-volume-high")
+			case "dec":
+				if useWpctl {
+					_ = exec.Command("sh", "-lc", "wpctl set-mute $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 0").Run()
+					_ = exec.Command("sh", "-lc", "wpctl set-volume $(wpctl status | awk '/Sinks:/,/Sources:/{if (/Sources:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 5%-").Run()
+				} else if usePamixer {
+					_ = exec.Command("pamixer", "--decrease", "5", "--unmute").Run()
+				} else {
+					_ = exec.Command("pactl", "set-sink-mute", "@DEFAULT_SINK@", "0").Run()
+					_ = exec.Command("pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%").Run()
+				}
+				notify("Volume Down", "Speaker: "+vol()+"%", "audio-volume-low")
+			case "get":
+				fmt.Println(vol())
+			case "mic-toggle":
+				if useWpctl {
+					_ = exec.Command("sh", "-lc", "wpctl set-mute $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") toggle").Run()
+				} else if usePamixer {
+					_ = exec.Command("pamixer", "--default-source", "--toggle-mute").Run()
+				} else {
+					_ = exec.Command("pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle").Run()
+				}
+				if micMuted() {
+					notify("Microphone Muted", "Microphone: Muted", "microphone-sensitivity-muted")
+				} else {
+					notify("Microphone Unmuted", "Microphone: "+micVol()+"%", "microphone-sensitivity-high")
+				}
+			case "mic-inc":
+				if useWpctl {
+					_ = exec.Command("sh", "-lc", "wpctl set-mute $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 0").Run()
+					_ = exec.Command("sh", "-lc", "wpctl set-volume $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 5%+").Run()
+				} else if usePamixer {
+					_ = exec.Command("pamixer", "--default-source", "--increase", "5", "--unmute").Run()
+				} else {
+					_ = exec.Command("pactl", "set-source-mute", "@DEFAULT_SOURCE@", "0").Run()
+					_ = exec.Command("pactl", "set-source-volume", "@DEFAULT_SOURCE@", "+5%").Run()
+				}
+				notify("Microphone Volume", "Microphone: "+micVol()+"%", "microphone-sensitivity-high")
+			case "mic-dec":
+				if useWpctl {
+					_ = exec.Command("sh", "-lc", "wpctl set-mute $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 0").Run()
+					_ = exec.Command("sh", "-lc", "wpctl set-volume $(wpctl status | awk '/Sources:/,/Filters:/{if (/Filters:/) exit; print}' | grep '\\*' | awk '{print $3}' | tr -d \".\") 5%-").Run()
+				} else if usePamixer {
+					_ = exec.Command("pamixer", "--default-source", "--decrease", "5", "--unmute").Run()
+				} else {
+					_ = exec.Command("pactl", "set-source-mute", "@DEFAULT_SOURCE@", "0").Run()
+					_ = exec.Command("pactl", "set-source-volume", "@DEFAULT_SOURCE@", "-5%").Run()
+				}
+				notify("Microphone Volume", "Microphone: "+micVol()+"%", "microphone-sensitivity-low")
+			case "mic-get":
+				fmt.Println(micVol())
+			default:
+				fmt.Fprintln(os.Stderr, "Usage: archriot --volume [toggle|inc|dec|get|mic-toggle|mic-inc|mic-dec|mic-get]")
+				os.Exit(1)
+			}
+			return
+
+		case "--wifi-powersave-check":
+			// Targeted WiFi power-save diagnostics (read-only)
+			fmt.Println("WiFi power-save diagnostics")
+
+			// Check NetworkManager drop-in for wifi.powersave
+			psConf := "/etc/NetworkManager/conf.d/40-wifi-powersave.conf"
+			if b, err := os.ReadFile(psConf); err == nil {
+				val := "(not set)"
+				for _, ln := range strings.Split(string(b), "\n") {
+					s := strings.TrimSpace(ln)
+					if strings.HasPrefix(s, "wifi.powersave=") {
+						val = strings.TrimSpace(strings.TrimPrefix(s, "wifi.powersave="))
+						break
+					}
+				}
+				fmt.Printf("%-24s %s\n", "drop-in:", psConf)
+				fmt.Printf("%-24s %s\n", "wifi.powersave:", val)
+				if val != "2" && val != "(not set)" {
+					fmt.Println("Tip: set wifi.powersave=2 to avoid Wi‑Fi power saving")
+					fmt.Println("e.g., echo -e \"[connection]\\nwifi.powersave=2\" | sudo tee /etc/NetworkManager/conf.d/40-wifi-powersave.conf && sudo systemctl reload NetworkManager")
+				}
+			} else {
+				fmt.Printf("%-24s %s\n", "drop-in:", "missing")
+				fmt.Println("Tip: create /etc/NetworkManager/conf.d/40-wifi-powersave.conf with wifi.powersave=2")
+				fmt.Println("e.g., echo -e \"[connection]\\nwifi.powersave=2\" | sudo tee /etc/NetworkManager/conf.d/40-wifi-powersave.conf && sudo systemctl reload NetworkManager")
+			}
+
+			// Runtime power save state on a wireless iface (if any)
+			iface := ""
+			if out, err := exec.Command("sh", "-lc", "iw dev | awk '/Interface/ {print $2; exit}'").CombinedOutput(); err == nil {
+				iface = strings.TrimSpace(string(out))
+			}
+			if iface != "" {
+				if out, err := exec.Command("sh", "-lc", "iw dev "+iface+" get power_save 2>/dev/null | awk '{print tolower($0)}'").CombinedOutput(); err == nil {
+					state := strings.TrimSpace(string(out))
+					if state == "" {
+						state = "unknown"
+					}
+					fmt.Printf("%-24s %s (%s)\n", "runtime power_save:", state, iface)
+					if strings.Contains(state, "on") {
+						fmt.Println("Tip: runtime power save is ON; temporarily disable with:")
+						fmt.Println("sudo iw dev " + iface + " set power_save off")
+					}
+				}
+			} else {
+				fmt.Println("No wireless interface detected")
+			}
+			return
+
+		case "--help-binds":
+			// Print Hyprland keybindings from hyprland.conf (optional filter substring)
+			home := os.Getenv("HOME")
+			path := filepath.Join(home, ".config", "hypr", "hyprland.conf")
+			b, err := os.ReadFile(path)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Cannot read %s: %v\n", path, err)
+				os.Exit(1)
+			}
+			filter := ""
+			if len(os.Args) > 2 {
+				filter = strings.ToLower(os.Args[2])
+			}
+			sc := bufio.NewScanner(strings.NewReader(string(b)))
+			fmt.Println("Hyprland keybindings (bind/bindm):")
+			for sc.Scan() {
+				line := strings.TrimSpace(sc.Text())
+				if strings.HasPrefix(line, "bind") {
+					if filter == "" || strings.Contains(strings.ToLower(line), filter) {
+						fmt.Println(line)
+					}
+				}
+			}
+			return
+
+		case "--help-binds-html":
+			// Generate an HTML keybindings page from Hyprland config and open it
+			home := os.Getenv("HOME")
+			candidates := []string{
+				filepath.Join(home, ".config", "hypr", "keybindings.conf"),
+				filepath.Join(home, ".config", "hypr", "hyprland.conf"),
+			}
+			configPath := ""
+			for _, p := range candidates {
+				if _, err := os.Stat(p); err == nil {
+					configPath = p
+					break
+				}
+			}
+
+			outDir := filepath.Join(home, ".cache", "archriot", "help")
+			outFile := filepath.Join(outDir, "keybindings.html")
+			_ = os.MkdirAll(outDir, 0o755)
+
+			var html strings.Builder
+			html.WriteString("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">")
+			html.WriteString("<title>ArchRiot — Keybindings Help</title>")
+			html.WriteString("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
+			html.WriteString("<style>:root{--bg:#0f172a;--fg:#cbd5e1;--muted:#94a3b8;--accent:#7aa2f7;--line:#22263a}html,body{background:var(--bg);color:var(--fg);margin:0;padding:0;font-family:ui-monospace,monospace} .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 40px} h1{color:var(--accent);font-size:28px;margin:0 0 14px;line-height:1.15} table{width:100%;border-collapse:collapse;margin:12px 0} th,td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top} th{text-align:left} .bind{white-space:pre-wrap}</style>")
+			html.WriteString("</head><body><div class=\"wrap\">")
+			html.WriteString("<h1>ArchRiot — Keybindings Help</h1>")
+
+			type row struct {
+				Bind string
+				Desc string
+			}
+			var rows []row
+
+			if configPath == "" {
+				// No config; render a helpful page
+				html.WriteString("<p>No Hyprland config found. Checked:</p><ul>")
+				for _, p := range candidates {
+					html.WriteString("<li>" + p + "</li>")
+				}
+				html.WriteString("</ul>")
+			} else {
+				// Load and parse binds
+				data, err := os.ReadFile(configPath)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to read %s: %v\n", configPath, err)
+					os.Exit(1)
+				}
+				sc := bufio.NewScanner(strings.NewReader(string(data)))
+				for sc.Scan() {
+					line := sc.Text()
+					trim := strings.TrimSpace(line)
+					if !strings.HasPrefix(trim, "bind") {
+						continue
+					}
+					// Extract description after '#', if any
+					desc := ""
+					if idx := strings.Index(trim, "#"); idx >= 0 {
+						desc = strings.TrimSpace(trim[idx+1:])
+						trim = strings.TrimSpace(trim[:idx])
+					}
+					// Normalize "bind=" to "bind ="
+					if strings.HasPrefix(trim, "bind=") {
+						trim = "bind = " + strings.TrimPrefix(trim, "bind=")
+					}
+					// Extract first two comma-separated fields after "bind ="
+					bindStr := trim
+					if i := strings.Index(bindStr, "bind ="); i >= 0 {
+						bindStr = strings.TrimSpace(bindStr[i+len("bind ="):])
+					}
+					parts := strings.Split(bindStr, ",")
+					if len(parts) < 2 {
+						continue
+					}
+					mk := strings.TrimSpace(parts[0]) + ", " + strings.TrimSpace(parts[1])
+					// $mod → SUPER, commas → " + "
+					mk = strings.ReplaceAll(mk, "$mod", "SUPER")
+					mk = strings.ReplaceAll(mk, ",", " + ")
+					rows = append(rows, row{Bind: mk, Desc: desc})
+				}
+				_ = sc.Err()
+
+				// Render table
+				html.WriteString("<table><thead><tr><th>Bind</th><th>Description</th></tr></thead><tbody>")
+				for _, r := range rows {
+					// Simple HTML escape for &, <, >
+					bindEsc := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(r.Bind)
+					descEsc := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(r.Desc)
+					html.WriteString("<tr><td class=\"bind\">" + bindEsc + "</td><td>" + descEsc + "</td></tr>")
+				}
+				html.WriteString("</tbody></table>")
+				html.WriteString("<p>Source: " + configPath + "</p>")
+			}
+			html.WriteString("</div></body></html>")
+
+			if err := os.WriteFile(outFile, []byte(html.String()), 0o644); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to write %s: %v\n", outFile, err)
+				os.Exit(1)
+			}
+
+			// Best-effort open
+			if _, err := exec.LookPath("xdg-open"); err == nil {
+				_ = exec.Command("xdg-open", outFile).Start()
+			}
+			fmt.Println(outFile)
+			return
+
+		case "--fix-offscreen-windows":
+			// Center off-screen floating windows using hyprctl JSON
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			if !have("hyprctl") {
+				fmt.Fprintln(os.Stderr, "hyprctl not found in PATH")
+				os.Exit(1)
+			}
+
+			// Read monitors (first monitor width/height)
+			type mon struct {
+				Width  int `json:"width"`
+				Height int `json:"height"`
+			}
+			monOut, err := exec.Command("hyprctl", "monitors", "-j").Output()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to read monitors: %v\n", err)
+				os.Exit(1)
+			}
+			var mons []mon
+			if err := json.Unmarshal(monOut, &mons); err != nil || len(mons) == 0 {
+				fmt.Fprintln(os.Stderr, "Failed to parse monitors JSON")
+				os.Exit(1)
+			}
+			screenW, screenH := mons[0].Width, mons[0].Height
+
+			// Read current workspace from activewindow
+			type active struct {
+				Workspace struct {
+					ID int `json:"id"`
+				} `json:"workspace"`
+			}
+			awOut, _ := exec.Command("hyprctl", "activewindow", "-j").Output()
+			curWS := 1
+			if len(awOut) > 0 {
+				var aw active
+				if json.Unmarshal(awOut, &aw) == nil && aw.Workspace.ID != 0 {
+					curWS = aw.Workspace.ID
+				}
+			}
+
+			// Read clients
+			type client struct {
+				Address   string `json:"address"`
+				At        []int  `json:"at"`
+				Size      []int  `json:"size"`
+				Floating  bool   `json:"floating"`
+				Workspace struct {
+					ID int `json:"id"`
+				} `json:"workspace"`
+				Class string `json:"class"`
+				Title string `json:"title"`
+			}
+			clOut, err := exec.Command("hyprctl", "clients", "-j").Output()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to read clients: %v\n", err)
+				os.Exit(1)
+			}
+			var cls []client
+			if err := json.Unmarshal(clOut, &cls); err != nil {
+				fmt.Fprintln(os.Stderr, "Failed to parse clients JSON")
+				os.Exit(1)
+			}
+
+			isOffscreen := func(x, y int) bool {
+				if x < -50 || y < -50 {
+					return true
+				}
+				if x > screenW || y > screenH {
+					return true
+				}
+				if x > 2000 || y > 2000 {
+					return true
+				}
+				return false
+			}
+
+			fixed := 0
+			for _, c := range cls {
+				// Only floating windows; need at least x,y
+				if !c.Floating || len(c.At) < 2 {
+					continue
+				}
+				x, y := c.At[0], c.At[1]
+				if !isOffscreen(x, y) {
+					continue
+				}
+				ws := c.Workspace.ID
+				if ws == 0 {
+					ws = curWS
+				}
+
+				// Switch to window's workspace, focus, center, return
+				_ = exec.Command("hyprctl", "dispatch", "workspace", fmt.Sprintf("%d", ws)).Run()
+				time.Sleep(100 * time.Millisecond)
+				_ = exec.Command("hyprctl", "dispatch", "focuswindow", "address:"+c.Address).Run()
+				time.Sleep(100 * time.Millisecond)
+				_ = exec.Command("hyprctl", "dispatch", "centerwindow").Run()
+				time.Sleep(100 * time.Millisecond)
+				_ = exec.Command("hyprctl", "dispatch", "workspace", fmt.Sprintf("%d", curWS)).Run()
+
+				fmt.Printf("Centered off-screen window: %s (%s) from %d,%d on ws %d\n", c.Class, c.Title, x, y, ws)
+				fixed++
+			}
+
+			if fixed > 0 {
+				fmt.Printf("Fixed %d off-screen floating windows\n", fixed)
+			} else {
+				fmt.Println("No off-screen floating windows found")
+			}
+			return
+
+		case "--switch-window":
+			// Window switcher using hyprctl JSON and fuzzel (no external jq)
+			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			if !have("hyprctl") {
+				fmt.Fprintln(os.Stderr, "hyprctl not found in PATH")
+				os.Exit(1)
+			}
+			if !have("fuzzel") {
+				fmt.Fprintln(os.Stderr, "fuzzel not found in PATH")
+				os.Exit(1)
+			}
+
+			// Read clients
+			type client struct {
+				Address   string `json:"address"`
+				Workspace struct {
+					ID int `json:"id"`
+				} `json:"workspace"`
+				Class string `json:"class"`
+				Title string `json:"title"`
+			}
+			clOut, err := exec.Command("hyprctl", "clients", "-j").Output()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to read clients: %v\n", err)
+				os.Exit(1)
+			}
+			var cls []client
+			if err := json.Unmarshal(clOut, &cls); err != nil {
+				fmt.Fprintln(os.Stderr, "Failed to parse clients JSON")
+				os.Exit(1)
+			}
+
+			// Build selection list
+			type option struct {
+				Display string
+				Address string
+				WS      int
+			}
+			var opts []option
+			for _, c := range cls {
+				display := fmt.Sprintf("[%d] %s — %s", c.Workspace.ID, c.Title, c.Class)
+				opts = append(opts, option{Display: display, Address: c.Address, WS: c.Workspace.ID})
+			}
+			if len(opts) == 0 {
+				fmt.Println("No windows found")
+				return
+			}
+
+			var b strings.Builder
+			for i, o := range opts {
+				if i > 0 {
+					b.WriteByte('\n')
+				}
+				b.WriteString(o.Display)
+			}
+
+			cmd := exec.Command("fuzzel", "--dmenu", "--prompt=Switch to: ", "--width=60", "--lines=10")
+			cmd.Stdin = strings.NewReader(b.String())
+			sel, err := cmd.Output()
+			if err != nil {
+				return
+			}
+			choice := strings.TrimSpace(string(sel))
+			if choice == "" {
+				return
+			}
+
+			var chosen *option
+			for i := range opts {
+				if opts[i].Display == choice {
+					chosen = &opts[i]
+					break
+				}
+			}
+			if chosen == nil {
+				return
+			}
+
+			_ = exec.Command("hyprctl", "dispatch", "workspace", fmt.Sprintf("%d", chosen.WS)).Run()
+			_ = exec.Command("hyprctl", "dispatch", "focuswindow", "address:"+chosen.Address).Run()
+			_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
+			return
+
+		case "--mullvad-startup":
+			// Safe, conditional Mullvad GUI startup (no-ops if not installed or not configured)
+			{
+				home := os.Getenv("HOME")
+				logAppend := func(msg string) {
+					// Best-effort append to runtime log
+					logDir := filepath.Join(home, ".cache", "archriot")
+					_ = os.MkdirAll(logDir, 0o755)
+					logFile := filepath.Join(logDir, "runtime.log")
+					if f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644); err == nil {
+						defer f.Close()
+						ts := time.Now().Format("15:04:05")
+						_, _ = f.WriteString("[" + ts + "] " + msg + "\n")
+					}
+				}
+
+				// Basic presence checks (CLI and GUI)
+				if _, err := exec.LookPath("mullvad"); err != nil {
+					// Not installed; silently exit
+					return
+				}
+				guiPath := "/opt/Mullvad VPN/mullvad-gui"
+				if _, err := os.Stat(guiPath); err != nil {
+					// GUI not installed; silently exit
+					return
+				}
+
+				// Already running? Exit quietly
+				if err := exec.Command("pgrep", "-x", "mullvad-gui").Run(); err == nil {
+					logAppend("Mullvad GUI already running, skipping startup")
+					fmt.Println("Mullvad GUI already running")
+					return
+				}
+
+				// Account check: consider "status" Connected/Disconnected/Blocked as account-present,
+				// or "account get" containing an account number.
+				accountPresent := false
+				if out, err := exec.Command("mullvad", "status").CombinedOutput(); err == nil {
+					s := strings.ToLower(string(out))
+					if strings.Contains(s, "connected") || strings.Contains(s, "disconnected") || strings.Contains(s, "blocked") {
+						accountPresent = true
+					}
+				}
+				if !accountPresent {
+					if out, err := exec.Command("mullvad", "account", "get").CombinedOutput(); err == nil {
+						if strings.Contains(string(out), "Mullvad account:") {
+							accountPresent = true
+						}
+					}
+				}
+				if !accountPresent {
+					logAppend("No Mullvad account configured, skipping GUI startup")
+					return
+				}
+
+				// Ensure startMinimized=true in GUI settings if present
+				settingsPath := filepath.Join(home, ".config", "Mullvad VPN", "gui_settings.json")
+				if b, err := os.ReadFile(settingsPath); err == nil {
+					type guiSettings struct {
+						StartMinimized bool `json:"startMinimized"`
+					}
+					var gs guiSettings
+					// If parsing fails, ignore and continue with defaults
+					if json.Unmarshal(b, &gs) == nil {
+						if !gs.StartMinimized {
+							gs.StartMinimized = true
+							if nb, err := json.MarshalIndent(gs, "", "  "); err == nil {
+								// Preserve permissions best-effort
+								_ = os.WriteFile(settingsPath, nb, 0o644)
+							}
+						}
+					}
+				}
+
+				// Delay to allow tray to be ready
+				time.Sleep(10 * time.Second)
+
+				// Final guard: if started in the meantime, exit
+				if err := exec.Command("pgrep", "-x", "mullvad-gui").Run(); err == nil {
+					return
+				}
+
+				// Start minimized; detach
+				logAppend("Starting Mullvad GUI minimized to tray")
+				cmd := exec.Command(guiPath, "--minimize-to-tray")
+				_ = cmd.Start()
+
+				// Brief verify window
+				time.Sleep(2 * time.Second)
+				if err := exec.Command("pgrep", "-x", "mullvad-gui").Run(); err == nil {
+					logAppend("✓ Mullvad GUI started successfully")
+				} else {
+					logAppend("⚠ Mullvad GUI did not appear to start")
+				}
+			}
+			return
+
+		case "--power-menu":
+			// System power menu: prefer fuzzel; fallback to stdin prompt
+			{
+				have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+				choose := func() string {
+					if have("fuzzel") {
+						input := "Lock\nSuspend\nReboot\nPower Off\nCancel\n"
+						cmd := exec.Command("fuzzel", "--dmenu", "--prompt=Power: ", "--width=30", "--lines=5")
+						cmd.Stdin = strings.NewReader(input)
+						if out, err := cmd.Output(); err == nil {
+							return strings.TrimSpace(string(out))
+						}
+					}
+					// Fallback TTY prompt
+					fmt.Println("Power menu:")
+					fmt.Println("1) Lock")
+					fmt.Println("2) Suspend")
+					fmt.Println("3) Reboot")
+					fmt.Println("4) Power Off")
+					fmt.Println("5) Cancel")
+					fmt.Print("Select [1-5]: ")
+					reader := bufio.NewReader(os.Stdin)
+					s, _ := reader.ReadString('\n')
+					return strings.TrimSpace(s)
+				}
+				sel := choose()
+				act := sel
+				switch sel {
+				case "1", "Lock":
+					act = "Lock"
+				case "2", "Suspend":
+					act = "Suspend"
+				case "3", "Reboot":
+					act = "Reboot"
+				case "4", "Power Off":
+					act = "Power Off"
+				default:
+					return
+				}
+				switch act {
+				case "Lock":
+					if _, err := exec.LookPath("hyprlock"); err == nil {
+						_ = exec.Command("hyprlock").Start()
+					} else {
+						_ = exec.Command("loginctl", "lock-session").Run()
+					}
+				case "Suspend":
+					_ = exec.Command("systemctl", "suspend").Start()
+				case "Reboot":
+					_ = exec.Command("systemctl", "reboot").Start()
+				case "Power Off":
+					_ = exec.Command("systemctl", "poweroff").Start()
+				}
+			}
+			return
+
+		case "--setup-temperature":
+			// Detect CPU temperature sensors and update Waybar Modules hwmon-path
+			{
+				home := os.Getenv("HOME")
+				modPath := filepath.Join(home, ".config", "waybar", "Modules")
+
+				// Detect coretemp hwmon (Intel) at /sys/class/hwmon/hwmon*/name == coretemp and temp1_input
+				findCoretemp := func() string {
+					entries, _ := os.ReadDir("/sys/class/hwmon")
+					for _, e := range entries {
+						hp := filepath.Join("/sys/class/hwmon", e.Name())
+						nameB, err := os.ReadFile(filepath.Join(hp, "name"))
+						if err != nil {
+							continue
+						}
+						if strings.TrimSpace(string(nameB)) == "coretemp" {
+							if _, err := os.Stat(filepath.Join(hp, "temp1_input")); err == nil {
+								return filepath.Join(hp, "temp1_input")
+							}
+						}
+					}
+					return ""
+				}
+
+				// Detect x86_pkg_temp thermal zone
+				findPkgTemp := func() string {
+					entries, _ := os.ReadDir("/sys/class/thermal")
+					for _, e := range entries {
+						if !strings.HasPrefix(e.Name(), "thermal_zone") {
+							continue
+						}
+						zp := filepath.Join("/sys/class/thermal", e.Name())
+						tb, err := os.ReadFile(filepath.Join(zp, "type"))
+						if err != nil {
+							continue
+						}
+						if strings.TrimSpace(string(tb)) == "x86_pkg_temp" {
+							return filepath.Join(zp, "temp")
+						}
+					}
+					return ""
+				}
+
+				core := findCoretemp()
+				pkg := findPkgTemp()
+
+				// Build array: include detected + thermal_zone0 as fallback
+				var paths []string
+				if core != "" {
+					paths = append(paths, fmt.Sprintf("\"%s\"", core))
+				}
+				if pkg != "" {
+					paths = append(paths, fmt.Sprintf("\"%s\"", pkg))
+				}
+				paths = append(paths, "\"/sys/class/thermal/thermal_zone0/temp\"")
+				hwmonArray := strings.Join(paths, ",")
+
+				// Read Modules file and replace the hwmon-path array if present
+				data, err := os.ReadFile(modPath)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Waybar Modules not found: %s\n", modPath)
+					return
+				}
+				lines := strings.Split(string(data), "\n")
+				var out []string
+				replaced := false
+				inHwmonBlock := false
+
+				for i := 0; i < len(lines); i++ {
+					line := lines[i]
+					trim := strings.TrimSpace(line)
+
+					// Match multi-line array starting at `"hwmon-path": [`
+					if !replaced && !inHwmonBlock &&
+						strings.HasPrefix(trim, "\"hwmon-path\"") &&
+						strings.Contains(trim, "[") && !strings.Contains(trim, "]") {
+
+						inHwmonBlock = true
+						// Keep the line that opens the array
+						out = append(out, line)
+
+						// Skip until closing bracket
+						i++
+						for i < len(lines) && !strings.Contains(lines[i], "]") {
+							i++
+						}
+						// Determine trailing comma based on original line
+						comma := ""
+						if i < len(lines) && strings.HasSuffix(strings.TrimSpace(lines[i]), "],") {
+							comma = ","
+						}
+
+						// Insert our array content (indent with tabs for consistency)
+						out = append(out, "\t\t\""+`hwmon-path`+"\": [")
+						out = append(out, "\t\t\t"+hwmonArray)
+						out = append(out, "\t\t]"+comma)
+
+						replaced = true
+						inHwmonBlock = false
+						continue
+					}
+
+					// One-line array case: "hwmon-path": [ ... ],
+					if !replaced && strings.HasPrefix(trim, "\"hwmon-path\"") &&
+						strings.Contains(trim, "[") && strings.Contains(trim, "]") {
+
+						indent := line[:len(line)-len(strings.TrimLeft(line, "\t "))]
+						out = append(out, indent+"\"hwmon-path\": [")
+						out = append(out, "\t\t"+hwmonArray)
+						out = append(out, indent+"],")
+						replaced = true
+						continue
+					}
+
+					out = append(out, line)
+				}
+
+				if !replaced {
+					fmt.Println("Note: \"hwmon-path\" not found in Waybar Modules; no changes made")
+					return
+				}
+
+				if err := os.WriteFile(modPath, []byte(strings.Join(out, "\n")), 0o644); err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to update Waybar Modules: %v\n", err)
+					return
+				}
+
+				fmt.Printf("✓ Updated Waybar temperature configuration\nPaths: %s\n", hwmonArray)
+			}
+			return
+
 		default:
 			fmt.Printf("Unknown option: %s\n\n", os.Args[1])
 			showHelp()
@@ -314,8 +2952,8 @@ func main() {
 		}
 	}
 
-	// Skip normal installation if we handled a special flag above
-	if len(os.Args) > 1 && os.Args[1] != "--ascii-only" {
+	// Skip normal installation if we handled a special flag above (allow --install to proceed)
+	if len(os.Args) > 1 && os.Args[1] != "--ascii-only" && os.Args[1] != "--install" {
 		return
 	}
 
@@ -399,6 +3037,21 @@ func main() {
 	// Set up Secure Boot continuation callback
 	tui.SetSecureBootContinuationCallback(func(retry bool) {
 		secureBootContinuationDone <- retry
+	})
+
+	// Set up failure retry callback (re-run orchestrator without exiting TUI)
+	tui.SetRetryCallback(func(retry bool) {
+		if retry {
+			// Minimal UI feedback before retry
+			program.Send(tui.LogMsg("↻ Retrying installation..."))
+			program.Send(tui.StepMsg("Retrying installation..."))
+
+			// Re-run the installation in background (same TUI/program)
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				orchestrator.RunInstallation()
+			}()
+		}
 	})
 
 	// Set up orchestrator Secure Boot channel
@@ -702,6 +3355,8 @@ func showHelp() {
 
 Usage:
   archriot              Run the main installer
+  archriot --install    Run the main installer (explicit)
+  archriot --upgrade    Launch the TUI upgrade flow
   archriot --tools      Launch optional tools interface
   archriot --validate   Validate packages.yaml configuration
   archriot --version    Show version information
