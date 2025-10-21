@@ -11,6 +11,7 @@
     "layer": "top",
     "margin-right": 8,
     "modules-left": [
+        // Tip: switch workspace style in ModulesWorkspaces (e.g., hyprland/workspaces#numbers, #roman, #kanji, #pacman, #cam, #4)
         "custom/arch", "custom/separator#blank", "hyprland/workspaces#rw", "custom/separator#blank",
         "mpris", "hyprland/window"
     ],

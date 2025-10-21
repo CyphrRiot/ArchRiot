@@ -402,12 +402,27 @@ func main() {
 
 			// Portals stack checks
 			fmt.Println("Portals:")
-			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
+			havePortal := func(bin, libPath, proc string) bool {
+				// 1) PATH check
+				if _, err := exec.LookPath(bin); err == nil {
+					return true
+				}
+				// 2) Well-known lib path (most distros place portals under /usr/lib)
+				if st, err := os.Stat(libPath); err == nil && !st.IsDir() {
+					return true
+				}
+				// 3) Running process check (best-effort)
+				if err := exec.Command("pgrep", "-f", proc).Run(); err == nil {
+					return true
+				}
+				return false
+			}
 			printKV := func(k, v string) { fmt.Printf("%-24s %s\n", k+":", v) }
 
-			printKV("xdg-desktop-portal", map[bool]string{true: "present", false: "missing"}[have("xdg-desktop-portal")])
-			printKV("portal-hyprland", map[bool]string{true: "present", false: "missing"}[have("xdg-desktop-portal-hyprland")])
-			printKV("portal-gtk", map[bool]string{true: "present", false: "missing"}[have("xdg-desktop-portal-gtk")])
+			// Detect presence via PATH, lib path, or running process
+			printKV("xdg-desktop-portal", map[bool]string{true: "present", false: "missing"}[havePortal("xdg-desktop-portal", "/usr/lib/xdg-desktop-portal", "xdg-desktop-portal")])
+			printKV("portal-hyprland", map[bool]string{true: "present", false: "missing"}[havePortal("xdg-desktop-portal-hyprland", "/usr/lib/xdg-desktop-portal-hyprland", "xdg-desktop-portal-hyprland")])
+			printKV("portal-gtk", map[bool]string{true: "present", false: "missing"}[havePortal("xdg-desktop-portal-gtk", "/usr/lib/xdg-desktop-portal-gtk", "xdg-desktop-portal-gtk")])
 
 			// Running portal processes (brief)
 			if out, err := exec.Command("sh", "-lc", "ps -C xdg-desktop-portal -o pid,cmd --no-headers; ps -C xdg-desktop-portal-hyprland -o pid,cmd --no-headers; ps -C xdg-desktop-portal-gtk -o pid,cmd --no-headers").CombinedOutput(); err == nil {

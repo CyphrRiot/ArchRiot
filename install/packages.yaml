@@ -265,7 +265,7 @@ desktop:
             - "update-desktop-database ~/.local/share/applications/"
             - "sudo mkdir -p /etc/NetworkManager/conf.d"
             - "bash -lc 'printf \"[connection]\\nwifi.powersave=2\\n\" | sudo tee /etc/NetworkManager/conf.d/40-wifi-powersave.conf >/dev/null'"
-            - "sudo systemctl reload NetworkManager || true"
+            - "echo 'Wi-Fi power-save change will apply on next reboot (skipping NetworkManager reload to avoid VPN disruption)'"
         depends: [core.base]
         start: "Installing desktop utilities"
         end: "Desktop utilities installed"
