@@ -1,12 +1,14 @@
 package executor
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -32,21 +34,66 @@ func executeCommands(commands []string, moduleName string, isCritical bool) erro
 
 	logger.LogMessage("INFO", fmt.Sprintf("Executing %d commands for %s", len(commands), moduleName))
 
+	// Default per-command timeout to prevent indefinite hangs
+	defaultTimeout := 5 * time.Minute
+
 	for i, command := range commands {
 		logger.LogMessage("INFO", fmt.Sprintf("Running command %d/%d: %s", i+1, len(commands), command))
 
-		cmd := exec.Command("sh", "-c", command)
-		if err := cmd.Run(); err != nil {
-			if isCritical {
-				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL command failed for %s: %s (error: %v)", moduleName, command, err))
-				return fmt.Errorf("critical command failed: %s (error: %v)", command, err)
-			} else {
-				logger.LogMessage("WARNING", fmt.Sprintf("Non-critical command failed for %s: %s (error: %v) - continuing installation", moduleName, command, err))
-				continue
-			}
+		// Context with timeout for each command
+		timeout := defaultTimeout
+		// Heuristic: allow longer time for known long-running operations
+		if strings.Contains(command, "yay ") || strings.Contains(command, " pacman ") {
+			timeout = 20 * time.Minute
 		}
 
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		cmd := exec.CommandContext(ctx, "sh", "-c", command)
+		output, err := cmd.CombinedOutput()
+		cancel()
+
+		outStr := string(output)
+		if len(outStr) > 800 {
+			outStr = outStr[:800] + "... (truncated)"
+		}
+
+		if ctx.Err() == context.DeadlineExceeded {
+			// Timed out
+			msg := fmt.Sprintf("Command timed out after %v: %s", timeout, command)
+			if isCritical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL %s", msg))
+				if outStr != "" {
+					logger.LogMessage("ERROR", fmt.Sprintf("Output (partial): %s", outStr))
+				}
+				return fmt.Errorf("%s", msg)
+			}
+			logger.LogMessage("WARNING", fmt.Sprintf("%s - continuing installation", msg))
+			if outStr != "" {
+				logger.LogMessage("WARNING", fmt.Sprintf("Output (partial): %s", outStr))
+			}
+			continue
+		}
+
+		if err != nil {
+			if isCritical {
+				logger.LogMessage("ERROR", fmt.Sprintf("CRITICAL command failed for %s: %s (error: %v)", moduleName, command, err))
+				if outStr != "" {
+					logger.LogMessage("ERROR", fmt.Sprintf("Output (partial): %s", outStr))
+				}
+				return fmt.Errorf("critical command failed: %s (error: %v)", command, err)
+			}
+			logger.LogMessage("WARNING", fmt.Sprintf("Non-critical command failed for %s: %s (error: %v) - continuing installation", moduleName, command, err))
+			if outStr != "" {
+				logger.LogMessage("WARNING", fmt.Sprintf("Output (partial): %s", outStr))
+			}
+			continue
+		}
+
+		// Success
 		logger.LogMessage("SUCCESS", fmt.Sprintf("Command completed: %s", command))
+		if strings.TrimSpace(outStr) != "" {
+			logger.LogMessage("INFO", fmt.Sprintf("Output: %s", outStr))
+		}
 	}
 
 	return nil
@@ -413,7 +460,7 @@ func ensureIdleLockSetup() error {
 	if b, err := os.ReadFile(hyprlandConf); err == nil {
 		txt := string(b)
 		if !strings.Contains(txt, "hypridle") {
-			txt = txt + "\n# Autostart hypridle to enable idle lock\nexec-once = hypridle\n"
+			txt = txt + "\n# Autostart hypridle to enable idle lock\nexec-once = /usr/bin/hypridle\n"
 			if writeErr := os.WriteFile(hyprlandConf, []byte(txt), 0644); writeErr != nil {
 				return fmt.Errorf("writing hyprland.conf: %w", writeErr)
 			}

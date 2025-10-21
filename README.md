@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.5.1-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.5.2-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -20,7 +20,7 @@
 
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted**
 
-**One Command. Complete Environment. Zero Compromises.**
+### **One Command. Complete Environment. Zero Compromises.**
 
 ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" We've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
 
@@ -40,17 +40,17 @@ _Beautiful overview from [It's FOSS](https://www.youtube.com/embed/qrraIOvAcdg?s
 
 ## 📚 Navigate This Guide
 
-- [🚀 Choose Your ArchRiot Experience](#-choose-your-archriot-experience)
-    - [🔥 Method 1: Install Script](#-method-1-install-script)
-    - [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
+- [🚀 Choose Your ArchRiot Experience](#choose-your-archriot-experience)
+    - [🔥 Method 1: Install Script](#method-1-install-script)
+    - [⚡ Method 2: ArchRiot ISO](#method-2-archriot-iso)
 
-- [⌨️ Master Your ArchRiot Desktop](#-master-your-archriot-desktop)
-- [🎛️ Control Panel](#-archriot-control-panel)
-- [🎯 Key Customizations](#-key-customizations)
-- [🔄 System Management](#-system-management)
+- [⌨️ Master Your ArchRiot Desktop](#master-your-archriot-desktop)
+- [🎛️ Control Panel](#archriot-control-panel)
+- [🎯 Key Customizations](#key-customizations)
+- [🔄 System Management](#system-management)
 - [🧰 Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
-- [🔧 Troubleshooting](#-troubleshooting)
-- [📄 License](#-license)
+- [🔧 Troubleshooting](#troubleshooting)
+- [📄 License](#license)
 
 ## ⚡ Quick Install
 
@@ -60,12 +60,12 @@ _Beautiful overview from [It's FOSS](https://www.youtube.com/embed/qrraIOvAcdg?s
     curl -fsSL https://ArchRiot.org/setup.sh | bash
     ```
 
-    See: [🔥 Method 1: Install Script](#-method-1-install-script)
+    See: [🔥 Method 1: Install Script](#method-1-install-script)
 
 - ⚡ Method 2 — ArchRiot ISO (fresh install):
     - Download from Releases and boot the ISO:
       https://github.com/CyphrRiot/ArchRiot/releases
-    - See: [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
+    - See: [⚡ Method 2 — ArchRiot ISO](#method-2-archriot-iso)
 
 ## 🚀 Choose Your ArchRiot Experience
 
@@ -344,7 +344,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v3.5 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
+**🔥 Current Release:** v3.5.2 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
 
 **🚀 Recent Milestones:**
 
