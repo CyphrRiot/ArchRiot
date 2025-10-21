@@ -1,4 +1,4 @@
-# ArchRiot Development Plan — Refreshed (v3.5)
+# ArchRiot Development Plan — Refreshed (v3.5.1)
 
 Purpose
 
@@ -9,6 +9,14 @@ Purpose
 
 ---
 
+Completed in v3.5.1 (shipped)
+
+- README.md overhaul: Navigation/“📚 Navigate This Guide”, Quick Install panel, Advanced Usage/Troubleshooting consolidation, Workspace Styles doc, Contributors section, “What’s New” moved to end
+- Keybindings Help PWA: SUPER+SHIFT+H opens local help (Brave app) with stable/fallback window rules; GTK fallback available; binding updated
+- Mullvad/VPN stability: Removed NetworkManager reload during install to avoid VPN drop during installation
+- Preflight fixes: robust portal detection (PATH, /usr/lib, or running process); cleaned Wi‑Fi power-save diagnostics output
+- Installer guards: pre-install ABI advisory and --strict-abi enforcement for compositor/Wayland packages
+
 Next Steps (upgrade-safe; one change at a time)
 
 2. Issue verification and closure (validate, then close)
@@ -17,6 +25,13 @@ Next Steps (upgrade-safe; one change at a time)
 - #30 OBS “Screen Capture” present: portals functional on clean install
 - #24 Thunar default terminal: verify Ghostty “Open Terminal Here” on a clean install
 
+3. README.md finalization (post‑overhaul polish)
+
+- Final pass to remove any duplication and normalize heading styles
+- Ensure all code snippets are fenced; fix spacing/indentation regressions
+- Keep “What’s New” at end; ensure “Navigate This Guide” is the only TOC
+- Confirm install method deep links (Install Script, ISO) present in Navigate/Quick Install
+
 4. QA matrix and docs refresh
 
 - Matrix: Intel/AMD/NVIDIA; single/multi-monitor; fractional scaling; en-US + one non-Latin
@@ -24,19 +39,20 @@ Next Steps (upgrade-safe; one change at a time)
 
 5. HyprToolkit migration (Control Panel first; feature-flagged)
 
-6. GTK Keybindings Help (replace SUPER+SHIFT+H browser flow)
+6. GTK Keybindings Help (native app; PWA shipped)
 
-- Goal: Launch a native GTK window that renders current keybindings (parsed from hyprland.conf or a generated JSON).
+- Current: PWA (Brave app) help is shipped and bound to SUPER+SHIFT+H; GTK fallback exists
+- Goal (follow‑up): Build native GTK4 help (Go) with live parsing and search; dual‑ship behind a feature flag until parity
 - Scope:
-    - Add a small GTK4 app (Go) or reuse the Control Panel framework to render a scrollable, searchable list grouped by category.
-    - Replace SUPER+SHIFT+H binding to launch this GTK window directly; keep a CLI fallback (archriot --help-binds).
+    - Add a small GTK4 app (Go) or reuse Control Panel framework; scrollable/searchable; grouped by category
+    - Keep CLI/PWA fallback; wire a feature flag to switch default when GTK parity is achieved
 - Acceptance:
-    - SUPER+SHIFT+H opens the GTK Help with live keybindings and working search.
-    - Categories include: Getting Started, Window Management, Applications, Communication, Screenshots, System, Web Apps, Media.
-    - Theming matches Control Panel; sensible window sizing; no dependency on a browser or local HTML.
+    - SUPER+SHIFT+H opens the GTK Help with live keybindings and working search when feature flag is enabled
+    - Categories include: Getting Started, Window Management, Applications, Communication, Screenshots, System, Web Apps, Media
+    - Theming matches Control Panel; sensible window sizing; no dependency on a browser or local HTML
 
-- Feature-flag for one minor release (dual-ship); flip default when parity achieved
-- Maintain complete CLI fallbacks
+- Ship dual‑path for one minor release (feature‑flagged); flip default at parity
+- Maintain complete CLI/PWA fallbacks
 
 7. Script consolidation and CLI migration (no new scripts)
 
