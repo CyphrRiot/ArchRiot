@@ -131,7 +131,7 @@
         ),
         input: (
             method: Fifo,
-            source: "/tmp/server_mpd.fifo",
+            source: "/tmp/mpd.fifo",
             sample_rate: 44100,
             channels: 2,
             sample_bits: 16,
