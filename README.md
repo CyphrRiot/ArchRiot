@@ -43,7 +43,7 @@ _Beautiful overview from [It's FOSS](https://www.youtube.com/embed/qrraIOvAcdg?s
 - [🚀 Choose Your ArchRiot Experience](#-choose-your-archriot-experience)
     - [🔥 Method 1: Install Script](#-method-1-install-script)
     - [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
-- [📚 Navigate This Guide](#-navigate-this-guide)
+
 - [⌨️ Master Your ArchRiot Desktop](#-master-your-archriot-desktop)
 - [🎛️ Control Panel](#-archriot-control-panel)
 - [🎯 Key Customizations](#-key-customizations)
@@ -63,9 +63,9 @@ _Beautiful overview from [It's FOSS](https://www.youtube.com/embed/qrraIOvAcdg?s
     See: [🔥 Method 1: Install Script](#-method-1-install-script)
 
 - ⚡ Method 2 — ArchRiot ISO (fresh install):
-  Download from Releases and boot the ISO:
-  https://github.com/CyphrRiot/ArchRiot/releases
-  See: [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
+    - Download from Releases and boot the ISO:
+      https://github.com/CyphrRiot/ArchRiot/releases
+    - See: [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
 
 ## 🚀 Choose Your ArchRiot Experience
 
@@ -552,6 +552,28 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 - How to add descriptions: append a comment after a bind line, e.g. bind = $mod, D, exec, fuzzel # App launcher
 - Launch: SUPER+SHIFT+H opens a compact web app window (Brave app mode) showing current binds.
 - Tip: Edit your binds and press SUPER+SHIFT+H again to regenerate.
+
+### Workspace Styles (Waybar)
+
+You can switch the workspace module style in your Waybar config. Edit ~/.config/waybar/config and change the module name from:
+
+- hyprland/workspaces#rw (default: “Rewrite” style with per-window icons)
+
+to any of these:
+
+- hyprland/workspaces Circles (● ◉ ○)
+- hyprland/workspaces#numbers Plain 1..4
+- hyprland/workspaces#roman I II III IV
+- hyprland/workspaces#kanji 一 二 三 四
+- hyprland/workspaces#pacman Pac‑Man themed
+- hyprland/workspaces#cam Uno/Due/Tre/Quattro
+- hyprland/workspaces#4 Numbers + per‑workspace icons
+
+Notes:
+
+- Persistent workspaces default to 1–4. To show more, adjust persistent-workspaces in config/waybar/ModulesWorkspaces.
+- Reload the bar safely after changes:
+  archriot --waybar-reload
 
 ### 🎨 **Document & Media Handling**
 
@@ -1046,15 +1068,10 @@ Notes:
 - Waybar’s `idle_inhibitor` module can block idle. Ensure it’s not activated if locks don’t trigger.
 - Brightness dim at 5 minutes won’t affect external HDMI/DP displays; consider adding DPMS off/on at lock for a visible cue on external monitors.
 
-                                                                      - archriot --volume mic-toggle # Toggle microphone mute
-                                                                      - archriot --volume mic-inc # Increase mic volume 5%
-                                                                      - archriot --volume mic-dec # Decrease mic volume 5%
-                                                                      - archriot --volume mic-get # Get current mic volume
-
-    - Troubleshooting:
-        - Check backend: wpctl status | head -30
-        - Test manually: archriot --volume get
-        - Waybar uses this for all volume controls (scroll, click, microphone)
+- Troubleshooting:
+    - Check backend: wpctl status | head -30
+    - Test manually: archriot --volume get
+    - Waybar uses this for all volume controls (scroll, click, microphone)
 
 - --brightness
     - Purpose: Backlight control for laptop displays.
@@ -1239,6 +1256,29 @@ Notes:
 
 - These settings use kernel heuristics (overcommit=0) and a conservative free-memory reserve to avoid fork/exec starvation.
 - Waybar and other helpers should not see “Cannot allocate memory” with these defaults. If you ever do, revert with the above commands and report the scenario.
+
+### Memory Tuning (Opt-in)
+
+By default, ArchRiot does not change kernel memory settings during install/upgrade. To enable memory optimizations, create the flag file and re-run the updater:
+
+```bash
+touch ~/.config/archriot/enable-memory-optimizations
+```
+
+Apply now (opt-in):
+
+```bash
+sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf
+total_kb=$(awk '/MemTotal/ {print $2}' /proc/meminfo); calc=$(awk -v t="$total_kb" 'BEGIN {m=int(t*0.01); if (m > 262144) m=262144; print m}'); sudo sed -i "s/^vm.min_free_kbytes=.*/vm.min_free_kbytes=$calc/" /etc/sysctl.d/99-memory-optimization.conf
+sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
+```
+
+Revert quickly (if anything feels off):
+
+```bash
+sudo sed -i 's/^vm.overcommit*memory=.*/vm.overcommit*memory=0/; s/^vm.overcommit_ratio=.*/vm.overcommit_ratio=50/; s/^vm.min_free_kbytes=.*/vm.min_free_kbytes=262144/' /etc/sysctl.d/99-memory-optimization.conf
+sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
+```
 
 ### Blinking Cursor Instead of Hyprland
 
@@ -1521,6 +1561,12 @@ Validation checklist
 🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
 And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLit/Arch-Hyprland)!
+
+## 👥 Contributors
+
+- Tarso Galvão (surtarso)
+    - GitHub: https://github.com/surtarso
+    - Notable contributions: Expanded Waybar workspace styles (ModulesWorkspaces), per-window icon mapping, related Waybar config polish.
 
 ## ✨ What’s New in v3.5 (Docs & UX)
 
