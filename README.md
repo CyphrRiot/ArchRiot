@@ -20,12 +20,6 @@
 
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted**
 
-## Table of Contents
-
-- [Choose Your ArchRiot Experience](#-choose-your-archriot-experience)
-- [Navigate This Guide](#-navigate-this-guide)
-- [Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
-
 **One Command. Complete Environment. Zero Compromises.**
 
 ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" We've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
@@ -43,6 +37,35 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
 _Beautiful overview from [It's FOSS](https://www.youtube.com/embed/qrraIOvAcdg?si=eWu0iaUK64njmqEL)_
+
+## 📚 Navigate This Guide
+
+- [🚀 Choose Your ArchRiot Experience](#-choose-your-archriot-experience)
+    - [🔥 Method 1: Install Script](#-method-1-install-script)
+    - [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
+- [📚 Navigate This Guide](#-navigate-this-guide)
+- [⌨️ Master Your ArchRiot Desktop](#-master-your-archriot-desktop)
+- [🎛️ Control Panel](#-archriot-control-panel)
+- [🎯 Key Customizations](#-key-customizations)
+- [🔄 System Management](#-system-management)
+- [🧰 Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [📄 License](#-license)
+
+## ⚡ Quick Install
+
+- 🔥 Method 1 — Install Script (existing Arch):
+
+    ```bash
+    curl -fsSL https://ArchRiot.org/setup.sh | bash
+    ```
+
+    See: [🔥 Method 1: Install Script](#-method-1-install-script)
+
+- ⚡ Method 2 — ArchRiot ISO (fresh install):
+  Download from Releases and boot the ISO:
+  https://github.com/CyphrRiot/ArchRiot/releases
+  See: [⚡ Method 2: ArchRiot ISO](#-method-2-archriot-iso)
 
 ## 🚀 Choose Your ArchRiot Experience
 
@@ -135,30 +158,6 @@ exit
 - No manual setup required
 
 ---
-
-## 📚 Navigate This Guide
-
-**🚀 Getting Started:**
-
-- [⌨️ Essential Commands](#️-master-your-archriot-desktop) - Master your new desktop in minutes
-- [🎛️ Control Panel](#️-archriot-control-panel) - ArchRiot's powerful management interface
-- [🎯 Key Customizations](#-key-customizations) - What makes ArchRiot special
-- [🧰 ArchRiot CLI Flags](#archriot-cli-flags) - Built-in flags replacing helper scripts
-
-**🎨 Customization & Themes:**
-
-- [🎨 CypherRiot Theme System](#-cypherriot-theme-system) - Beautiful, cohesive aesthetics
-- [📋 YAML Configuration](#understanding-the-yaml-configuration) - Under the hood architecture
-
-**📊 System Info:**
-
-- [⚡ ArchRiot At a Glance](#-archriot-at-a-glance) - Why ArchRiot flies
-- [🔍 Installation Verification](#-installation-verification-system) - How we ensure quality
-- [🛠️ Development Tools](#️-development-tools) - Build from source and contribute
-- [📋 System Requirements](#-system-requirements) - What you need to run ArchRiot
-- [🖥️ VM & Hardware Notes](#️-vm--hardware-notes) - Compatibility and hardware info
-- [🔀 Differences from Omarchy](#-differences-from-omarchy) - Why ArchRiot is not Omarchy
-- [v3.0 Release Notes](#archriot-30-release-notes) - All about v3.0 release and settings
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
@@ -544,6 +543,16 @@ All GPUs get proper Wayland integration and hardware video acceleration for opti
 - **Key repeat enabled** (40 rate, 600 delay for responsive typing)
 - **All media keys** - Volume, brightness, playback controls
 
+### Keybindings Help (SUPER+SHIFT+H)
+
+- Local and dynamic: The help window is generated from your Hyprland config (inline comments on bind lines).
+- Sources:
+    - ~/.config/hypr/keybindings.conf (preferred)
+    - ~/.config/hypr/hyprland.conf (fallback)
+- How to add descriptions: append a comment after a bind line, e.g. bind = $mod, D, exec, fuzzel # App launcher
+- Launch: SUPER+SHIFT+H opens a compact web app window (Brave app mode) showing current binds.
+- Tip: Edit your binds and press SUPER+SHIFT+H again to regenerate.
+
 ### 🎨 **Document & Media Handling**
 
 - **Gnome Text Editor** - Default for text/markdown files (clean, modern text editing with CypherRiot theme)
@@ -909,33 +918,9 @@ After fresh installation, you should see:
 
 ## ArchRiot CLI Flags
 
-These flags consolidate helper scripts into the archriot binary for reliability and easier automation.
+See Advanced Usage: CLI Flags for the complete list and details.
 
-- Waybar
-    - archriot --waybar-launch — Single-instance launch (non-blocking lock + logs at ~/.cache/archriot/runtime.log)
-    - archriot --waybar-status — Prints “running” or “stopped”
-    - archriot --waybar-reload — Reload (SIGUSR2); auto-restarts if Waybar crashes
-
-- Keybindings
-    - archriot --help-binds — Prints Hyprland keybindings (bind/bindm) from ~/.config/hypr/hyprland.conf
-    - archriot --help-binds telegram — Filter results by substring
-- Windows
-    - archriot --switch-window — Fuzzel-based window switcher across workspaces
-        - Default bind: $mod+TAB
-    - archriot --fix-offscreen-windows — Centers off-screen floating windows that jumped beyond screen bounds
-        - Default bind: $mod+SHIFT+TAB
-- Wallet (Trezor / Ledger)
-    - archriot --wallet — Focus existing Trezor Suite or Ledger Live window; otherwise launch the best-available install (native > Flatpak > AppImage). Logs to ~/.cache/archriot/runtime.log
-    - Note: Ledger Live may take several seconds to start; a longer "Opening Ledger Live…" notification is shown to reflect this.
-    - Keybindings help: Press SUPER+SHIFT+H to generate and open a live page from your Hyprland config comments.
-
-- Pomodoro
-    - archriot --pomodoro-click — Single click toggles; double click resets (state at /tmp/waybar-tomato-timer.state)
-
-- Upgrade safety
-    - archriot --upgrade-smoketest [--quiet] [--json] [--config PATH]
-        - Exit codes: 0 = OK; 2 = potential reintroductions; 3 = unavailable (missing tools/files)
-        - Honors allowlist at ~/.config/archriot/upgrade-allowlist.txt (one package per line)
+[Jump to Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
 
 ## Hyprland binds and exec-once (examples)
 
@@ -962,7 +947,9 @@ cp ~/.local/share/archriot/config/applications/xtras/Bluesky.desktop ~/.local/sh
 update-desktop-database ~/.local/share/applications
 ```
 
-## Advanced Usage: ArchRiot CLI Flags
+<a id="advanced-usage-archriot-cli-flags"></a>
+
+## 🧰 Advanced Usage: CLI Flags
 
 These first-class CLI flags replace legacy helper scripts and are used directly in Hyprland keybinds. All of them execute the built binary at:
 $HOME/.local/share/archriot/install/archriot
@@ -1059,10 +1046,10 @@ Notes:
 - Waybar’s `idle_inhibitor` module can block idle. Ensure it’s not activated if locks don’t trigger.
 - Brightness dim at 5 minutes won’t affect external HDMI/DP displays; consider adding DPMS off/on at lock for a visible cue on external monitors.
 
-                                                - archriot --volume mic-toggle # Toggle microphone mute
-                                                - archriot --volume mic-inc # Increase mic volume 5%
-                                                - archriot --volume mic-dec # Decrease mic volume 5%
-                                                - archriot --volume mic-get # Get current mic volume
+                                                                      - archriot --volume mic-toggle # Toggle microphone mute
+                                                                      - archriot --volume mic-inc # Increase mic volume 5%
+                                                                      - archriot --volume mic-dec # Decrease mic volume 5%
+                                                                      - archriot --volume mic-get # Get current mic volume
 
     - Troubleshooting:
         - Check backend: wpctl status | head -30
@@ -1181,44 +1168,24 @@ Notes:
 - This wrapper approach avoids `$HOME` expansion pitfalls and keeps a consistent Wayland configuration by default.
 - Use CLI flags for one-off tests; prefer the user flags file for persistent changes.
 
-## Waybar Logs and Reload Guidance
+## Waybar: Logs, Reloads, and Debugging
 
-ArchRiot manages Waybar with first-class CLI flags to ensure a single instance with robust reloads and actionable logs.
+See:
 
-- Launch (single-instance with logging):
-    - Hyprland exec-once uses:
-      $HOME/.local/share/archriot/install/archriot --waybar-launch
-    - Logs:
-      ~/.cache/archriot/runtime.log (tail -f ~/.cache/archriot/runtime.log)
-
-- Reload (SIGUSR2-first; dedupe; fallback restart):
-    - Command (quick log: tail -f ~/.cache/archriot/runtime.log):
-      $HOME/.local/share/archriot/install/archriot --waybar-reload
-    - Behavior:
-        - Sends SIGUSR2 to request a live config reload when possible
-        - Dedupe PIDs to avoid multiple Waybar instances
-        - Fallback to a controlled restart if SIGUSR2 is unavailable or fails
-    - Expectation:
-        - No duplicate Waybar after reloads or resume from sleep
-
-- Inspect and tail logs:
-    - Tail logs:
-      tail -f ~/.cache/archriot/runtime.log
-    - Reset current log (optional):
-      truncate -s 0 ~/.cache/archriot/runtime.log
-
-- Check running processes:
-    - pgrep -a waybar
-
-- Troubleshooting:
-    - If you suspect a stale instance, prefer the managed reload first:
-      $HOME/.local/share/archriot/install/archriot --waybar-reload
-    - As an advanced step, you may send SIGUSR2 manually:
-      pkill -SIGUSR2 waybar
-    - If you must restart cleanly:
-      pkill waybar && $HOME/.local/share/archriot/install/archriot --waybar-launch
+- 🧰 Advanced Usage: CLI Flags — waybar commands (launch/reload/status)
+- 🔧 Troubleshooting — logs path, SIGUSR2 reloads, dedupe tips, and recovery steps
 
 ## 🔧 Troubleshooting
+
+### Multi‑monitor anomalies after install (ABI mismatch)
+
+If you see display glitches or crashes on multi‑monitor setups immediately after an install or upgrade, it’s likely a partial‑upgrade ABI mismatch (e.g., Hyprland/wlroots/portals not in sync). Fix by fully upgrading first, then run the installer again:
+
+```bash
+sudo pacman -Sy archlinux-keyring && yay -Syu && yay -Yc && sudo paccache -r
+```
+
+Pro tip: run the installer with `--strict-abi` to block installation until compositor/Wayland updates are applied.
 
 ### Installer Sync Recovery (pacman db lock / mirrors)
 
@@ -1554,6 +1521,15 @@ Validation checklist
 🎉 Thank you [Vaxryy](https://x.com/vaxryy) for creating Hyprland—the compositor that doesn't suck.
 
 And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLit/Arch-Hyprland)!
+
+## ✨ What’s New in v3.5 (Docs & UX)
+
+- 🔑 Keybindings Help (SUPER+SHIFT+H): Local, dynamic help window generated from your Hyprland config; opens as a compact Brave “app” window. GTK fallback available.
+- ✉️ Telegram (SUPER+G): Focus-or-launch behavior now mirrors Fuzzel; includes a resilient delayed-retry on cold starts.
+- 🛡️ Mullvad during upgrade: Auto-reconnect guard if you start the upgrade connected (no service restarts or NM changes).
+- 🧩 Installer guard (ABI mismatch): Warns if Hyprland/wlroots/portal/Wayland upgrades are pending; use `--strict-abi` to block install until the system is upgraded.
+- 🔋 Battery “Full”: Shows 100% when the controller reports “fully-charged” for clearer UX.
+- 📚 README polish: Emoji “Navigate This Guide,” Quick Install panel, and deep technical content consolidated into Advanced Usage and Troubleshooting.
 
 ## 📄 License
 

@@ -50,6 +50,9 @@ var model *tui.InstallModel
 // Global reboot flag
 var shouldReboot bool
 
+// Strict ABI guard flag
+var strictABI bool
+
 // confirmInstallation shows initial installation confirmation using TUI
 func confirmInstallation() bool {
 	// Set up TUI helper functions before creating model
@@ -253,6 +256,11 @@ func main() {
 			// Force ASCII mode for testing
 			logger.SetForceAsciiMode(true)
 			// Continue with normal installation (fall through to main logic)
+
+		case "--strict-abi":
+			// Enable strict ABI guard: block install when compositor/Wayland upgrades are pending
+			strictABI = true
+			// Do not return; allow normal installation or other flags to proceed
 
 		case "--tools", "-t":
 			// Initialize basic logging for tools
@@ -741,9 +749,11 @@ func main() {
 				return false
 			}
 
-			// First, try to focus an existing window directly
-			if focusTelegram() {
-				return
+			// Focus only if a Telegram window is present; otherwise proceed to launch
+			if exec.Command("sh", "-lc", "hyprctl clients 2>/dev/null | grep -qE 'class:\\s*(org\\.telegram\\.desktop|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)\\b'").Run() == nil {
+				if focusTelegram() {
+					return
+				}
 			}
 
 			// Launch Telegram with resilient sequence: desktop entry (multiple IDs) → Flatpak → native.
@@ -768,11 +778,23 @@ func main() {
 					if waitFocus(20) {
 						return
 					}
+					// Delayed retry if the window didn't realize on the first attempt
+					time.Sleep(1500 * time.Millisecond)
+					_ = exec.Command("gtk-launch", id).Start()
+					if waitFocus(20) {
+						return
+					}
 				}
 				// Try to discover a Telegram desktop file dynamically
 				out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && basename \"${f%.desktop}\"; done; done | head -n 1").CombinedOutput()
 				dyn := strings.TrimSpace(string(out))
 				if dyn != "" {
+					_ = exec.Command("gtk-launch", dyn).Start()
+					if waitFocus(20) {
+						return
+					}
+					// One more attempt after a short delay for slower/cold systems
+					time.Sleep(1500 * time.Millisecond)
 					_ = exec.Command("gtk-launch", dyn).Start()
 					if waitFocus(20) {
 						return
@@ -795,6 +817,21 @@ func main() {
 				_ = exec.Command("telegram-desktop").Start()
 				if waitFocus(20) {
 					return
+				}
+			}
+
+			// 4) Parse .desktop Exec fallback: try to locate and execute a Telegram desktop entry
+			// This helps when gtk-launch/flatpak/native binary aren't available or differ by distro/package.
+			if out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && grep -m1 '^Exec=' \"$f\" | sed -E 's/^Exec=//; s/%[fFuUdDnNickvm]//g' && break; done; done | head -n 1").CombinedOutput(); len(out) > 0 {
+				cmdline := strings.TrimSpace(string(out))
+				if cmdline != "" {
+					fields := strings.Fields(cmdline)
+					if len(fields) > 0 {
+						_ = exec.Command(fields[0], fields[1:]...).Start()
+						if waitFocus(40) {
+							return
+						}
+					}
 				}
 			}
 
@@ -2463,6 +2500,42 @@ func main() {
 			}
 			return
 
+		case "--help-binds-web":
+			// Generate HTML via script and open Brave app window with a stable class
+			{
+				home := os.Getenv("HOME")
+				script := filepath.Join(home, ".local", "share", "archriot", "config", "bin", "scripts", "generate-keybindings-help.sh")
+				outDir := filepath.Join(home, ".cache", "archriot", "help")
+				outFile := filepath.Join(outDir, "keybindings.html")
+				_ = os.MkdirAll(outDir, 0o755)
+
+				// If the generator script exists, use it; otherwise fall back to internal HTML generator
+				if st, err := os.Stat(script); err == nil && !st.IsDir() {
+					// Use the script to generate without auto-opening
+					_ = exec.Command("bash", "-lc", fmt.Sprintf("%q --output %q --no-open", script, outFile)).Run()
+				} else {
+					// Fallback to internal generator
+					if self, err := os.Executable(); err == nil {
+						_ = exec.Command(self, "--help-binds-html").Start()
+					}
+					return
+				}
+
+				// Build file:// URL
+				url := "file://" + outFile
+
+				// Prefer brave, then brave-browser; fallback to xdg-open if neither present
+				class := "brave-archriot-keybinds"
+				if _, err := exec.LookPath("brave"); err == nil {
+					_ = exec.Command("brave", "--app="+url, "--class="+class).Start()
+				} else if _, err := exec.LookPath("brave-browser"); err == nil {
+					_ = exec.Command("brave-browser", "--app="+url, "--class="+class).Start()
+				} else if _, err := exec.LookPath("xdg-open"); err == nil {
+					_ = exec.Command("xdg-open", url).Start()
+				}
+			}
+			return
+
 		case "--help-binds-html":
 			// Generate an HTML keybindings page from Hyprland config and open it
 			home := os.Getenv("HOME")
@@ -3054,8 +3127,8 @@ func main() {
 		}
 	}
 
-	// Skip normal installation if we handled a special flag above (allow --install to proceed)
-	if len(os.Args) > 1 && os.Args[1] != "--ascii-only" && os.Args[1] != "--install" {
+	// Skip normal installation if we handled a special flag above (allow --install and --strict-abi to proceed)
+	if len(os.Args) > 1 && os.Args[1] != "--ascii-only" && os.Args[1] != "--install" && os.Args[1] != "--strict-abi" {
 		return
 	}
 
@@ -3063,6 +3136,10 @@ func main() {
 	if err := setupSudo(); err != nil {
 		log.Fatalf("❌ Sudo setup failed: %v", err)
 	}
+
+	// Optional: pre-install upgrade guard to avoid partial-upgrade ABI mismatches (e.g., wlroots/Hyprland)
+	// This will update the keyring and advise or block (when --strict-abi) if risky packages are pending.
+	preInstallUpgradeGuard()
 
 	// STEP 2: Install yay AUR helper (critical for AUR packages)
 	if err := installYay(); err != nil {
@@ -3205,6 +3282,40 @@ func main() {
 			// Fallback to systemctl if shutdown fails
 			log.Println("🔄 Trying fallback reboot method...")
 			exec.Command("sudo", "systemctl", "reboot").Run()
+		}
+	}
+}
+
+// Optional pre-install system upgrade helpers (ABI mismatch guard)
+func preInstallUpgradeGuard() {
+	// If pacman is unavailable, nothing to do
+	if _, err := exec.LookPath("pacman"); err != nil {
+		return
+	}
+
+	// Best-effort: ensure keyring is current so subsequent queries/installs don't fail
+	_ = exec.Command("sudo", "pacman", "-Sy", "--noconfirm", "archlinux-keyring").Run()
+
+	// Check for pending upgrades; if core Wayland compositor/portal pieces are queued,
+	// recommend a full system upgrade to avoid ABI mismatches (multi-monitor/wlroots issues).
+	out, err := exec.Command("pacman", "-Qu").CombinedOutput()
+	if err != nil {
+		return
+	}
+	s := strings.ToLower(string(out))
+	if strings.Contains(s, "hyprland") ||
+		strings.Contains(s, "wlroots") ||
+		strings.Contains(s, "xdg-desktop-portal-hyprland") ||
+		strings.Contains(s, "wayland") {
+
+		log.Println("⚠️  Detected pending compositor/portal updates (e.g., Hyprland/wlroots).")
+		log.Println("    To avoid ABI mismatches on multi‑monitor systems, update your system before continuing:")
+		log.Println("    sudo pacman -Sy archlinux-keyring && yay -Syu && yay -Yc && sudo paccache -r")
+
+		// Enforce blocking when strict ABI mode is enabled
+		if strictABI {
+			log.Println("❌ Strict ABI mode: blocking installation until system is fully upgraded.")
+			os.Exit(2)
 		}
 	}
 }
@@ -3468,6 +3579,7 @@ Options:
   -t, --tools                    Access optional advanced tools (Secure Boot, etc.)
   --apply-wallpaper-theme PATH   Apply dynamic theming based on wallpaper
   --toggle-dynamic-theming BOOL  Enable/disable dynamic theming (true/false)
+  --strict-abi                   Block install if compositor/Wayland upgrades are pending
       --validate       Validate configuration without installing
   -v, --version        Display version information
   -h, --help           Display this help message
