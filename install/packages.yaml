@@ -98,7 +98,7 @@ desktop:
             # - featherwallet-bin
         configs:
             - pattern: hypr/*
-              preserve_if_exists: [monitors.conf, keybindings.conf]
+              preserve_if_exists: [monitors.conf, keybindings.conf, windowrules.conf]
             - pattern: waybar/*
             - pattern: fuzzel/*
             - pattern: mako/*
