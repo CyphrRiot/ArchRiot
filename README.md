@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.5.2-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.6-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -344,7 +344,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v3.5.2 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
+**🔥 Current Release:** v3.6 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
 
 **🚀 Recent Milestones:**
 
@@ -1184,6 +1184,24 @@ Notes:
 
 - This wrapper approach avoids `$HOME` expansion pitfalls and keeps a consistent Wayland configuration by default.
 - Use CLI flags for one-off tests; prefer the user flags file for persistent changes.
+
+### Multi‑monitor (optional flags)
+
+Some multi‑monitor Wayland setups benefit from these flags. Add them to ~/.config/archriot/brave-flags.conf (one per line), then restart Brave:
+
+```
+--disable-features=WaylandWpColorManagerV1
+--enable-features=VaapiVideoDecoder,VaapiIgnoreDriverChecks,Vulkan,DefaultANGLEVulkan,VulkanFromANGLE,UseOzonePlatform
+--ozone-platform=wayland
+--enable-gpu-rasterization
+--enable-zero-copy
+--ignore-gpu-blocklist
+```
+
+Tip:
+
+- Test incrementally and keep only what you need.
+- Flag precedence: command‑line args > brave‑flags.conf > defaults.
 
 ## Waybar: Logs, Reloads, and Debugging
 

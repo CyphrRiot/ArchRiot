@@ -383,14 +383,30 @@ func reapplyControlPanelSettings() error {
 		return nil // Not an error - control panel not installed yet
 	}
 
-	logger.LogMessage("INFO", "Control panel found, executing --reapply to restore blue light settings")
+	logger.LogMessage("INFO", "Control panel found, preparing to reapply settings")
 
-	// Execute control panel with --reapply flag
+	// Skip if no graphical session is present to avoid GTK/OpenGL context errors
+	if os.Getenv("WAYLAND_DISPLAY") == "" && os.Getenv("DISPLAY") == "" {
+		logger.LogMessage("INFO", "No graphical session detected (no WAYLAND_DISPLAY/DISPLAY); skipping control panel reapply")
+		return nil
+	}
+
+	// Execute control panel with --reapply flag, force GL renderer for GTK
 	cmd := exec.Command(controlPanelPath, "--reapply")
+	cmd.Env = append(os.Environ(), "GSK_RENDERER=gl")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		logger.LogMessage("ERROR", fmt.Sprintf("Control panel reapply failed: %v, output: %s", err, string(output)))
-		return fmt.Errorf("control panel reapply failed: %w", err)
+		logger.LogMessage("WARNING", fmt.Sprintf("Control panel reapply failed with GL renderer: %v, output: %s", err, string(output)))
+		// Fallback: retry with software renderer to avoid GTK/OpenGL context issues
+		cmd = exec.Command(controlPanelPath, "--reapply")
+		cmd.Env = append(os.Environ(), "GSK_RENDERER=cairo")
+		output2, err2 := cmd.CombinedOutput()
+		if err2 != nil {
+			logger.LogMessage("ERROR", fmt.Sprintf("Control panel reapply failed (cairo fallback): %v, output: %s", err2, string(output2)))
+			return fmt.Errorf("control panel reapply failed after GL and cairo fallback: %w", err2)
+		}
+		logger.LogMessage("SUCCESS", fmt.Sprintf("Control panel reapply completed successfully via cairo fallback: %s", string(output2)))
+		return nil
 	}
 
 	logger.LogMessage("SUCCESS", fmt.Sprintf("Control panel reapply completed successfully: %s", string(output)))
