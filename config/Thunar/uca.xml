@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
 <action>
-	<icon>utilities-terminal</icon>
-	<name>Open Terminal Here</name>
+	<icon>terminal</icon>
+	<name>Open terminal here...</name>
 	<submenu></submenu>
-	<unique-id>open-terminal-here</unique-id>
-	<command>bash -lc 'p="%f"; d="%d"; dir=""; if [ -n "$p" ] && [ -d "$p" ]; then dir="$p"; else dir="$d"; fi; exec ghostty --working-directory="$dir"'</command>
-	<description>Open Ghostty terminal in this directory</description>
-	<range></range>
+	<unique-id>1761132505406329-1</unique-id>
+	<command>bash -lc &apos;p=&quot;%f&quot;; d=&quot;%d&quot;; dir=&quot;&quot;; if [ -n &quot;$p&quot; ] &amp;&amp; [ -d &quot;$p&quot; ]; then dir=&quot;$p&quot;; else dir=&quot;$d&quot;; fi; exec ghostty --working-directory=&quot;$dir&quot;&apos;</command>
+	<description>Open terminal on current folder</description>
+	<range>*</range>
 	<patterns>*</patterns>
-	<startup-notify/>
 	<directories/>
-	<files/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
 </action>
 </actions>

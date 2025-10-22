@@ -103,7 +103,7 @@ desktop:
             - pattern: fuzzel/*
             - pattern: mako/*
             - pattern: Thunar/*
-              preserve_if_exists: [accels.scm]
+              preserve_if_exists: [accels.scm, thunarrc]
             - pattern: xfce4/xfconf/xfce-perchannel-xml/*
             - pattern: applications/*
               target: ~/.local/share/applications/
