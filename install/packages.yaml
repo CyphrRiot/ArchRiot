@@ -105,6 +105,7 @@ desktop:
             - pattern: Thunar/*
               preserve_if_exists: [accels.scm, thunarrc]
             - pattern: xfce4/xfconf/xfce-perchannel-xml/*
+              preserve_if_exists: [thunar.xml]
             - pattern: applications/*
               target: ~/.local/share/applications/
             - pattern: bin/scripts/generate-keybindings-help.sh
