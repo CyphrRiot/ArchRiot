@@ -236,6 +236,7 @@
 
 		// --- MEDIA / VIDEO / MUSIC ---
 		"class<mpv>": "<span font='11'>󰥠 </span>",
+		"class<mpd-player>": "<span font='11'>󰥠 </span>",
 		"class<celluloid>": "<span font='11'>󰕼 </span>",
 		"class<vlc>": "<span font='11'>󰕼 </span>",
 		"class<Cider>": "<span font='11'>󰎆 </span>",
