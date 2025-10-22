@@ -161,7 +161,7 @@
 		"empty": "<span font='14'>○</span> "
 	},
 	"format-window-separator": "",
-	"window-rewrite-default": "<span font='11'> </span>",
+	"window-rewrite-default": "",
 	"ignore-workspaces": [],
 	"window-rewrite": {
 		// --- WEB & BROWSERS ---
