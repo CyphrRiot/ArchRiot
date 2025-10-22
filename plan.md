@@ -1,4 +1,4 @@
-# ArchRiot Development Plan — Refreshed (v3.5.1)
+# ArchRiot Development Plan — Refreshed (v3.6)
 
 Purpose
 
@@ -8,6 +8,15 @@ Purpose
 - Maintain a strict one-change-at-a-time cadence: propose → edit → make → verify.
 
 ---
+
+Completed in v3.6 (shipped)
+
+- Installer robustness: per‑command timeouts with output capture to avoid hangs; non‑critical commands continue, critical ones fail fast; extended timeouts for pacman/yay.
+- Control Panel (GTK) safety: reapply only when a graphical session is detected; force GSK_RENDERER=gl; automatic cairo software‑renderer fallback if GL fails.
+- Hypridle reliability: use absolute path in autostart (`/usr/bin/hypridle`) and ensureIdleLockSetup appends the same to avoid PATH/env issues post‑upgrade.
+- Installer hardening: make `hypr-dock-inhibit.service` disable idempotent and non‑fatal (`|| true`) when the unit is missing.
+- README/docs polish: fixed TOC anchors and Quick Install deep links; added optional Brave multi‑monitor flags; kept “What’s New” at the end; version badge updated.
+- Version bump: v3.6 shipped.
 
 Completed in v3.5.1 (shipped)
 

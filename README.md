@@ -1256,27 +1256,6 @@ Steps:
 
 ### Memory Tuning (Opt-in)
 
-- By default, ArchRiot does not change kernel memory settings during install/upgrade.
-- To enable memory optimizations, create the file: ~/.config/archriot/enable-memory-optimizations and rerun the updater.
-
-#### Apply now (opt-in)
-
-- sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf
-- total_kb=$(awk "/MemTotal/ {print $2}" /proc/meminfo); calc=$(awk -v t="$total_kb" 'BEGIN {m=int(t*0.01); if (m > 262144) m=262144; print m}'); sudo sed -i "s/^vm.min_free_kbytes=.*/vm.min_free_kbytes=$calc/" /etc/sysctl.d/99-memory-optimization.conf
-- sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
-
-#### Revert quickly (if anything feels off)
-
-- sudo sed -i 's/^vm.overcommit*memory=.*/vm.overcommit*memory=0/; s/^vm.overcommit_ratio=.*/vm.overcommit_ratio=50/; s/^vm.min_free_kbytes=.\*/vm.min_free_kbytes=262144/' /etc/sysctl.d/99-memory-optimization.conf
-- sudo sysctl -p /etc/sysctl.d/99-memory-optimization.conf
-
-Notes:
-
-- These settings use kernel heuristics (overcommit=0) and a conservative free-memory reserve to avoid fork/exec starvation.
-- Waybar and other helpers should not see “Cannot allocate memory” with these defaults. If you ever do, revert with the above commands and report the scenario.
-
-### Memory Tuning (Opt-in)
-
 By default, ArchRiot does not change kernel memory settings during install/upgrade. To enable memory optimizations, create the flag file and re-run the updater:
 
 ```bash
@@ -1585,6 +1564,14 @@ And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLi
 - Tarso Galvão (surtarso)
     - GitHub: https://github.com/surtarso
     - Notable contributions: Expanded Waybar workspace styles (ModulesWorkspaces), per-window icon mapping, related Waybar config polish.
+
+## ✨ What’s New in v3.6
+
+- Installer hang mitigation: per-command timeouts with output capture to prevent stalls; non‑critical commands continue, critical commands fail fast with clear logs. Extended timeouts for pacman/yay operations.
+- Hypridle reliability: autostart now uses an absolute path (/usr/bin/hypridle); ensureIdleLockSetup appends the same to avoid PATH/env timing issues after upgrades.
+- GTK Control Panel safety: settings reapply runs only when a GUI session is detected; forces GSK_RENDERER=gl; automatic cairo software-renderer fallback if GL fails to avoid GTK OpenGL context errors.
+- Brave multi‑monitor flags: documented optional flags for Wayland multi‑monitor stability/performance under the Brave Wrapper section.
+- Documentation polish: fixed TOC/deep links; removed duplication (Memory Tuning); updated version badge and Current Release to v3.6.
 
 ## ✨ What’s New in v3.5 (Docs & UX)
 
