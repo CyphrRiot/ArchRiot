@@ -34,7 +34,7 @@
     	"format": "{}",
     	"return-type": "json",
     	"interval": 2,
-    	"exec": "$HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-timer.py",
+    	"exec": "$HOME/.local/share/archriot/install/archriot --waybar-pomodoro",
     	"on-click": "$HOME/.local/share/archriot/install/archriot --pomodoro-click",
     	"tooltip": true
     },

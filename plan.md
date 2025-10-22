@@ -16,6 +16,8 @@ Completed in v3.6 (shipped)
 - Hypridle reliability: use absolute path in autostart (`/usr/bin/hypridle`) and ensureIdleLockSetup appends the same to avoid PATH/env issues post‑upgrade.
 - Installer hardening: make `hypr-dock-inhibit.service` disable idempotent and non‑fatal (`|| true`) when the unit is missing.
 - README/docs polish: fixed TOC anchors and Quick Install deep links; added optional Brave multi‑monitor flags; kept “What’s New” at the end; version badge updated.
+- README/docs polish (more): removed duplicate “Memory Tuning (Opt‑in)” section; appended “What’s New in v3.6” at bottom.
+- Help windows: widened SUPER+H and SUPER+SHIFT+H help windows by 15% to reduce wrapping.
 - Version bump: v3.6 shipped.
 
 Completed in v3.5.1 (shipped)
@@ -28,27 +30,26 @@ Completed in v3.5.1 (shipped)
 
 Next Steps (upgrade-safe; one change at a time)
 
-2. Issue verification and closure (validate, then close)
+1. Issue verification and closure (validate, then close)
 
 - #31 Brave crash on workspace/screen switch: retest across GPUs; document safe-mode flag if needed
 - #30 OBS “Screen Capture” present: portals functional on clean install
 - #24 Thunar default terminal: verify Ghostty “Open Terminal Here” on a clean install
 
-3. README.md finalization (post‑overhaul polish)
+2. README.md finalization (post‑overhaul polish)
 
 - Final pass to remove any duplication and normalize heading styles
 - Ensure all code snippets are fenced; fix spacing/indentation regressions
 - Keep “What’s New” at end; ensure “Navigate This Guide” is the only TOC
-- Confirm install method deep links (Install Script, ISO) present in Navigate/Quick Install
 
-4. QA matrix and docs refresh
+3. QA matrix and docs refresh
 
 - Matrix: Intel/AMD/NVIDIA; single/multi-monitor; fractional scaling; en-US + one non-Latin
 - Record pass/fail and remediation steps; update README with confirmed guidance/screenshots
 
-5. HyprToolkit migration (Control Panel first; feature-flagged)
+4. HyprToolkit migration (Control Panel first; feature-flagged)
 
-6. GTK Keybindings Help (native app; PWA shipped)
+5. GTK Keybindings Help (native app; PWA shipped)
 
 - Current: PWA (Brave app) help is shipped and bound to SUPER+SHIFT+H; GTK fallback exists
 - Goal (follow‑up): Build native GTK4 help (Go) with live parsing and search; dual‑ship behind a feature flag until parity
@@ -63,7 +64,7 @@ Next Steps (upgrade-safe; one change at a time)
 - Ship dual‑path for one minor release (feature‑flagged); flip default at parity
 - Maintain complete CLI/PWA fallbacks
 
-7. Script consolidation and CLI migration (no new scripts)
+6. Script consolidation and CLI migration (no new scripts)
 
 - Goal: Reduce floating shell scripts and migrate behavior into first-class archriot CLI flags.
 - Scope (prioritized):
@@ -78,7 +79,7 @@ Next Steps (upgrade-safe; one change at a time)
     - Script count in `config/bin/scripts` reduced by at least 50% with feature parity.
     - All migrated features are documented under “ArchRiot CLI Flags.”
 
-8. Secure Boot (sbctl) wizard — opt-in, gated, and documented (no auto-run)
+7. Secure Boot (sbctl) wizard — opt-in, gated, and documented (no auto-run)
 
 - Wizard: detect → keygen → sign → pacman hooks → pre-reboot checklist
 - Post-reboot continuation validates and restores normal behavior
