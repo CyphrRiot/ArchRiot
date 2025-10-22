@@ -8,7 +8,7 @@ background-color=#222436dd
 text-color=#ffffff
 border-color=#7da6ff
 border-radius=8
-border-size=2
+border-size=1
 max-icon-size=48
 default-timeout=10000
 anchor=top-right
@@ -17,11 +17,13 @@ margin=20
 # Critical notifications
 [urgency=critical]
 border-color=#ff7a93
+border-size=2
 background-color=#1a1b26dd
 text-color=#ffffff
 
 # High priority
 [urgency=high]
 border-color=#ff9e64
+border-size=2
 background-color=#222436dd
 text-color=#ffffff
