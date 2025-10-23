@@ -1,20 +1,19 @@
 {
-    "include": ["$HOME/.config/waybar/Modules", "$HOME/.config/waybar/ModulesWorkspaces", "$HOME/.config/waybar/ModulesCustom", "$HOME/.config/waybar/ModulesGroups", "$HOME/.config/waybar/UserModules"],
-    "fixed-center": true,
-    // "output": ["DP-1", "eDP-1", "HDMI-A-1"],  // Commented out to prevent dual Waybar when disconnecting from monitors
-    "modules-right": [
-        "custom/separator#blank_3",
-        "custom/rec-dot", "tray", "custom/separator#blank", "group/system-metrics", "custom/separator#blank", "custom/volume-bar",
-        "custom/separator#line-tray", "bluetooth", "custom/separator#blank", "custom/tomato-timer", "custom/separator#blank", "network", "custom/mullvad", "custom/separator#blank", "battery", "custom/separator#blank", "custom/archriot-update", "custom/separator#blank", "group/status", "custom/lock"
+    "include": [
+        "$HOME/.config/waybar/Modules",
+        "$HOME/.config/waybar/ModulesWorkspaces",
+        "$HOME/.config/waybar/ModulesCustom",
+        "$HOME/.config/waybar/ModulesGroups",
+        "$HOME/.config/waybar/UserModules"
     ],
-    "modules-center": ["clock"],
+    
+    // ----- WAYBAR SETTINGS:
+    // Commented out to prevent dual Waybar when disconnecting from monitors
+    // Defaults to all monitors if unset
+    // "output": ["DP-1", "eDP-1", "HDMI-A-1"],
+    "fixed-center": true,
     "layer": "top",
     "margin-right": 8,
-    "modules-left": [
-        // Tip: switch workspace style in ModulesWorkspaces (e.g., hyprland/workspaces#numbers, #roman, #kanji, #pacman, #cam, #4)
-        "custom/arch", "custom/separator#blank", "hyprland/workspaces#rw", "custom/separator#blank",
-        "mpris", "hyprland/window"
-    ],
     "margin-left": 8,
     "spacing": 10,
     "passthrough": false,
@@ -23,7 +22,47 @@
     "position": "top",
     "ipc": false,
 
-    // CypherRiot theme specific overrides
+    // ----- MODULES LEFT:
+    "modules-left": [
+        "custom/arch",             // App Drawer
+        "custom/separator#blank",  // Tip: switch workspace style in ModulesWorkspaces
+        "hyprland/workspaces#rw",  // e.g., hyprland/workspaces#numbers, #roman, #kanji, #pacman, #cam, #4
+        "custom/separator#blank",
+        "mpris",                   // Media status
+        "hyprland/window"          // Active window title
+    ],
+
+    // ----- MODULES CENTER:
+    "modules-center": [
+        "clock"                    // Clock with date
+    ],
+
+    // ----- MODULES RIGHT:
+    "modules-right": [
+        "custom/separator#blank_3",
+        "custom/rec-dot",          // Recording status
+        "tray",                    // App tray
+        "custom/separator#blank",
+        "group/system-metrics",    // System metrics
+        "custom/separator#blank",
+        "custom/volume-bar",       // Volume bar
+        "custom/separator#line-tray",
+        "bluetooth",               // Bluetooth devices
+        "custom/separator#blank",
+        "custom/tomato-timer",     // Pomodoro Timer
+        "custom/separator#blank",
+        "network",                 // Network status
+        "custom/mullvad",          // Mullvad VPN status
+        "custom/separator#blank",
+        "battery",                 // Battery status
+        "custom/separator#blank",
+        "custom/archriot-update",  // ArchRiot Update
+        "custom/separator#blank",
+        "group/status",
+        "custom/lock"              // Lockscreen
+    ],
+
+    // ----- ArchRiot theme specific module override
     "custom/arch": {
         "format": "󰣇",
         "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
