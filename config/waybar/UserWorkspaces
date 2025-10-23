@@ -72,7 +72,7 @@
 // pastel ivory          #f0ede5
 
 {
-"hyprland/workspaces#rwc": {
+"hyprland/workspaces#pacman-rwc": {
 	"disable-scroll": true,
 	"all-outputs": true,
 	"warp-on-scroll": false,
