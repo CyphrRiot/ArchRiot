@@ -78,6 +78,7 @@
     // e.g.: A bottom bar with clock on DP-1 only.
     //,{
         // Start a new waybar here.
+        // "include": ["$HOME/.config/waybar/Modules"],  // Required for 'clock' module
         // "output": ["DP-1"],
         // "fixed-center": true,
         // "margin-right": 8,
