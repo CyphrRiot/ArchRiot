@@ -1,74 +1,90 @@
-{
-    "include": [
-        "$HOME/.config/waybar/Modules",
-        "$HOME/.config/waybar/ModulesWorkspaces",
-        "$HOME/.config/waybar/ModulesCustom",
-        "$HOME/.config/waybar/ModulesGroups",
-        "$HOME/.config/waybar/UserModules",
-        "$HOME/.config/waybar/UserWorkspaces"
-    ],
+[
+    {
+        "include": [
+            "$HOME/.config/waybar/Modules",
+            "$HOME/.config/waybar/ModulesWorkspaces",
+            "$HOME/.config/waybar/ModulesCustom",
+            "$HOME/.config/waybar/ModulesGroups",
+            "$HOME/.config/waybar/UserModules",
+            "$HOME/.config/waybar/UserWorkspaces"
+        ],
+        
+        // ----- WAYBAR SETTINGS:
+        // Commented out to prevent dual Waybar when disconnecting from monitors
+        // Defaults to all monitors if unset
+        // "output": ["DP-1", "eDP-1", "HDMI-A-1"],
+        "fixed-center": true,
+        "layer": "top",
+        "margin-right": 8,
+        "margin-left": 8,
+        "spacing": 10,
+        "passthrough": false,
+        "exclusive": true,
+        "margin-top": 3,
+        "position": "top",
+        "ipc": false,
     
-    // ----- WAYBAR SETTINGS:
-    // Commented out to prevent dual Waybar when disconnecting from monitors
-    // Defaults to all monitors if unset
-    // "output": ["DP-1", "eDP-1", "HDMI-A-1"],
-    "fixed-center": true,
-    "layer": "top",
-    "margin-right": 8,
-    "margin-left": 8,
-    "spacing": 10,
-    "passthrough": false,
-    "exclusive": true,
-    "margin-top": 3,
-    "position": "top",
-    "ipc": false,
-
-    // ----- MODULES LEFT:
-    "modules-left": [
-        "custom/arch",             // App Drawer
-        "custom/separator#blank",  // *Tip: Workspace styles are in ModulesWorkspaces/UserWorkspaces
-        "hyprland/workspaces#rw",  // e.g.: hyprland/workspaces#numbers, #roman, #kanji, #pacman, #pacman-rwc, #cam, #4
-        "custom/separator#blank",
-        "mpris",                   // Media status
-        "hyprland/window"          // Active window title
-    ],
-
-    // ----- MODULES CENTER:
-    "modules-center": [
-        "clock"                    // Clock with date
-    ],
-
-    // ----- MODULES RIGHT:
-    "modules-right": [
-        "custom/separator#blank_3",
-        "custom/rec-dot",          // Recording status
-        "tray",                    // App tray
-        "custom/separator#blank",
-        "group/system-metrics",    // System metrics
-        "custom/separator#blank",
-        "custom/volume-bar",       // Volume bar
-        "custom/separator#line-tray",
-        "bluetooth",               // Bluetooth devices
-        "custom/separator#blank",
-        "custom/tomato-timer",     // Pomodoro Timer
-        "custom/separator#blank",
-        "network",                 // Network status
-        "custom/mullvad",          // Mullvad VPN status
-        "custom/separator#blank",
-        "battery",                 // Battery status
-        "custom/separator#blank",
-        "custom/archriot-update",  // ArchRiot Update
-        "custom/separator#blank",
-        "group/status",
-        "custom/lock"              // Lockscreen
-    ],
-
-    // ----- ArchRiot theme specific module override
-    "custom/arch": {
-        "format": "󰣇",
-        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
-        "on-click-right": "pkill fuzzel || fuzzel",
-        "tooltip": true,
-        "tooltip-format": "Left-click: App Drawer | Right-click: Fuzzel"
+        // ----- MODULES LEFT:
+        "modules-left": [
+            "custom/arch",             // App Drawer
+            "custom/separator#blank",  // *Tip: Workspace styles are in ModulesWorkspaces/UserWorkspaces
+            "hyprland/workspaces#rw",  // e.g.: hyprland/workspaces#numbers, #roman, #kanji, #pacman, #pacman-rwc, #cam, #4
+            "custom/separator#blank",
+            "mpris",                   // Media status
+            "hyprland/window"          // Active window title
+        ],
+    
+        // ----- MODULES CENTER:
+        "modules-center": [
+            "clock"                    // Clock with date
+        ],
+    
+        // ----- MODULES RIGHT:
+        "modules-right": [
+            "custom/separator#blank_3",
+            "custom/rec-dot",          // Recording status
+            "tray",                    // App tray
+            "custom/separator#blank",
+            "group/system-metrics",    // System metrics
+            "custom/separator#blank",
+            "custom/volume-bar",       // Volume bar
+            "custom/separator#line-tray",
+            "bluetooth",               // Bluetooth devices
+            "custom/separator#blank",
+            "custom/tomato-timer",     // Pomodoro Timer
+            "custom/separator#blank",
+            "network",                 // Network status
+            "custom/mullvad",          // Mullvad VPN status
+            "custom/separator#blank",
+            "battery",                 // Battery status
+            "custom/separator#blank",
+            "custom/archriot-update",  // ArchRiot Update
+            "custom/separator#blank",
+            "group/status",
+            "custom/lock"              // Lockscreen
+        ],
+    
+        // ----- ArchRiot theme specific module override
+        "custom/arch": {
+            "format": "󰣇",
+            "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
+            "on-click-right": "pkill fuzzel || fuzzel",
+            "tooltip": true,
+            "tooltip-format": "Left-click: App Drawer | Right-click: Fuzzel"
+        }
     }
-}
+
+    // ----- For another waybar with different content on the same or another screen:
+    // e.g.: A bottom bar with clock on DP-1 only.
+    //,{
+        // Start a new waybar here.
+        // "output": ["DP-1"],
+        // "fixed-center": true,
+        // "margin-right": 8,
+        // "margin-left": 8,
+        // "spacing": 10,
+        // "margin-bottom": 3,
+        // "position": "bottom",
+        // "modules-center": ["clock"]
+    //}
+]
