@@ -26,8 +26,8 @@
     // ----- MODULES LEFT:
     "modules-left": [
         "custom/arch",             // App Drawer
-        "custom/separator#blank",  // Tip: switch workspace style in ModulesWorkspaces
-        "hyprland/workspaces#rw",  // e.g., hyprland/workspaces#numbers, #roman, #kanji, #pacman, #cam, #4
+        "custom/separator#blank",  // *Tip: Workspace styles are in ModulesWorkspaces/UserWorkspaces
+        "hyprland/workspaces#rw",  // e.g.: hyprland/workspaces#numbers, #roman, #kanji, #pacman, #pacman-rwc, #cam, #4
         "custom/separator#blank",
         "mpris",                   // Media status
         "hyprland/window"          // Active window title
