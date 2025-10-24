@@ -1428,18 +1428,22 @@ func main() {
 				logAppend("Intel GPU detected; preferring WGPU_BACKEND=gl for Zed to avoid Vulkan/ANV instability")
 			}
 
-			// Launch: prefer native zed/zeditor (with GL on Intel), then Flatpak
+			// Launch: prefer zeditor (with GL on Intel) > zed > Flatpak; add retries
 			launched := false
-			if have("zed") {
-				if intel {
-					logAppend("launch: env WGPU_BACKEND=gl zed")
-					_ = exec.Command("env", "WGPU_BACKEND=gl", "zed").Start()
-				} else {
-					logAppend("launch: zed")
-					_ = exec.Command("zed").Start()
+
+			// helper: short synchronous focus wait (reused across attempts)
+			attemptFocus := func(loops int) bool {
+				for i := 0; i < loops; i++ {
+					time.Sleep(250 * time.Millisecond)
+					if focusZed() {
+						return true
+					}
 				}
-				launched = true
-			} else if have("zeditor") {
+				return false
+			}
+
+			// 1) zeditor first (more reliable on some systems)
+			if !launched && have("zeditor") {
 				// Build env for child only (no global environment changes)
 				args := []string{}
 				if intel {
@@ -1456,16 +1460,72 @@ func main() {
 					"zeditor",
 				)
 				_ = exec.Command("env", args...).Start()
-				launched = true
-			} else if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "dev.zed.Zed").Run() == nil {
-				// Flatpak env overrides for WGPU won't apply; still log for traceability
+				if attemptFocus(60) {
+					launched = true
+				} else {
+					// Delayed retry
+					time.Sleep(1200 * time.Millisecond)
+					_ = exec.Command("env", args...).Start()
+					if attemptFocus(60) {
+						launched = true
+					} else {
+						logAppend("zeditor did not realize a window in time")
+					}
+				}
+			}
+
+			// 2) zed (native)
+			if !launched && have("zed") {
 				if intel {
-					logAppend("launch: flatpak run dev.zed.Zed (Intel detected; GL override not applied to Flatpak)")
+					logAppend("launch: env WGPU_BACKEND=gl zed")
+					_ = exec.Command("env", "WGPU_BACKEND=gl", "zed").Start()
+				} else {
+					logAppend("launch: zed")
+					_ = exec.Command("zed").Start()
+				}
+				if attemptFocus(60) {
+					launched = true
+				} else {
+					// Delayed retry
+					time.Sleep(1200 * time.Millisecond)
+					if intel {
+						_ = exec.Command("env", "WGPU_BACKEND=gl", "zed").Start()
+					} else {
+						_ = exec.Command("zed").Start()
+					}
+					if attemptFocus(60) {
+						launched = true
+					} else {
+						logAppend("zed did not realize a window in time")
+					}
+				}
+			}
+
+			// 3) Flatpak (pass GL backend when Intel is detected)
+			if !launched && have("flatpak") {
+				if intel {
+					logAppend("launch: flatpak run --env=WGPU_BACKEND=gl dev.zed.Zed")
+					_ = exec.Command("flatpak", "run", "--env=WGPU_BACKEND=gl", "dev.zed.Zed").Start()
 				} else {
 					logAppend("launch: flatpak run dev.zed.Zed")
+					_ = exec.Command("flatpak", "run", "dev.zed.Zed").Start()
 				}
-				_ = exec.Command("flatpak", "run", "dev.zed.Zed").Start()
-				launched = true
+				if attemptFocus(60) {
+					launched = true
+				} else {
+					// Delayed retry
+					time.Sleep(1200 * time.Millisecond)
+					if intel {
+						_ = exec.Command("flatpak", "run", "--env=WGPU_BACKEND=gl", "dev.zed.Zed").Start()
+					} else {
+						_ = exec.Command("flatpak", "run", "dev.zed.Zed").Start()
+					}
+					if attemptFocus(60) {
+						launched = true
+					} else {
+						logAppend("flatpak zed did not realize a window in time")
+					}
+				}
 			}
 
 			// Async focus when window appears
