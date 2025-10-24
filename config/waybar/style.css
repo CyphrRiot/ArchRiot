@@ -35,7 +35,7 @@ window#waybar.hidden {
 
 tooltip {
     background: @waybar_tooltip_bg;
-    opacity: 0.6;
+    opacity: 0.95;
     border-radius: 10px;
     border-width: 2px;
     border-style: solid;

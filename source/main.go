@@ -746,13 +746,28 @@ func main() {
 			return
 
 		case "--telegram":
-			// Focus-or-launch Telegram Desktop with async focus; broaden class matches; prefer desktop/Flatpak fallbacks
+			// Focus-or-launch Telegram Desktop with async focus; prefer native first; add runtime logging
 			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
 			notify := func(title, msg string, ms int) {
 				if have("notify-send") {
 					_ = exec.Command("notify-send", "-t", fmt.Sprintf("%d", ms), title, msg).Start()
 				}
 			}
+			// Minimal runtime logging to assist debugging
+			home := os.Getenv("HOME")
+			logDir := filepath.Join(home, ".cache", "archriot")
+			_ = os.MkdirAll(logDir, 0o755)
+			logFile := filepath.Join(logDir, "runtime.log")
+			logAppend := func(msg string) {
+				f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+				if err != nil {
+					return
+				}
+				defer f.Close()
+				ts := time.Now().Format("2006-01-02 15:04:05")
+				_, _ = f.WriteString(fmt.Sprintf("[%s] telegram: %s\n", ts, msg))
+			}
+
 			// Focus without scanning clients to avoid brittle parsing
 			focusTelegram := func() bool {
 				// Broad match set: org.telegram.desktop (Flatpak/native), telegram-desktop (native),
@@ -766,12 +781,12 @@ func main() {
 
 			// Focus only if a Telegram window is present; otherwise proceed to launch
 			if exec.Command("sh", "-lc", "hyprctl clients 2>/dev/null | grep -qE 'class:\\s*(org\\.telegram\\.desktop|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)\\b'").Run() == nil {
+				logAppend("window present; focusing")
 				if focusTelegram() {
 					return
 				}
 			}
 
-			// Launch Telegram with resilient sequence: desktop entry (multiple IDs) → Flatpak → native.
 			// Between attempts, wait briefly and check for a realized window to avoid duplicate spawns.
 			waitFocus := func(loops int) bool {
 				for i := 0; i < loops; i++ {
@@ -783,17 +798,28 @@ func main() {
 				return false
 			}
 
-			// 1) Desktop entry (Fuzzel path), try common IDs and dynamically discovered ID
+			// 1) Native binary
+			if have("telegram-desktop") {
+				logAppend("launching native telegram-desktop")
+				notify("Telegram", "Launching Telegram Desktop…", 3000)
+				_ = exec.Command("telegram-desktop").Start()
+				if waitFocus(20) {
+					return
+				}
+				logAppend("native launch did not realize a window in time")
+			}
+
+			// 2) Desktop entry (gtk-launch), try common IDs and dynamically discovered ID
 			if have("gtk-launch") {
-				notify("Telegram", "Launching Telegram…", 3000)
-				// Try common desktop IDs first
+				logAppend("trying gtk-launch candidates")
+				notify("Telegram", "Launching Telegram (desktop)…", 3000)
 				candidates := []string{"org.telegram.desktop", "telegram-desktop"}
 				for _, id := range candidates {
+					logAppend("gtk-launch " + id)
 					_ = exec.Command("gtk-launch", id).Start()
 					if waitFocus(20) {
 						return
 					}
-					// Delayed retry if the window didn't realize on the first attempt
 					time.Sleep(1500 * time.Millisecond)
 					_ = exec.Command("gtk-launch", id).Start()
 					if waitFocus(20) {
@@ -804,11 +830,11 @@ func main() {
 				out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && basename \"${f%.desktop}\"; done; done | head -n 1").CombinedOutput()
 				dyn := strings.TrimSpace(string(out))
 				if dyn != "" {
+					logAppend("gtk-launch discovered desktop id: " + dyn)
 					_ = exec.Command("gtk-launch", dyn).Start()
 					if waitFocus(20) {
 						return
 					}
-					// One more attempt after a short delay for slower/cold systems
 					time.Sleep(1500 * time.Millisecond)
 					_ = exec.Command("gtk-launch", dyn).Start()
 					if waitFocus(20) {
@@ -817,29 +843,22 @@ func main() {
 				}
 			}
 
-			// 2) Flatpak
+			// 3) Flatpak
 			if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "org.telegram.desktop").Run() == nil {
+				logAppend("launching Flatpak org.telegram.desktop")
 				notify("Telegram", "Launching Telegram Desktop (Flatpak)…", 3000)
 				_ = exec.Command("flatpak", "run", "org.telegram.desktop").Start()
 				if waitFocus(20) {
 					return
 				}
+				logAppend("flatpak launch did not realize a window in time")
 			}
 
-			// 3) Native binary
-			if have("telegram-desktop") {
-				notify("Telegram", "Launching Telegram Desktop…", 3000)
-				_ = exec.Command("telegram-desktop").Start()
-				if waitFocus(20) {
-					return
-				}
-			}
-
-			// 4) Parse .desktop Exec fallback: try to locate and execute a Telegram desktop entry
-			// This helps when gtk-launch/flatpak/native binary aren't available or differ by distro/package.
+			// 4) Parse .desktop Exec fallback
 			if out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && grep -m1 '^Exec=' \"$f\" | sed -E 's/^Exec=//; s/%[fFuUdDnNickvm]//g' && break; done; done | head -n 1").CombinedOutput(); len(out) > 0 {
 				cmdline := strings.TrimSpace(string(out))
 				if cmdline != "" {
+					logAppend("exec from .desktop: " + cmdline)
 					fields := strings.Fields(cmdline)
 					if len(fields) > 0 {
 						_ = exec.Command(fields[0], fields[1:]...).Start()
@@ -850,6 +869,7 @@ func main() {
 				}
 			}
 
+			logAppend("all launch paths failed")
 			notify("Telegram", "Unable to launch Telegram", 2000)
 			os.Exit(1)
 
@@ -1349,23 +1369,77 @@ func main() {
 				return
 			}
 
-			// Launch: prefer native zeditor/zed, then Flatpak
+			// Minimal runtime logging
+			home := os.Getenv("HOME")
+			logDir := filepath.Join(home, ".cache", "archriot")
+			_ = os.MkdirAll(logDir, 0o755)
+			logFile := filepath.Join(logDir, "runtime.log")
+			logAppend := func(msg string) {
+				if f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644); err == nil {
+					defer f.Close()
+					ts := time.Now().Format("2006-01-02 15:04:05")
+					_, _ = f.WriteString("[" + ts + "] zed: " + msg + "\n")
+				}
+			}
+
+			// Detect Intel GPU (ANV) to avoid Vulkan crashes; prefer WGPU_BACKEND=gl
+			detectIntel := func() bool {
+				// Prefer lspci if available (broadest signal)
+				if _, err := exec.LookPath("lspci"); err == nil {
+					if out, err := exec.Command("sh", "-lc", "lspci -nnk | grep -iE 'vga|3d|display' | head -n1").CombinedOutput(); err == nil {
+						s := strings.ToLower(string(out))
+						if strings.Contains(s, "intel") {
+							return true
+						}
+					}
+				}
+				// Fallback: presence of Mesa Intel DRI driver
+				if _, err := os.Stat("/usr/lib/dri/iris_dri.so"); err == nil {
+					return true
+				}
+				return false
+			}
+			intel := detectIntel()
+			if intel {
+				logAppend("Intel GPU detected; preferring WGPU_BACKEND=gl for Zed to avoid Vulkan/ANV instability")
+			}
+
+			// Launch: prefer native zed/zeditor (with GL on Intel), then Flatpak
 			launched := false
 			if have("zed") {
-				// Prefer launching zed without forcing Wayland env flags for broader GPU compatibility
-				_ = exec.Command("zed").Start()
+				if intel {
+					logAppend("launch: env WGPU_BACKEND=gl zed")
+					_ = exec.Command("env", "WGPU_BACKEND=gl", "zed").Start()
+				} else {
+					logAppend("launch: zed")
+					_ = exec.Command("zed").Start()
+				}
 				launched = true
 			} else if have("zeditor") {
-				// Wayland env for child only (no global environment changes)
-				_ = exec.Command("env",
+				// Build env for child only (no global environment changes)
+				args := []string{}
+				if intel {
+					args = append(args, "WGPU_BACKEND=gl")
+					logAppend("launch: env WGPU_BACKEND=gl zeditor (Wayland env applied)")
+				} else {
+					logAppend("launch: zeditor (Wayland env applied)")
+				}
+				args = append(args,
 					"WAYLAND_DISPLAY="+os.Getenv("WAYLAND_DISPLAY"),
 					"GDK_BACKEND=wayland",
 					"QT_QPA_PLATFORM=wayland",
 					"SDL_VIDEODRIVER=wayland",
 					"zeditor",
-				).Start()
+				)
+				_ = exec.Command("env", args...).Start()
 				launched = true
 			} else if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "dev.zed.Zed").Run() == nil {
+				// Flatpak env overrides for WGPU won't apply; still log for traceability
+				if intel {
+					logAppend("launch: flatpak run dev.zed.Zed (Intel detected; GL override not applied to Flatpak)")
+				} else {
+					logAppend("launch: flatpak run dev.zed.Zed")
+				}
 				_ = exec.Command("flatpak", "run", "dev.zed.Zed").Start()
 				launched = true
 			}
@@ -2888,15 +2962,17 @@ func main() {
 			return
 
 		case "--fix-offscreen-windows":
-			// Center off-screen floating windows using hyprctl JSON
+			// Center off-screen floating windows (multi‑monitor aware) using hyprctl JSON
 			have := func(name string) bool { _, err := exec.LookPath(name); return err == nil }
 			if !have("hyprctl") {
 				fmt.Fprintln(os.Stderr, "hyprctl not found in PATH")
 				os.Exit(1)
 			}
 
-			// Read monitors (first monitor width/height)
+			// Read monitors (gather absolute geometry for all monitors)
 			type mon struct {
+				X      int `json:"x"`
+				Y      int `json:"y"`
 				Width  int `json:"width"`
 				Height int `json:"height"`
 			}
@@ -2910,7 +2986,11 @@ func main() {
 				fmt.Fprintln(os.Stderr, "Failed to parse monitors JSON")
 				os.Exit(1)
 			}
-			screenW, screenH := mons[0].Width, mons[0].Height
+			type rect struct{ x0, y0, x1, y1 int }
+			var screens []rect
+			for _, m := range mons {
+				screens = append(screens, rect{m.X, m.Y, m.X + m.Width, m.Y + m.Height})
+			}
 
 			// Read current workspace from activewindow
 			type active struct {
@@ -2950,27 +3030,38 @@ func main() {
 				os.Exit(1)
 			}
 
-			isOffscreen := func(x, y int) bool {
-				if x < -50 || y < -50 {
-					return true
+			// Consider a window "off-screen" when its rectangle doesn't intersect any monitor rect (with tolerance)
+			overlaps := func(a rect, bx0, by0, bx1, by1 int) bool {
+				// axis-aligned intersection test
+				return a.x0 < bx1 && a.x1 > bx0 && a.y0 < by1 && a.y1 > by0
+			}
+			isOffscreen := func(x, y, w, h int) bool {
+				// add a small tolerance to catch nearly invisible positions
+				tol := 8
+				wx0, wy0 := x, y
+				wx1, wy1 := x+w, y+h
+				wx0 -= tol
+				wy0 -= tol
+				wx1 += tol
+				wy1 += tol
+				for _, s := range screens {
+					if overlaps(s, wx0, wy0, wx1, wy1) {
+						return false
+					}
 				}
-				if x > screenW || y > screenH {
-					return true
-				}
-				if x > 2000 || y > 2000 {
-					return true
-				}
-				return false
+				return true
 			}
 
 			fixed := 0
 			for _, c := range cls {
-				// Only floating windows; need at least x,y
-				if !c.Floating || len(c.At) < 2 {
+				// Only floating windows with geometry
+				if !c.Floating || len(c.At) < 2 || len(c.Size) < 2 {
 					continue
 				}
 				x, y := c.At[0], c.At[1]
-				if !isOffscreen(x, y) {
+				w, h := c.Size[0], c.Size[1]
+
+				if !isOffscreen(x, y, w, h) {
 					continue
 				}
 				ws := c.Workspace.ID
@@ -2982,13 +3073,22 @@ func main() {
 				_ = exec.Command("hyprctl", "dispatch", "workspace", fmt.Sprintf("%d", ws)).Run()
 				time.Sleep(100 * time.Millisecond)
 				_ = exec.Command("hyprctl", "dispatch", "focuswindow", "address:"+c.Address).Run()
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(120 * time.Millisecond)
 				_ = exec.Command("hyprctl", "dispatch", "centerwindow").Run()
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(120 * time.Millisecond)
 				_ = exec.Command("hyprctl", "dispatch", "workspace", fmt.Sprintf("%d", curWS)).Run()
 
-				fmt.Printf("Centered off-screen window: %s (%s) from %d,%d on ws %d\n", c.Class, c.Title, x, y, ws)
+				fmt.Printf("Centered off-screen window: %s (%s) from %d,%d size %dx%d on ws %d\n", c.Class, c.Title, x, y, w, h, ws)
 				fixed++
+			}
+
+			// Desktop notifications (best-effort)
+			if have("notify-send") {
+				if fixed > 0 {
+					_ = exec.Command("notify-send", "-t", "2500", "ArchRiot", fmt.Sprintf("Centered %d off-screen floating window(s)", fixed)).Start()
+				} else {
+					_ = exec.Command("notify-send", "-t", "2000", "ArchRiot", "No off-screen floating windows").Start()
+				}
 			}
 
 			if fixed > 0 {
@@ -3134,6 +3234,15 @@ func main() {
 				if !accountPresent {
 					logAppend("No Mullvad account configured, skipping GUI startup")
 					return
+				}
+
+				// Respect Mullvad auto-connect: skip GUI when auto-connect is OFF/disabled
+				if out, err := exec.Command("mullvad", "auto-connect", "get").CombinedOutput(); err == nil {
+					s := strings.ToLower(string(out))
+					if !(strings.Contains(s, "on") || strings.Contains(s, "enabled")) {
+						logAppend("Mullvad auto-connect is OFF; skipping GUI startup")
+						return
+					}
 				}
 
 				// Ensure startMinimized=true in GUI settings if present

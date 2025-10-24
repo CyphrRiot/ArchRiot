@@ -1010,23 +1010,25 @@ class MullvadWidget(BaseControlWidget):
             if enabled:
                 subprocess.run(["mullvad", "auto-connect", "set", "on"], check=False)
 
-                # Update Hyprland config to start Mullvad GUI
+                # Update Hyprland config to start Mullvad GUI via ArchRiot launcher
                 hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
                 if hyprland_config.exists():
                     content = hyprland_config.read_text()
-                    if "exec-once = mullvad-vpn" not in content:
-                        # Add Mullvad GUI to exec-once
-                        content += "\nexec-once = mullvad-vpn\n"
+                    launch_line = "exec-once = $HOME/.local/share/archriot/install/archriot --mullvad-startup"
+                    if launch_line not in content:
+                        # Add Mullvad launcher to exec-once
+                        content += f"\n{launch_line}\n"
                         hyprland_config.write_text(content)
             else:
                 subprocess.run(["mullvad", "auto-connect", "set", "off"], check=False)
 
-                # Remove Mullvad GUI from Hyprland config
+                # Remove ArchRiot Mullvad launcher from Hyprland config
                 hyprland_config = Path.home() / ".config" / "hypr" / "hyprland.conf"
                 if hyprland_config.exists():
                     content = hyprland_config.read_text()
-                    content = content.replace("exec-once = mullvad-vpn\n", "")
-                    content = content.replace("\nexec-once = mullvad-vpn", "")
+                    launch_line = "exec-once = $HOME/.local/share/archriot/install/archriot --mullvad-startup"
+                    content = content.replace(launch_line + "\n", "")
+                    content = content.replace("\n" + launch_line, "")
                     hyprland_config.write_text(content)
         except Exception as e:
             print(f"Mullvad toggle error: {e}")
@@ -1600,22 +1602,54 @@ class DisplayWidget(BaseControlWidget):
             ], "1920x1080"
 
     def get_current_scaling(self):
-        """Get current monitor scaling from hyprctl"""
+        """Get current monitor scaling from hyprctl (focused monitor if present)"""
         try:
             import subprocess
 
             result = subprocess.run(
                 ["hyprctl", "monitors"], capture_output=True, text=True, timeout=5
             )
-            if result.returncode == 0:
-                for line in result.stdout.split("\n"):
-                    if line.strip().startswith("scale:"):
+            if result.returncode != 0:
+                return 100
+
+            lines = result.stdout.split("\n")
+            current_scale = None
+            in_block = False
+            focused = False
+
+            for line in lines:
+                if line.startswith("Monitor ") and "(ID" in line:
+                    # New monitor block
+                    in_block = True
+                    focused = False
+                    current_scale = None
+                    continue
+
+                if in_block:
+                    s = line.strip()
+                    if s.startswith("focused:"):
+                        focused = s.split(":", 1)[1].strip().lower() == "yes"
+                    elif s.startswith("scale:"):
                         try:
-                            scale_value = float(line.strip().split(":")[1].strip())
-                            return int(scale_value * 100)  # Convert to percentage
-                        except (ValueError, IndexError):
-                            pass
-            return 100  # Default to 100%
+                            sv = float(s.split(":", 1)[1].strip())
+                            current_scale = int(sv * 100)
+                        except Exception:
+                            current_scale = None
+
+                    # If we reached an empty line, end of current block
+                    if line.strip() == "":
+                        if focused and current_scale is not None:
+                            return current_scale
+                        # Reset for next block
+                        in_block = False
+                        focused = False
+                        current_scale = None
+
+            # Fallback: first scale encountered (if no focused block found)
+            if current_scale is not None:
+                return current_scale
+
+            return 100
         except Exception:
             return 100
 
@@ -1820,37 +1854,112 @@ class DisplayWidget(BaseControlWidget):
     def apply_scaling_change(self, scaling):
         """Apply scaling change immediately to system"""
         try:
+            import re
             import subprocess
+            from pathlib import Path
 
             scale_factor = scaling / 100.0
-            # Find current monitor and apply scaling
+
+            # Parse hyprctl monitors to find the focused monitor and its current resolution
             result = subprocess.run(
                 ["hyprctl", "monitors"], capture_output=True, text=True
             )
-            if result.returncode == 0:
-                lines = result.stdout.split("\n")
+            if result.returncode != 0:
+                return
+
+            lines = result.stdout.split("\n")
+            monitor_name = None
+            current_res = None
+
+            in_block = False
+            curr_name = None
+            focused = False
+
+            def commit_block():
+                nonlocal monitor_name, current_res, focused
+                if focused and curr_name:
+                    # On the focused monitor, keep its detected resolution (if any)
+                    if monitor_name is None:
+                        monitor_name = curr_name
+
+            for line in lines:
+                if line.startswith("Monitor ") and "(ID" in line:
+                    # new block
+                    if in_block:
+                        commit_block()
+                    in_block = True
+                    focused = False
+                    curr_name = line.split(" ")[1]
+                    continue
+
+                if in_block:
+                    s = line.strip()
+
+                    # Focus flag
+                    if s.startswith("focused:"):
+                        focused = s.split(":", 1)[1].strip().lower() == "yes"
+
+                    # Current mode line example: "2560x1440@60.00100 at 0x0"
+                    if "@" in s and "x" in s and " at " in s and s[0].isdigit():
+                        try:
+                            current_res = s.split("@", 1)[0].strip()
+                        except Exception:
+                            current_res = None
+
+                    # End of block
+                    if s == "":
+                        commit_block()
+                        in_block = False
+
+            # Finalize after parsing
+            if in_block:
+                commit_block()
+
+            # Fallbacks
+            if not monitor_name:
+                # Could not detect focused; fallback to first monitor name
                 for line in lines:
                     if line.startswith("Monitor ") and "(ID" in line:
                         monitor_name = line.split(" ")[1]
-                        # Get current resolution from the monitor output
-                        for monitor_line in lines:
-                            if monitor_line.strip().startswith(
-                                "2560x"
-                            ) or monitor_line.strip().startswith("1920x"):
-                                current_res = monitor_line.strip().split("@")[0]
-                                subprocess.run(
-                                    [
-                                        "hyprctl",
-                                        "keyword",
-                                        "monitor",
-                                        f"{monitor_name},{current_res},0x0,{scale_factor}",
-                                    ],
-                                    check=False,
-                                )
-                                break
                         break
+
+            # If resolution was not detected reliably, use preferred/auto to avoid brittle parsing
+            if not current_res or not re.match(r"^\d{3,5}x\d{3,5}$", current_res):
+                current_res = "preferred"
+                position = "auto"
+            else:
+                position = "auto"
+
+            # Apply scaling using hyprctl keyword; prefer 'preferred,auto,<scale>' to avoid bad parses
+            subprocess.run(
+                [
+                    "hyprctl",
+                    "keyword",
+                    "monitor",
+                    f"{monitor_name},{current_res},{position},{scale_factor}",
+                ],
+                check=False,
+            )
+
+            # Best-effort: update kanshi scale if a matching output line exists
+            try:
+                kanshi_path = Path.home() / ".config" / "kanshi" / "config"
+                if kanshi_path.exists():
+                    content = kanshi_path.read_text()
+                    # Replace 'output <name> ... scale X' with new value where present
+                    pattern = re.compile(
+                        rf"(^\s*output\s+{re.escape(monitor_name)}\b[^\n]*?\bscale\s+)(\d+(\.\d+)?)",
+                        re.MULTILINE,
+                    )
+                    new_content, n = pattern.subn(rf"\g<1>{scale_factor}", content)
+                    if n > 0 and new_content != content:
+                        kanshi_path.write_text(new_content)
+            except Exception:
+                pass
+
         except Exception:
-            pass  # Silently fail if hyprctl is not available
+            # Silently ignore to avoid crashing the Control Panel
+            pass
 
     def mark_changes_pending(self):
         """Mark that changes are pending"""

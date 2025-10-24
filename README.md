@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.6-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.6.1-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -344,7 +344,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v3.6 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
+**🔥 Current Release:** v3.6.1 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
 
 **🚀 Recent Milestones:**
 
@@ -1571,7 +1571,7 @@ And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLi
 - Hypridle reliability: autostart now uses an absolute path (/usr/bin/hypridle); ensureIdleLockSetup appends the same to avoid PATH/env timing issues after upgrades.
 - GTK Control Panel safety: settings reapply runs only when a GUI session is detected; forces GSK_RENDERER=gl; automatic cairo software-renderer fallback if GL fails to avoid GTK OpenGL context errors.
 - Brave multi‑monitor flags: documented optional flags for Wayland multi‑monitor stability/performance under the Brave Wrapper section.
-- Documentation polish: fixed TOC/deep links; removed duplication (Memory Tuning); updated version badge and Current Release to v3.6.
+- Documentation polish: fixed TOC/deep links; removed duplication (Memory Tuning); updated version badge and Current Release to v3.6.1.
 
 ## ✨ What’s New in v3.5 (Docs & UX)
 
