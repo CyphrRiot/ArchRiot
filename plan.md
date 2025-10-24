@@ -1,4 +1,4 @@
-# ArchRiot Development Plan — Refreshed (v3.6)
+# ArchRiot Development Plan — Refreshed (v3.6.1)
 
 Purpose
 
@@ -8,6 +8,17 @@ Purpose
 - Maintain a strict one-change-at-a-time cadence: propose → edit → make → verify.
 
 ---
+
+Completed in v3.6.1 (shipped)
+
+- Zed stability: `archriot --zed` prefers `WGPU_BACKEND=gl` on Intel; Hyprland bind updated to use the hardened launcher.
+- Telegram launcher: native-first, broadened class matching, and runtime logging for focus/launch reliability.
+- Control Panel display scaling: focused-monitor parsing; robust `hyprctl` apply; kanshi config best-effort update.
+- Mullvad toggle semantics: manage `exec-once` `archriot --mullvad-startup` and respect auto-connect; `--mullvad-startup` skips GUI when auto-connect is off.
+- Waybar UX: tooltip opacity increased for calendar readability; native Pomodoro JSON emitter; module wired to `archriot --waybar-pomodoro`.
+- Window recovery: improved off-screen window fixer with multi-monitor awareness and notifications.
+- Bootstrap cleanup: remove ISO one-shot from `~/.bashrc` and stop adding it during install.
+- Docs/version: `VERSION` and README badge/current release updated to v3.6.1.
 
 Completed in v3.6 (shipped)
 
@@ -68,9 +79,7 @@ Next Steps (upgrade-safe; one change at a time)
 
 - Goal: Reduce floating shell scripts and migrate behavior into first-class archriot CLI flags.
 - Scope (prioritized):
-    - TODO: Replace `welcome` with `archriot --welcome`
-    - TODO: Replace `zed-wayland` with `archriot --zed` (focus-or-launch Zed, Wayland class handling)
-    - TODO: Replace `waybar-*.py` helpers with native CLI metrics where feasible; keep JSON protocol compatibility.
+    - In progress: Finalize migration of Waybar helpers to native CLI where feasible; keep JSON protocol compatibility.
     - EVALUATE: Replace `suspend-if-undocked.sh` (hypridle hook) with `archriot --suspend-if-undocked` vs keep as file
     - Remove or archive unused scripts under `config/bin/scripts/` after parity is verified.
 

@@ -772,7 +772,7 @@ func main() {
 			focusTelegram := func() bool {
 				// Broad match set: org.telegram.desktop (Flatpak/native), telegram-desktop (native),
 				// TelegramDesktop (legacy), telegramdesktop/Telegram (rare)
-				if exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(org\\.telegram\\.desktop|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)$").Run() == nil {
+				if exec.Command("hyprctl", "dispatch", "focuswindow", "class:^(org\\.telegram\\.desktop|org\\.telegram\\.desktop\\.TelegramDesktop|org\\.telegram\\..*desktop.*|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)$").Run() == nil {
 					_ = exec.Command("hyprctl", "dispatch", "bringactivetotop").Run()
 					return true
 				}
@@ -780,7 +780,7 @@ func main() {
 			}
 
 			// Focus only if a Telegram window is present; otherwise proceed to launch
-			if exec.Command("sh", "-lc", "hyprctl clients 2>/dev/null | grep -qE 'class:\\s*(org\\.telegram\\.desktop|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)\\b'").Run() == nil {
+			if exec.Command("sh", "-lc", "hyprctl clients 2>/dev/null | grep -qE 'class:\\s*(org\\.telegram\\.desktop(\\.TelegramDesktop)?|org\\.telegram\\..*desktop.*|telegram-desktop|TelegramDesktop|telegramdesktop|Telegram)\\b'").Run() == nil {
 				logAppend("window present; focusing")
 				if focusTelegram() {
 					return
@@ -803,7 +803,12 @@ func main() {
 				logAppend("launching native telegram-desktop")
 				notify("Telegram", "Launching Telegram Desktop…", 3000)
 				_ = exec.Command("telegram-desktop").Start()
-				if waitFocus(20) {
+				if waitFocus(60) {
+					return
+				}
+				time.Sleep(1500 * time.Millisecond)
+				_ = exec.Command("telegram-desktop").Start()
+				if waitFocus(60) {
 					return
 				}
 				logAppend("native launch did not realize a window in time")
@@ -817,12 +822,13 @@ func main() {
 				for _, id := range candidates {
 					logAppend("gtk-launch " + id)
 					_ = exec.Command("gtk-launch", id).Start()
-					if waitFocus(20) {
+					if waitFocus(60) {
 						return
 					}
+					// Delayed retry if the window didn't realize on the first attempt
 					time.Sleep(1500 * time.Millisecond)
 					_ = exec.Command("gtk-launch", id).Start()
-					if waitFocus(20) {
+					if waitFocus(60) {
 						return
 					}
 				}
@@ -832,39 +838,57 @@ func main() {
 				if dyn != "" {
 					logAppend("gtk-launch discovered desktop id: " + dyn)
 					_ = exec.Command("gtk-launch", dyn).Start()
-					if waitFocus(20) {
+					if waitFocus(60) {
 						return
 					}
+					// One more attempt after a short delay for slower/cold systems
 					time.Sleep(1500 * time.Millisecond)
 					_ = exec.Command("gtk-launch", dyn).Start()
-					if waitFocus(20) {
+					if waitFocus(60) {
 						return
 					}
 				}
 			}
 
-			// 3) Flatpak
-			if have("flatpak") && exec.Command("flatpak", "info", "--show-commit", "org.telegram.desktop").Run() == nil {
-				logAppend("launching Flatpak org.telegram.desktop")
+			// 3) Flatpak (attempt without info check; slower systems may need a retry)
+			if have("flatpak") {
+				logAppend("launching Flatpak org.telegram.desktop (no info probe)")
 				notify("Telegram", "Launching Telegram Desktop (Flatpak)…", 3000)
 				_ = exec.Command("flatpak", "run", "org.telegram.desktop").Start()
-				if waitFocus(20) {
+				if waitFocus(60) {
+					return
+				}
+				time.Sleep(1500 * time.Millisecond)
+				_ = exec.Command("flatpak", "run", "org.telegram.desktop").Start()
+				if waitFocus(60) {
 					return
 				}
 				logAppend("flatpak launch did not realize a window in time")
 			}
 
 			// 4) Parse .desktop Exec fallback
-			if out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && grep -m1 '^Exec=' \"$f\" | sed -E 's/^Exec=//; s/%[fFuUdDnNickvm]//g' && break; done; done | head -n 1").CombinedOutput(); len(out) > 0 {
-				cmdline := strings.TrimSpace(string(out))
-				if cmdline != "" {
+			// Last-resort: parse Exec lines from all Telegram*.desktop entries and try them in order
+			if out, _ := exec.Command("sh", "-lc", "for d in ~/.local/share/applications /usr/local/share/applications /usr/share/applications; do for f in \"$d\"/*[Tt]elegram*.desktop; do [ -f \"$f\" ] && grep -m1 '^Exec=' \"$f\" | sed -E 's/^Exec=//; s/%[fFuUdDnNickvm]//g'; done; done").CombinedOutput(); len(out) > 0 {
+				lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+				for _, line := range lines {
+					cmdline := strings.TrimSpace(line)
+					if cmdline == "" {
+						continue
+					}
 					logAppend("exec from .desktop: " + cmdline)
 					fields := strings.Fields(cmdline)
-					if len(fields) > 0 {
-						_ = exec.Command(fields[0], fields[1:]...).Start()
-						if waitFocus(40) {
-							return
-						}
+					if len(fields) == 0 {
+						continue
+					}
+					_ = exec.Command(fields[0], fields[1:]...).Start()
+					if waitFocus(90) {
+						return
+					}
+					// Slow systems: retry the same command once after a short delay
+					time.Sleep(1500 * time.Millisecond)
+					_ = exec.Command(fields[0], fields[1:]...).Start()
+					if waitFocus(90) {
+						return
 					}
 				}
 			}
