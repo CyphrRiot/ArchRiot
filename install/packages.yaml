@@ -128,6 +128,7 @@ desktop:
             - "chmod +x ~/.config/waybar/scripts/*"
             - "sleep 1 && if pgrep -x waybar >/dev/null 2>&1; then pkill -SIGUSR2 waybar; fi"
             - "~/.local/share/archriot/install/archriot --setup-temperature"
+            - "bash -lc 'if command -v hyprctl >/dev/null 2>&1 && hyprctl -j monitors >/dev/null 2>&1; then $HOME/.local/share/archriot/install/archriot --kanshi-autogen; fi'"
             - "mkdir -p ~/.local/share/applications"
             - "rm -f ~/.local/share/applications/Bluesky.desktop ~/.local/share/applications/bluesky.desktop"
             - "sudo rm -f /usr/local/share/applications/Bluesky.desktop /usr/local/share/applications/bluesky.desktop || true"
@@ -160,7 +161,7 @@ desktop:
             - thunar-volman
             - thunar-archive-plugin
             - signal-desktop
-            #- brightnessctl
+            - brightnessctl
             - xdg-user-dirs
             - hyprsunset
             - gnome-calculator

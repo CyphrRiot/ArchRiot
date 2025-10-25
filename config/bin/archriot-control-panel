@@ -706,6 +706,8 @@ class BlueLightWidget(BaseControlWidget):
             import subprocess
             import os
             import time
+            import re
+            from pathlib import Path
 
             # Kill any existing hyprsunset processes (ensure only one instance)
             subprocess.run(["pkill", "-f", "hyprsunset"], check=False)
@@ -1604,50 +1606,21 @@ class DisplayWidget(BaseControlWidget):
     def get_current_scaling(self):
         """Get current monitor scaling from hyprctl (focused monitor if present)"""
         try:
-            import subprocess
+            import subprocess, json
 
             result = subprocess.run(
-                ["hyprctl", "monitors"], capture_output=True, text=True, timeout=5
+                ["hyprctl", "-j", "monitors"], capture_output=True, text=True, timeout=5
             )
-            if result.returncode != 0:
+            if result.returncode != 0 or not result.stdout.strip():
                 return 100
 
-            lines = result.stdout.split("\n")
-            current_scale = None
-            in_block = False
-            focused = False
-
-            for line in lines:
-                if line.startswith("Monitor ") and "(ID" in line:
-                    # New monitor block
-                    in_block = True
-                    focused = False
-                    current_scale = None
-                    continue
-
-                if in_block:
-                    s = line.strip()
-                    if s.startswith("focused:"):
-                        focused = s.split(":", 1)[1].strip().lower() == "yes"
-                    elif s.startswith("scale:"):
-                        try:
-                            sv = float(s.split(":", 1)[1].strip())
-                            current_scale = int(sv * 100)
-                        except Exception:
-                            current_scale = None
-
-                    # If we reached an empty line, end of current block
-                    if line.strip() == "":
-                        if focused and current_scale is not None:
-                            return current_scale
-                        # Reset for next block
-                        in_block = False
-                        focused = False
-                        current_scale = None
-
-            # Fallback: first scale encountered (if no focused block found)
-            if current_scale is not None:
-                return current_scale
+            mons = json.loads(result.stdout)
+            if isinstance(mons, list) and mons:
+                focused = next((m for m in mons if m.get("focused")), None)
+                m = focused or mons[0]
+                scale = m.get("scale")
+                if isinstance(scale, (int, float)) and scale > 0:
+                    return int(scale * 100 + 0.5)
 
             return 100
         except Exception:
@@ -1824,129 +1797,170 @@ class DisplayWidget(BaseControlWidget):
         self.mark_changes_pending()
 
     def apply_resolution_change(self, resolution):
-        """Apply resolution change immediately to system"""
+        """Apply resolution change immediately to system, preserving current scale"""
         try:
-            import subprocess
+            import subprocess, json
 
-            # Find current monitor - get the first active monitor
-            result = subprocess.run(
-                ["hyprctl", "monitors"], capture_output=True, text=True
+            # Read monitors (JSON) and pick focused monitor reliably
+            r = subprocess.run(
+                ["hyprctl", "-j", "monitors"], capture_output=True, text=True, timeout=5
             )
-            if result.returncode == 0:
-                lines = result.stdout.split("\n")
-                for line in lines:
-                    if line.startswith("Monitor ") and "(ID" in line:
-                        monitor_name = line.split(" ")[1]
-                        # Set resolution on this monitor using the full resolution string
-                        subprocess.run(
-                            [
-                                "hyprctl",
-                                "keyword",
-                                "monitor",
-                                f"{monitor_name},{resolution},0x0,1",
-                            ],
-                            check=False,
-                        )
-                        break
+            if r.returncode != 0 or not r.stdout.strip():
+                return
+
+            mons = json.loads(r.stdout)
+            if not isinstance(mons, list) or not mons:
+                return
+
+            focused = next((m for m in mons if m.get("focused")), None)
+            mon = focused or mons[0]
+            monitor_name = mon.get("name") or mon.get("id")
+            if not monitor_name:
+                return
+
+            # Preserve current scale; use preferred apply path for position
+            scale = mon.get("scale") or 1.0
+            try:
+                scale = float(scale)
+            except Exception:
+                scale = 1.0
+
+            # Try to apply requested resolution while preserving current scale
+            result = subprocess.run(
+                [
+                    "hyprctl",
+                    "keyword",
+                    "monitor",
+                    f"{monitor_name},{resolution},auto,{scale}",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode != 0:
+                # Fallback to preferred mode with the same scale and notify for visibility
+                subprocess.run(
+                    [
+                        "hyprctl",
+                        "keyword",
+                        "monitor",
+                        f"{monitor_name},preferred,auto,{scale}",
+                    ],
+                    check=False,
+                )
+                subprocess.run(
+                    [
+                        "sh",
+                        "-lc",
+                        f"command -v notify-send >/dev/null 2>&1 && notify-send 'Display resolution' 'Applied scale {scale} with preferred mode (fallback). Unable to set {resolution}.' || true",
+                    ],
+                    check=False,
+                )
         except Exception as e:
             print(f"Resolution change error: {e}")
 
     def apply_scaling_change(self, scaling):
         """Apply scaling change immediately to system"""
         try:
-            import re
-            import subprocess
+            import subprocess, json, re
             from pathlib import Path
 
             scale_factor = scaling / 100.0
 
-            # Parse hyprctl monitors to find the focused monitor and its current resolution
-            result = subprocess.run(
-                ["hyprctl", "monitors"], capture_output=True, text=True
+            # Read monitors (JSON) and pick focused monitor reliably
+            r = subprocess.run(
+                ["hyprctl", "-j", "monitors"], capture_output=True, text=True, timeout=5
             )
-            if result.returncode != 0:
+            if r.returncode != 0 or not r.stdout.strip():
                 return
 
-            lines = result.stdout.split("\n")
-            monitor_name = None
-            current_res = None
+            mons = json.loads(r.stdout)
+            if not isinstance(mons, list) or not mons:
+                return
 
-            in_block = False
-            curr_name = None
-            focused = False
-
-            def commit_block():
-                nonlocal monitor_name, current_res, focused
-                if focused and curr_name:
-                    # On the focused monitor, keep its detected resolution (if any)
-                    if monitor_name is None:
-                        monitor_name = curr_name
-
-            for line in lines:
-                if line.startswith("Monitor ") and "(ID" in line:
-                    # new block
-                    if in_block:
-                        commit_block()
-                    in_block = True
-                    focused = False
-                    curr_name = line.split(" ")[1]
-                    continue
-
-                if in_block:
-                    s = line.strip()
-
-                    # Focus flag
-                    if s.startswith("focused:"):
-                        focused = s.split(":", 1)[1].strip().lower() == "yes"
-
-                    # Current mode line example: "2560x1440@60.00100 at 0x0"
-                    if "@" in s and "x" in s and " at " in s and s[0].isdigit():
-                        try:
-                            current_res = s.split("@", 1)[0].strip()
-                        except Exception:
-                            current_res = None
-
-                    # End of block
-                    if s == "":
-                        commit_block()
-                        in_block = False
-
-            # Finalize after parsing
-            if in_block:
-                commit_block()
-
-            # Fallbacks
+            focused = next((m for m in mons if m.get("focused")), None)
+            mon = focused or mons[0]
+            monitor_name = mon.get("name") or mon.get("id")
             if not monitor_name:
-                # Could not detect focused; fallback to first monitor name
-                for line in lines:
-                    if line.startswith("Monitor ") and "(ID" in line:
-                        monitor_name = line.split(" ")[1]
-                        break
+                return
 
-            # If resolution was not detected reliably, use preferred/auto to avoid brittle parsing
-            if not current_res or not re.match(r"^\d{3,5}x\d{3,5}$", current_res):
-                current_res = "preferred"
-                position = "auto"
-            else:
-                position = "auto"
-
-            # Apply scaling using hyprctl keyword; prefer 'preferred,auto,<scale>' to avoid bad parses
-            subprocess.run(
+            # Apply scaling using preferred,auto,<scale> to avoid brittle resolution parsing
+            # Apply scaling using preferred,auto,<scale>; verify and fall back if needed
+            result = subprocess.run(
                 [
                     "hyprctl",
                     "keyword",
                     "monitor",
-                    f"{monitor_name},{current_res},{position},{scale_factor}",
+                    f"{monitor_name},preferred,auto,{scale_factor}",
                 ],
-                check=False,
+                capture_output=True,
+                text=True,
             )
+
+            if result.returncode != 0:
+                # Fallback: attempt explicit current resolution if JSON provided width/height
+                curr_w = mon.get("width")
+                curr_h = mon.get("height")
+                if (
+                    isinstance(curr_w, int)
+                    and isinstance(curr_h, int)
+                    and curr_w > 0
+                    and curr_h > 0
+                ):
+                    subprocess.run(
+                        [
+                            "hyprctl",
+                            "keyword",
+                            "monitor",
+                            f"{monitor_name},{curr_w}x{curr_h},auto,{scale_factor}",
+                        ],
+                        check=False,
+                    )
+                else:
+                    # Last resort: notify that scaling failed for visibility
+                    subprocess.run(
+                        [
+                            "sh",
+                            "-lc",
+                            f"command -v notify-send >/dev/null 2>&1 && notify-send 'Display scaling' 'Failed to apply scale to {monitor_name}' || true",
+                        ],
+                        check=False,
+                    )
+
+            # Verify the scale actually changed; notify if not
+            vr = subprocess.run(
+                ["hyprctl", "-j", "monitors"], capture_output=True, text=True
+            )
+            if vr.returncode == 0 and vr.stdout.strip():
+                try:
+                    vmons = json.loads(vr.stdout)
+                    target = None
+                    if isinstance(vmons, list):
+                        for m2 in vmons:
+                            if (m2.get("name") or m2.get("id")) == monitor_name:
+                                target = m2
+                                break
+                    if target:
+                        cur = target.get("scale")
+                        if (
+                            isinstance(cur, (int, float))
+                            and abs(cur - scale_factor) > 0.01
+                        ):
+                            subprocess.run(
+                                [
+                                    "sh",
+                                    "-lc",
+                                    f"command -v notify-send >/dev/null 2>&1 && notify-send 'Display scaling' 'Requested {scale_factor:.2f} but current is {cur:.2f}. Your compositor or profile may be overriding scale.' || true",
+                                ],
+                                check=False,
+                            )
+                except Exception:
+                    pass
 
             # Best-effort: update kanshi scale if a matching output line exists
             try:
                 kanshi_path = Path.home() / ".config" / "kanshi" / "config"
                 if kanshi_path.exists():
                     content = kanshi_path.read_text()
-                    # Replace 'output <name> ... scale X' with new value where present
                     pattern = re.compile(
                         rf"(^\s*output\s+{re.escape(monitor_name)}\b[^\n]*?\bscale\s+)(\d+(\.\d+)?)",
                         re.MULTILINE,

@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.6.1-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.6.2-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -18,7 +18,7 @@
 
 </div>
 
-## **ArchRiot: The (Arch) Linux System You've Always Wanted**
+## **ArchRiot: The (Arch) Linux System You've Always Wanted (but never had)**
 
 ### **One Command. Complete Environment. Zero Compromises.**
 
@@ -606,7 +606,7 @@ yay -Syu                             # Update AUR packages
 **ArchRiot Updates:**
 
 ```bash
-curl -fsSL https://archriot.org/setup.sh | bash    # Update ArchRiot (same as install)
+curl -fsSL https://ArchRiot.org/setup.sh | bash    # Update ArchRiot (same as install)
 ```
 
 **Automatic Update Notifications**: ArchRiot automatically checks for updates every 4 hours and shows a notification dialog when newer versions are available. You can install updates, ignore notifications, or simply close the dialog.

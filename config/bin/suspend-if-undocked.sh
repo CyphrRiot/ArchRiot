@@ -3,7 +3,7 @@
 #
 # Purpose:
 #   Suspend the system on idle ONLY when undocked (i.e., no external display connected).
-#   If any external connector (HDMI/DP/USB-C/DVI) is connected, exit without suspending.
+#   If any external connector (HDMI/DP/DisplayPort/USB-C/DVI/VGA) is connected, exit without suspending.
 #
 # Usage:
 #   Intended to be called by hypridle (or any idle manager) as an on-timeout action.
@@ -19,7 +19,7 @@
 #   - Otherwise, runs "systemctl suspend"
 #
 # Environment overrides:
-#   - DOCK_INHIBIT_EXTERNAL_REGEX  (default: ^(HDMI|DP|USB-C|DVI)-)
+#   - DOCK_INHIBIT_EXTERNAL_REGEX  (default: ^(HDMI|DP|DisplayPort|DVI|VGA|USB-?C)-)
 #   - DOCK_INHIBIT_INTERNAL_REGEX  (default: ^(eDP|LVDS|DSI))
 #   - DOCK_SUSPEND_CMD             (default: systemctl suspend)
 #   - DOCK_DEBUG=1                 (enable debug logs to stderr)
@@ -74,7 +74,7 @@ is_docked_hyprctl() {
     return 1
   fi
   # Match common external connector names seen in Hyprland monitor listings
-  if printf '%s\n' "$out" | grep -Eiq '\b(HDMI|DP-|DVI|VGA|USB-?C)\b'; then
+  if printf '%s\n' "$out" | grep -Eiq '\b(HDMI|DP-|DisplayPort|DVI|VGA|USB-?C)\b'; then
     return 0
   fi
   return 1

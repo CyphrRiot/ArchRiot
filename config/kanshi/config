@@ -1,27 +1,47 @@
 # kanshi configuration for ArchRiot
-# Default profiles:
-# - undocked: enable laptop panel (eDP-1)
-# - docked:   enable external HDMI (HDMI-A-1) and disable laptop panel
+# Dynamic profile set that prefers docked modes and disables the laptop panel when externals are present.
 #
 # Notes:
-# - Output names may vary by device (e.g., eDP-1, eDP-2, HDMI-A-1, DP-1, USB-C-1).
-# - Use `hyprctl monitors` (recommended) or `kanshi -l` to confirm your output names.
-# - This config uses `enable/disable` without explicit modes for broad compatibility.
-#   If your setup requires explicit modes, uncomment and adjust the examples below.
+# - Output names may vary (eDP-1/eDP-2, HDMI-A-1/2, DP-1/2, USB-C-1/2). Check:
+#   hyprctl -j monitors | jq -r '.[].name'
+# - Leave 'scale' unset so the Control Panel manages scaling dynamically.
 
-profile undocked {
-  # Laptop-only mode (when HDMI is not connected)
-  output eDP-1 enable scale 1
-
-  # Example explicit mode (uncomment and adjust if needed):
-  # output eDP-1 mode 2880x1800@120 scale 1
+# Docked profiles (external on, internal off)
+profile docked-hdmi1 {
+  output HDMI-A-1 enable
+  output eDP-1 disable
+  output eDP-2 disable
+}
+profile docked-hdmi2 {
+  output HDMI-A-2 enable
+  output eDP-1 disable
+  output eDP-2 disable
+}
+profile docked-dp1 {
+  output DP-1 enable
+  output eDP-1 disable
+  output eDP-2 disable
+}
+profile docked-dp2 {
+  output DP-2 enable
+  output eDP-1 disable
+  output eDP-2 disable
+}
+profile docked-usbc1 {
+  output USB-C-1 enable
+  output eDP-1 disable
+  output eDP-2 disable
+}
+profile docked-usbc2 {
+  output USB-C-2 enable
+  output eDP-1 disable
+  output eDP-2 disable
 }
 
-profile docked {
-  # Docked mode (when HDMI is connected)
-  output HDMI-A-1 enable scale 1
-  output eDP-1 disable
-
-  # Example explicit mode (uncomment and adjust if needed):
-  # output HDMI-A-1 mode 2560x1440@60 scale 1
+# Undocked profiles (internal only)
+profile undocked-edp1 {
+  output eDP-1 enable
+}
+profile undocked-edp2 {
+  output eDP-2 enable
 }
