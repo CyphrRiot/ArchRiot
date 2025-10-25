@@ -120,6 +120,7 @@ desktop:
             - "mkdir -p ~/.local/bin"
             - "sudo rm -f /usr/local/bin/archriot-brave"
             - "ln -sf ~/.local/share/archriot/config/bin/archriot-brave ~/.local/bin/archriot-brave"
+            - "ln -sf ~/.local/share/archriot/config/bin/archriot-control-panel ~/.local/bin/archriot-control-panel"
 
             - "ln -sf ~/.local/share/archriot/config/bin/suspend-if-undocked.sh ~/.local/bin/suspend-if-undocked.sh"
             - "true"
