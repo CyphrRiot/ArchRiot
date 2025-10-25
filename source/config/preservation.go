@@ -22,6 +22,7 @@ type PreservationConfig struct {
 	Version                  string        `yaml:"version"`
 	UserCustomizableSettings []UserSetting `yaml:"user_customizable_settings"`
 	Backup                   BackupConfig  `yaml:"backup"`
+	ManagedFiles             []ManagedFile `yaml:"managed_files"`
 	Prompts                  PromptsConfig `yaml:"prompts"`
 }
 
@@ -40,6 +41,13 @@ type BackupConfig struct {
 }
 
 // PromptsConfig represents user prompt configuration
+type ManagedFile struct {
+	Path   string `yaml:"path"`
+	Backup string `yaml:"backup"` // e.g., "side_by_side"
+	When   string `yaml:"when"`   // e.g., "on_overwrite_diff"
+	Keep   int    `yaml:"keep"`   // how many old copies to keep (currently informational)
+}
+
 type PromptsConfig struct {
 	RestorePrompt string            `yaml:"restore_prompt"`
 	DefaultChoice int               `yaml:"default_choice"`
@@ -308,6 +316,58 @@ func loadPreservationConfig() error {
 }
 
 // GetPreservationConfig returns the loaded preservation configuration
+func expandUserPath(p string) string {
+	if strings.HasPrefix(p, "~/") {
+		if home, err := os.UserHomeDir(); err == nil {
+			return filepath.Join(home, p[2:])
+		}
+	}
+	return p
+}
+
+// MatchManagedFile returns the managed_files entry matching the absolute target path, if any.
+func MatchManagedFile(targetPath string) (*ManagedFile, bool) {
+	cfg := GetPreservationConfig()
+	if cfg == nil || len(cfg.ManagedFiles) == 0 {
+		return nil, false
+	}
+
+	absTarget, err := filepath.Abs(targetPath)
+	if err != nil {
+		absTarget = filepath.Clean(targetPath)
+	}
+	absTarget = filepath.Clean(absTarget)
+
+	for i := range cfg.ManagedFiles {
+		mp := expandUserPath(cfg.ManagedFiles[i].Path)
+		absMP, err := filepath.Abs(mp)
+		if err != nil {
+			absMP = filepath.Clean(mp)
+		}
+		absMP = filepath.Clean(absMP)
+		if absMP == absTarget {
+			return &cfg.ManagedFiles[i], true
+		}
+	}
+	return nil, false
+}
+
+// ShouldSideBySideBackupOnOverwriteDiff reports whether we should create/refresh a .old
+// side-by-side backup for this path when we are about to overwrite it with different content.
+func ShouldSideBySideBackupOnOverwriteDiff(targetPath string) bool {
+	mf, ok := MatchManagedFile(targetPath)
+	if !ok {
+		return false
+	}
+	if strings.EqualFold(mf.Backup, "side_by_side") {
+		// Default policy if unspecified is to back up on overwrite diff
+		if mf.When == "" || strings.EqualFold(mf.When, "on_overwrite_diff") {
+			return true
+		}
+	}
+	return false
+}
+
 func GetPreservationConfig() *PreservationConfig {
 	if preservationConfig == nil {
 		if err := loadPreservationConfig(); err != nil {

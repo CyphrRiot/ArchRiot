@@ -184,6 +184,23 @@ func copyFile(source, dest string, preserveFiles []string) error {
 		return fmt.Errorf("reading source file: %w", err)
 	}
 
+	// Managed files backup: honor preserve.yaml managed_files (side-by-side .old) on overwrite-diff
+	// Applies to files like ~/.config/hypr/hyprlock.conf and ~/.config/waybar/config
+	if config.ShouldSideBySideBackupOnOverwriteDiff(dest) {
+		if _, err := os.Stat(dest); err == nil {
+			if existing, err2 := os.ReadFile(dest); err2 == nil {
+				// Only back up when content differs
+				if string(existing) != string(sourceData) {
+					if err := os.WriteFile(dest+".old", existing, 0644); err == nil {
+						logger.Log("Info", "File", "Backup", "Side-by-side backup created: "+dest+".old")
+					} else {
+						logger.Log("Warning", "File", "Backup", "Failed to create side-by-side backup: "+dest+".old")
+					}
+				}
+			}
+		}
+	}
+
 	if err := os.WriteFile(dest, sourceData, 0644); err != nil {
 		return fmt.Errorf("writing dest file: %w", err)
 	}

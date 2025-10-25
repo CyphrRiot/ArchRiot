@@ -2,7 +2,7 @@
 # This file defines which settings are preserved during upgrades
 
 # Version of this preservation config (for future compatibility)
-version: "1.0"
+version: "1.1"
 
 # User-customizable settings that should be preserved during upgrades
 # Only these specific settings will be extracted from existing configs
@@ -48,6 +48,21 @@ backup:
 
     # Whether to create backups even if no preservable settings found
     always_backup: true
+
+# Managed files that should be backed up before overwrite (side-by-side)
+# Policy:
+# - on_overwrite_diff: create/refresh a .old file only if content changes
+# - backup: side_by_side -> writes "<filename>.old" in the same directory
+# - keep: 1 -> keep only the latest .old (simple rotation policy)
+managed_files:
+    - path: "~/.config/hypr/hyprlock.conf"
+      backup: "side_by_side"
+      when: "on_overwrite_diff"
+      keep: 1
+    - path: "~/.config/waybar/config"
+      backup: "side_by_side"
+      when: "on_overwrite_diff"
+      keep: 1
 
 # Prompts and messages
 prompts:
