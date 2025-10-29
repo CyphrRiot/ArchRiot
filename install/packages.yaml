@@ -102,7 +102,7 @@ desktop:
               preserve_if_exists:
                   [monitors.conf, keybindings.conf, windowrules.conf]
             - pattern: waybar/*
-              preserve_if_exists: [UserWorkspaces]
+              preserve_if_exists: [UserWorkspaces, UserModules]
             - pattern: fuzzel/*
             - pattern: mako/*
             - pattern: Thunar/*

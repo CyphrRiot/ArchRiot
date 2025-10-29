@@ -1,16 +1,48 @@
 /* ArchRiot Waybar Custom Modules */
 /* Custom modules for enhanced waybar functionality */
 /* Separated from main modules for better organization */
-/* NOTE: This is only for Custom Modules */
 /* Custom Modules like weather browser, tty, file manager at the beginning */
 
+/* NOTE: This is only for ArchRiot Custom Modules */
+/* NOTE: Changes will only be kept in user files: UserModules, UserWorkspaces */
+
 {
+	// "custom/arch": {
+    //     "format": "󰣇",
+    //     "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
+    //     "on-click-right": "pkill fuzzel || fuzzel",
+    //     "tooltip": true,
+    //     "tooltip-format": "Left Click: Application Grid\nRight Click: Fuzzel Launcher"
+    // },
+	// ----- ArchRiot theme specific module override (this was in `/config`)
+	"custom/arch": {
+		"format": "󰣇",
+		"on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
+		"on-click-right": "pkill fuzzel || fuzzel",
+		"tooltip": true,
+		"tooltip-format": "Left-click: App Drawer | Right-click: Fuzzel"
+	},
+
     "custom/archriot-update": {
     	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
     	"return-type": "json",
     	"interval": 300,
     	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
     	"tooltip": true,
+    },
+	// This was in `/UserModules`:
+	"custom/media": {
+        "on-click-middle": "playerctl previous",
+        "on-click": "playerctl play-pause",
+        "format": "{icon} {}",
+        "max-length": 40,
+        "on-click-right": "playerctl next",
+        "format-icons": {
+            "Playing": "󰎈",
+            "Paused": "󰏤"
+        },
+        "return-type": "json",
+        "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{title}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{album}} - {{title}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F"
     },
 
     "custom/lock": {
@@ -180,6 +212,15 @@
     	"format": "",
     	"tooltip": false
     },
+	// This was in `/UserModules`:
+	// "custom/mullvad": {
+    //     "exec": "$HOME/.config/waybar/scripts/mullvad-status.sh",
+    //     "return-type": "json",
+    //     "interval": 5,
+    //     "on-click": "$HOME/.config/waybar/scripts/mullvad-click.sh left",
+    //     "on-click-right": "$HOME/.config/waybar/scripts/mullvad-click.sh right",
+    //     "tooltip": true
+    // },
     "custom/mullvad": {
     	"format": "{}",
     	"return-type": "json",
