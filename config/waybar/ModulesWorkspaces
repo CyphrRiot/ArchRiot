@@ -172,6 +172,7 @@
 		"class<microsoft-edge>": "<span font='11'>󰇩 </span>",
 		"class<Chromium|Thorium|[Cc]hrome>": "<span font='11'>󰊯 </span>",
 		"class<brave-browser|Brave-browser|Brave|brave>": "<span font='11'>󰊯 </span>",
+        "class<qutebrowser|org.qutebrowser|org.qutebrowser.qutebrowser>": "<span font='11'>󰊯 </span>",
 		"class<brave-x.com.*>": "<span font='11'>𝕏 </span>",
 		"class<twitter-x>": "<span font='11'>𝕏 </span>",
 		"class<tor browser>": "<span font='11'> </span>",
