@@ -77,7 +77,7 @@ func OpenWeb() error {
 	}
 	url := "file://" + p
 
-	// Prefer brave, then brave-browser; fallback to xdg-open
+	// Prefer brave, then brave-browser; fallback to gtk-launch, then xdg-open
 	class := "brave-archriot-keybinds"
 	if _, err := exec.LookPath("brave"); err == nil {
 		return exec.Command("brave", "--start-maximized", "--app="+url, "--class="+class).Start()
@@ -85,10 +85,20 @@ func OpenWeb() error {
 	if _, err := exec.LookPath("brave-browser"); err == nil {
 		return exec.Command("brave-browser", "--start-maximized", "--app="+url, "--class="+class).Start()
 	}
+
+	// Additional fallback: try gtk-launch using the file path if available
+	if _, err := exec.LookPath("gtk-launch"); err == nil {
+		if _, statErr := os.Stat(p); statErr == nil {
+			_ = exec.Command("gtk-launch", p).Start()
+			return nil
+		}
+	}
+
+	// Finally, xdg-open as last resort
 	if _, err := exec.LookPath("xdg-open"); err == nil {
 		return exec.Command("xdg-open", url).Start()
 	}
-	return fmt.Errorf("no suitable opener found (brave/brave-browser/xdg-open)")
+	return fmt.Errorf("no suitable opener found (brave/brave-browser/gtk-launch/xdg-open)")
 }
 
 // GenerateHTML builds the single canonical Keybindings Help page and writes it to:
