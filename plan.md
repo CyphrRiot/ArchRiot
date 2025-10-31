@@ -1,95 +1,184 @@
-# ArchRiot Development Plan — Refreshed (v3.6.1)
+# ArchRiot Development Plan — v3.7 (current)
 
 Purpose
 
-- Keep this plan accurate and actionable.
-- Remove completed items from open tasks.
-- Capture newly completed work and define focused next steps.
-- Maintain a strict one-change-at-a-time cadence: propose → edit → make → verify.
+- Keep this plan accurate and actionable for a clean release.
+- One change at a time → make → verify → stage → proceed (no commit until explicitly told “commit”).
+- No duplicates; only what remains to ship v3.7.
 
----
+Non‑negotiables (Build, Git, and Process)
 
-Completed in v3.6.1 (shipped)
+- After any code change:
+    - Run make and verify it completes successfully (green build).
+    - Stage changes explicitly with exact paths:
+        - git add path/to/added_or_modified_file
+        - git rm path/to/removed_file
+    - Confirm status with: git status -s
+- Commit discipline:
+    - Do not commit unless explicitly told: commit
+    - Ensure the build is green at the moment of commit.
+- PR hygiene:
+    - Keep diffs minimal and scoped.
+    - Remove legacy/obsolete assets from the index when consolidating or replacing code/assets.
+- Never modify the ISO from README.md (special: version release).
+- No environment variables for behavior; use flags instead (e.g., --workers).
+- Consolidate variables/settings at a shared, visible level; avoid duplication.
 
-- Zed stability: `archriot --zed` prefers `WGPU_BACKEND=gl` on Intel; Hyprland bind updated to use the hardened launcher.
-- Telegram launcher: native-first, broadened class matching, and runtime logging for focus/launch reliability.
-- Control Panel display scaling: focused-monitor parsing; robust `hyprctl` apply; kanshi config best-effort update.
-- Mullvad toggle semantics: manage `exec-once` `archriot --mullvad-startup` and respect auto-connect; `--mullvad-startup` skips GUI when auto-connect is off.
-- Waybar UX: tooltip opacity increased for calendar readability; native Pomodoro JSON emitter; module wired to `archriot --waybar-pomodoro`.
-- Window recovery: improved off-screen window fixer with multi-monitor awareness and notifications.
-- Bootstrap cleanup: remove ISO one-shot from `~/.bashrc` and stop adding it during install.
-- Docs/version: `VERSION` and README badge/current release updated to v3.6.1.
+Main.go discipline (non‑negotiable)
 
-Completed in v3.6 (shipped)
+- main.go is an entrypoint only:
+    - Parse flags; delegate to packages.
+    - No feature logic in main.go.
+    - Refactors must reduce lines in main.go or be rejected.
+- Every CLI flag must map to a dedicated package function.
+- Scope creep guard:
+    - If a change exceeds ~50 lines in main.go, stop and extract a package first.
+    - If a feature spans multiple concerns, split into packages and wire from main.go.
+- Gate before merge:
+    - Changes touching main.go must be minimal and only add/remove delegation lines.
+    - New code in main.go is a defect unless it’s pure delegation or trivial glue.
 
-- Installer robustness: per‑command timeouts with output capture to avoid hangs; non‑critical commands continue, critical ones fail fast; extended timeouts for pacman/yay.
-- Control Panel (GTK) safety: reapply only when a graphical session is detected; force GSK_RENDERER=gl; automatic cairo software‑renderer fallback if GL fails.
-- Hypridle reliability: use absolute path in autostart (`/usr/bin/hypridle`) and ensureIdleLockSetup appends the same to avoid PATH/env issues post‑upgrade.
-- Installer hardening: make `hypr-dock-inhibit.service` disable idempotent and non‑fatal (`|| true`) when the unit is missing.
-- README/docs polish: fixed TOC anchors and Quick Install deep links; added optional Brave multi‑monitor flags; kept “What’s New” at the end; version badge updated.
-- README/docs polish (more): removed duplicate “Memory Tuning (Opt‑in)” section; appended “What’s New in v3.6” at bottom.
-- Help windows: widened SUPER+H and SUPER+SHIFT+H help windows by 15% to reduce wrapping.
-- Version bump: v3.6 shipped.
+Status: Completed for v3.7 (since reset)
 
-Completed in v3.5.1 (shipped)
+- Telegram launcher (SUPER+G)
+    - Hyprland binds simplified to PATH-resolved Telegram + 2s notification:
+        - bind = $mod, G, exec, sh -lc 'notify-send -t 2000 "Telegram" "Opening Telegram..." >/dev/null 2>&1; Telegram'
+    - README examples updated to match.
+- Hyprland reload coalescer for dynamic colors
+    - Implemented debounced reload (300ms) in session/reload.go
+    - Integrated in theming flows:
+        - theming.ApplyWallpaperTheme() calls session.ReloadHyprland()
+        - theming.ToggleDynamicTheming() calls session.ReloadHyprland()
+    - Removed temporary reload notifier from hyprland.conf.
+- Keybindings Help behavior on reload
+    - hyprland.conf generates help mapping on reload only:
+        - exec = $HOME/.local/share/archriot/install/archriot --help-binds-generate
+    - SUPER+SHIFT+H opens help via --help-binds-web.
+- Workspaces and Waybar routing
+    - Hyprland: default workspace keybinds limited to 1–6 (removed 0/7–10).
+    - Waybar: on-click uses native "activate" (per-monitor context).
+    - Waybar persistence: only 1–4 persist by default; 5–6 appear only when in use.
+- GNOME Text Editor defaults
+    - Custom font enforced to “Paper Mono 12” (use-system-font=false).
+- Modularization (extractions and delegations)
+    - windows.Switcher() for --switch-window
+    - waybartools.SetupTemperature() for --setup-temperature
+    - displays.Autogen() for --kanshi-autogen
+    - session.Inhibit() for --stay-awake
+    - session.PowerMenu() for --power-menu (added “Control Panel” option)
+    - tools.UpgradeSmokeTest() for --upgrade-smoketest
+    - session.SuspendGuard() for --suspend-if-undocked
+    - session.MullvadStartup() for --mullvad-startup
+    - session.PomodoroClick()/PomodoroDelayToggle() for pomodoro click handling
+    - session.WorkspaceClick() for --waybar-workspace-click
+    - session.WelcomeLaunch() for --welcome
+    - session.StabilizeSession() for --stabilize-session [--inhibit]
+    - upgradeguard.PreInstall(strictABI) replaces inline preInstallUpgradeGuard
+    - secboot.RestoreHyprlandConfig() extracted; logger injection supported
+    - secboot.RunContinuation() extracted for the Secure Boot continuation TUI
+    - installer.EnsureYay() extracted yay bootstrapping
+    - cli.ShowHelp() and cli.ValidateConfig() extracted
+    - Removed unreachable/dead code in main.go for Waybar flags
+    - main.go reduced from ~1466 lines to ~800 lines; entrypoint is delegation-only
 
-- README.md overhaul: Navigation/“📚 Navigate This Guide”, Quick Install panel, Advanced Usage/Troubleshooting consolidation, Workspace Styles doc, Contributors section, “What’s New” moved to end
-- Keybindings Help PWA: SUPER+SHIFT+H opens local help (Brave app) with stable/fallback window rules; GTK fallback available; binding updated
-- Mullvad/VPN stability: Removed NetworkManager reload during install to avoid VPN drop during installation
-- Preflight fixes: robust portal detection (PATH, /usr/lib, or running process); cleaned Wi‑Fi power-save diagnostics output
-- Installer guards: pre-install ABI advisory and --strict-abi enforcement for compositor/Wayland packages
+Runtime validation (quick smoke, from repo binary install/archriot)
 
-Next Steps (upgrade-safe; one change at a time)
+- Basics
+    - ./install/archriot --version
+    - ./install/archriot --help
+- Waybar lifecycle
+    - ./install/archriot --waybar-status # prints running/stopped
+    - ./install/archriot --waybar-reload # debounced, safe reload
+    - ./install/archriot --waybar-sweep # scan/clean duplicates
+    - ./install/archriot --waybar-launch # guarded launch
+- Workspaces
+    - Verify Waybar shows only 1–4 persistently; 5–6 appear when they have windows.
+    - Clicks route correctly per monitor (native “activate”).
+- Theming & dynamic colors (single reload per action)
+    - ./install/archriot --apply-wallpaper-theme PATH/TO/WALLPAPER
+    - ./install/archriot --toggle-dynamic-theming true
+    - Toggle back false; observe single reload each time.
+- Apps / session
+    - SUPER+G: verify 2s “Opening Telegram…” then Telegram launches/focuses.
+    - ./install/archriot --power-menu (Control Panel present; launches)
+    - ./install/archriot --stay-awake sleep 5
+    - ./install/archriot --mullvad-startup (minimized; conditional)
+    - ./install/archriot --stabilize-session [--inhibit]
+    - ./install/archriot --welcome (if present)
+- Tools
+    - ./install/archriot --switch-window (hyprctl + fuzzel)
+    - ./install/archriot --setup-temperature (no-op if “hwmon-path” key absent)
+    - ./install/archriot --kanshi-autogen (writes ~/.config/kanshi/config)
+    - ./install/archriot --upgrade-smoketest --json --quiet
+- Help & docs
+    - Hyprland reload triggers: archriot --help-binds-generate only (no auto-open)
+    - SUPER+SHIFT+H launches --help-binds-web
 
-1. Issue verification and closure (validate, then close)
+Remaining scope for v3.7 (release blockers)
 
-- #31 Brave crash on workspace/screen switch: retest across GPUs; document safe-mode flag if needed
-- #30 OBS “Screen Capture” present: portals functional on clean install
-- #24 Thunar default terminal: verify Ghostty “Open Terminal Here” on a clean install
+- Documentation & QA
+    - Refresh README sections to match:
+        - Telegram binding behavior (PATH + 2s notification)
+        - Workspace persistence (1–4), dynamic 5–6
+        - Waybar on-click routing with native “activate”
+        - Updated CLI reference (extracted flags now present in respective packages)
+    - Update QA matrix with the above runtime validation checklist.
+- Memory defaults
+    - Confirm safe, conservative memory defaults by default; advanced tuning remains opt-in (clarify docs).
+- Launcher evaluation (feature-gated)
+    - Evaluate Hyprlauncher as a Fuzzel replacement.
+    - If parity and stability are perfect, gate behind a feature flag (default remains Fuzzel).
+- Cleanup and consistency
+    - Confirm removal of obsolete scripts from index (already staged):
+        - config/bin/suspend-if-undocked.sh
+        - config/bin/scripts/generate_keybindings_help.sh(.old), waybar-memory-accurate.py, waybar-tomato-timer.py
+    - Ensure no remaining unreachable or duplicate code paths.
+- Final validation pass
+    - Run through the full runtime validation above on at least one real multi-monitor system and a single-monitor laptop (lid open/close and USB‑C hotplug).
 
-2. README.md finalization (post‑overhaul polish)
+Release checklist (v3.7)
 
-- Final pass to remove any duplication and normalize heading styles
-- Ensure all code snippets are fenced; fix spacing/indentation regressions
-- Keep “What’s New” at end; ensure “Navigate This Guide” is the only TOC
+- Build/verify:
+    - make
+    - ./install/archriot --version
+- README badge/version aligned.
+- Tag and push (when approved by “commit” gate):
+    - git commit -am "Release v3.7: [high‑level notes]"
+    - git tag -a v3.7 -m "Version 3.7 release: [details]"
+    - git push origin master
+    - git push origin v3.7
+- Special: Do not modify the ISO reference in README.md.
 
-3. QA matrix and docs refresh
+Action queue (one change at a time, then make, then stage)
 
-- Matrix: Intel/AMD/NVIDIA; single/multi-monitor; fractional scaling; en-US + one non-Latin
-- Record pass/fail and remediation steps; update README with confirmed guidance/screenshots
+1. Docs & QA
+    - Update README to reflect all finalized runtime behaviors (workspaces, Telegram, on-click, help flows).
+    - Add a concise QA checklist (copy from “Runtime validation”) into docs.
+2. Memory defaults
+    - Document defaults; ensure code aligns; leave advanced tuning opt-in.
+3. Hyprlauncher evaluation (feature-gated)
+    - Add feature flag; wire alternative launcher; test parity; default remains Fuzzel.
+4. Final test pass
+    - Run the runtime validation on a real multi-monitor setup and a single-monitor laptop.
+5. Prepare release
+    - Follow the release checklist precisely; only commit when explicitly told: commit.
 
-4. HyprToolkit migration (Control Panel first; feature-flagged)
+Guardrails (to not screw up again)
 
-5. GTK Keybindings Help (native app; PWA shipped)
+- Only one change in scope at a time; run make after every change.
+- Stage exact files; re-check git status -s before proceeding.
+- Keep main.go thin; extract logic as soon as it grows.
+- No sneaky environment variables; surface flags instead.
+- No orphaned code; remove dead/unreachable code immediately.
+- Do not modify ISO bits in README.md.
+- If you are not 100% confident a change won’t have side effects: do not propose the change yet—evaluate and test first.
 
-- Current: PWA (Brave app) help is shipped and bound to SUPER+SHIFT+H; GTK fallback exists
-- Goal (follow‑up): Build native GTK4 help (Go) with live parsing and search; dual‑ship behind a feature flag until parity
-- Scope:
-    - Add a small GTK4 app (Go) or reuse Control Panel framework; scrollable/searchable; grouped by category
-    - Keep CLI/PWA fallback; wire a feature flag to switch default when GTK parity is achieved
-- Acceptance:
-    - SUPER+SHIFT+H opens the GTK Help with live keybindings and working search when feature flag is enabled
-    - Categories include: Getting Started, Window Management, Applications, Communication, Screenshots, System, Web Apps, Media
-    - Theming matches Control Panel; sensible window sizing; no dependency on a browser or local HTML
+Appendix: Quick commands
 
-- Ship dual‑path for one minor release (feature‑flagged); flip default at parity
-- Maintain complete CLI/PWA fallbacks
-
-6. Script consolidation and CLI migration (no new scripts)
-
-- Goal: Reduce floating shell scripts and migrate behavior into first-class archriot CLI flags.
-- Scope (prioritized):
-    - In progress: Finalize migration of Waybar helpers to native CLI where feasible; keep JSON protocol compatibility.
-    - EVALUATE: Replace `suspend-if-undocked.sh` (hypridle hook) with `archriot --suspend-if-undocked` vs keep as file
-    - Remove or archive unused scripts under `config/bin/scripts/` after parity is verified.
-
-- Acceptance:
-    - No new standalone scripts introduced.
-    - Script count in `config/bin/scripts` reduced by at least 50% with feature parity.
-    - All migrated features are documented under “ArchRiot CLI Flags.”
-
-7. Secure Boot (sbctl) wizard — opt-in, gated, and documented (no auto-run)
-
-- Wizard: detect → keygen → sign → pacman hooks → pre-reboot checklist
-- Post-reboot continuation validates and restores normal behavior
-- Document clear rollback; verify on supported hardware
+- Build: make
+- Version: ./install/archriot --version
+- Help: ./install/archriot --help
+- Secure Boot continuation (TUI): handled via secboot; logger is injected.
+- Workspace click (custom modules): ./install/archriot --waybar-workspace-click {name}
+- Waybar reload: ./install/archriot --waybar-reload
+- Tests: see “Runtime validation” above.

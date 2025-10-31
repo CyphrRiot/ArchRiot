@@ -56,7 +56,7 @@ class WelcomeWindow:
         # Add Welcome image - use image directly from repository
         home_dir = os.environ.get("HOME") or os.path.expanduser("~")
         image_path = os.path.join(
-            home_dir, ".local", "share", "archriot", "config", "images", "welcome.png"
+            home_dir, ".local", "share", "archriot", "config", "images", "logo.png"
         )
 
         if os.path.exists(image_path):
@@ -79,7 +79,7 @@ class WelcomeWindow:
                 image.set_halign(Gtk.Align.FILL)
                 container.pack_start(image, False, False, 0)
             except Exception as e:
-                print(f"Could not load welcome.png: {e}")
+                print(f"Could not load logo.png: {e}")
 
     def add_main_text(self, container):
         # Read version from VERSION file

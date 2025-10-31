@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"archriot-installer/session"
 	"archriot-installer/theming/applications"
 )
 
@@ -143,6 +144,9 @@ func ApplyWallpaperTheme(wallpaperPath string) error {
 		fmt.Printf("Warning: %v\n", err)
 	}
 
+	// Debounced Hyprland reload to coalesce multiple triggers
+	session.ReloadHyprland()
+
 	return nil
 }
 
@@ -189,6 +193,9 @@ func ToggleDynamicTheming(enabled bool) error {
 	for _, err := range errors {
 		fmt.Printf("Warning: %v\n", err)
 	}
+
+	// Debounced Hyprland reload to coalesce multiple triggers
+	session.ReloadHyprland()
 
 	return nil
 }

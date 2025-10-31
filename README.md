@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.6.2-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.7-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -26,11 +26,11 @@ ArchRiot is the answer to every time you've thought "why can't Linux just work c
 
 **Curated to be correct:**
 
-- **🪟 Hyprland Tiling WM** - Makes other Window Managers feel primitive
-- **⚡ Go Binary Installer** - Atomic operations, instant rollbacks, zero dependency hell
-- **🛡️ Privacy by Design** - Zero telemetry, zero tracking, zero corporate data harvesting
-- **🎨 CypherRiot Aesthetics** - Carefully crafted dark themes that work at any hour
-- **💻 Development-First** - Zed, Neovim, shell enhancements, and other upgrades
+- **🪟 Hyprland Tiling** - Makes other Window Managers feel primitive
+- **⚡ Go Installer** - Atomic operations, instant rollbacks, zero dependency hell
+- **🛡️ Privacy** - Zero telemetry, zero tracking, zero corporate data harvesting
+- **🎨 Aesthetics** - Carefully crafted dark themes that work at any hour
+- **💻 Development** - Zed, Neovim, shell enhancements, and other upgrades
 
 _Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
 
@@ -335,7 +335,7 @@ Implemented via:
     - `IdleAction=ignore` (logind does not idle-suspend)
 - hypridle:
     - 10 min: `on-timeout = lock` (reliable hyprlock trigger)
-    - 30 min: `on-timeout = ~/.local/bin/suspend-if-undocked.sh` (suspends only when undocked)
+    - 30 min: `on-timeout = $HOME/.local/share/archriot/install/archriot --suspend-if-undocked || $HOME/.local/bin/suspend-if-undocked.sh` (suspends only when undocked)
 - kanshi autostart (hotplug profiles) for dock/undock screen management
 
 Note: We never restart systemd-logind during install/upgrade; drop-ins take effect after reboot or a manual restart you perform later.
@@ -571,7 +571,7 @@ to any of these:
 
 Notes:
 
-- Persistent workspaces default to 1–4. To show more, adjust persistent-workspaces in config/waybar/ModulesWorkspaces.
+- Persistent workspaces default to 1–4; 5–6 appear automatically when occupied. To change persistence, adjust persistent-workspaces in config/waybar/ModulesWorkspaces.
 - Reload the bar safely after changes:
   archriot --waybar-reload
 
@@ -1014,6 +1014,11 @@ $HOME/.local/share/archriot/install/archriot
         - archriot --volume dec # Decrease volume 5%
         - archriot --volume get # Get current volume percentage
 
+- --suspend-if-undocked
+    - Purpose: Suspend only when undocked (no external display connected) and not on AC/USB-PD; intended for idle managers.
+    - Behavior: No-ops when an external display or AC/USB-PD is detected; otherwise calls systemctl suspend.
+    - Example (Hypridle listener): on-timeout = $HOME/.local/share/archriot/install/archriot --suspend-if-undocked
+
 ### Hypridle: Lock Not Triggering (exec syntax)
 
 Symptoms:
@@ -1090,11 +1095,11 @@ Notes:
     - Behavior: Iterates images in ~/.local/share/archriot/backgrounds, updates ~/.config/archriot/.current-background, restarts swaybg detached, and triggers best-effort theme refresh.
     - Example (default bind): SUPER+CTRL+SPACE → $HOME/.local/share/archriot/install/archriot --swaybg-next
 
-- --waybar-workspace-click
+- --waybar-workspace-click (optional; recommend native on-click "activate" for correct per‑monitor routing)
     - Purpose: Safe Waybar workspace click handler (numeric-only).
     - Usage: $HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name}
     - Notes: Validates numeric workspace and dispatches: hyprctl dispatch workspace {name}
-    - Example (Waybar ModulesWorkspaces): "on-click": "$HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name} "
+    - Example (custom modules): "on-click": "$HOME/.local/share/archriot/install/archriot --waybar-workspace-click {name} "
 
 - --waybar-cpu
     - Purpose: Aggregate CPU usage meter for Waybar.
@@ -1145,8 +1150,8 @@ hyprctl keyword bind "$mod, R, exec, $HOME/.local/share/archriot/install/archrio
 # Pomodoro
 hyprctl keyword bind "$mod, comma, exec, $HOME/.local/share/archriot/install/archriot --pomodoro-click"
 
-# Telegram (resilient focus-or-launch)
-hyprctl keyword bind "$mod, G, exec, $HOME/.local/share/archriot/install/archriot --telegram"
+# Telegram (PATH-resolved; shows 2s 'Opening Telegram...' notification)
+hyprctl keyword bind "$mod, G, exec, sh -lc 'notify-send -t 2000 "Telegram" "Opening Telegram..." >/dev/null 2>&1; Telegram'"
 ```
 
 ## Brave Wrapper and Handler Mapping
@@ -1254,9 +1259,9 @@ Steps:
     - Memory tuning: shows opt-in status (does not modify kernel settings)
     - Waybar: shows instance count (does not kill any process); logs at ~/.cache/archriot/runtime.log
 
-### Memory Tuning (Opt-in)
+### Memory Tuning (Basics by default; Advanced Opt-in)
 
-By default, ArchRiot does not change kernel memory settings during install/upgrade. To enable memory optimizations, create the flag file and re-run the updater:
+By default, ArchRiot disables ZRAM to prevent compressed-RAM thrash and lockups under pressure, and applies minimal, safe VM settings system‑wide (vm.zone_reclaim_mode=0 and vm.overcommit_memory=0). To re‑enable ZRAM, remove or edit /etc/systemd/zram-generator.conf (set zram-size to a non‑zero value), and if you use systemd-swap, enable it with: sudo systemctl enable --now systemd-swap.service; then reboot. For advanced, dynamic tuning (including vm.min_free_kbytes ≈ 1% of RAM capped at 256MB, swappiness/dirty ratios), opt‑in by creating the flag file and re‑running install/upgrade. Optional (opt‑in): touch ~/.config/archriot/enable-memory-optimizations and re‑run installer/upgrade; verify /etc/sysctl.d/99-memory-optimization.conf contains the computed vm.min_free_kbytes.
 
 ```bash
 touch ~/.config/archriot/enable-memory-optimizations
@@ -1373,7 +1378,7 @@ printf "[Login]\nIdleAction=ignore\n" | sudo tee /etc/systemd/logind.conf.d/20-i
 
 - ArchRiot’s intended defaults:
     - Lock at 10 minutes
-    - Suspend at 30 minutes, only when undocked (via suspend-if-undocked.sh)
+    - Suspend at 30 minutes, only when undocked (native: archriot --suspend-if-undocked; fallback: suspend-if-undocked.sh)
 - Check if Hypridle is running:
 
 ```bash
@@ -1564,6 +1569,51 @@ And, thank you to JaKoolIt for [your amazing scripts](https://github.com/JaKooLi
 - Tarso Galvão (surtarso)
     - GitHub: https://github.com/surtarso
     - Notable contributions: Expanded Waybar workspace styles (ModulesWorkspaces), per-window icon mapping, related Waybar config polish.
+
+## 🧱 Project Architecture
+
+ArchRiot is structured so that the entrypoint (`source/main.go`) only parses CLI flags and delegates to modular packages. This keeps the core small, testable, and safe to evolve.
+
+- Entrypoint (delegation-only)
+    - `source/main.go`
+        - Parses flags
+        - Delegates to package functions
+        - Contains no feature logic; only minimal glue
+
+- Core session helpers
+    - `source/session/`
+        - Waybar lifecycle: `LaunchWaybar`, `ReloadWaybar`, `SweepWaybar`
+        - Reload coalescer for Hyprland: `ReloadHyprland`, `ReloadHyprlandImmediate`
+        - Power and stability: `PowerMenu`, `StabilizeSession`, `RebootNow`
+        - Environment guards and flows: `SuspendGuard`, `MullvadStartup`
+        - UX helpers: `PomodoroClick`, `PomodoroDelayToggle`, `WorkspaceClick`, `WelcomeLaunch`, `StartupBackground`
+
+- Theming
+    - `source/theming/` + `source/theming/applications/`
+        - Theme registry and application (e.g., Waybar, Ghostty, Hyprland, Text Editor)
+        - Integrated with the reload coalescer to avoid double reloads
+
+- Display and workspace tools
+    - `source/displays/` (e.g., `Autogen` for kanshi)
+    - `source/waybartools/` (e.g., `SetupTemperature`)
+    - `source/windows/` (e.g., `Switcher`, `FixOffscreen`)
+
+- Upgrade, guardrails, and secure boot
+    - `source/upgradeguard/` (e.g., `PreInstall` ABI guard for compositor/Wayland)
+    - `source/upgrunner/` (e.g., `Bootstrap` upgrade flow orchestration)
+    - `source/secboot/` (e.g., `RunContinuation`, `RestoreHyprlandConfig`)
+
+- CLI utilities and installer helpers
+    - `source/cli/` (e.g., `ShowHelp`, `ValidateConfig`)
+    - `source/installer/` (e.g., `EnsureYay` bootstrap)
+    - `source/executor/`, `source/orchestrator/` (installation orchestration)
+
+Key rules (enforced in code and process)
+
+- `main.go` is an entrypoint only: parse flags → delegate to packages.
+- Every CLI flag maps to a dedicated package function (no feature logic in `main.go`).
+- One change at a time; always run `make` after every change and stage exact files.
+- Remove unreachable or duplicate code immediately to prevent drift.
 
 ## ✨ What’s New in v3.6
 
