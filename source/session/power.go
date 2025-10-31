@@ -17,7 +17,7 @@ func PowerMenu() int {
 
 	choose := func() string {
 		if have("fuzzel") {
-			items := []string{"Lock", "Suspend", "Reboot", "Power Off", "Cancel", "Control Panel"}
+			items := []string{"Lock", "Suspend", "Reboot", "Power Off", "Logout", "Cancel", "Control Panel"}
 			input := strings.Join(items, "\n")
 			linesArg := fmt.Sprintf("--lines=%d", len(items))
 			cmd := exec.Command("fuzzel", "--dmenu", "--prompt=Power: ", "--width=30", linesArg)
@@ -32,9 +32,10 @@ func PowerMenu() int {
 		fmt.Println("2) Suspend")
 		fmt.Println("3) Reboot")
 		fmt.Println("4) Power Off")
-		fmt.Println("5) Cancel")
-		fmt.Println("6) Control Panel")
-		fmt.Print("Select [1-6]: ")
+		fmt.Println("5) Logout")
+		fmt.Println("6) Cancel")
+		fmt.Println("7) Control Panel")
+		fmt.Print("Select [1-7]: ")
 		reader := bufio.NewReader(os.Stdin)
 		s, _ := reader.ReadString('\n')
 		return strings.TrimSpace(s)
@@ -51,7 +52,9 @@ func PowerMenu() int {
 		act = "Reboot"
 	case "4", "Power Off":
 		act = "Power Off"
-	case "6", "Control Panel":
+	case "5", "Logout":
+		act = "Logout"
+	case "7", "Control Panel":
 		act = "Control Panel"
 	default:
 		return 0
@@ -72,6 +75,22 @@ func PowerMenu() int {
 		_ = exec.Command("systemctl", "reboot").Start()
 	case "Power Off":
 		_ = exec.Command("systemctl", "poweroff").Start()
+	case "Logout":
+		{
+			if have("hyprctl") {
+				_ = exec.Command("hyprctl", "dispatch", "exit").Start()
+			} else {
+				user := os.Getenv("USER")
+				if user == "" {
+					if out, err := exec.Command("sh", "-lc", "id -un").Output(); err == nil {
+						user = strings.TrimSpace(string(out))
+					}
+				}
+				if user != "" {
+					_ = exec.Command("loginctl", "terminate-user", user).Start()
+				}
+			}
+		}
 	case "Control Panel":
 		{
 			cp := os.Getenv("HOME") + "/.local/share/archriot/config/bin/archriot-control-panel"
