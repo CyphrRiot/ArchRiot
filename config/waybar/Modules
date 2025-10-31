@@ -1,7 +1,8 @@
 /* ArchRiot Waybar Modules */
-/* Core system modules for waybar configuration */
+/* Core system modules for Waybar configuration */
 
-/* NOTE: hyprland-workspaces, Custom Modules, Custom Vertical & Groups on a separate files */
+/* NOTE: Workspaces, Custom Modules, Vertical & Groups on separate files */
+/* NOTE: Changes will only be kept in user files: UserModules, UserWorkspaces */
 
 {
 

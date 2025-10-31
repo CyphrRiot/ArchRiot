@@ -1,30 +1,14 @@
-{
-    "custom/mullvad": {
-        "exec": "$HOME/.config/waybar/scripts/mullvad-status.sh",
-        "return-type": "json",
-        "interval": 5,
-        "on-click": "$HOME/.config/waybar/scripts/mullvad-click.sh left",
-        "on-click-right": "$HOME/.config/waybar/scripts/mullvad-click.sh right",
-        "tooltip": true
-    },
-    "custom/media": {
-        "on-click-middle": "playerctl previous",
-        "on-click": "playerctl play-pause",
-        "format": "{icon} {}",
-        "max-length": 40,
-        "on-click-right": "playerctl next",
-        "format-icons": {
-            "Playing": "󰎈",
-            "Paused": "󰏤"
-        },
-        "return-type": "json",
-        "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{title}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{album}} - {{title}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F"
-    },
-    "custom/arch": {
-        "format": "󰣇",
-        "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
-        "on-click-right": "pkill fuzzel || fuzzel",
-        "tooltip": true,
-        "tooltip-format": "Left Click: Application Grid\nRight Click: Fuzzel Launcher"
-    }
-}
+/* ArchRiot Waybar User Modules */
+/* Add your own custom modules here (this file will be kept by the installer)*/
+
+// E.g.: User module for cava stereo bars
+// {
+//     "custom/cava_left": {
+//         "format": "{}",
+//         "exec": "~/bin/waybar_cava.sh --left"
+//     },
+//     "custom/cava_right": {
+//         "format": "{}",
+//         "exec": "~/bin/waybar_cava.sh --right"
+//     } 
+// }

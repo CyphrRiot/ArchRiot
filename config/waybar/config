@@ -1,9 +1,15 @@
+/* ArchRiot Waybar Configuration */
+/* Main Waybar configuration file */
+
+/* NOTE: This files will be replaced and backed-up as .old after an update */
+/* NOTE: Changes will only be kept in user files: UserModules, UserWorkspaces */
+
 [
     {
         "include": [
             "$HOME/.config/waybar/Modules",
-            "$HOME/.config/waybar/ModulesWorkspaces",
             "$HOME/.config/waybar/ModulesCustom",
+            "$HOME/.config/waybar/ModulesWorkspaces",
             "$HOME/.config/waybar/ModulesGroups",
             "$HOME/.config/waybar/UserModules",
             "$HOME/.config/waybar/UserWorkspaces"
@@ -62,20 +68,12 @@
             "custom/separator#blank",
             "group/status",
             "custom/lock"              // Lockscreen
-        ],
-    
-        // ----- ArchRiot theme specific module override
-        "custom/arch": {
-            "format": "󰣇",
-            "on-click": "nwg-drawer -c 4 -is 48 -spacing 15 -fm \"Noto Sans\" || fuzzel",
-            "on-click-right": "pkill fuzzel || fuzzel",
-            "tooltip": true,
-            "tooltip-format": "Left-click: App Drawer | Right-click: Fuzzel"
-        }
+        ]
     }
 
     // ----- For another waybar with different content on the same or another screen:
     // e.g.: A bottom bar with clock on DP-1 only.
+    // *note the comma*
     //,{
         // Start a new waybar here.
         // "include": ["$HOME/.config/waybar/Modules"],  // Required for 'clock' module
