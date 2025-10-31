@@ -17,8 +17,10 @@ func PowerMenu() int {
 
 	choose := func() string {
 		if have("fuzzel") {
-			input := "Lock\nSuspend\nReboot\nPower Off\nCancel\nControl Panel\n"
-			cmd := exec.Command("fuzzel", "--dmenu", "--prompt=Power: ", "--width=30", "--lines=6")
+			items := []string{"Lock", "Suspend", "Reboot", "Power Off", "Cancel", "Control Panel"}
+			input := strings.Join(items, "\n")
+			linesArg := fmt.Sprintf("--lines=%d", len(items))
+			cmd := exec.Command("fuzzel", "--dmenu", "--prompt=Power: ", "--width=30", linesArg)
 			cmd.Stdin = strings.NewReader(input)
 			if out, err := cmd.Output(); err == nil {
 				return strings.TrimSpace(string(out))
@@ -73,9 +75,11 @@ func PowerMenu() int {
 	case "Control Panel":
 		{
 			cp := os.Getenv("HOME") + "/.local/share/archriot/config/bin/archriot-control-panel"
-			cmd := exec.Command(cp)
-			cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
-			_ = cmd.Start()
+			if _, err := os.Stat(cp); err == nil {
+				cmd := exec.Command(cp)
+				cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+				_ = cmd.Start()
+			}
 		}
 	}
 	return 0
