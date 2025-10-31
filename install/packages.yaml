@@ -124,8 +124,8 @@ desktop:
 
             - "true"
             - "chmod +x ~/.local/share/archriot/config/bin/*"
-            - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
-            - "chmod +x ~/.config/waybar/scripts/*"
+            - "bash -lc '[ -d ~/.local/share/archriot/config/bin/scripts ] && chmod +x ~/.local/share/archriot/config/bin/scripts/* || true'"
+            - "bash -lc '[ -d ~/.config/waybar/scripts ] && chmod +x ~/.config/waybar/scripts/* || true'"
             - "sleep 1 && if pgrep -x waybar >/dev/null 2>&1; then pkill -SIGUSR2 waybar; fi"
             - "~/.local/share/archriot/install/archriot --setup-temperature"
             - "bash -lc 'if command -v hyprctl >/dev/null 2>&1 && hyprctl -j monitors >/dev/null 2>&1; then $HOME/.local/share/archriot/install/archriot --kanshi-autogen; fi'"
