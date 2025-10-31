@@ -1,59 +1,118 @@
-# ArchRiot Development Plan — Next Steps
+# ArchRiot Development Plan — 3.8+
 
-This plan lists only what remains. All completed items have been removed.
+Purpose
 
-Non‑negotiables (keep us disciplined)
+- Keep this plan tight, actionable, and future‑proof.
+- Capture hard‑won lessons up front, then list only the next steps.
+- One change at a time; green builds; explicit commits.
 
-- One change at a time → make → verify green → stage exact paths → proceed (no commit unless explicitly told “commit”).
-- main.go is delegation-only (parse flags; wire to packages). No feature logic belongs there.
-- No new env vars for behavior (always use flags). No duplicate code. Remove dead/unreachable code immediately.
+Lessons & Patterns (Keep These Front‑of‑Mind)
 
-Priority action queue (in order)
+- Build discipline:
+    - After every change: run make; the build must be green before you proceed.
+    - Stage exact paths; confirm with git status -s before doing anything else.
+    - Do not commit unless explicitly told “commit”.
+- Entry point purity:
+    - main.go is delegation‑only: parse flags and call package functions.
+    - No feature logic in main.go; if new logic appears, extract to a package first.
+- UX correctness and resilience:
+    - Prefer native integrations (e.g., Waybar emitters) over external scripts.
+    - Provide safe fallbacks (e.g., opener fallbacks for help windows).
+    - Guard filesystem operations (chmod/rm) behind directory/file presence checks.
+- Defend against technical debt:
+    - Remove dead/unreachable code immediately.
+    - Do not add env vars for behavior; always expose flags.
+    - Consolidate settings; avoid duplication across modules and configs.
+- Rebase safety:
+    - Expect merges to change configs (e.g., Waybar). Re‑verify critical binds/UX after rebase.
+    - Re‑run validation checklists (below) before tagging a release.
+
+Process (Non‑Negotiable)
+
+- One change at a time → make → verify green → stage exact paths → proceed.
+- Commit only when explicitly told “commit”.
+- Keep diffs minimal and scoped; avoid drive‑by edits.
+- Never modify the ISO reference in README.md during normal changes (only during release prep if needed).
+
+Architecture Guardrails
+
+- Flags map 1:1 to package functions (no feature logic in main.go).
+- Extract multi‑concern logic to dedicated packages.
+- Large modules should be split by concern (emitters, tools, TUI model/view/update, etc.).
+- Prefer Go over shell scripts for first‑class features; when shells remain, guard their calls and paths.
+
+Quality Gates (Always Validate)
+
+- Waybar routing: native on‑click "activate", workspace persistence (1–4) with 5–6 dynamic.
+- Help binder: SUPER+SHIFT+H opens generated Keybindings Help.
+- Telegram launcher UX: PATH‑resolved + 2s notify (where applicable).
+- Pomodoro transitions: toast notifications; correct status JSON.
+- Installer: chmod/rm guards for removed script directories; no hard failures if absent.
+
+Next Steps (In Order)
 
 1. Docs & QA polish
-
-- README: ensure all examples match current behavior (workspace 1–4 persistence with dynamic 5–6, native on-click “activate”, SUPER+G Telegram with 2s notify).
-- Add a concise QA checklist (install/upgrade, multi-monitor routing, Pomodoro transitions, SUPER+SHIFT+H help).
-- Plan a short “Contributing” section pointing to these rules.
+    - README alignment with current behavior:
+        - Workspace persistence (1–4), dynamic 5–6.
+        - Native “activate” for workspace clicks (per‑monitor routing).
+        - SUPER+SHIFT+H help behavior; Telegram minimal launcher UX.
+    - Add a concise QA checklist (see Runtime Validation) and a short “Contributing” blurb referencing this plan’s rules.
 
 2. Memory defaults (document and verify)
-
-- Document safe, conservative defaults; keep advanced tuning strictly opt‑in.
-- Audit current defaults for surprises; add simple sanity checks (no-op if unsupported).
+    - Document conservative defaults and make clear that advanced tuning is opt‑in.
+    - Add simple sanity checks around memory‑related features to avoid unintended changes on unsupported systems.
 
 3. Monolith refactors (incremental; one file at a time)
+    - Split Waybar emitters from source/waybar/json.go into dedicated files:
+        - waybar/pomodoro.go (EmitPomodoro)
+        - waybar/memory.go (EmitMemory)
+        - waybar/cpu.go (EmitCPU)
+        - waybar/temp.go (EmitTemp)
+        - waybar/volume.go (EmitVolume)
+    - Split tools/tools.go by tool (secure boot, memory optimizer, perf tuner, dev env) and keep a tiny registry/factory.
+    - Split TUI files: model.go, update.go, view.go, messages.go for clarity.
 
-- waybar/json.go (split emitters into files):
-    - waybar/pomodoro.go (EmitPomodoro)
-    - waybar/memory.go (EmitMemory)
-    - waybar/cpu.go (EmitCPU)
-    - waybar/temp.go (EmitTemp)
-    - waybar/volume.go (EmitVolume)
-- tools/tools.go (split each tool into its own file; keep a small registry/factory).
-- tui/model.go (split into model.go, update.go, view.go, messages.go for clarity).
-
-4. Installer safeguards
-
-- Audit install/packages.yaml for any lingering references to removed script dirs or globs; guard with [ -d … ] checks (we fixed scripts; repeat for any similar patterns).
-- Keep chmod/rm calls robust when targets are missing (|| true and directory existence checks).
+4. Installer safeguards (audit for durability)
+    - Audit install/packages.yaml for lingering references to removed directories or script globs.
+    - Guard all chmod/rm/ln calls with presence checks; always ensure these are non‑fatal when targets are missing.
 
 5. Feature‑gated launcher evaluation
+    - Add Hyprlauncher behind a feature flag; keep Fuzzel as default.
+    - Validate parity and stability (focus behavior, classes, warm/cold start).
+    - Only consider flipping the default when parity is perfect across configs.
 
-- Add Hyprlauncher behind a feature flag (default remains Fuzzel).
-- Validate parity and stability (cold/warm launch, class names, focus behavior). Only consider switching default when parity is perfect.
+6. Tests & traceability (targeted)
+    - Help system: add unit tests for key normalization/display for binds; minimal test harness for HTML generation (no headless browser).
+    - Help opener: optional debug mode to emit the chosen opener and path when troubleshooting (silent by default).
 
-6. Tests and traceability (targeted)
+7. Release readiness (3.8.x cadence)
+    - VERSION on master must match the badge; the raw VERSION endpoint drives update checks.
+    - Prepare a 3.8.1 patch path if regressions appear (e.g., launcher class/routing, help opener, installer guards).
 
-- Help system: add small unit tests around key normalization/display (bind parsing).
-- OpenWeb: add minimal debug logging toggle (opener selected, path existence) for easier field diagnosis (keep silent by default).
+Runtime Validation (Quick Checklist)
 
-7. Release readiness (patch cadence)
+- Core commands:
+    - ./install/archriot --version
+    - ./install/archriot --help
+- Waybar lifecycle:
+    - ./install/archriot --waybar-status
+    - ./install/archriot --waybar-reload
+    - ./install/archriot --waybar-sweep
+- Workspaces:
+    - Validate persistent 1–4 only; 5–6 appear when in use.
+    - Clicks route correctly on the clicked monitor (native “activate”).
+- Help system:
+    - SUPER+SHIFT+H opens Keybindings Help (Brave app if present; gtk‑launch/xdg‑open fallback); generated path exists.
+- Pomodoro:
+    - Toggle & reset behavior; toast notifications on work/break transitions.
+- Installer robustness:
+    - No hard failures if ~/.local/share/archriot/config/bin/scripts or ~/.config/waybar/scripts are missing.
 
-- Ensure VERSION only changes when releasing and that the upgrade checker (raw VERSION on master) matches.
-- Prepare a 3.7.1 patch checklist if any regressions appear (Waybar routing, help binder, Telegram UX).
+Appendix: Quick Commands
 
-Guardrails (do not skip)
-
-- Always run make after each change; the build must be green before staging the next task.
-- Stage exact files; verify with git status -s before proceeding.
-- If you are not 100% confident a change won’t introduce side effects, do not propose it yet—evaluate and test first.
+- Build: make
+- Version: ./install/archriot --version
+- Help binder: ./install/archriot --help-binds-generate and ./install/archriot --help-binds-web
+- Waybar reload: ./install/archriot --waybar-reload
+- Workspace click (for custom modules): ./install/archriot --waybar-workspace-click {name}
+- Kanshi autogen: ./install/archriot --kanshi-autogen
