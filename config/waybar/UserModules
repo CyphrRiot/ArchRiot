@@ -2,7 +2,7 @@
 /* Add your own custom modules here (this file will be kept by the installer)*/
 
 // E.g.: User module for cava stereo bars
-// {
+{
 //     "custom/cava_left": {
 //         "format": "{}",
 //         "exec": "~/bin/waybar_cava.sh --left"
@@ -11,4 +11,4 @@
 //         "format": "{}",
 //         "exec": "~/bin/waybar_cava.sh --right"
 //     } 
-// }
+}
