@@ -111,7 +111,7 @@ desktop:
               preserve_if_exists: [thunar.xml]
             - pattern: applications/*
               target: ~/.local/share/applications/
-            - pattern: bin/scripts/generate-keybindings-help.sh
+
             - pattern: help/*
               target: ~/.local/share/archriot/config/help/
             - pattern: kanshi/*
@@ -122,7 +122,6 @@ desktop:
             - "ln -sf ~/.local/share/archriot/config/bin/archriot-brave ~/.local/bin/archriot-brave"
             - "ln -sf ~/.local/share/archriot/config/bin/archriot-control-panel ~/.local/bin/archriot-control-panel"
 
-            - "ln -sf ~/.local/share/archriot/config/bin/suspend-if-undocked.sh ~/.local/bin/suspend-if-undocked.sh"
             - "true"
             - "chmod +x ~/.local/share/archriot/config/bin/*"
             - "chmod +x ~/.local/share/archriot/config/bin/scripts/*"
@@ -244,7 +243,7 @@ desktop:
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-line-numbers true; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor highlight-current-line true; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor show-right-margin false; fi"
-            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor custom-font 'CaskaydiaMono Nerd Font Mono 12'; fi"
+            - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor custom-font 'Paper Mono 12'; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor line-height 1.2; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor use-system-font false; fi"
             - "if systemctl --user is-active --quiet dbus.service; then gsettings set org.gnome.TextEditor style-scheme 'cypherriot'; fi"
@@ -454,6 +453,12 @@ system:
 
     memory:
         commands:
+            - 'for d in /dev/zram*; do [ -b "$d" ] && sudo swapoff "$d" || true; done'
+            - "sudo mkdir -p /etc/systemd"
+            - "printf '[zram0]\nzram-size = 0\n' | sudo tee /etc/systemd/zram-generator.conf >/dev/null"
+            - "if systemctl list-unit-files | grep -q '^systemd-swap.service'; then sudo systemctl disable --now systemd-swap.service || true; fi"
+            - "printf 'vm.zone_reclaim_mode=0\nvm.overcommit_memory=0\n' | sudo tee /etc/sysctl.d/10-archriot-basics.conf >/dev/null"
+            - "sudo sysctl -p /etc/sysctl.d/10-archriot-basics.conf || true"
             - |
                 if [ -f "$HOME/.config/archriot/enable-memory-optimizations" ]; then
                   sudo cp ~/.local/share/archriot/config/system/99-memory-optimization.conf /etc/sysctl.d/99-memory-optimization.conf
