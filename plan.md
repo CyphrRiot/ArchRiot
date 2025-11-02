@@ -1,4 +1,4 @@
-# ArchRiot Development Plan — 3.8+
+# ArchRiot Development Plan — 3.9+
 
 Purpose
 
@@ -58,17 +58,12 @@ Next Steps (In Order)
         - SUPER+SHIFT+H help behavior; Telegram minimal launcher UX.
     - Add a concise QA checklist (see Runtime Validation) and a short “Contributing” blurb referencing this plan’s rules.
 
-2. Memory defaults (document and verify)
-    - Document conservative defaults and make clear that advanced tuning is opt‑in.
-    - Add simple sanity checks around memory‑related features to avoid unintended changes on unsupported systems.
+2. Memory stability (verify and document)
+    - Verify zram (zstd, size = ram/2) and sysctl tuning are applied; document opt‑out/override in README.
+    - Ensure systemd‑oomd remains disabled/masked during install/upgrade.
 
 3. Monolith refactors (incremental; one file at a time)
-    - Split Waybar emitters from source/waybar/json.go into dedicated files:
-        - waybar/pomodoro.go (EmitPomodoro)
-        - waybar/memory.go (EmitMemory)
-        - waybar/cpu.go (EmitCPU)
-        - waybar/temp.go (EmitTemp)
-        - waybar/volume.go (EmitVolume)
+    - ✓ Waybar emitters split (done)
     - Split tools/tools.go by tool (secure boot, memory optimizer, perf tuner, dev env) and keep a tiny registry/factory.
     - Split TUI files: model.go, update.go, view.go, messages.go for clarity.
 
@@ -85,19 +80,22 @@ Next Steps (In Order)
     - Help system: add unit tests for key normalization/display for binds; minimal test harness for HTML generation (no headless browser).
     - Help opener: optional debug mode to emit the chosen opener and path when troubleshooting (silent by default).
 
-7. Release readiness (3.8.x cadence)
+7. Release readiness (3.9.x cadence)
     - VERSION on master must match the badge; the raw VERSION endpoint drives update checks.
-    - Prepare a 3.8.1 patch path if regressions appear (e.g., launcher class/routing, help opener, installer guards).
+    - Prepare a 3.9.1 patch path if regressions appear (e.g., Brave gating refinement, display enforcement edge cases, installer guards).
 
 Runtime Validation (Quick Checklist)
 
 - Core commands:
     - ./install/archriot --version
     - ./install/archriot --help
-- Waybar lifecycle:
+- Waybar & Displays lifecycle:
     - ./install/archriot --waybar-status
     - ./install/archriot --waybar-reload
     - ./install/archriot --waybar-sweep
+    - ./install/archriot --displays-enforce (verify external‑only when docked; laptop‑only when undocked)
+    - systemctl --user is-enabled --quiet archriot-displays-enforce.service (enabled at login)
+    - systemctl --user is-active --quiet kanshi.service (running; may be enabled‑only if Brave gating applied)
 - Workspaces:
     - Validate persistent 1–4 only; 5–6 appear when in use.
     - Clicks route correctly on the clicked monitor (native “activate”).
