@@ -405,6 +405,9 @@ func main() {
 		case "--kanshi-autogen":
 			_ = displays.Autogen()
 			return
+		case "--displays-enforce":
+			_ = displays.Enforce()
+			return
 
 		default:
 			fmt.Printf("Unknown option: %s\n\n", os.Args[1])

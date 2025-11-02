@@ -117,13 +117,32 @@ func Bootstrap() error {
 		upProgram.Send(tui.LogMsg("🎉 Upgrade completed!"))
 		logger.LogMessage("SUCCESS", "Upgrade completed")
 
-		// Refresh idle manager so 10m lock works immediately post-upgrade
-		upProgram.Send(tui.LogMsg("🔄 Refreshing idle manager (hypridle)…"))
-		_ = exec.Command("pkill", "hypridle").Run()
+		// Refresh idle manager only if running and present (avoid disrupting apps)
 		if _, err := exec.LookPath("hypridle"); err == nil {
-			cmd := exec.Command("hypridle")
-			cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
-			_ = cmd.Start()
+			if exec.Command("pgrep", "-x", "hypridle").Run() == nil {
+				upProgram.Send(tui.LogMsg("🔄 Refreshing idle manager (hypridle)…"))
+				_ = exec.Command("pkill", "-x", "hypridle").Run()
+				cmd := exec.Command("hypridle")
+				cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+				_ = cmd.Start()
+			}
+		}
+
+		// If Brave is running, skip display enforcement and Waybar reload to avoid crashes; rely on login-time enforcement
+		if exec.Command("pgrep", "-x", "brave").Run() == nil || exec.Command("pgrep", "-x", "brave-browser").Run() == nil {
+			upProgram.Send(tui.LogMsg("🖥️ Skipping display enforcement and Waybar reload (Brave detected); relying on login-time enforcement"))
+		} else {
+			// Enforce display policy, then safely reload Waybar (sweep only if reload fails)
+			upProgram.Send(tui.LogMsg("🖥️ Enforcing display policy (external preferred)…"))
+			_ = exec.Command("sh", "-lc", "$HOME/.local/share/archriot/install/archriot --displays-enforce").Run()
+
+			// Try a safe Waybar reload first; only sweep if no instance is running afterwards
+			upProgram.Send(tui.LogMsg("🔄 Reloading Waybar…"))
+			_ = exec.Command("sh", "-lc", "$HOME/.local/share/archriot/install/archriot --waybar-reload").Run()
+			if exec.Command("pgrep", "-x", "waybar").Run() != nil {
+				upProgram.Send(tui.LogMsg("🧹 Sweeping Waybar surfaces…"))
+				_ = exec.Command("sh", "-lc", "$HOME/.local/share/archriot/install/archriot --waybar-sweep").Run()
+			}
 		}
 
 		// Signal TUI completion

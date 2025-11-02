@@ -108,6 +108,26 @@ Runtime Validation (Quick Checklist)
 - Installer robustness:
     - No hard failures if ~/.local/share/archriot/config/bin/scripts or ~/.config/waybar/scripts are missing.
 
+Git: safe pull with local changes
+
+- Preferred (one-shot):
+    - git pull --rebase --autostash
+
+- Manual stash, then pull:
+    - git stash push -u -m "WIP before pull"
+    - git pull --rebase
+    - git stash pop
+
+- Isolate WIP (optional, safest for bigger changes):
+    - git switch -c wip/keep-local
+    - git switch master && git pull --rebase
+    - git switch wip/keep-local && git rebase master
+
+Always:
+
+- Check git status -s before/after
+- If conflicts occur: resolve, then git add -A && git rebase --continue
+
 Appendix: Quick Commands
 
 - Build: make

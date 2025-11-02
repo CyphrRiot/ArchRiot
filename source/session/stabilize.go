@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/exec"
 	"syscall"
+
+	"archriot-installer/displays"
 )
 
 // StabilizeSession dedupes and relaunches session components for a healthy desktop state.
@@ -14,6 +16,9 @@ import (
 //   - Restarts hypridle if present (kill then start detached).
 //   - Optionally starts a background sleep inhibitor when withInhibit is true.
 func StabilizeSession(withInhibit bool) {
+	// Enforce external-preferred display policy (no compositor restart)
+	_ = displays.Enforce()
+
 	// Kill existing Waybar instances (best-effort)
 	_ = exec.Command("pkill", "-x", "waybar").Run()
 

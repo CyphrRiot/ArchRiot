@@ -50,8 +50,8 @@ func countMonitors() int {
 	return n
 }
 
-// SweepWaybar restarts Waybar if the number of Waybar windows is
-// clearly higher than the number of monitors (with a small tolerance).
+// SweepWaybar restarts Waybar only when the number of Waybar windows
+// exceeds the number of monitors (with a small tolerance); otherwise it skips.
 // It prints a short summary to stdout.
 func SweepWaybar() {
 	windows := countWaybarWindows()
@@ -70,7 +70,7 @@ func SweepWaybar() {
 		return
 	}
 
-	fmt.Printf("Waybar sweep: windows=%d, monitors=%d -> OK\n", windows, monitors)
+	fmt.Printf("Waybar sweep: windows=%d, monitors=%d -> skipping restart\n", windows, monitors)
 }
 
 // RestartWaybar forcibly restarts Waybar (kill + LaunchWaybar).

@@ -1,0 +1,26 @@
+[Unit]
+Description=ArchRiot: Enforce external-preferred display policy (no compositor restart)
+Documentation=man:hyprctl(1)
+Wants=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+
+# Only run if hyprctl exists (Hyprland session)
+ExecCondition=/usr/bin/sh -lc 'command -v hyprctl >/dev/null 2>&1'
+
+# Wait briefly for Hyprland to be ready to answer monitor queries
+ExecStartPre=/usr/bin/sh -lc 'for i in $(seq 1 40); do hyprctl -j monitors >/dev/null 2>&1 && break; sleep 0.25; done'
+
+# Best-effort: give kanshi a moment to apply hotplug state if it’s running (whether via systemd or Hyprland exec-once)
+ExecStartPre=/usr/bin/sh -lc 'for i in $(seq 1 40); do pgrep -x kanshi >/dev/null 2>&1 && break; sleep 0.25; done'
+
+# Enforce display policy live (external present => disable eDP/LVDS/DSI; otherwise enable laptop panel)
+ExecStart=%h/.local/share/archriot/install/archriot --displays-enforce
+
+# Consider the service active after completion (prevents re-triggering)
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

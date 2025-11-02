@@ -12,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"archriot-installer/config"
+	"archriot-installer/displays"
 	"archriot-installer/executor"
 	"archriot-installer/installer"
 	"archriot-installer/logger"
@@ -172,6 +173,16 @@ func RunInstallation() {
 
 	// Ensure Mullvad VPN connectivity (if installed and currently disconnected)
 	refreshMullvadIfActive()
+
+	// Enforce external-preferred display policy (no compositor restart)
+	// Guard against Brave being active to avoid renderer crashes; login service enforces at login
+	if exec.Command("pgrep", "-x", "brave").Run() == nil || exec.Command("pgrep", "-x", "brave-browser").Run() == nil {
+		Program.Send(tui.LogMsg("🖥️ Skipping display enforcement (Brave detected); relying on login-time enforcement"))
+
+	} else {
+		Program.Send(tui.LogMsg("🖥️ Enforcing display policy (external preferred)..."))
+		_ = displays.Enforce()
+	}
 
 	// Explicit success banner in install.log
 	logger.LogMessage("SUCCESS", "Installation completed")
