@@ -18,16 +18,6 @@
 
 </div>
 
-> Warning: On multi‑monitor setups, upgrading may temporarily stop Brave while displays are being reconciled.
->
-> Mitigation:
->
-> - Prefer upgrading with Brave closed.
-> - If Brave is affected, safely recover with:
->     - `~/.local/share/archriot/install/archriot --displays-enforce`
->     - `~/.local/share/archriot/install/archriot --waybar-reload`
-> - Displays are also re‑applied automatically at next login (login‑time enforcement).
-
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted (but never had)**
 
 ### **One Command. Complete Environment. Zero Compromises.**
@@ -172,6 +162,16 @@ exit
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
 
 #### 🚀 One-Line Install or Upgrade
+
+> Warning: On multi‑monitor setups, upgrading may temporarily stop Brave while displays are being reconciled.
+>
+> Mitigation:
+>
+> - Prefer upgrading with Brave closed.
+> - If Brave is affected, safely recover with:
+>     - `~/.local/share/archriot/install/archriot --displays-enforce`
+>     - `~/.local/share/archriot/install/archriot --waybar-reload`
+> - Displays are also re‑applied automatically at next login (login‑time enforcement).
 
 **The only command you need to remember:**
 
