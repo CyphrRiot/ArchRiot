@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.9-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.9.1-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -36,7 +36,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
-_Beautiful overview from [It's FOSS](https://www.youtube.com/embed/qrraIOvAcdg?si=eWu0iaUK64njmqEL)_
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qrraIOvAcdg?si=yooSbgD0FJKLuAkc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## 📚 Navigate This Guide
 
@@ -242,7 +242,10 @@ _Stay connected without selling your soul to data miners_
 | `SUPER + G` | Telegram messenger - Focus-or-launch (native/Flatpak) |
 | `SUPER + S` | Signal messenger - Smart Signal integration           |
 | `SUPER + M` | Google Messages - When you must use the machine       |
+| `SUPER + K` | Google Keep - Quick notes and lists                   |
 | `SUPER + X` | X/Twitter                                             |
+
+Note: `SUPER + SHIFT + K` — Stabilize session: relaunches Waybar, restarts hypridle, and enforces displays (no full reload).
 
 ### 📸 Screenshots & Recording
 

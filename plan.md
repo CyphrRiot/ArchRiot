@@ -23,6 +23,7 @@ Lessons & Patterns (Keep These Front‑of‑Mind)
     - Remove dead/unreachable code immediately.
     - Do not add env vars for behavior; always expose flags.
     - Consolidate settings; avoid duplication across modules and configs.
+    - Never add new .sh scripts for features that can be implemented as Go flags; implement them in the archriot binary and phase out legacy scripts.
 - Rebase safety:
     - Expect merges to change configs (e.g., Waybar). Re‑verify critical binds/UX after rebase.
     - Re‑run validation checklists (below) before tagging a release.
@@ -39,7 +40,7 @@ Architecture Guardrails
 - Flags map 1:1 to package functions (no feature logic in main.go).
 - Extract multi‑concern logic to dedicated packages.
 - Large modules should be split by concern (emitters, tools, TUI model/view/update, etc.).
-- Prefer Go over shell scripts for first‑class features; when shells remain, guard their calls and paths.
+- Never add new shell scripts for first‑class/runtime features; expose a Go flag in the archriot binary instead. If legacy shells remain, guard their calls/paths and plan removal.
 
 Quality Gates (Always Validate)
 

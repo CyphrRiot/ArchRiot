@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Keep
+Comment=Google Keep Notes
+Exec=archriot-brave --new-window --app="https://keep.google.com/"
+Terminal=false
+Icon=accessories-notes
+StartupNotify=true
+StartupWMClass=brave-keep.google.com
+Categories=Office;Utility;
