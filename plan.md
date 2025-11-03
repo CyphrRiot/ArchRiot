@@ -6,6 +6,23 @@ Purpose
 - Capture hard‑won lessons up front, then list only the next steps.
 - One change at a time; green builds; explicit commits.
 
+Non‑Negotiable Rules
+
+- One change at a time → make → verify green → stage exact paths → proceed.
+- Do not commit unless explicitly told "commit".
+- Never add new .sh scripts for first‑class/runtime features; expose Go flags in the archriot binary instead.
+- README edits must be appended at the bottom (release notes/changelog only).
+- Guard systemd/user unit enable/start with unit existence; never fail installer if a unit is missing.
+- Avoid full Hyprland reloads in installer flows; prefer runtime keyword updates or --stabilize-session.
+- No environment variables for behavior; always expose flags.
+- main.go remains delegation-only; move logic into packages.
+
+Lessons Learned
+
+- Hyprland reloads can crash Brave/reset monitors; avoid full reload for window rules.
+- kanshi.service may be missing; gate enablement by unit existence and make it non-fatal.
+- Stabilize via --stabilize-session; do not invent new shell helpers.
+
 Lessons & Patterns (Keep These Front‑of‑Mind)
 
 - Build discipline:
@@ -64,7 +81,6 @@ Next Steps (In Order)
     - Ensure systemd‑oomd remains disabled/masked during install/upgrade.
 
 3. Monolith refactors (incremental; one file at a time)
-    - ✓ Waybar emitters split (done)
     - Split tools/tools.go by tool (secure boot, memory optimizer, perf tuner, dev env) and keep a tiny registry/factory.
     - Split TUI files: model.go, update.go, view.go, messages.go for clarity.
 
@@ -83,7 +99,7 @@ Next Steps (In Order)
 
 7. Release readiness (3.9.x cadence)
     - VERSION on master must match the badge; the raw VERSION endpoint drives update checks.
-    - Prepare a 3.9.1 patch path if regressions appear (e.g., Brave gating refinement, display enforcement edge cases, installer guards).
+    - Prepare a 3.9.x patch path if regressions appear.
 
 Runtime Validation (Quick Checklist)
 
