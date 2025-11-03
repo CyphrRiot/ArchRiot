@@ -247,16 +247,6 @@ _Stay connected without selling your soul to data miners_
 
 Note: `SUPER + SHIFT + K` — Stabilize session: relaunches Waybar, restarts hypridle, and enforces displays (no full reload).
 
-Low-memory recovery (no reloads):
-
-- `~/.local/share/archriot/install/archriot --memory-clean --if-low --notify`
-- `~/.local/share/archriot/install/archriot --stabilize-session --memory-clean --notify`
-
-Tips:
-
-- `--if-low` cleans only when MemAvailable < 1024 MB (override with `--threshold-mb N`).
-- Elevation handled automatically (root → pkexec → sudo); no compositor reload involved.
-
 ### 📸 Screenshots & Recording
 
 _Capture your ArchRiot greatness and share it with the world_
@@ -1637,6 +1627,22 @@ Key rules (enforced in code and process)
 - Every CLI flag maps to a dedicated package function (no feature logic in `main.go`).
 - One change at a time; always run `make` after every change and stage exact files.
 - Remove unreachable or duplicate code immediately to prevent drift.
+
+## ✨ What’s New in v3.9.2
+
+- New first‑class memory clean:
+    - `~/.local/share/archriot/install/archriot --memory-clean`
+    - Options:
+        - `--if-low` (only clean when MemAvailable < 1024 MB by default)
+        - `--threshold-mb N` (adjust threshold)
+        - `--notify`
+    - Elevation is automatic: root → pkexec (GUI) → sudo fallback
+
+- Optional low‑memory stabilize (no compositor reload):
+    - `~/.local/share/archriot/install/archriot --stabilize-session --memory-clean --notify`
+
+- Optional keybinding (disabled by default unless you enable it):
+    - `bind = $mod CTRL SHIFT, K, exec, $HOME/.local/share/archriot/install/archriot --stabilize-session --memory-clean --notify  # Stabilize (low-memory)`
 
 ## ✨ What’s New in v3.6
 
