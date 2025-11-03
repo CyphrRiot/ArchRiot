@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -280,13 +281,58 @@ func main() {
 
 		case "--stabilize-session":
 			withInhibit := false
+			withMemClean := false
+			memThreshold := 1024
+			notify := false
 			for i := 2; i < len(os.Args); i++ {
-				if os.Args[i] == "--inhibit" {
+				switch os.Args[i] {
+				case "--inhibit":
 					withInhibit = true
-					break
+				case "--memory-clean":
+					withMemClean = true
+				case "--memory-threshold-mb":
+					if i+1 < len(os.Args) {
+						if v, err := strconv.Atoi(os.Args[i+1]); err == nil && v > 0 {
+							memThreshold = v
+							i++
+						}
+					}
+				case "--notify":
+					notify = true
 				}
 			}
+			if withMemClean {
+				session.MemoryClean(session.MemoryCleanOpts{
+					IfLow:       true,
+					ThresholdMB: memThreshold,
+					Notify:      notify,
+				})
+			}
 			session.StabilizeSession(withInhibit)
+			return
+
+		case "--memory-clean":
+			opts := session.MemoryCleanOpts{
+				IfLow:       false,
+				ThresholdMB: 1024,
+				Notify:      false,
+			}
+			for i := 2; i < len(os.Args); i++ {
+				switch os.Args[i] {
+				case "--if-low":
+					opts.IfLow = true
+				case "--threshold-mb":
+					if i+1 < len(os.Args) {
+						if v, err := strconv.Atoi(os.Args[i+1]); err == nil && v > 0 {
+							opts.ThresholdMB = v
+							i++
+						}
+					}
+				case "--notify":
+					opts.Notify = true
+				}
+			}
+			_ = session.MemoryClean(opts)
 			return
 
 		case "--zed":

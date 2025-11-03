@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.9.1-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.9.2-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -246,6 +246,16 @@ _Stay connected without selling your soul to data miners_
 | `SUPER + X` | X/Twitter                                             |
 
 Note: `SUPER + SHIFT + K` — Stabilize session: relaunches Waybar, restarts hypridle, and enforces displays (no full reload).
+
+Low-memory recovery (no reloads):
+
+- `~/.local/share/archriot/install/archriot --memory-clean --if-low --notify`
+- `~/.local/share/archriot/install/archriot --stabilize-session --memory-clean --notify`
+
+Tips:
+
+- `--if-low` cleans only when MemAvailable < 1024 MB (override with `--threshold-mb N`).
+- Elevation handled automatically (root → pkexec → sudo); no compositor reload involved.
 
 ### 📸 Screenshots & Recording
 
