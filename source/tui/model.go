@@ -303,7 +303,7 @@ func (m *InstallModel) View() string {
 	s.WriteString(title + "\n")
 
 	versionStyle := lipgloss.NewStyle().Foreground(dimColor)
-	subtitle := versionStyle.Render(" (Charm • Bubbletea • Cyphr Riot)")
+	subtitle := versionStyle.Render(" (Charm • Bubbletea • Cypher Riot)")
 	s.WriteString(subtitle + "\n\n")
 
 	// Info section - operation details
