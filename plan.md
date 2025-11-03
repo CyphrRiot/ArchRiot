@@ -16,12 +16,14 @@ Non‑Negotiable Rules
 - Avoid full Hyprland reloads in installer flows; prefer runtime keyword updates or --stabilize-session.
 - No environment variables for behavior; always expose flags.
 - main.go remains delegation-only; move logic into packages.
+- Never modify ~/.config/hypr/monitors.conf while Hyprland is active; skip backup/edits when `hyprctl -j monitors` succeeds; never trigger compositor reloads as part of upgrades.
 
 Lessons Learned
 
 - Hyprland reloads can crash Brave/reset monitors; avoid full reload for window rules.
 - kanshi.service may be missing; gate enablement by unit existence and make it non-fatal.
 - Stabilize via --stabilize-session; do not invent new shell helpers.
+- Do not modify monitors.conf during a live session; gate changes on Hyprland inactivity; prefer kanshi profiles for hotplug; never force compositor reloads from installer paths.
 
 Lessons & Patterns (Keep These Front‑of‑Mind)
 
