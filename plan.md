@@ -17,6 +17,10 @@ Non‑Negotiable Rules
 - No environment variables for behavior; always expose flags.
 - main.go remains delegation-only; move logic into packages.
 - Never modify ~/.config/hypr/monitors.conf while Hyprland is active; skip backup/edits when `hyprctl -j monitors` succeeds; never trigger compositor reloads as part of upgrades.
+- Never rewrite files in ~/.config/hypr if content is identical (diff-aware copy) — avoid triggering Hyprland auto-reload.
+- Do not modify ~/.config/hypr/monitors.conf during install/upgrade (no backups or sed edits) — leave the user’s file untouched.
+- After any Hyprland config updates while Hyprland is active, always run `archriot --displays-enforce` (no gating on other apps).
+- Do not autostart kanshi from within Hyprland; prefer optional `--displays-watch` for hotplug without reloads.
 
 Lessons Learned
 
@@ -61,6 +65,13 @@ Architecture Guardrails
 - Large modules should be split by concern (emitters, tools, TUI model/view/update, etc.).
 - Never add new shell scripts for first‑class/runtime features; expose a Go flag in the archriot binary instead. If legacy shells remain, guard their calls/paths and plan removal.
 
+New CLI flags (3.9.x)
+
+- --memory-clean [--if-low --threshold-mb N --notify] — safely drops caches (root → pkexec → sudo), prints before/after memory.
+- --portals-restart — safely restarts xdg-desktop-portal-hyprland and xdg-desktop-portal (systemd --user preferred; kill+start fallback).
+- --displays-watch [--interval-ms N --debounce-ms N | --once] — hotplug watcher that enforces external‑preferred policy without compositor reloads.
+- --stabilize-session [--memory-clean --notify] — relaunches Waybar, restarts hypridle, and enforces displays (no reloads).
+
 Quality Gates (Always Validate)
 
 - Waybar routing: native on‑click "activate", workspace persistence (1–4) with 5–6 dynamic.
@@ -101,6 +112,7 @@ Next Steps (In Order)
 
 7. Release readiness (3.9.x cadence)
     - VERSION on master must match the badge; the raw VERSION endpoint drives update checks.
+    - README is bottom-only for release notes; never edit top sections during normal changes.
     - Prepare a 3.9.x patch path if regressions appear.
 
 Runtime Validation (Quick Checklist)
