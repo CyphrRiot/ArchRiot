@@ -454,6 +454,9 @@ func main() {
 		case "--displays-enforce":
 			_ = displays.Enforce()
 			return
+		case "--portals-restart":
+			_ = session.RestartPortals()
+			return
 
 		default:
 			fmt.Printf("Unknown option: %s\n\n", os.Args[1])

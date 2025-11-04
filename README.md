@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.9.3-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.9.4-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -1809,3 +1809,12 @@ Thanks for the feedback and testing that shaped 3.0. This release focuses on roc
 - Process guardrails (docs):
     - plan.md updated with non‑negotiable rules to avoid compositor reloads in installer flows, never add new .sh for features (use Go flags), only edit README at the bottom, and gate systemd unit enable/start on unit existence.
 - No user‑visible feature changes; this is a safety and reliability release.
+
+## ✨ What’s New in v3.9.4
+
+- Portal stall recovery:
+    - New flag: `~/.local/share/archriot/install/archriot --portals-restart`
+    - Safely restarts `xdg-desktop-portal-hyprland` and `xdg-desktop-portal` via systemd --user when available; falls back to best‑effort kill+start.
+- Optional keybinding (commented suggestion):
+    - `bind = $mod SHIFT, P, exec, $HOME/.local/share/archriot/install/archriot --portals-restart  # Restart portals`
+- No compositor reloads; this is a targeted reliability improvement.
