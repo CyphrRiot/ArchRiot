@@ -1,6 +1,7 @@
 package installer
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -182,6 +183,14 @@ func copyFile(source, dest string, preserveFiles []string) error {
 	sourceData, err := os.ReadFile(source)
 	if err != nil {
 		return fmt.Errorf("reading source file: %w", err)
+	}
+
+	// Skip write when content is identical to prevent spurious Hyprland auto-reloads
+	if existing, err := os.ReadFile(dest); err == nil {
+		if bytes.Equal(existing, sourceData) {
+			logger.Log("Info", "File", "SkipWrite", "Unchanged: "+dest)
+			return nil
+		}
 	}
 
 	// Managed files backup: honor preserve.yaml managed_files (side-by-side .old) on overwrite-diff

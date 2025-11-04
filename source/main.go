@@ -457,6 +457,9 @@ func main() {
 		case "--portals-restart":
 			_ = session.RestartPortals()
 			return
+		case "--displays-watch":
+			_ = displays.WatchHotplug(os.Args[2:])
+			return
 
 		default:
 			fmt.Printf("Unknown option: %s\n\n", os.Args[1])

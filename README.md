@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.9.4-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.9.5-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -1818,3 +1818,13 @@ Thanks for the feedback and testing that shaped 3.0. This release focuses on roc
 - Optional keybinding (commented suggestion):
     - `bind = $mod SHIFT, P, exec, $HOME/.local/share/archriot/install/archriot --portals-restart  # Restart portals`
 - No compositor reloads; this is a targeted reliability improvement.
+
+## ✨ What’s New in v3.9.5
+
+- Hyprland config safety during upgrades:
+    - Diff-aware config copy: skip writes when unchanged (prevents auto-reload).
+    - No monitors.conf backup/sed during install (zero display churn).
+    - Always enforce displays post-config updates (no Brave gating).
+- Edit-time stability:
+    - kanshi autostart disabled inside Hyprland to avoid reload-induced output flips while editing.
+- No compositor reloads; this is a reliability-focused release.
