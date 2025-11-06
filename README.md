@@ -138,7 +138,7 @@ _Note: In some weird, rare cases, dhcpd is not running. In this case, run:_
 
 Then run `curl -fsSL https://ArchRiot.org/setup.sh | bash` to continue the final step of the installation.
 
-Note: If There's a wifi issue (after first boot)
+Note: If There's a wifi issue (after first boot), see: [ISO Install: Wi‑Fi abort fix (iwd PSKs)](#iso-wifi-abort)
 
 ```bash
 iwctl
