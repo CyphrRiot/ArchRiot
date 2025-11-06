@@ -50,6 +50,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [🔄 System Management](#system-management)
 - [🧰 Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
 - [🔧 Troubleshooting](#troubleshooting)
+    - [ISO Install: Wi‑Fi abort fix (iwd PSKs)](#iso-wifi-abort)
 - [📄 License](#license)
 
 ## ⚡ Quick Install
@@ -162,6 +163,8 @@ exit
 - Boot ISO → Run `riot` → Complete guided setup
 - Hyprland, themes, apps all pre-configured
 - No manual setup required
+
+<a id="iso-wifi-abort"></a>
 
 ### Troubleshooting (ISO Install): Wi‑Fi abort at “Wi‑Fi configuration/services not properly set on target”
 
