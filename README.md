@@ -157,6 +157,65 @@ exit
 - Hyprland, themes, apps all pre-configured
 - No manual setup required
 
+### Troubleshooting (ISO Install): Wi‑Fi abort at “Wi‑Fi configuration/services not properly set on target”
+
+Cause
+
+- The live ISO uses iwd/iwctl, while the installer’s first‑boot handoff expects NetworkManager (NM) connections on the target. If the target doesn’t have NM enabled and a usable connection profile, the installer aborts to avoid rebooting without network.
+
+Fix without modifying the ISO
+Run these from the archiso prompt after the error (target root is mounted at /mnt):
+
+1. Install and enable NetworkManager on the target (keep iwd; use it as NM backend)
+
+```bash
+arch-chroot /mnt pacman -Sy --noconfirm --needed networkmanager iwd
+
+arch-chroot /mnt bash -lc 'mkdir -p /etc/NetworkManager/conf.d &&
+  printf "[device]\nwifi.backend=iwd\n" > /etc/NetworkManager/conf.d/10-wifi-backend.conf &&
+  printf "[connection]\nwifi.powersave=2\n" > /etc/NetworkManager/conf.d/40-wifi-powersave.conf'
+
+arch-chroot /mnt systemctl enable NetworkManager
+```
+
+2. Optional: seed NM connections from live iwd credentials (best effort)
+
+```bash
+for f in /var/lib/iwd/*.psk; do
+  [ -e "$f" ] || continue
+  ssid="$(basename "$f" .psk)"
+  pass="$(awk -F= '/^Passphrase=/{print $2}' "$f")"
+  if [ -n "$pass" ]; then
+    arch-chroot /mnt nmcli c add type wifi ifname "*" con-name "$ssid" ssid "$ssid"
+    arch-chroot /mnt nmcli c modify "$ssid" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$pass"
+  else
+    echo "No Passphrase in $f; skipping NM import for $ssid (PSK-only)"
+  fi
+done
+
+arch-chroot /mnt bash -lc 'chmod 600 /etc/NetworkManager/system-connections/*.nmconnection 2>/dev/null || true'
+```
+
+3. Alternative: just copy iwd PSKs (if you prefer iwctl post‑boot)
+
+```bash
+arch-chroot /mnt mkdir -p /var/lib/iwd
+cp -a /var/lib/iwd/*.psk /mnt/var/lib/iwd/ 2>/dev/null || true
+```
+
+4. Reboot and connect
+
+- On first boot, NetworkManager will be running; use “nmtui” to connect if auto‑connect doesn’t happen.
+- If you copied iwd PSKs and prefer iwctl, you can also connect with “iwctl”.
+
+Quick workaround
+
+- Use a wired (Ethernet) connection during install; the safety gate will pass with a detected wired link.
+
+Note on Secure Boot
+
+- This specific Wi‑Fi abort is not caused by Secure Boot. Some systems still require disabling Secure Boot for other reasons; consult your vendor’s guide if needed.
+
 ---
 
 **Security Note:** Your system remains secure through LUKS disk encryption and screen lock. Passwordless sudo is standard for automated system installations and doesn't compromise security when disk encryption is properly configured.
