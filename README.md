@@ -167,26 +167,39 @@ exit
 
 Cause
 
-- The live ISO uses iwd/iwctl, while the installer’s first‑boot handoff expects NetworkManager (NM) connections on the target. If the target doesn’t have NM enabled and a usable connection profile, the installer aborts to avoid rebooting without network.
+- The live ISO uses iwd/iwctl, while the installer’s first‑boot handoff previously expected NetworkManager (NM) connections on the target. If no usable connection is set up on the target, the installer aborts to avoid rebooting without network.
 
 Fix without modifying the ISO
 Run these from the archiso prompt after the error (target root is mounted at /mnt):
 
-1. Install and enable NetworkManager on the target (keep iwd; use it as NM backend)
+1. Preferred: copy iwd PSKs and enable iwd + DHCP (no NetworkManager)
 
 ```bash
-arch-chroot /mnt pacman -Sy --noconfirm --needed networkmanager iwd
+# Enable iwd on target; avoid conflicts
+arch-chroot /mnt systemctl enable iwd
+arch-chroot /mnt systemctl mask wpa_supplicant
 
+# Ensure DHCP will bring up networking at boot (when not using NM)
+arch-chroot /mnt pacman -Sy --noconfirm --needed dhcpcd
+arch-chroot /mnt systemctl enable dhcpcd
+
+# Copy the live iwd credentials (PSKs) to the target
+arch-chroot /mnt mkdir -p /var/lib/iwd
+cp -a /var/lib/iwd/*.psk /mnt/var/lib/iwd/ 2>/dev/null || true
+arch-chroot /mnt chmod 600 /var/lib/iwd/*.psk 2>/dev/null || true
+```
+
+2. Optional alternative: use NetworkManager on the target (with iwd backend)
+
+```bash
+# Install and enable NetworkManager on target
+arch-chroot /mnt pacman -Sy --noconfirm --needed networkmanager iwd
 arch-chroot /mnt bash -lc 'mkdir -p /etc/NetworkManager/conf.d &&
   printf "[device]\nwifi.backend=iwd\n" > /etc/NetworkManager/conf.d/10-wifi-backend.conf &&
   printf "[connection]\nwifi.powersave=2\n" > /etc/NetworkManager/conf.d/40-wifi-powersave.conf'
-
 arch-chroot /mnt systemctl enable NetworkManager
-```
 
-2. Optional: seed NM connections from live iwd credentials (best effort)
-
-```bash
+# Seed NM connections from iwd (best effort)
 for f in /var/lib/iwd/*.psk; do
   [ -e "$f" ] || continue
   ssid="$(basename "$f" .psk)"
@@ -198,21 +211,13 @@ for f in /var/lib/iwd/*.psk; do
     echo "No Passphrase in $f; skipping NM import for $ssid (PSK-only)"
   fi
 done
-
 arch-chroot /mnt bash -lc 'chmod 600 /etc/NetworkManager/system-connections/*.nmconnection 2>/dev/null || true'
 ```
 
-3. Alternative: just copy iwd PSKs (if you prefer iwctl post‑boot)
+3. Reboot and connect
 
-```bash
-arch-chroot /mnt mkdir -p /var/lib/iwd
-cp -a /var/lib/iwd/*.psk /mnt/var/lib/iwd/ 2>/dev/null || true
-```
-
-4. Reboot and connect
-
-- On first boot, NetworkManager will be running; use “nmtui” to connect if auto‑connect doesn’t happen.
-- If you copied iwd PSKs and prefer iwctl, you can also connect with “iwctl”.
+- iwd path: system should auto‑connect from PSKs; if not, run “iwctl” and connect to your SSID.
+- NM path: use “nmtui” if auto‑connect doesn’t happen.
 
 Quick workaround
 
