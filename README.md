@@ -67,7 +67,11 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
       https://github.com/CyphrRiot/ArchRiot/releases
     - See: [⚡ Method 2 — ArchRiot ISO](#method-2-archriot-iso)
 
+<a id="choose-your-archriot-experience"></a>
+
 ## 🚀 Choose Your ArchRiot Experience
+
+<a id="method-1-install-script"></a>
 
 ### 🔥 Method 1: Install Script
 
@@ -94,6 +98,8 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 - Keeps your existing system intact
 
 #### **Note:** For fresh installations, we also have an **ArchRiot ISO available** (See below "Method 2")
+
+<a id="method-2-archriot-iso"></a>
 
 ### ⚡ Method 2: ArchRiot ISO
 
@@ -243,6 +249,8 @@ curl -fsSL https://ArchRiot.org/setup.sh | bash
 This downloads and runs our bulletproof Go binary installer with intelligent YAML configuration. Upgrading is exactly the same command - because simplicity is the ultimate sophistication.
 
 **What happens:** Automatic package installation, configuration deployment, and system setup with complete rollback capability if anything goes wrong.
+
+<a id="master-your-archriot-desktop"></a>
 
 ## ⌨️ Master Your ArchRiot Desktop
 
@@ -433,6 +441,8 @@ _The relentless march toward Linux perfection_
 git log --grep="FIX" --oneline
 ```
 
+<a id="archriot-control-panel"></a>
+
 ## 🎛️ ArchRiot Control Panel
 
 **The command center that makes Linux actually user-friendly**
@@ -494,6 +504,8 @@ migrate                              # Launch interactive backup/restore interfa
 **No flags, no complexity** - just run `migrate` and use the intuitive menu to backup or restore your entire ArchRiot setup in minutes!
 
 [![Migrate Tool](https://img.shields.io/badge/Backup_Tool-Migrate-6B46C1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyphrRiot/Migrate)
+
+<a id="key-customizations"></a>
 
 ## 🎯 Key Customizations
 
@@ -663,6 +675,8 @@ Notes:
 - **Removed heavy productivity** - Obsidian, LibreOffice, OBS Studio, KDEnlive, Pinta
 - **Removed proprietary services** - 1Password, Typora, Dropbox, Spotify, Zoom
 - **Removed entertainment** - YouTube webapp, WhatsApp webapp
+
+<a id="system-management"></a>
 
 ## 🔄 System Management
 
@@ -1287,6 +1301,8 @@ See:
 - 🧰 Advanced Usage: CLI Flags — waybar commands (launch/reload/status)
 - 🔧 Troubleshooting — logs path, SIGUSR2 reloads, dedupe tips, and recovery steps
 
+<a id="troubleshooting"></a>
+
 ## 🔧 Troubleshooting
 
 ### Multi‑monitor anomalies after install (ABI mismatch)
@@ -1719,6 +1735,8 @@ Key rules (enforced in code and process)
 - 🧩 Installer guard (ABI mismatch): Warns if Hyprland/wlroots/portal/Wayland upgrades are pending; use `--strict-abi` to block install until the system is upgraded.
 - 🔋 Battery “Full”: Shows 100% when the controller reports “fully-charged” for clearer UX.
 - 📚 README polish: Emoji “Navigate This Guide,” Quick Install panel, and deep technical content consolidated into Advanced Usage and Troubleshooting.
+
+<a id="license"></a>
 
 ## 📄 License
 
