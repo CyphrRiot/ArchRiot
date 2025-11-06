@@ -43,6 +43,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [🚀 Choose Your ArchRiot Experience](#choose-your-archriot-experience)
     - [🔥 Method 1: Install Script](#method-1-install-script)
     - [⚡ Method 2: ArchRiot ISO](#method-2-archriot-iso)
+        - [ISO Install: Wi‑Fi abort fix (iwd PSKs)](#iso-wifi-abort)
 
 - [⌨️ Master Your ArchRiot Desktop](#master-your-archriot-desktop)
 - [🎛️ Control Panel](#archriot-control-panel)
@@ -50,7 +51,6 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [🔄 System Management](#system-management)
 - [🧰 Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
 - [🔧 Troubleshooting](#troubleshooting)
-    - [ISO Install: Wi‑Fi abort fix (iwd PSKs)](#iso-wifi-abort)
 - [📄 License](#license)
 
 ## ⚡ Quick Install
