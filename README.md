@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-3.9.5-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-3.9.6-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -145,7 +145,7 @@ iwctl
 device list
 station {device} scan
 station {device} get-networks
-station connect {network}
+station {device} connect {network}
 station {device} show
 exit
 ```
@@ -432,7 +432,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v3.6.1 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
+**🔥 Current Release:** v3.9.6 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
 
 **🚀 Recent Milestones:**
 
@@ -1312,6 +1312,25 @@ See:
 <a id="troubleshooting"></a>
 
 ## 🔧 Troubleshooting
+
+### Display enforcement opt-out
+
+If your display configuration should not be automatically enforced (for example, to prevent your laptop panel from being disabled), you can opt out safely:
+
+- Disable enforcement (no monitor changes will be applied):
+    - Create the marker file:
+        - touch ~/.config/archriot/disable-display-enforcement
+
+- Re-enable enforcement:
+    - Remove the marker file:
+        - rm ~/.config/archriot/disable-display-enforcement
+
+Notes:
+
+- The login-time service will no-op when this marker exists.
+- You can still run manual commands when needed:
+    - ~/.local/share/archriot/install/archriot --displays-enforce
+    - ~/.local/share/archriot/install/archriot --waybar-reload
 
 ### Multi‑monitor anomalies after install (ABI mismatch)
 
