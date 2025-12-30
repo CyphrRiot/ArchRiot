@@ -145,6 +145,20 @@ func detectConnectedConnectors() (externals, internals []string) {
 
 // Enforce applies the external-preferred display policy with verification/retry to handle hotplug races.
 func Enforce() int {
+	// User opt-out: skip enforcement when marker file is present
+	home := os.Getenv("HOME")
+	if home == "" {
+		if h, err := os.UserHomeDir(); err == nil {
+			home = h
+		}
+	}
+	if home != "" {
+		if st, err := os.Stat(filepath.Join(home, ".config", "archriot", "disable-display-enforcement")); err == nil && !st.IsDir() {
+			fmt.Println("Displays enforcement: disabled by ~/.config/archriot/disable-display-enforcement")
+			return 0
+		}
+	}
+
 	if _, err := exec.LookPath("hyprctl"); err != nil {
 		fmt.Fprintln(os.Stderr, "hyprctl not found in PATH")
 		return 1
