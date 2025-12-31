@@ -91,7 +91,7 @@ end
 
 # Auto-start Hyprland on TTY1
 if status is-login && test (tty) = /dev/tty1
-    exec Hyprland
+    exec start-hyprland
 end
 
 # Right-hand Prompt Function
