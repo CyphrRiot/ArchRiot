@@ -416,7 +416,7 @@ system:
             - gvfs-mtp
             - ntfs-3g
             - dosfstools
-            - exfatprogs
+            # - exfatprogs
         commands:
             - "sudo systemctl enable --now udisks2.service"
 
