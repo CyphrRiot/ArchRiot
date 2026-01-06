@@ -57,9 +57,16 @@ func (h *HyprlandApplier) ApplyTheme(colors *MatugenColors, dynamicEnabled bool)
 
 // applyDynamicColors applies dynamic border colors from matugen palette
 func (h *HyprlandApplier) applyDynamicColors(content string, colors *MatugenColors) string {
-	// Extract colors and convert to Hyprland format
-	activeColor := strings.TrimPrefix(colors.Colors.Dark.Primary, "#")
-	inactiveColor := strings.TrimPrefix(colors.Colors.Dark.SurfaceVariant, "#")
+	// Extract raw hex (may be 6/8 digits or empty)
+	rawActive := strings.TrimPrefix(colors.Colors.Dark.Primary, "#")
+	rawInactive := strings.TrimPrefix(colors.Colors.Dark.SurfaceVariant, "#")
+
+	// Validate hex; fallback to static colors if invalid
+	activeColor, okA := h.sanitizeHex(rawActive)
+	inactiveColor, okI := h.sanitizeHex(rawInactive)
+	if !okA || !okI {
+		return h.applyStaticColors(content)
+	}
 
 	// Convert to Hyprland RGBA format with alpha and gradients
 	activeBorder := fmt.Sprintf("rgba(%s88) 45deg", activeColor)
@@ -71,6 +78,23 @@ func (h *HyprlandApplier) applyDynamicColors(content string, colors *MatugenColo
 	content = h.replaceProperty(content, "col.border_active", activeBorder)
 
 	return content
+}
+
+// sanitizeHex ensures a 6-digit RGB hex string; accepts 6 or 8 (drops alpha) and validates characters.
+func (h *HyprlandApplier) sanitizeHex(hex string) (string, bool) {
+	hex = strings.TrimSpace(strings.TrimPrefix(hex, "#"))
+	if len(hex) == 8 {
+		hex = hex[:6]
+	}
+	if len(hex) != 6 {
+		return "", false
+	}
+	for _, r := range hex {
+		if !((r >= '0' && r <= '9') || (r >= 'a' && r <= 'f') || (r >= 'A' && r <= 'F')) {
+			return "", false
+		}
+	}
+	return hex, true
 }
 
 // applyStaticColors applies static CypherRiot border colors
