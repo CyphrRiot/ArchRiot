@@ -103,6 +103,8 @@ desktop:
                   [monitors.conf, keybindings.conf, windowrules.conf]
             - pattern: waybar/*
               preserve_if_exists: [UserWorkspaces, UserModules]
+            - pattern: waybar/scripts/*
+              target: ~/.local/share/archriot/config/waybar/scripts/
             - pattern: fuzzel/*
             - pattern: mako/*
             - pattern: Thunar/*
@@ -126,6 +128,7 @@ desktop:
             - "chmod +x ~/.local/share/archriot/config/bin/*"
             - "bash -lc '[ -d ~/.local/share/archriot/config/bin/scripts ] && chmod +x ~/.local/share/archriot/config/bin/scripts/* || true'"
             - "bash -lc '[ -d ~/.config/waybar/scripts ] && chmod +x ~/.config/waybar/scripts/* || true'"
+            - "bash -lc '[ -d ~/.local/share/archriot/config/waybar/scripts ] && chmod +x ~/.local/share/archriot/config/waybar/scripts/* || true'"
             - "bash -lc 'if pgrep -x brave >/dev/null 2>&1 || pgrep -x brave-browser >/dev/null 2>&1; then echo Brave active; else $HOME/.local/share/archriot/install/archriot --waybar-reload; fi'"
             - "~/.local/share/archriot/install/archriot --setup-temperature"
             - "bash -lc 'if command -v hyprctl >/dev/null 2>&1 && hyprctl -j monitors >/dev/null 2>&1 && ! pgrep -x brave >/dev/null 2>&1 && ! pgrep -x brave-browser >/dev/null 2>&1; then $HOME/.local/share/archriot/install/archriot --kanshi-autogen; fi'"

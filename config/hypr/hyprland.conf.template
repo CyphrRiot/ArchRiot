@@ -1,0 +1,438 @@
+# Learn how to configure Hyprland: https://wiki.hyprland.org/Configuring/
+
+# Change your personal monitor setup in here to keep the main config portable
+source = ~/.config/hypr/monitors.conf
+
+# Default applications
+$terminal = ghostty
+$fileManager = Thunar
+$browser = brave --new-window --ozone-platform=wayland
+$messenger = env GDK_SCALE=1 signal-desktop --ozone-platform=wayland --enable-features=UseOzonePlatform
+$webapp = $browser --app
+
+# ==================== CORE HYPRLAND CONFIG ====================
+# Basic variables
+$mod = SUPER
+
+# Environment variables
+env = XCURSOR_THEME,Bibata-Modern-Ice
+env = HYPRCURSOR_THEME,Bibata-Modern-Ice
+env = XCURSOR_SIZE,24
+env = HYPRCURSOR_SIZE,24
+
+# Autostart applications
+exec-once = waybar
+exec-once = mako
+exec-once = hypridle
+exec-once = hyprsunset -t 3500
+
+
+exec-once = swaybg -i ~/.local/share/archriot/backgrounds/riot_01.jpg -m fill
+exec-once = sleep 2 && $HOME/.local/share/archriot/config/bin/welcome
+
+# Start Mullvad GUI minimized to tray if account is logged in
+exec-once = $HOME/.local/share/archriot/config/bin/scripts/mullvad-startup.sh
+
+# Window rules
+windowrule = scrolltouchpad 1.5, class:^(com.mitchellh.ghostty)$
+windowrulev2 = float, class:^(org\.pulseaudio\.pavucontrol)$
+windowrulev2 = size 800 85%, class:^(org\.pulseaudio\.pavucontrol)$
+windowrulev2 = center, class:^(org\.pulseaudio\.pavucontrol)$
+windowrulev2 = float, class:^(blueberry.py)$
+windowrulev2 = float, class:^(org.gnome.Calculator)$
+
+# X (Twitter) window rules
+windowrulev2 = float, class:^(brave-x\.com.*)$
+windowrulev2 = size 40% 85%, class:^(brave-x\.com.*)$
+windowrulev2 = move 58% 8%, class:^(brave-x\.com.*)$
+
+# X (Twitter) specific class rules (for fuzzel launches)
+windowrulev2 = float, class:^(twitter-x)$
+windowrulev2 = size 40% 85%, class:^(twitter-x)$
+windowrulev2 = move 58% 8%, class:^(twitter-x)$
+
+# X (Twitter) fallback rules for brave-browser class
+windowrulev2 = float, class:^(brave-browser)$, title:.*X.*
+windowrulev2 = size 40% 85%, class:^(brave-browser)$, title:.*X.*
+windowrulev2 = move 58% 8%, class:^(brave-browser)$, title:.*X.*
+
+# ArchRiot.org PWA window rules
+windowrulev2 = float, class:^(archriot-help)$
+windowrulev2 = size 1024 85%, class:^(archriot-help)$
+windowrulev2 = center, class:^(archriot-help)$
+
+windowrulev2 = float, class:^(brave-archriot\.org.*)$
+windowrulev2 = size 1024 85%, class:^(brave-archriot\.org.*)$
+windowrulev2 = center, class:^(brave-archriot\.org.*)$
+
+
+# Google Messages window rules
+windowrulev2 = float, class:^(brave-messages\.google\.com.*)$
+windowrulev2 = size 40% 85%, class:^(brave-messages\.google\.com.*)$
+windowrulev2 = center, class:^(brave-messages\.google\.com.*)$
+
+# Google Messages fallback rules for brave-browser class
+windowrulev2 = float, class:^(brave-browser)$, title:.*[Mm]essages.*
+windowrulev2 = size 40% 85%, class:^(brave-browser)$, title:.*[Mm]essages.*
+windowrulev2 = center, class:^(brave-browser)$, title:.*[Mm]essages.*
+
+# Proton Mail fallback rules for brave-browser class
+windowrulev2 = float, class:^(brave-mail\.proton\.me.*)$
+windowrulev2 = size 45% 85%, class:^(brave-mail\.proton\.me.*)$
+windowrulev2 = move 2% 8%, class:^(brave-mail\.proton\.me.*)$
+windowrulev2 = float, class:^(brave-browser)$, title:.*[Pp]roton.*[Mm]ail.*
+windowrulev2 = size 45% 85%, class:^(brave-browser)$, title:.*[Pp]roton.*[Mm]ail.*
+windowrulev2 = move 2% 8%, class:^(brave-browser)$, title:.*[Pp]roton.*[Mm]ail.*
+
+# Signal window rules
+windowrulev2 = float, class:^(Signal)$
+windowrulev2 = float, class:^(signal)$
+windowrulev2 = size 40% 85%, class:^(Signal)$
+windowrulev2 = size 40% 85%, class:^(signal)$
+windowrulev2 = move 2% 8%, class:^(Signal)$
+windowrulev2 = move 2% 8%, class:^(signal)$
+
+# Feather wallet window rules
+windowrulev2 = float, class:^(feather)$
+windowrulev2 = size 50% 85%, class:^(feather)$
+windowrulev2 = center, class:^(feather)$
+
+# Lollypop music player window rules
+windowrulev2 = float, class:^(org.gnome.Lollypop)$
+windowrulev2 = size 50% 85%, class:^(org.gnome.Lollypop)$
+windowrulev2 = center, class:^(org.gnome.Lollypop)$
+
+# Fragments window rules
+windowrulev2 = float, class:^(de.haeckerfelix.Fragments)$
+windowrulev2 = size 35% 50%, class:^(de.haeckerfelix.Fragments)$
+windowrulev2 = center, class:^(de.haeckerfelix.Fragments)$
+
+# Gnome System Monitor window rules
+windowrulev2 = float, class:^(gnome-system-monitor)$
+windowrulev2 = size 1000 85%, class:^(gnome-system-monitor)$
+windowrulev2 = center, class:^(gnome-system-monitor)$
+windowrulev2 = float, class:^(org.gnome.SystemMonitor)$
+windowrulev2 = size 1000 85%, class:^(org.gnome.SystemMonitor)$
+windowrulev2 = center, class:^(org.gnome.SystemMonitor)$
+
+# iwgtk WiFi manager window rules
+windowrulev2 = float, class:^(org.twosheds.iwgtk)$
+windowrulev2 = size 600 85%, class:^(org.twosheds.iwgtk)$
+windowrulev2 = center, class:^(org.twosheds.iwgtk)$
+
+# nwg-displays monitor configuration window rules
+windowrulev2 = float, class:^(nwg-displays)$
+windowrulev2 = size 900 85%, class:^(nwg-displays)$
+windowrulev2 = center, class:^(nwg-displays)$
+
+# Gnome Disk Utility window rules
+windowrulev2 = float, class:^(org.gnome.DiskUtility)$
+windowrulev2 = size 800 600, class:^(org.gnome.DiskUtility)$
+windowrulev2 = center, class:^(org.gnome.DiskUtility)$
+
+# Gnome Text Editor window rules
+windowrulev2 = opacity 0.9 0.9, class:^(org\.gnome\.TextEditor)$
+
+# ArchRiot Welcome window rules
+windowrulev2 = float, title:^(Welcome to ArchRiot)$
+windowrulev2 = center, title:^(Welcome to ArchRiot)$
+windowrulev2 = size 800 85%, title:^(Welcome to ArchRiot)$
+
+# ArchRiot Help System window rules
+windowrulev2 = float, title:^(ArchRiot Help System)$
+windowrulev2 = center, title:^(ArchRiot Help System)$
+windowrulev2 = size 900 85%, title:^(ArchRiot Help System)$
+
+# ArchRiot Version Update dialog window rules
+windowrulev2 = float, title:^(ArchRiot Update Available)$
+windowrulev2 = center, title:^(ArchRiot Update Available)$
+windowrulev2 = size 600 85%, title:^(ArchRiot Update Available)$
+
+# ArchRiot Control Panel window rules
+windowrulev2 = float, title:^(ArchRiot Control Panel)$
+windowrulev2 = center, title:^(ArchRiot Control Panel)$
+windowrulev2 = size 900 85%, title:^(ArchRiot Control Panel)$
+
+# Floating terminal window rules
+windowrulev2 = float, class:^(com.mitchellh.ghostty-floating)$
+windowrulev2 = center, class:^(com.mitchellh.ghostty-floating)$
+windowrulev2 = size 900 80%, class:^(com.mitchellh.ghostty-floating)$
+
+windowrulev2 = size 52% 85%, floating:1, class:^(brave-.*)$
+
+# Subtle window transparency (98% opacity, 2% background visible)
+windowrulev2 = opacity 0.9 0.88, class:^(com.mitchellh.ghostty)$
+windowrulev2 = opacity 0.9 0.88, class:^(com.mitchellh.ghostty-floating)$
+
+windowrulev2 = opacity 0.98 0.96, class:^(foot)$
+windowrulev2 = opacity 0.98 0.96, class:^(Code)$
+windowrulev2 = opacity 0.98 0.96, class:^(code-oss)$
+windowrulev2 = opacity 0.98 0.96, class:^(VSCodium)$
+windowrulev2 = opacity 0.98 0.96, class:^(neovim)$
+windowrulev2 = opacity 0.85 0.80, class:^(Thunar)$
+windowrulev2 = opacity 0.98 0.96, class:^(org.gnome.TextEditor)$
+windowrulev2 = opacity 0.98 0.96, class:^(Signal)$
+windowrulev2 = opacity 0.98 0.96, class:^(signal)$
+
+# Input configuration
+input {
+    kb_layout = us
+    kb_variant =
+    kb_model =
+    kb_options =
+    kb_rules =
+
+    follow_mouse = 1
+    sensitivity = 0
+
+    repeat_rate = 40
+    repeat_delay = 600
+
+    # touchpad {
+    #     natural_scroll = false
+    #     scroll_factor = 0.4
+    #     clickfinger_behavior = false      # Traditional corner/button right-click
+    #     tap_button_map = lrm             # Left, Right, Middle click with 1, 2, 3 fingers
+    #     disable_while_typing = true      # Prevent accidental clicks while typing
+    #     drag_lock = false                # Disable drag lock for better experience
+    #     tap_to_click = true              # Enable tap-to-click
+    #     middle_button_emulation = true   # Emulate middle click with both buttons
+    # }
+}
+
+# General appearance
+general {
+    gaps_in = 0
+    gaps_out = 2
+    border_size = 1
+    col.active_border = rgba(89b4fa88) 45deg
+    col.inactive_border = rgba(1a1a1a60)
+    layout = dwindle
+    allow_tearing = false
+}
+
+# Decorations
+decoration {
+    rounding = 8
+
+    active_opacity = 1.0
+    inactive_opacity = 0.95
+    fullscreen_opacity = 1.0
+
+    dim_inactive = true
+    dim_strength = 0.05
+    dim_special = 0.5
+
+    blur {
+        enabled = true
+        size = 3
+        passes = 2
+        ignore_opacity = true
+        new_optimizations = true
+        special = false
+        popups = false
+    }
+
+    shadow {
+        enabled = true
+        range = 4
+        render_power = 2
+        color = rgba(1a1b26cc)
+        color_inactive = rgba(1a1b26aa)
+    }
+}
+
+# Animations
+animations {
+    enabled = true
+
+    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+
+    animation = windows, 1, 7, myBezier
+    animation = windowsOut, 1, 7, default, popin 80%
+    animation = border, 1, 10, default
+    animation = borderangle, 1, 8, default
+    animation = fade, 1, 7, default
+    animation = workspaces, 1, 6, default
+}
+
+# Layouts
+dwindle {
+    pseudotile = true
+    preserve_split = true
+}
+
+master {
+    new_status = master
+}
+
+# Gestures
+gestures {
+    workspace_swipe = false
+}
+
+# Miscellaneous
+misc {
+    force_default_wallpaper = 0
+    disable_hyprland_logo = true
+    animate_manual_resizes = false
+}
+
+# Group styling
+group {
+    col.border_active = rgba(89b4fa88) 45deg
+
+    groupbar {
+        col.active = rgba(bb9af7ff)
+    }
+}
+
+# ==================== KEYBINDINGS ====================
+# Start default apps
+bind = $mod, return, exec, $terminal
+bind = $mod SHIFT, return, exec, $terminal --class=com.mitchellh.ghostty-floating
+bind = $mod, F, exec, $fileManager
+bind = $mod, B, exec, $browser
+bind = $mod, N, exec, $terminal -e nvim
+bind = $mod, T, exec, $terminal -e btop
+bind = $mod, D, exec, fuzzel
+bind = $mod, G, exec, ~/.local/share/archriot/config/bin/scripts/signal-launcher.sh
+bind = $mod, S, exec, ~/.local/share/archriot/config/bin/scripts/signal-launcher.sh
+bind = $mod, O, exec, gnome-text-editor
+bind = $mod, Z, exec, zed
+bind = $mod, slash, exec, $terminal
+
+# App launcher
+bind = $mod, space, exec, fuzzel
+
+# Control Panel
+bind = $mod, C, exec, notify-send "Opening Control Panel..." && DISPLAY=:0 $HOME/.local/share/archriot/config/bin/archriot-control-panel
+
+# Pomodoro Timer
+bind = $mod, comma, exec, $HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh
+
+# Help system
+bind = $mod, H, exec, $browser --new-window --ozone-platform=wayland --class=archriot-help --app="https://archriot.org"
+
+# Waybar and theme controls
+bind = $mod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar
+bind = $mod CTRL, SPACE, exec, $HOME/.local/share/archriot/config/bin/swaybg-next
+
+# Notifications
+bind = $mod, period, exec, makoctl dismiss
+bind = $mod SHIFT, period, exec, makoctl dismiss --all
+
+# Window management
+bind = $mod, W, killactive,
+bind = $mod, Q, killactive,
+bind = $mod, V, togglefloating,
+bind = $mod, J, togglesplit,
+bind = $mod, P, pseudo,
+bind = $mod, TAB, exec, ~/.local/share/archriot/config/bin/scripts/window-switcher.sh --all-workspaces
+
+# Fix off-screen windows (manual trigger)
+bind = $mod SHIFT, TAB, exec, ~/.local/share/archriot/config/bin/scripts/fix-offscreen-windows.sh
+
+
+
+
+# Move focus
+bind = $mod, left, movefocus, l
+bind = $mod, right, movefocus, r
+bind = $mod, up, movefocus, u
+bind = $mod, down, movefocus, d
+
+# Switch workspaces
+bind = $mod, 1, workspace, 1
+bind = $mod, 2, workspace, 2
+bind = $mod, 3, workspace, 3
+bind = $mod, 4, workspace, 4
+bind = $mod, 5, workspace, 5
+bind = $mod, 6, workspace, 6
+bind = $mod, 7, workspace, 7
+bind = $mod, 8, workspace, 8
+bind = $mod, 9, workspace, 9
+bind = $mod, 0, workspace, 10
+
+# Move windows to workspaces
+bind = $mod SHIFT, 1, movetoworkspace, 1
+bind = $mod SHIFT, 2, movetoworkspace, 2
+bind = $mod SHIFT, 3, movetoworkspace, 3
+bind = $mod SHIFT, 4, movetoworkspace, 4
+bind = $mod SHIFT, 5, movetoworkspace, 5
+bind = $mod SHIFT, 6, movetoworkspace, 6
+bind = $mod SHIFT, 7, movetoworkspace, 7
+bind = $mod SHIFT, 8, movetoworkspace, 8
+bind = $mod SHIFT, 9, movetoworkspace, 9
+bind = $mod SHIFT, 0, movetoworkspace, 10
+
+# Swap windows
+bind = $mod SHIFT, left, swapwindow, l
+bind = $mod SHIFT, right, swapwindow, r
+bind = $mod SHIFT, up, swapwindow, u
+bind = $mod SHIFT, down, swapwindow, d
+
+# Move windows around (smart movement)
+bind = $mod CTRL, left, movewindow, l
+bind = $mod CTRL, right, movewindow, r
+bind = $mod CTRL, up, movewindow, u
+bind = $mod CTRL, down, movewindow, d
+
+# Resize windows
+bind = $mod, minus, resizeactive, -100 0
+bind = $mod, equal, resizeactive, 100 0
+bind = $mod SHIFT, minus, resizeactive, 0 -100
+bind = $mod SHIFT, equal, resizeactive, 0 100
+
+# Mouse bindings
+bindm = $mod, mouse:272, movewindow
+bindm = $mod, mouse:273, resizewindow
+bind = $mod, mouse_down, workspace, e+1
+bind = $mod, mouse_up, workspace, e-1
+
+# Media keys
+bindel = ,XF86AudioRaiseVolume, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --inc
+bindel = ,XF86AudioLowerVolume, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --dec
+bindel = ,XF86AudioMute, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --toggle
+bindel = ,XF86AudioMicMute, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --toggle-mic
+bindel = ,XF86MonBrightnessUp, exec, ~/.local/share/archriot/config/bin/scripts/Brightness.sh --up
+bindel = ,XF86MonBrightnessDown, exec, ~/.local/share/archriot/config/bin/scripts/Brightness.sh --down
+
+# Media controls
+bindl = , XF86AudioNext, exec, playerctl next
+bindl = , XF86AudioPause, exec, playerctl play-pause
+bindl = , XF86AudioPlay, exec, playerctl play-pause
+bindl = , XF86AudioPrev, exec, playerctl previous
+
+# Screenshots
+bind = , PRINT, exec, hyprshot -m region
+bind = SHIFT, PRINT, exec, hyprshot -m window
+bind = CTRL, PRINT, exec, hyprshot -m output
+bind = $mod SHIFT, S, exec, hyprshot -m region
+bind = $mod SHIFT, W, exec, hyprshot -m window
+bind = $mod SHIFT, F, exec, hyprshot -m output
+
+# Color picker
+bind = $mod, PRINT, exec, hyprpicker -a
+
+# Mail key binding
+bind = , XF86Mail, exec, $browser --new-window --ozone-platform=wayland --app="https://mail.proton.me/u/11/inbox"
+
+# ==================== WEB APP BINDINGS ====================
+
+bind = $mod, E, exec, $browser --new-window --ozone-platform=wayland --app="https://mail.proton.me/u/11/inbox"
+bind = $mod, M, exec, $browser --new-window --ozone-platform=wayland --app="https://messages.google.com/web/conversations"
+bind = $mod, X, exec, $browser --new-window --ozone-platform=wayland --app="https://x.com/"
+bind = $mod SHIFT, X, exec, $browser --new-window --ozone-platform=wayland --app="https://x.com/compose/post"
+
+# ==================== SYSTEM CONTROLS ====================
+# Lock screen
+bind = $mod, L, exec, hyprlock
+
+# Power menu
+bind = $mod, ESCAPE, exec, $HOME/.local/share/archriot/config/bin/power-menu
+
+# ==================== MONITOR EVENT HOOKS ====================
+# Removed automatic window fixing to prevent unwanted repositioning
+
+# ==================== THEME & STYLING ====================

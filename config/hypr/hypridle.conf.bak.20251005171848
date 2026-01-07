@@ -1,0 +1,18 @@
+general {
+    lock_cmd = pidof hyprlock || hyprlock       # avoid starting multiple hyprlock instances.
+    before_sleep_cmd = loginctl lock-session    # lock before suspend.
+    after_sleep_cmd = hyprctl dispatch dpms on  # to avoid having to press a key twice to turn on the display.
+}
+
+listener {
+    timeout = 600                      # 10min
+    on-timeout = loginctl lock-session # lock screen when timeout has passed
+}
+
+# DPMS listener - only on non-Intel systems to prevent Intel GPU display hangs
+# Intel GPUs have issues with hyprctl dispatch dpms off causing black screen hangs
+listener {
+    timeout = 900                                 # 15min
+    on-timeout = bash -c 'if ! lspci | grep -i "intel.*vga" >/dev/null 2>&1; then hyprctl dispatch dpms off; fi'
+    on-resume = bash -c 'if ! lspci | grep -i "intel.*vga" >/dev/null 2>&1; then hyprctl dispatch dpms on; fi'
+}
