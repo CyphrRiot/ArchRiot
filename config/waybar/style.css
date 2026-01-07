@@ -216,6 +216,10 @@ tooltip {
     color: @accent5;
 }
 
+#custom-weather-emoji {
+    color: @accent5;
+}
+
 #custom-updater {
     color: #7287fd;
 }
