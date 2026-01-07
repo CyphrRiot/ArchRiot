@@ -1,0 +1,33 @@
+# Ignore backup and temporary files in this Hypr config directory
+
+# Common backup suffixes
+*.bak
+*.bak.*
+*.backup
+*.backup.*
+*.orig
+*.old
+*.save
+
+# Editor and temp files
+*~
+.#*
+*.tmp
+*.swp
+*.swo
+
+# Known stray backups that have appeared before
+hyprland.conf.backup
+hypridle.conf.backup
+hypridle.conf.bak.*
+monitors.conf.bak
+hyprlock.test.conf
+
+# Keep primary configuration files tracked (safety, even though patterns above shouldn't match)
+!hyprland.conf
+!hyprlock.conf
+!hypridle.conf
+!monitors.conf
+!windowrules.conf
+!keybindings.conf
+!workspaces.conf
