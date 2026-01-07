@@ -14,7 +14,7 @@
             "$HOME/.config/waybar/UserModules",
             "$HOME/.config/waybar/UserWorkspaces"
         ],
-        
+
         // ----- WAYBAR SETTINGS:
         // Commented out to prevent dual Waybar when disconnecting from monitors
         // Defaults to all monitors if unset
@@ -29,7 +29,7 @@
         "margin-top": 3,
         "position": "top",
         "ipc": false,
-    
+
         // ----- MODULES LEFT:
         "modules-left": [
             "custom/arch",             // App Drawer
@@ -39,12 +39,14 @@
             "mpris",                   // Media status
             "hyprland/window"          // Active window title
         ],
-    
+
         // ----- MODULES CENTER:
         "modules-center": [
-            "clock"                    // Clock with date
+            "clock",
+            "custom/separator#dot",
+            "custom/weather-emoji"
         ],
-    
+
         // ----- MODULES RIGHT:
         "modules-right": [
             "custom/separator#blank_3",
