@@ -124,7 +124,7 @@
     },
     // Separators
     "custom/separator#dot": {
-    	"format": "",
+    	"format": "•",
     	"interval": "once",
     	"tooltip": false
     },

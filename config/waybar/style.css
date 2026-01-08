@@ -212,7 +212,9 @@ tooltip {
 .modules-right > widget:last-child > #workspaces {
 }
 
-#clock {
+#clock,
+#custom-weather-emoji,
+#custom-separator.dot {
     color: @accent5;
 }
 
