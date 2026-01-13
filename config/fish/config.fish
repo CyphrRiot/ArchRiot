@@ -34,20 +34,20 @@ set -g __fish_git_prompt_showupstream yes
 set -g __fish_git_prompt_color_branch yellow
 set -g __fish_git_prompt_color_upstream_ahead purple
 set -g __fish_git_prompt_color_upstream_behind red
-set -g __fish_git_prompt_color_dirtystate 'ff8c00'
+set -g __fish_git_prompt_color_dirtystate ff8c00
 set -g __fish_git_prompt_char_dirtystate "●"
 set -g __fish_git_prompt_char_stagedstate "→"
 set -g __fish_git_prompt_char_untrackedfiles "☡"
 set -g __fish_git_prompt_char_stashstate "↩"
 set -g __fish_git_prompt_char_upstream_ahead "+"
-set -g __fish_git_prompt_char_upstream_behind "-"
+set -g __fish_git_prompt_char_upstream_behind -
 set -g __fish_git_prompt_char_upstream_equal ""
 
 # Enhanced Prompt Function
 function fish_prompt
     set -l last_status $status
     set_color purple
-    echo -n "λ "  # Purple lambda - ArchRiot programming themed
+    echo -n "λ " # Purple lambda - ArchRiot programming themed
     # echo -n "门 "  # Purple gate - ArchRiot themed (Chinese gate character) - old version
     set_color normal
     set_color blue
@@ -89,9 +89,17 @@ end
 # Hyprland Auto-start
 # =============================================================================
 
-# Auto-start Hyprland on TTY1
+# Auto-start Hyprland on TTY1 (new/old compatibility)
 if status is-login && test (tty) = /dev/tty1
-    exec start-hyprland
+    if type -q start-hyprland
+        exec start-hyprland
+    else if type -q hyprland
+        exec hyprland
+    else if type -q Hyprland
+        exec Hyprland
+    else
+        echo "Hyprland launcher not found (tried: start-hyprland, hyprland, Hyprland)"
+    end
 end
 
 # Right-hand Prompt Function
