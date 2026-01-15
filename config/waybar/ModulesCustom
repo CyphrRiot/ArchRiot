@@ -229,5 +229,11 @@
     	"on-click": "$HOME/.config/waybar/scripts/mullvad-click.sh left",
     	"on-click-right": "$HOME/.config/waybar/scripts/mullvad-click.sh right",
     	"tooltip": true
+    },
+    "custom/weather-emoji": {
+    	"format": "{}",
+    	"interval": 600,
+    	"exec": "$HOME/.config/waybar/scripts/weather-emoji-plain.sh",
+    	"tooltip": true
     }
 }
