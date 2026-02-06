@@ -1797,7 +1797,7 @@ class DisplayWidget(BaseControlWidget):
         self.mark_changes_pending()
 
     def apply_resolution_change(self, resolution):
-        """Apply resolution change immediately to system, preserving current scale"""
+        """Apply resolution change immediately to system, preserving current scale and persist to kanshi"""
         try:
             import subprocess, json
 
@@ -1855,6 +1855,30 @@ class DisplayWidget(BaseControlWidget):
                     ],
                     check=False,
                 )
+
+            # Persist resolution to kanshi: replace existing 'mode' or append if missing
+            try:
+                from pathlib import Path as _Path
+                import re as _re
+                kanshi_path = _Path.home() / ".config" / "kanshi" / "config"
+                if kanshi_path.exists():
+                    content = kanshi_path.read_text()
+                    # Replace existing mode value for this output
+                    pattern_mode = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b[^\n]*?\bmode\s+)(\S+)", _re.MULTILINE)
+                    new_content, n1 = pattern_mode.subn(rf"\g<1>{resolution}", content)
+                    if n1 == 0:
+                        # Append mode if it's missing on the output line
+                        pattern_no_mode = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b(?![^\n]*\bmode\b)[^\n]*)$", _re.MULTILINE)
+                        def _append_mode(m):
+                            return m.group(1) + f" mode {resolution}"
+                        new_content2, n2 = pattern_no_mode.subn(_append_mode, content)
+                        if n2 > 0 and new_content2 != content:
+                            kanshi_path.write_text(new_content2)
+                    else:
+                        if new_content != content:
+                            kanshi_path.write_text(new_content)
+            except Exception:
+                pass
         except Exception as e:
             print(f"Resolution change error: {e}")
 
@@ -1956,18 +1980,27 @@ class DisplayWidget(BaseControlWidget):
                 except Exception:
                     pass
 
-            # Best-effort: update kanshi scale if a matching output line exists
+            # Persist scale to kanshi: replace existing 'scale' or append if missing
             try:
-                kanshi_path = Path.home() / ".config" / "kanshi" / "config"
+                from pathlib import Path as _Path
+                import re as _re
+                kanshi_path = _Path.home() / ".config" / "kanshi" / "config"
                 if kanshi_path.exists():
                     content = kanshi_path.read_text()
-                    pattern = re.compile(
-                        rf"(^\s*output\s+{re.escape(monitor_name)}\b[^\n]*?\bscale\s+)(\d+(\.\d+)?)",
-                        re.MULTILINE,
-                    )
-                    new_content, n = pattern.subn(rf"\g<1>{scale_factor}", content)
-                    if n > 0 and new_content != content:
-                        kanshi_path.write_text(new_content)
+                    # Replace existing scale value for this output
+                    pattern_scale = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b[^\n]*?\bscale\s+)(\d+(\.\d+)?)", _re.MULTILINE)
+                    new_content, n1 = pattern_scale.subn(rf"\g<1>{scale_factor}", content)
+                    if n1 == 0:
+                        # Append scale if it's missing on the output line
+                        pattern_no_scale = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b(?![^\n]*\bscale\b)[^\n]*)$", _re.MULTILINE)
+                        def _append_scale(m):
+                            return m.group(1) + f" scale {scale_factor}"
+                        new_content2, n2 = pattern_no_scale.subn(_append_scale, content)
+                        if n2 > 0 and new_content2 != content:
+                            kanshi_path.write_text(new_content2)
+                    else:
+                        if new_content != content:
+                            kanshi_path.write_text(new_content)
             except Exception:
                 pass
 
