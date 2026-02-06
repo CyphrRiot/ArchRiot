@@ -277,7 +277,7 @@ desktop:
             #- iwgtk
             - file-roller
             # - secrets
-            - fragments
+            - trasmission-gtk
             #- wget
         configs:
             - pattern: applications/*
