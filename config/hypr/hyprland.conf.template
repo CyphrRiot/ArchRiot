@@ -391,10 +391,10 @@ bind = $mod, mouse_down, workspace, e+1
 bind = $mod, mouse_up, workspace, e-1
 
 # Media keys
-bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
-bindel = ,XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-
-bindel = ,XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-bindel = ,XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindel = ,XF86AudioRaiseVolume, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --inc
+bindel = ,XF86AudioLowerVolume, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --dec
+bindel = ,XF86AudioMute, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --toggle
+bindel = ,XF86AudioMicMute, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --toggle-mic
 bindel = ,XF86MonBrightnessUp, exec, ~/.local/share/archriot/config/bin/scripts/Brightness.sh --up
 bindel = ,XF86MonBrightnessDown, exec, ~/.local/share/archriot/config/bin/scripts/Brightness.sh --down
 
