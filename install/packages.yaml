@@ -597,7 +597,6 @@ system:
 media:
     players:
         packages:
-            - showtime
             - mpv
             - lollypop
             - ffmpeg
