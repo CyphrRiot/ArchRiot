@@ -104,7 +104,7 @@ desktop:
             - pattern: waybar/*
               preserve_if_exists: [UserWorkspaces, UserModules]
             - pattern: waybar/scripts/*
-              target: ~/.local/share/archriot/config/waybar/scripts/
+              target: ~/.config/waybar/scripts/
             - pattern: fuzzel/*
             - pattern: mako/*
             - pattern: Thunar/*
