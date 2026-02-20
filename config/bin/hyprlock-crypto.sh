@@ -99,7 +99,7 @@ def fmt_amount(v: float, width: int = 10) -> str:
         return f"$ {v:>{width},.2f}"
     return "$ " + "--".rjust(width)
 
-def fmt_signed_amount(v: float, width: int = 10) -> str:
+def fmt_signed_amount(v: float, width: int = 8) -> str:
     if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
         return "         --"
     sign = "+" if v >= 0 else "-"
