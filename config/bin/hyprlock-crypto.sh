@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# ArchRiot — hyprlock-crypto.sh (refactored)
-# Single source of truth for crypto list and ids. No duplication.
+# ArchRiot — hyprlock-crypto.sh (single-source config)
 # Modes:
-#   BTC|ETH|LTC|XMR|ZEC  -> single line, e.g. "BTC $91,350.50"
-#   ROW                  -> one-line row: "BTC $.. • ZEC $.. • XMR $.. • ETH $.. • LTC $.."
-#   ROWML                -> multi-line block with alignment and basic arrows
-# Notes:
-# - Uses CoinGecko simple/price (no API key). Caches to ~/.cache.
-# - Entire fetch/cache/format pipeline is implemented in Python stdlib (no curl/jq deps).
+#   <SYM> (e.g., BTC|ETH|LTC|XMR|ZEC|SOL) → prints e.g. "BTC $12,345.67"
+#   ROW                                   → single line: "SYM $.. • SYM $.. • ..."
+#   ROWML                                 → multi-line block with arrows and staleness
+# Implementation:
+# - Exactly ONE ordered list defines both symbols and CoinGecko ids.
+# - Everything (URL, ordering, parsing, output) derives from this single list.
 
 set -euo pipefail
 
@@ -20,32 +19,26 @@ CACHE_TTL=1800 # 30 minutes
 mkdir -p "$CACHE_DIR"
 
 python3 - "$MODE" "$CUR_FILE" "$PREV_FILE" "$CACHE_TTL" <<'PY'
-import json, sys, os, time, urllib.request, urllib.error
+import json, sys, os, time, urllib.request
 
-# Single source of truth
-ORDER = ["BTC", "ZEC", "XMR", "ETH", "LTC"]
-ID_MAP = {
-    "BTC": "bitcoin",
-    "ZEC": "zcash",
-    "XMR": "monero",
-    "ETH": "ethereum",
-    "LTC": "litecoin",
-}
+# SINGLE SOURCE OF TRUTH: ordered (SYMBOL, coingecko_id) pairs
+PAIRS = [
+    ("ZEC", "zcash"),
+    ("XMR", "monero"),
+    ("LTC", "litecoin"),
+    ("BTC", "bitcoin"),
+    ("ETH", "ethereum"),
+    ("SOL", "solana"),
+]
 
 mode, cur_path, prev_path, ttl_s = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+SYMS = [s for s, _ in PAIRS]
+IDS  = [i for _, i in PAIRS]
 
-# Build URL dynamically from ORDER/ID_MAP
-ids = ",".join(ID_MAP[s] for s in ORDER)
-URL = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=usd"
+# Build URL from single list
+ids_param = ",".join(IDS)
+URL = f"https://api.coingecko.com/api/v3/simple/price?ids={ids_param}&vs_currencies=usd"
 UA  = "ArchRiot/hyprlock-crypto"
-
-# Decide if a refresh is needed based on cache mtime; we will try to refresh anyway, but this prevents over-frequent writes
-now = int(time.time())
-mtime = 0
-try:
-    mtime = int(os.path.getmtime(cur_path))
-except Exception:
-    mtime = 0
 
 # Try to refresh cache non-fatally
 try:
@@ -57,7 +50,6 @@ try:
         f.write(data)
     os.replace(tmp, cur_path)
 except Exception:
-    # keep existing cache
     pass
 
 # Load current and previous snapshots
@@ -72,10 +64,10 @@ try:
 except Exception:
     prev = {}
 
-# Build prices dict from ORDER/ID_MAP
+# Build prices dict from single list
 prices = {}
-for sym in ORDER:
-    cid = ID_MAP[sym]
+for sym, cid in PAIRS:
+    v = None
     try:
         v = cur.get(cid, {}).get('usd')
     except Exception:
@@ -95,10 +87,10 @@ def fmt_one(sym: str) -> str:
     return f"{sym} {fmt_amount(v)}" if isinstance(v, (int, float)) else f"{sym} $ --"
 
 m = mode.upper()
-if m in ORDER:
+if m in SYMS:
     print(fmt_one(m))
 elif m == "ROW":
-    print(" • ".join(fmt_one(s) for s in ORDER))
+    print(" • ".join(fmt_one(s) for s in SYMS))
 elif m == "ROWML":
     try:
         age_s = max(0, int(time.time() - os.path.getmtime(cur_path)))
@@ -106,7 +98,7 @@ elif m == "ROWML":
         age_s = 0
     STALE = " ⌛" if age_s > (ttl_s * 3 // 2) else ""  # stale if > 1.5x TTL
     lines = []
-    for s in ORDER:
+    for s in SYMS:
         v = prices.get(s)
         pv = prev.get(s)
         arrow = " •"
