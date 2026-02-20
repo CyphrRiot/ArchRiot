@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# ArchRiot — hyprlock-crypto.sh (single-source config)
+# ArchRiot — hyprlock-crypto.sh (single-source config with optional blank separators)
 # Modes:
-#   <SYM> (e.g., BTC|ETH|LTC|XMR|ZEC|SOL) → prints e.g. "BTC $12,345.67"
-#   ROW                                   → single line: "SYM $.. • SYM $.. • ..."
-#   ROWML                                 → multi-line block with arrows and staleness
+#   <SYM> (e.g., BTC|ETH|LTC|XMR|ZEC) → prints e.g. "BTC $12,345.67"
+#   ROW                                 → single line: "SYM $.. • SYM $.. • ..." (separators skipped)
+#   ROWML                               → multi-line block with arrows and staleness (blank separators honored)
 # Implementation:
 # - Exactly ONE ordered list defines both symbols and CoinGecko ids.
-# - Everything (URL, ordering, parsing, output) derives from this single list.
+# - You can insert a blank separator by using a pair ("", "") in the list; it will
+#   create a blank line in ROWML output and be ignored elsewhere (URL/ROW/single).
 
 set -euo pipefail
 
@@ -22,22 +23,22 @@ python3 - "$MODE" "$CUR_FILE" "$PREV_FILE" "$CACHE_TTL" <<'PY'
 import json, sys, os, time, urllib.request
 
 # SINGLE SOURCE OF TRUTH: ordered (SYMBOL, coingecko_id) pairs
+# Insert ("", "") to force a blank line in ROWML output at that position.
 PAIRS = [
     ("ZEC", "zcash"),
     ("XMR", "monero"),
     ("LTC", "litecoin"),
+    ("",   ""),       # blank line separator between LTC and BTC (ROWML only)
     ("BTC", "bitcoin"),
     ("ETH", "ethereum"),
-    ("SOL", "solana"),
 ]
 
 mode, cur_path, prev_path, ttl_s = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
-SYMS = [s for s, _ in PAIRS]
-IDS  = [i for _, i in PAIRS]
 
-# Build URL from single list
-ids_param = ",".join(IDS)
-URL = f"https://api.coingecko.com/api/v3/simple/price?ids={ids_param}&vs_currencies=usd"
+# Build URL from non-blank ids only
+ids = [cid for sym, cid in PAIRS if sym and cid]
+url_ids = ",".join(ids)
+URL = f"https://api.coingecko.com/api/v3/simple/price?ids={url_ids}&vs_currencies=usd"
 UA  = "ArchRiot/hyprlock-crypto"
 
 # Try to refresh cache non-fatally
@@ -64,9 +65,11 @@ try:
 except Exception:
     prev = {}
 
-# Build prices dict from single list
+# Build prices dict for non-blank symbols
 prices = {}
 for sym, cid in PAIRS:
+    if not sym or not cid:
+        continue
     v = None
     try:
         v = cur.get(cid, {}).get('usd')
@@ -86,11 +89,14 @@ def fmt_one(sym: str) -> str:
     v = prices.get(sym)
     return f"{sym} {fmt_amount(v)}" if isinstance(v, (int, float)) else f"{sym} $ --"
 
+# Helper lists
+SYMS = [sym for sym, cid in PAIRS if sym]
+
 m = mode.upper()
-if m in SYMS:
+if m in prices:
     print(fmt_one(m))
 elif m == "ROW":
-    print(" • ".join(fmt_one(s) for s in SYMS))
+    print(" • ".join(fmt_one(s) for s in SYMS if s in prices))
 elif m == "ROWML":
     try:
         age_s = max(0, int(time.time() - os.path.getmtime(cur_path)))
@@ -98,15 +104,18 @@ elif m == "ROWML":
         age_s = 0
     STALE = " ⌛" if age_s > (ttl_s * 3 // 2) else ""  # stale if > 1.5x TTL
     lines = []
-    for s in SYMS:
-        v = prices.get(s)
-        pv = prev.get(s)
+    for sym, cid in PAIRS:
+        if not sym or not cid:
+            lines.append("")  # blank separator line
+            continue
+        v = prices.get(sym)
+        pv = prev.get(sym)
         arrow = " •"
         if isinstance(v, (int, float)) and isinstance(pv, (int, float)):
             arrow = f" {UP_EMO}" if v > pv else (f" {DOWN_EMO}" if v < pv else f" {SAME_EMO}")
-        lines.append(f"{s} {fmt_amount(v)}{arrow}{STALE}")
+        lines.append(f"{sym} {fmt_amount(v)}{arrow}{STALE}")
     print("\n".join(lines))
-    # Save snapshot for next comparison
+    # Save snapshot for next comparison (non-blank only)
     try:
         tmp = prev_path + ".tmp"
         with open(tmp, 'w', encoding='utf-8') as f:
