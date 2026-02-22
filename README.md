@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-4.2.7-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-4.2.8-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -1350,6 +1350,36 @@ Notes:
 
 - Notes
     - Weather uses stormy; if missing, it simply shows nothing (no errors).
+
+- Hyprlock crypto (holdings/P&L and custom list)
+
+  ArchRiot’s lock screen uses a more powerful crypto script that supports holdings, entry price (to show profit/loss), ordering, and blank-line separators — all defined from a single list.
+
+  Where:
+  - Script path: `$HOME/.local/share/archriot/config/bin/hyprlock-crypto.sh`
+  - Wired in hyprlock: see `config/hypr/hyprlock.conf` (execs with `ROWML` mode)
+
+  Edit the `PAIRS` list near the top of the script. Use 2‑tuples for price‑only, or 4‑tuples to enable P/L:
+
+  ```python
+  PAIRS = [
+      ("ZEC", "zcash",   0,   0.0),  # 4‑tuple → shows P/L when entry > 0 (held, entry_price)
+      ("XMR", "monero",  0,   0.0),
+      ("LTC", "litecoin", 0,   0.0),
+      ("",    ""),               # blank separator line (ROWML only)
+      ("BTC", "bitcoin"),        # 2‑tuple → price only (no P/L)
+      ("ETH", "ethereum"),
+  ]
+  ```
+
+  Quick rules:
+  - Add a token: append a tuple. Use CoinGecko’s id as the second field (from the coin’s URL, e.g., `https://www.coingecko.com/en/coins/zcash` → `zcash`).
+  - Remove a token: delete its tuple.
+  - Show P/L: switch to a 4‑tuple and set your holdings (`held`) and your average entry price (`entry`). P/L appears only when `entry > 0`.
+  - Add a blank separator: insert `("", "")` exactly where you want the blank line (affects only ROWML mode).
+  - Alignment: amounts and percents use fixed widths for clean columns on monospace fonts. When entry is 0, P/L is hidden.
+
+
     - Crypto uses curl + jq + CoinGecko; if dependencies are missing, it simply shows nothing.
 
 ### Multi‑monitor anomalies after install (ABI mismatch)

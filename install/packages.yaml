@@ -278,6 +278,8 @@ desktop:
             - file-roller
             # - secrets
             - transmission-gtk
+            - transmission-cli
+
             #- wget
         configs:
             - pattern: applications/*
@@ -287,6 +289,10 @@ desktop:
             - "rm -f ~/.local/share/applications/Bluesky.desktop ~/.local/share/applications/bluesky.desktop; sudo rm -f /usr/local/share/applications/Bluesky.desktop /usr/local/share/applications/bluesky.desktop; sudo rm -f /usr/share/applications/Bluesky.desktop /usr/share/applications/bluesky.desktop || true"
             - "update-desktop-database ~/.local/share/applications/"
             - "sudo mkdir -p /etc/NetworkManager/conf.d"
+            - "mkdir -p ~/.config/transmission"
+            - "test -f ~/.config/transmission/settings.json && cp ~/.config/transmission/settings.json ~/.config/transmission/settings.json.bak.$(date +%s) || true"
+            - "if [ -f ~/.config/transmission/settings.json ]; then sed -i -E 's/\"rpc-enabled\":\s*false/\"rpc-enabled\": true/; s/\"rpc_enabled\":\s*false/\"rpc_enabled\": true/; s/\"rpc-bind-address\":\s*\"[^\"]*\"/\"rpc-bind-address\": \"127.0.0.1\"/; s/\"rpc_whitelist\":\s*\"[^\"]*\"/\"rpc_whitelist\": \"127.0.0.1,::1\"/; s/\"rpc-whitelist\":\s*\"[^\"]*\"/\"rpc-whitelist\": \"127.0.0.1,::1\"/; s/\"rpc-whitelist-enabled\":\s*false/\"rpc-whitelist-enabled\": true/; s/\"rpc_whitelist_enabled\":\s*false/\"rpc_whitelist_enabled\": true/; s/\"rpc-host-whitelist-enabled\":\s*true/\"rpc-host-whitelist-enabled\": false/; s/\"rpc_host_whitelist_enabled\":\s*true/\"rpc_host_whitelist_enabled\": false/' ~/.config/transmission/settings.json; else printf '{\\n  \"rpc-enabled\": true,\\n  \"rpc_enabled\": true,\\n  \"rpc-bind-address\": \"127.0.0.1\",\\n  \"rpc-whitelist-enabled\": true,\\n  \"rpc_whitelist_enabled\": true,\\n  \"rpc-whitelist\": \"127.0.0.1,::1\",\\n  \"rpc_whitelist\": \"127.0.0.1,::1\",\\n  \"rpc-url\": \"/transmission/\",\\n  \"rpc_host_whitelist_enabled\": false,\\n  \"rpc-host-whitelist-enabled\": false\\n}\\n' > ~/.config/transmission/settings.json; fi"
+
             - "bash -lc 'printf \"[connection]\\nwifi.powersave=2\\n\" | sudo tee /etc/NetworkManager/conf.d/40-wifi-powersave.conf >/dev/null'"
             - "echo 'Wi-Fi power-save change will apply on next reboot (skipping NetworkManager reload to avoid VPN disruption)'"
         depends: [core.base]
