@@ -182,9 +182,16 @@ elif m == "ROWML":
             if h != 0:
                 have_gain = True
     if have_value or have_gain:
+        idx_of_dollar = 0
+        for _ln in lines:
+            if "$ " in _ln:
+                idx_of_dollar = _ln.index("$ ")
+                break
+        pad = " " * idx_of_dollar
+        held_fmt = f"$ {held_total:>{10},.2f}"
+        gains_str = fmt_signed_amount(gain_total, 8)
         lines.append("")
-        gains_str = (f"+$%s" % format(abs(gain_total), ",.2f")) if gain_total >= 0 else (f"-$%s" % format(abs(gain_total), ",.2f"))
-        lines.append(f"Total Held: ${format(held_total, ',.2f')}  Gains: {gains_str}")
+        lines.append(f"{pad}{held_fmt}  {gains_str} (Total)")
     print("\n".join(lines))
     # Save snapshot for next comparison (non-blank only)
     try:
