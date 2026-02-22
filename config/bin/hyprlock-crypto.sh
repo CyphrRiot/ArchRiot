@@ -155,6 +155,36 @@ elif m == "ROWML":
             arrow = f" {UP_EMO}" if v > pv else (f" {DOWN_EMO}" if v < pv else f" {SAME_EMO}")
         line = f"{fmt_one(sym, include_pl=True)}{arrow}{STALE}"
         lines.append(line)
+    # Totals summary (final row)
+    def _to_float(x):
+        try:
+            return float(str(x).strip())
+        except Exception:
+            return None
+    held_total = 0.0
+    gain_total = 0.0
+    have_value = False
+    have_gain = False
+    for it in items:
+        sym = it.get("sym"); cid = it.get("cid")
+        if not sym or not cid:
+            continue
+        v = prices.get(sym)
+        if not isinstance(v, (int, float)):
+            continue
+        h = _to_float(it.get("held"))
+        e = _to_float(it.get("entry"))
+        if h is not None and h != 0:
+            held_total += h * float(v)
+            have_value = True
+        if h is not None and e is not None and e > 0:
+            gain_total += (float(v) - e) * h
+            if h != 0:
+                have_gain = True
+    if have_value or have_gain:
+        lines.append("")
+        gains_str = (f"+$%s" % format(abs(gain_total), ",.2f")) if gain_total >= 0 else (f"-$%s" % format(abs(gain_total), ",.2f"))
+        lines.append(f"Total Held: ${format(held_total, ',.2f')}  Gains: {gains_str}")
     print("\n".join(lines))
     # Save snapshot for next comparison (non-blank only)
     try:
