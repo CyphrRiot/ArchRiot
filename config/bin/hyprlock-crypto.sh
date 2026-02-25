@@ -191,7 +191,7 @@ elif m == "ROWML":
         held_fmt = f"$ {held_total:>{10},.2f}"
         gains_str = fmt_signed_amount(gain_total, 8)
         lines.append("")
-        lines.append(f"{pad}{held_fmt}  {gains_str} (Total)")
+        lines.append(f"{pad}{held_fmt}  {gains_str}")
     print("\n".join(lines))
     # Save snapshot for next comparison (non-blank only)
     try:
