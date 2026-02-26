@@ -129,8 +129,8 @@ def fmt_one(sym: str, include_pl: bool = False) -> str:
             h = float(held) if held is not None else 1.0
             gl_amt = (float(v) - float(entry)) * h
             gl_pct = ((float(v) - float(entry)) / float(entry)) * 100.0
-            # Shares: fixed width with x prefix (max 99999.99)
-            held_str = f"{h:>9.2f} x" if held is not None else "--------- x"
+            # Shares: only show if held > 0
+            held_str = f"{h:>9.2f} x" if h is not None and h > 0 else ""
             # Percent: fixed width 8 - positive has 2 spaces prefix, negative has "- " prefix
             pct_str = f"  {abs(gl_pct):>5.2f}%" if gl_pct >= 0 else f"- {abs(gl_pct):>5.2f}%"
             # Amount: fixed width 12 - positive has space prefix, negative has "-"
@@ -139,7 +139,7 @@ def fmt_one(sym: str, include_pl: bool = False) -> str:
     
     # No P/L - just symbol, shares, price
     held_str = ""
-    if held is not None:
+    if held is not None and held > 0:
         held_str = f"{held:>9.2f} x"
     return f"{sym} {held_str} {price_str}"
 
