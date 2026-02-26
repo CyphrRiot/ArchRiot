@@ -143,7 +143,9 @@ elif m == "ROWML":
         age_s = 0
     STALE = " ⌛" if age_s > (ttl_s * 3 // 2) else ""
     lines = []
-    for it in items:
+    # Limit to max 6 pairs for display
+    display_items = items[:6]
+    for it in display_items:
         sym, cid = it["sym"], it["cid"]
         if not sym or not cid:
             lines.append("")
