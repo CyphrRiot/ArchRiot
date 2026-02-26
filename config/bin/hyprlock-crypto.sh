@@ -113,9 +113,9 @@ def fmt_percent(p: float) -> str:
 
 def fmt_one(sym: str, include_pl: bool = False) -> str:
     v = prices.get(sym)
-    # Format: SYM $PRICE %GAIN/LOSS +GAIN/LOSS$ SHARES
-    # Example: BTC $123,456.78 99.99% +12,345.67   0.50
-    #          SOL $    999.99 -5.25% -    50.00 110.00
+    # Format: SYM SHARES x $PRICE %GAIN GAIN ARROW
+    # Example: ZEC   131.20 x $    237.86    1.76%     539.23 •
+    #          SOL    25.00 x $     85.17  - 1.22% -    26.25 •
     price_str = f"${v:>10,.2f}" if v is not None else "$" + "-" * 10
     
     if include_pl:
@@ -129,16 +129,19 @@ def fmt_one(sym: str, include_pl: bool = False) -> str:
             h = float(held) if held is not None else 1.0
             gl_amt = (float(v) - float(entry)) * h
             gl_pct = ((float(v) - float(entry)) / float(entry)) * 100.0
-            # Percent: fixed width - positive has space prefix, negative shows minus
-            pct_str = f" {abs(gl_pct):>6.2f}%" if gl_pct >= 0 else f"{gl_pct:>8.2f}%"
-            # Amount: fixed width - negative shows minus, positive has space prefix
+            # Shares: fixed width with x prefix (max 99999.99)
+            held_str = f"{h:>9.2f} x" if held is not None else "--------- x"
+            # Percent: fixed width 8 - positive has 2 spaces prefix, negative has "- " prefix
+            pct_str = f"  {abs(gl_pct):>5.2f}%" if gl_pct >= 0 else f"- {abs(gl_pct):>5.2f}%"
+            # Amount: fixed width 12 - positive has space prefix, negative has "-"
             amt_str = f"-{abs(gl_amt):>12,.2f}" if gl_amt < 0 else f" {abs(gl_amt):>12,.2f}"
-            # Shares: fixed width
-            held_str = f"{h:>6.2f}" if held is not None else "------"
-            return f"{sym} {price_str} {pct_str} {amt_str} {held_str}"
+            return f"{sym} {held_str} {price_str} {pct_str} {amt_str}"
     
-    # No P/L - still show symbol and price
-    return f"{sym} {price_str}"
+    # No P/L - just symbol, shares, price
+    held_str = ""
+    if held is not None:
+        held_str = f"{held:>9.2f} x"
+    return f"{sym} {held_str} {price_str}"
 
 # Helper symbol list (non-blank)
 SYMS = [it["sym"] for it in items if it["sym"] and it["cid"]]
