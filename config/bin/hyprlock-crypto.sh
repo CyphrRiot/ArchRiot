@@ -113,7 +113,11 @@ def fmt_percent(p: float) -> str:
 
 def fmt_one(sym: str, include_pl: bool = False) -> str:
     v = prices.get(sym)
-    base = f"{sym} {fmt_amount(v)}"
+    # Format: SYM $PRICE %GAIN/LOSS +GAIN/LOSS$ SHARES
+    # Example: BTC $123,456.78 99.99% +12,345.67   0.50
+    #          SOL $    999.99 -5.25% -    50.00 110.00
+    price_str = f"${v:>10,.2f}" if v is not None else "$" + "-" * 10
+    
     if include_pl:
         # Find this item's held/entry
         for it in items:
@@ -125,8 +129,16 @@ def fmt_one(sym: str, include_pl: bool = False) -> str:
             h = float(held) if held is not None else 1.0
             gl_amt = (float(v) - float(entry)) * h
             gl_pct = ((float(v) - float(entry)) / float(entry)) * 100.0
-            return f"{base}  {fmt_signed_amount(gl_amt)} {fmt_percent(gl_pct)}"
-    return base
+            # Percent: fixed width - positive has space prefix, negative shows minus
+            pct_str = f" {abs(gl_pct):>6.2f}%" if gl_pct >= 0 else f"{gl_pct:>8.2f}%"
+            # Amount: fixed width - negative shows minus, positive has space prefix
+            amt_str = f"-{abs(gl_amt):>12,.2f}" if gl_amt < 0 else f" {abs(gl_amt):>12,.2f}"
+            # Shares: fixed width
+            held_str = f"{h:>6.2f}" if held is not None else "------"
+            return f"{sym} {price_str} {pct_str} {amt_str} {held_str}"
+    
+    # No P/L - still show symbol and price
+    return f"{sym} {price_str}"
 
 # Helper symbol list (non-blank)
 SYMS = [it["sym"] for it in items if it["sym"] and it["cid"]]
