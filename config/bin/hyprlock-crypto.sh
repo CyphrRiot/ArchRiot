@@ -102,8 +102,13 @@ def fmt_amount(v: float, width: int = 10) -> str:
 def fmt_signed_amount(v: float, width: int = 8) -> str:
     if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
         return "         --"
-    sign = "+" if v >= 0 else "-"
-    return f"{sign}$ {abs(v):>{width-3},.2f}"  # width minus sign+"$ "
+    # No + for positive, only - for negative
+    # width here is the numeric portion - need to align with fmt_one amt_str (12 chars)
+    num_width = 12
+    if v >= 0:
+        return f" {abs(v):>{num_width},.2f}"
+    else:
+        return f"-{abs(v):>{num_width},.2f}"
 
 def fmt_percent(p: float) -> str:
     if p is None or (isinstance(p, float) and (math.isnan(p) or math.isinf(p))):
@@ -208,7 +213,7 @@ elif m == "ROWML":
         held_fmt = f"$ {held_total:>{10},.2f}"
         gains_str = fmt_signed_amount(gain_total, 8)
         lines.append("")
-        lines.append(f"{pad}{held_fmt}  {gains_str}")
+        lines.append(f"{pad}{held_fmt}         {gains_str}")
     print("\n".join(lines))
     # Save snapshot for next comparison (non-blank only)
     try:
