@@ -234,7 +234,7 @@ desktop:
             - ghostty-shell-integration
             - brave-bin
             - mullvad-vpn-bin
-            - stormy-bin
+            - stormy
         configs:
             - pattern: ghostty/*
         depends: [core.base, desktop.apps]
