@@ -34,6 +34,9 @@ PAIRS = [
     ("ETH", "ethereum",0,   0.0),
 ]
 
+# Enable/disable totals display (total holdings + total gains)
+ENABLE_TOTALS = False
+
 mode, cur_path, prev_path, ttl_s = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
 
 # Normalize to list of dicts
@@ -203,7 +206,7 @@ elif m == "ROWML":
             gain_total += (float(v) - e) * h
             if h != 0:
                 have_gain = True
-    if have_value or have_gain:
+    if ENABLE_TOTALS and (have_value or have_gain):
         idx_of_dollar = 0
         for _ln in lines:
             if "$ " in _ln:
