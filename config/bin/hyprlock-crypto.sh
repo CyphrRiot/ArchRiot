@@ -206,17 +206,24 @@ elif m == "ROWML":
             gain_total += (float(v) - e) * h
             if h != 0:
                 have_gain = True
-    if ENABLE_TOTALS and (have_value or have_gain):
+    # Always show gains/losses if user has holdings
+    # Show holdings too only if show_totals = true
+    if have_gain:
         idx_of_dollar = 0
         for _ln in lines:
             if "$ " in _ln:
                 idx_of_dollar = _ln.index("$ ")
                 break
         pad = " " * idx_of_dollar
-        held_fmt = f"$ {held_total:>{10},.2f}"
         gains_str = fmt_signed_amount(gain_total, 8)
-        lines.append("")
-        lines.append(f"{pad}{held_fmt}         {gains_str}")
+        if ENABLE_TOTALS and have_value:
+            held_fmt = f"$ {held_total:>{10},.2f}"
+            lines.append("")
+            lines.append(f"{pad}{held_fmt}         {gains_str}")
+        else:
+            # Show only gains/losses
+            lines.append("")
+            lines.append(f"{pad}                 {gains_str}")
     print("\n".join(lines))
     # Save snapshot for next comparison (non-blank only)
     try:

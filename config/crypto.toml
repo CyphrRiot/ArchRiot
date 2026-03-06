@@ -35,5 +35,5 @@ entry = 0
 
 # Display settings
 [display]
-show_totals = false   # Set to true to show total holdings & gains
+show_totals = false # true = show total holdings + total gains/losses; false = show only gains/losses   # Set to true to show total holdings & gains
 max_pairs = 6
