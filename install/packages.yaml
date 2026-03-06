@@ -118,6 +118,9 @@ desktop:
               target: ~/.local/share/archriot/config/help/
             - pattern: kanshi/*
               target: ~/.config/kanshi/
+            - pattern: crypto.toml
+              target: ~/.config/
+              preserve_if_exists: [crypto.toml]
         commands:
             - "mkdir -p ~/.local/bin"
             - "sudo rm -f /usr/local/bin/archriot-brave"
