@@ -1359,34 +1359,29 @@ Notes:
   - Script path: `$HOME/.local/share/archriot/config/bin/hyprlock-crypto.sh`
   - Wired in hyprlock: see `config/hypr/hyprlock.conf` (execs with `ROWML` mode)
 
-  Edit the `PAIRS` list near the top of the script. Use 2‑tuples for price‑only, or 4‑tuples to enable P/L:
+  Configuration is now in `~/.config/crypto.toml`:
 
-  ```python
-  PAIRS = [
-      ("ZEC", "zcash",   0,   0.0),  # 4‑tuple → shows P/L when entry > 0 (held, entry_price)
-      ("XMR", "monero",  0,   0.0),
-      ("LTC", "litecoin", 0,   0.0),
-      ("",    ""),               # blank separator line (ROWML only)
-      ("BTC", "bitcoin"),        # 2‑tuple → price only (no P/L)
-
-  Totals line:
-  - When any holdings are defined (held != 0) or any P/L can be computed (held and entry > 0), the lock screen appends a final summary row after a blank line:
-
-  ```
-  Total Held: $###,###.##  Gains: $##,###.##
-  ```
-
-  - Gains shows +$ or -$ with thousands separators. If no holdings and no valid entries are set, this summary is omitted.
-
-      ("ETH", "ethereum"),
+  ```toml
+  # Crypto holdings - leave values at 0 to disable P/L display
+  pairs = [
+      { sym = "XMR", coin = "monero",    held = 0, entry = 0 },
+      { sym = "ZEC", coin = "zcash",     held = 0, entry = 0 },
+      { sym = "BTC", coin = "bitcoin",   held = 0, entry = 0 },
   ]
+
+  # Display settings
+  [display]
+  show_totals = false   # Set to true to show total holdings + gains line
+  max_pairs = 6         # Maximum crypto pairs to display
   ```
+
+  On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it's preserved (your holdings/config won't be overwritten on reinstall).
 
   Quick rules:
-  - Add a token: append a tuple. Use CoinGecko’s id as the second field (from the coin’s URL, e.g., `https://www.coingecko.com/en/coins/zcash` → `zcash`).
-  - Remove a token: delete its tuple.
-  - Show P/L: switch to a 4‑tuple and set your holdings (`held`) and your average entry price (`entry`). P/L appears only when `entry > 0`.
-  - Add a blank separator: insert `("", "")` exactly where you want the blank line (affects only ROWML mode).
+  - Add a token: add a new line to the `pairs` array with your `sym` (symbol), `coin` (CoinGecko ID), `held` (quantity), and `entry` (average entry price).
+  - Remove a token: delete its line from the array.
+  - Show P/L: set `held > 0` and `entry > 0`. P/L appears only when both are set.
+  - Show totals: set `show_totals = true` in the `[display]` section.
   - Alignment: amounts and percents use fixed widths for clean columns on monospace fonts. When entry is 0, P/L is hidden.
 
 
