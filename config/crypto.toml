@@ -1,39 +1,11 @@
-# Crypto holdings configuration
-# Format: sym (display symbol), coin (CoinGecko ID), held (quantity), entry (entry price in USD)
-# Set held=0 or entry=0 to hide P/L for that coin
-# NOTE: Edit ~/.config/crypto.toml to customize your holdings
-
-[[pairs]]
-sym = "XMR"
-coin = "monero"
-held = 0
-entry = 0
-
-[[pairs]]
-sym = "ZEC"
-coin = "zcash"
-held = 0
-entry = 0
-
-[[pairs]]
-sym = "LTC"
-coin = "litecoin"
-held = 0
-entry = 0
-
-[[pairs]]
-sym = "BTC"
-coin = "bitcoin"
-held = 0
-entry = 0
-
-[[pairs]]
-sym = "ETH"
-coin = "ethereum"
-held = 0
-entry = 0
+# Crypto holdings - leave values at 0 to disable P/L display
+pairs = [
+    { sym = "XMR", coin = "monero",    held = 0, entry = 0 },
+    { sym = "ZEC", coin = "zcash",     held = 0, entry = 0 },
+    { sym = "BTC", coin = "bitcoin",   held = 0, entry = 0 },
+]
 
 # Display settings
 [display]
-show_totals = false # true = show total holdings + total gains/losses; false = show only gains/losses   # Set to true to show total holdings & gains
-max_pairs = 6
+show_totals = false   # Set to true to show total holdings + gains line
+max_pairs = 6         # Maximum crypto pairs to display
