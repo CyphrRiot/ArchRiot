@@ -45,6 +45,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
     - [⚡ Method 2: ArchRiot ISO](#method-2-archriot-iso)
         - [ISO Install: Wi‑Fi abort fix (iwd PSKs)](#iso-wifi-abort)
 
+- [📖 Language / Style Guide](./Language/Style.html)
 - [⌨️ Master Your ArchRiot Desktop](#master-your-archriot-desktop)
 - [🎛️ Control Panel](#archriot-control-panel)
 - [🎯 Key Customizations](#key-customizations)
