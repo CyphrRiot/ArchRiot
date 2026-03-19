@@ -373,12 +373,29 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, ohlc
 		unitsToSell = 0
 	}
 
-	// Determine rotation target
+	// Determine rotation target - rotate to coin with best Buy signal (lowest gain %)
 	var rotation string
-	if sym == "BTC" {
-		rotation = "USD"
+	bestBuy := ""
+	bestGain := 999999.0
+	
+	for _, item := range items {
+		if item.Sym == sym || item.Sym == "USD" || item.Sym == "USDC" {
+			continue
+		}
+		if item.Price == 0 || item.Entry == 0 {
+			continue
+		}
+		gainPct := ((item.Price - item.Entry) / item.Entry) * 100
+		if gainPct < bestGain {
+			bestGain = gainPct
+			bestBuy = item.Sym
+		}
+	}
+	
+	if bestBuy != "" {
+		rotation = bestBuy
 	} else {
-		rotation = "BTC"
+		rotation = "USD"
 	}
 
 	// Format units: if < 1 use 1 decimal, else integer
