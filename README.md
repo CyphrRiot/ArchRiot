@@ -51,6 +51,7 @@ _Built on Arch Linux with Hyprland, because compromises are for other people. Th
 - [🔄 System Management](#system-management)
 - [🧰 Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
 - [🔧 Troubleshooting](#troubleshooting)
+  - [🔐 Crypto Config](#lock-screen-weather-and-crypto)
 - [📄 License](#license)
 - [📖 Elements of Nineteenth Century Style](./Language/Style.html)
 
