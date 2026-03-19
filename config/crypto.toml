@@ -1,3 +1,7 @@
+# CoinGecko API key (optional but recommended to avoid rate limits)
+# Get a free API key at: https://www.coingecko.com/en/api
+api_key = ""
+
 # Crypto holdings - leave values at 0 to disable P/L display
 pairs = [
     { sym = "XMR", coin = "monero",    held = 0, entry = 0 },

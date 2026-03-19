@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -226,6 +227,21 @@ func main() {
 			_ = apps.RunTelegram(os.Args[2:])
 			return
 
+		case "--crypto":
+			mode := "BTC"
+			if len(os.Args) >= 3 {
+				mode = os.Args[2]
+			}
+			_ = runCrypto(mode)
+			return
+
+		case "--crypto-refresh":
+			// Clear cache and fetch fresh prices
+			os.RemoveAll(filepath.Join(os.Getenv("HOME"), ".cache", "hyprlock-crypto.json"))
+			os.RemoveAll(filepath.Join(os.Getenv("HOME"), ".cache", "hyprlock-crypto-prev.json"))
+			_ = runCrypto("ROWML")
+			return
+
 		case "--waybar-status":
 			if status, _ := session.WaybarStatus(); status != "" {
 				fmt.Println(status)
@@ -337,8 +353,6 @@ func main() {
 
 		case "--zed":
 			_ = apps.RunZed(os.Args[2:])
-			return
-
 			return
 
 		case "--welcome":

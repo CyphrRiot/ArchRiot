@@ -433,17 +433,9 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.2.1 - Docs & UX polish: Brave wrapper consolidation, Waybar logs/reload guidance, fractional scaling notes, Control Panel sizing, Thunar opacity
+**🔥 Current Release:** v4.3.3 - Go crypto binary: matched shell output format, API key support, default coins when config missing
 
 **🚀 Recent Milestones:**
-
-- **v2.7.4:** DPMS wake fixes and system optimization
-- **v2.7.3:** Enhanced theme consistency and bug fixes
-- **v2.7.2:** Critical yay installation + dependency fixes
-- **v2.7.1:** Hardware module path issue fixes
-- **v2.7.0:** Bulletproof fail-fast error handling - because failure is not an option
-- **v2.6.14:** Waybar 3-state + package safety restoration
-- **v2.6.13:** Bulletproof setup.sh + Control Panel UX improvements
 
 ```bash
 # View all version changes
@@ -1354,39 +1346,50 @@ Notes:
 
 - Hyprlock crypto (holdings/P&L and custom list)
 
-  ArchRiot’s lock screen uses a more powerful crypto script that supports holdings, entry price (to show profit/loss), ordering, and blank-line separators — all defined from a single list.
+    ArchRiot’s lock screen uses a more powerful crypto script that supports holdings, entry price (to show profit/loss), ordering, and blank-line separators — all defined from a single list.
 
-  Where:
-  - Script path: `$HOME/.local/share/archriot/config/bin/hyprlock-crypto.sh`
-  - Wired in hyprlock: see `config/hypr/hyprlock.conf` (execs with `ROWML` mode)
+    Where:
+    - Script path: `~/.local/share/archriot/install/archriot`
+    - Wired in hyprlock: see `config/hypr/hyprlock.conf` (execs with `ROWML` mode)
 
-  Configuration is now in `~/.config/crypto.toml`:
+    Configuration is now in `~/.config/crypto.toml`:
 
-  ```toml
-  # Crypto holdings - leave values at 0 to disable P/L display
-  pairs = [
-      { sym = "XMR", coin = "monero",    held = 0, entry = 0 },
-      { sym = "ZEC", coin = "zcash",     held = 0, entry = 0 },
-      { sym = "BTC", coin = "bitcoin",   held = 0, entry = 0 },
-  ]
+    ```toml
+    # CoinGecko API key (optional but recommended to avoid rate limits)
+    # Get a free API key at: https://www.coingecko.com/en/api
+    # The free tier allows 10-30 calls/minute
+    api_key = ""
 
-  # Display settings
-  [display]
-  show_totals = false   # Set to true to show total holdings + gains line
-  max_pairs = 6         # Maximum crypto pairs to display
-  ```
+    # Crypto holdings - leave values at 0 to disable P/L display
+    pairs = [
+        { sym = "XMR", coin = "monero",    held = 0, entry = 0 },
+        { sym = "ZEC", coin = "zcash",     held = 0, entry = 0 },
+        { sym = "BTC", coin = "bitcoin",   held = 0, entry = 0 },
+    ]
 
-  On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it's preserved (your holdings/config won't be overwritten on reinstall).
+    # Display settings
+    [display]
+    show_totals = false   # Set to true to show total holdings + gains line
+    max_pairs = 6         # Maximum crypto pairs to display
+    ```
 
-  Quick rules:
-  - Add a token: add a new line to the `pairs` array with your `sym` (symbol), `coin` (CoinGecko ID), `held` (quantity), and `entry` (average entry price).
-  - Remove a token: delete its line from the array.
-  - Show P/L: set `held > 0` and `entry > 0`. P/L appears only when both are set.
-  - Show totals: set `show_totals = true` in the `[display]` section.
-  - Alignment: amounts and percents use fixed widths for clean columns on monospace fonts. When entry is 0, P/L is hidden.
+    **Getting a CoinGecko API Key** (recommended):
+    1. Visit https://www.coingecko.com/en/api
+    2. Sign up for a free account
+    3. Copy your API key from the dashboard
+    4. Paste it into the `api_key` field above
 
+    Without an API key, you're limited to 10-30 calls/minute and may see rate limit errors.
 
-    - Crypto uses curl + jq + CoinGecko; if dependencies are missing, it simply shows nothing.
+    On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it's preserved (your holdings/config won't be overwritten on reinstall).
+
+    Quick rules:
+    - Add a token: add a new line to the `pairs` array with your `sym` (symbol), `coin` (CoinGecko ID), `held` (quantity), and `entry` (average entry price).
+    - Remove a token: delete its line from the array.
+    - Show P/L: set `held > 0` and `entry > 0`. P/L appears only when both are set.
+    - Show totals: set `show_totals = true` in the `[display]` section.
+    - Alignment: amounts and percents use fixed widths for clean columns on monospace fonts. When entry is 0, P/L is hidden.
+        - Crypto uses curl + jq + CoinGecko; if dependencies are missing, it simply shows nothing.
 
 ### Multi‑monitor anomalies after install (ABI mismatch)
 
