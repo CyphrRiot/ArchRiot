@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-![Version](https://img.shields.io/badge/version-4.3.3-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-4.3.4-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -22,7 +22,7 @@
 
 ### **One Command. Complete Environment. Zero Compromises.**
 
-ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" We've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
+ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" I've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
 
 **Curated to be correct:**
 
@@ -434,7 +434,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.3.3 - Go crypto binary: matched shell output format, API key support, default coins when config missing
+**🔥 Current Release:** v4.3.4 - Fix Brave floating window rules, crypto formatting
 
 **🚀 Recent Milestones:**
 
