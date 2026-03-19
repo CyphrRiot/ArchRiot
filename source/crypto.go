@@ -359,12 +359,12 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, ohlc
 	var unitsToSell float64
 	if held > 0 {
 		if held < 1.0 {
-			unitsToSell = held * 0.5
+			unitsToSell = held * 0.25
 			if unitsToSell < 0.01 {
 				unitsToSell = held
 			}
 		} else {
-			unitsToSell = math.Floor(held * 0.5)
+			unitsToSell = math.Floor(held * 0.25)
 			if unitsToSell < 1 {
 				unitsToSell = 1
 			}
