@@ -417,11 +417,12 @@ func fmtPercent(p float64) string {
 		return "  ----%"
 	}
 	// Shell format: f"  {abs(pct):>5.2f}%" for positive (8 chars)
-	// Negative: f"- {abs(pct):>5.2f}%" (9 chars)
+	// Negative: f"- {abs(pct):>5.2f}%" which is "-" + space + 5-char number = 7 chars total
 	if p >= 0 {
 		return fmt.Sprintf("  %5.2f%%", p)
 	}
-	return fmt.Sprintf("- %5.2f%%", -p)
+	// For negative: use abs value with width specifier to match shell
+	return fmt.Sprintf("- %5.2f%%", math.Abs(p))
 }
 
 func fmtPercentStable() string {
@@ -451,7 +452,8 @@ func fmtSignedAmountWithSpace(v float64) string {
 	if math.IsNaN(v) || math.IsInf(v, 0) {
 		return "     -------- "
 	}
-	numStr := formatNumberWithWidth(v, 12)
+	// Use abs value for formatting to avoid comma being added to negative sign
+	numStr := formatNumberWithWidth(math.Abs(v), 12)
 	if v >= 0 {
 		return " " + numStr
 	}
