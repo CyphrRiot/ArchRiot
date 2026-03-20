@@ -7,7 +7,7 @@
 {
 
 "temperature": {
-	"interval": 10,
+	"interval": 30,
 	"tooltip": true,
 
 	"critical-threshold": 82,
@@ -216,7 +216,7 @@
 
 
 "memory": {
-	"interval": 10,
+	"interval": 30,
 	"format": "{percentage}% 󰾆",  // Show percentage instead since it's more reliable
 	"tooltip": true,
 	"tooltip-format": "Used: {used:0.1f}GB | Available: {avail:0.1f}GB | Total: {total:0.1f}GB ({percentage}%)",
@@ -263,7 +263,7 @@
 
 "network": {
 
-	"interval": 10,
+	"interval": 30,
 	"format": "{ifname}",
 	"format-wifi": "{icon}",
 	"format-ethernet": "󰌘",
