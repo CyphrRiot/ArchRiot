@@ -263,6 +263,7 @@
 
 "network": {
 
+	"interval": 10,
 	"format": "{ifname}",
 	"format-wifi": "{icon}",
 	"format-ethernet": "󰌘",
