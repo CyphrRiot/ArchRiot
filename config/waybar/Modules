@@ -1,13 +1,12 @@
 /* ArchRiot Waybar Modules */
-/* Core system modules for Waybar configuration */
+/* Core system modules for waybar configuration */
 
-/* NOTE: Workspaces, Custom Modules, Vertical & Groups on separate files */
-/* NOTE: Changes will only be kept in user files: UserModules, UserWorkspaces */
+/* NOTE: hyprland-workspaces, Custom Modules, Custom Vertical & Groups on a separate files */
 
 {
 
 "temperature": {
-	"interval": 30,
+	"interval": 10,
 	"tooltip": true,
 
 	"critical-threshold": 82,
@@ -71,7 +70,7 @@
 	"format-charging": " {capacity}%",
 	"format-plugged": "󱘖 {capacity}%",
 	// Removed format-alt settings to always show percentage
-	"format-full": "{icon} 100%",
+	"format-full": "{icon} {capacity}%",
 	"format-icons": [
 		"󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
 	],
@@ -216,7 +215,7 @@
 
 
 "memory": {
-	"interval": 30,
+	"interval": 10,
 	"format": "{percentage}% 󰾆",  // Show percentage instead since it's more reliable
 	"tooltip": true,
 	"tooltip-format": "Used: {used:0.1f}GB | Available: {avail:0.1f}GB | Total: {total:0.1f}GB ({percentage}%)",
@@ -240,17 +239,14 @@
 	"tooltip": true,
 	"tooltip-format": "{status_icon} {dynamic}\nLeft Click: previous\nMid Click: Pause\nRight Click: Next",
 	"player-icons": {
-		"chromium": "",
-		"chrome": "",
-		"brave": "",
-		"default": "",
-		"firefox": "",
-		"kdeconnect": "",
+		"chromium": "",
+		"default": "",
+		"firefox": "",
+		"kdeconnect": "",
 		"mopidy": "",
 		"mpv": "󰐹",
-		"spotify": "",
+		"spotify": "",
 		"vlc": "󰕼",
-		"lollypop": "",
 	},
 	"status-icons": {
 		"paused": "󰐎",
@@ -263,7 +259,7 @@
 
 "network": {
 
-	"interval": 30,
+	"interval": 3600,
 	"format": "{ifname}",
 	"format-wifi": "{icon}",
 	"format-ethernet": "󰌘",
