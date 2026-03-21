@@ -4,7 +4,7 @@
 
 ### Start A Riot!
 
-![Version](https://img.shields.io/badge/version-4.3.5-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-4.3.6-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
