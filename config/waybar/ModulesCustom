@@ -224,7 +224,7 @@
     "custom/mullvad": {
     	"format": "{}",
     	"return-type": "json",
-    	"interval": 3,
+    	"interval": 300,
         "restart-interval": 60,
         "exec-if": "command -v mullvad >/dev/null 2>&1",
     	"exec": "$HOME/.config/waybar/scripts/mullvad-status.sh",
