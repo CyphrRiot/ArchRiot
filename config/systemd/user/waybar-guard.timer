@@ -1,0 +1,11 @@
+[Unit]
+Description=ArchRiot Waybar Auto-Restart Guard Timer
+Requires=waybar-guard.service
+
+[Timer]
+OnBootSec=30sec
+OnUnitActiveSec=5min
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

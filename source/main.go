@@ -379,6 +379,30 @@ func main() {
 			_ = waybar.EmitVolume(os.Args[2:])
 			return
 
+		case "--waybar-mullvad-status":
+			_ = waybar.EmitMullvadStatus(os.Args[2:])
+			return
+
+		case "--waybar-mullvad-click":
+			_ = waybar.EmitMullvadClick(os.Args[2:])
+			return
+		case "--waybar-recording":
+			_ = waybar.EmitRecordingStatus(os.Args[2:])
+			return
+
+		case "--waybar-recording-click":
+			_ = waybar.EmitRecordingClick(os.Args[2:])
+			return
+
+		case "--waybar-update-check":
+			_ = waybar.EmitUpdateCheck(os.Args[2:])
+			return
+
+		case "--waybar-update-click":
+			_ = waybar.EmitUpdateClick(os.Args[2:])
+			return
+
+
 		case "--waybar-reload":
 			if self, err := os.Executable(); err == nil {
 				_ = session.ReloadWaybar(self)

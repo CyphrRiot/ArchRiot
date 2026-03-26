@@ -61,7 +61,7 @@
             "custom/separator#blank",
             "custom/tomato-timer",     // Pomodoro Timer
             "custom/separator#blank",
-            "network",                 // Network status
+            "custom/network",          // Network status
             "custom/mullvad",          // Mullvad VPN status
             "custom/separator#blank",
             "battery",                 // Battery status

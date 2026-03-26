@@ -670,8 +670,13 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 		if showTotals && haveValue {
 			lines = append(lines, "")
 			heldStr := "$ " + formatNumberWithWidth(heldTotal, 10)
-			gainStr := " " + formatNumberWithWidth(gainTotal, 12)
-			lines = append(lines, fmt.Sprintf("                                        %s         %s", heldStr, gainStr))
+			var gainStr string
+			if gainTotal >= 0 {
+				gainStr = " " + formatNumberWithWidth(gainTotal, 12)
+			} else {
+				gainStr = "-" + formatNumberWithWidth(-gainTotal, 12)
+			}
+			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 15)) + heldStr)
 		} else {
 			lines = append(lines, "")
 			var gainStr string

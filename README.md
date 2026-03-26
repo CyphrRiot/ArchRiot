@@ -4,7 +4,7 @@
 
 ### Start A Riot!
 
-![Version](https://img.shields.io/badge/version-4.3.6-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-4.4.0-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -29,12 +29,12 @@ ArchRiot is the answer to every time you've thought "why can't Linux just work c
 **Curated to be correct:**
 
 - **🪟 Hyprland Tiling** - Makes other Window Managers feel primitive
-- **⚡ Go Installer** - Atomic operations, instant rollbacks, zero dependency hell
+- **⚡ Robust Binary** - Atomic operations, run-time, instant rollbacks, zero dependency hell
 - **🛡️ Privacy** - Zero telemetry, zero tracking, zero corporate data harvesting
 - **🎨 Aesthetics** - Carefully crafted dark themes that work at any hour
 - **💻 Development** - Zed, Neovim, shell enhancements, and other upgrades
 
-_Built on Arch Linux with Hyprland, because compromises are for other people. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
+_Built on Arch Linux with Hyprland, because compromises are for other distros. This isn't maintained by committee or corporate roadmap -- it's maintained by someone with an obsessive, singular focus on getting it right the first time, because crappy Linux environments are an insult to what computing should be._
 
 ![ArchRiot Screenshot](config/images/screenshot.png)
 
@@ -436,7 +436,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.3.5 - Clean up Hyprland window rules, add iwgtk float
+**🔥 Current Release:** v4.4.0 - Clean up Hyprland window rules, add iwgtk float
 
 **🚀 Recent Milestones:**
 

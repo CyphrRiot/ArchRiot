@@ -24,10 +24,10 @@
 	},
 
     "custom/archriot-update": {
-    	"exec": "$HOME/.config/waybar/scripts/archriot-update.sh",
+    	"exec": "$HOME/.local/share/archriot/config/waybar/scripts/archriot-update.sh",
     	"return-type": "json",
     	"interval": 300,
-    	"on-click": "$HOME/.config/waybar/scripts/archriot-update.sh --click",
+    	"on-click": "$HOME/.local/share/archriot/config/waybar/scripts/archriot-update.sh --click",
     	"tooltip": true,
     },
 	// This was in `/UserModules`:
@@ -56,8 +56,8 @@
     	"format": "{}",
     	"return-type": "json",
     	"interval": 2,
-    	"exec": "$HOME/.config/waybar/scripts/recording-indicator.sh",
-    	"on-click": "$HOME/.config/waybar/scripts/recording-indicator.sh --click",
+    	"exec": "$HOME/.local/share/archriot/config/waybar/scripts/recording-indicator.sh",
+    	"on-click": "$HOME/.local/share/archriot/config/waybar/scripts/recording-indicator.sh --click",
     	"tooltip": true
     },
 
@@ -227,15 +227,25 @@
     	"interval": 300,
         "restart-interval": 60,
         "exec-if": "command -v mullvad >/dev/null 2>&1",
-    	"exec": "$HOME/.config/waybar/scripts/mullvad-status.sh",
-    	"on-click": "$HOME/.config/waybar/scripts/mullvad-click.sh left",
-    	"on-click-right": "$HOME/.config/waybar/scripts/mullvad-click.sh right",
+    	"exec": "$HOME/.local/share/archriot/config/waybar/scripts/mullvad-status.sh",
+    	"on-click": "$HOME/.local/share/archriot/config/waybar/scripts/mullvad-click.sh left",
+    	"on-click-right": "$HOME/.local/share/archriot/config/waybar/scripts/mullvad-click.sh right",
     	"tooltip": true
     },
     "custom/weather-emoji": {
     	"format": "{}",
     	"interval": 600,
-    	"exec": "$HOME/.config/waybar/scripts/weather-emoji-plain.sh",
+    	"exec": "$HOME/.local/share/archriot/config/waybar/scripts/weather-emoji-plain.sh",
+    	"tooltip": true
+    },
+
+    // Custom network module - replaces built-in to prevent crashes on WiFi flaps
+    "custom/network": {
+    	"format": "{}",
+    	"return-type": "json",
+    	"interval": 300,
+    	"exec": "$HOME/.local/share/archriot/config/waybar/scripts/waybar-network",
+    	"on-click": "$HOME/.local/share/archriot/config/waybar/scripts/wifi-selector.sh",
     	"tooltip": true
     }
 }

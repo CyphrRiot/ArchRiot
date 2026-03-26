@@ -2,7 +2,7 @@
 Version=1.0
 Name=Twitter (X)
 Comment=X
-Exec=sh -c 'brave --new-window --ozone-platform=wayland --new-window --ozone-platform=wayland --app="https://x.com/"'
+Exec=sh -c 'brave --new-window --ozone-platform=wayland --app="https://x.com/"'
 Terminal=false
 Type=Application
 Icon=applications-internet

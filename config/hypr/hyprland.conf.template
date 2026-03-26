@@ -20,6 +20,9 @@ env = HYPRCURSOR_THEME,Bibata-Modern-Ice
 env = XCURSOR_SIZE,24
 env = HYPRCURSOR_SIZE,24
 
+# ArchRiot binary path
+$archriot = $HOME/.local/share/archriot/install/archriot
+
 # Autostart applications
 exec-once = waybar
 exec-once = mako
@@ -31,7 +34,7 @@ exec-once = swaybg -i ~/.local/share/archriot/backgrounds/riot_01.jpg -m fill
 exec-once = sleep 2 && $HOME/.local/share/archriot/config/bin/welcome
 
 # Start Mullvad GUI minimized to tray if account is logged in
-exec-once = $HOME/.local/share/archriot/config/bin/scripts/mullvad-startup.sh
+exec-once = $archriot --mullvad-startup
 
 # Window rules
 windowrule = scrolltouchpad 1.5, class:^(com.mitchellh.ghostty)$
@@ -296,8 +299,8 @@ bind = $mod, B, exec, $browser
 bind = $mod, N, exec, $terminal -e nvim
 bind = $mod, T, exec, $terminal -e btop
 bind = $mod, D, exec, fuzzel
-bind = $mod, G, exec, ~/.local/share/archriot/config/bin/scripts/signal-launcher.sh
-bind = $mod, S, exec, ~/.local/share/archriot/config/bin/scripts/signal-launcher.sh
+bind = $mod, G, exec, $archriot --signal
+bind = $mod, S, exec, $archriot --signal
 bind = $mod, O, exec, gnome-text-editor
 bind = $mod, Z, exec, zed
 bind = $mod, slash, exec, $terminal
@@ -309,14 +312,14 @@ bind = $mod, space, exec, fuzzel
 bind = $mod, C, exec, notify-send "Opening Control Panel..." && DISPLAY=:0 $HOME/.local/share/archriot/config/bin/archriot-control-panel
 
 # Pomodoro Timer
-bind = $mod, comma, exec, $HOME/.local/share/archriot/config/bin/scripts/waybar-tomato-click.sh
+bind = $mod, comma, exec, $archriot --pomodoro-click
 
 # Help system
 bind = $mod, H, exec, $browser --new-window --ozone-platform=wayland --class=archriot-help --app="https://archriot.org"
 
 # Waybar and theme controls
 bind = $mod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar
-bind = $mod CTRL, SPACE, exec, $HOME/.local/share/archriot/config/bin/swaybg-next
+bind = $mod CTRL, SPACE, exec, $archriot --swaybg-next
 
 # Notifications
 bind = $mod, period, exec, makoctl dismiss
@@ -328,10 +331,10 @@ bind = $mod, Q, killactive,
 bind = $mod, V, togglefloating,
 bind = $mod, J, togglesplit,
 bind = $mod, P, pseudo,
-bind = $mod, TAB, exec, ~/.local/share/archriot/config/bin/scripts/window-switcher.sh --all-workspaces
+bind = $mod, TAB, exec, $archriot --switch-window
 
 # Fix off-screen windows (manual trigger)
-bind = $mod SHIFT, TAB, exec, ~/.local/share/archriot/config/bin/scripts/fix-offscreen-windows.sh
+bind = $mod SHIFT, TAB, exec, $archriot --fix-offscreen-windows
 
 
 
@@ -390,13 +393,13 @@ bindm = $mod, mouse:273, resizewindow
 bind = $mod, mouse_down, workspace, e+1
 bind = $mod, mouse_up, workspace, e-1
 
-# Media keys
-bindel = ,XF86AudioRaiseVolume, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --inc
-bindel = ,XF86AudioLowerVolume, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --dec
-bindel = ,XF86AudioMute, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --toggle
-bindel = ,XF86AudioMicMute, exec, ~/.local/share/archriot/config/bin/scripts/Volume.sh --toggle-mic
-bindel = ,XF86MonBrightnessUp, exec, ~/.local/share/archriot/config/bin/scripts/Brightness.sh --up
-bindel = ,XF86MonBrightnessDown, exec, ~/.local/share/archriot/config/bin/scripts/Brightness.sh --down
+# Media keys (using ArchRiot Go binary)
+bindel = ,XF86AudioRaiseVolume, exec, $archriot --volume inc
+bindel = ,XF86AudioLowerVolume, exec, $archriot --volume dec
+bindel = ,XF86AudioMute, exec, $archriot --volume toggle
+bindel = ,XF86AudioMicMute, exec, $archriot --volume mic-toggle
+bindel = ,XF86MonBrightnessUp, exec, $archriot --brightness up
+bindel = ,XF86MonBrightnessDown, exec, $archriot --brightness down
 
 # Media controls
 bindl = , XF86AudioNext, exec, playerctl next

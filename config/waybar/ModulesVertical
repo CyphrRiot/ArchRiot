@@ -115,8 +115,7 @@
 "custom/power_vertical": {
 	"format": "⏻",
 	"on-click": "$HOME/.local/share/archriot/install/archriot --power-menu",
-	"on-click-right": "$HOME/.local/share/archriot/config/bin/scripts/ChangeBlur.sh",
 	"tooltip": true,
-	"tooltip-format": "Left Click: Logout Menu\nRight Click: Change Blur",
+	"tooltip-format": "Left Click: Logout Menu",
 },
 }

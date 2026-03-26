@@ -378,6 +378,10 @@ label:focus {
     color: @error_color;
 }
 
+#custom-network {
+    color: @accent5; /* blue */
+}
+
 #pulseaudio {
     color: @memory_color;
 }

@@ -1,0 +1,7 @@
+[Unit]
+Description=ArchRiot Waybar Auto-Restart Guard
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'if ! pgrep -x waybar > /dev/null 2>&1; then echo "Waybar not running, restarting..."; /home/grendel/.local/share/archriot/install/archriot --waybar-launch; else echo "Waybar running"; fi'

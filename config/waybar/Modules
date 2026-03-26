@@ -258,40 +258,14 @@
 },
 
 "network": {
-
-	"interval": 3600,
-	"format": "{ifname}",
-	"format-wifi": "{icon}",
-	"format-ethernet": "󰌘",
-	"format-disconnected": "󰌙",
-	"tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
-	"format-linked": "󰈁 {ifname}",
-	"tooltip-format-wifi": "{essid} {icon} {signalStrength}%  {ipaddr}",
-	"tooltip-format-ethernet": "{ifname} 󰌘  {ipaddr}",
-	"tooltip-format-disconnected": "󰌙 Disconnected",
-	"max-length": 40,
-	"format-icons": [
-		"󰤯", "󰤟", "󰤢", "󰤥", "󰤨"
-	],
-	"on-click": "$HOME/.config/waybar/scripts/wifi-selector.sh"
+	"format": "󰤙",
+	"tooltip": false,
+	"interval": 86400
 },
 
 "network#speed": {
-	"interval": 1,
-	"format": "{ifname}",
-	"format-wifi": "{icon}  {bandwidthUpBytes}  {bandwidthDownBytes}",
-	"format-ethernet": "󰌘  {bandwidthUpBytes}  {bandwidthDownBytes}",
-	"format-disconnected": "󰌙",
-	"tooltip-format": "{ipaddr}",
-	"format-linked": "󰈁 {ifname} (No IP)",
-	"tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
-	"tooltip-format-ethernet": "{ifname} 󰌘",
-	"tooltip-format-disconnected": "󰌙 Disconnected",
-	"min-length": 24,
-	"max-length": 24,
-	"format-icons": [
-		"󰤯", "󰤟", "󰤢", "󰤥", "󰤨"
-	]
+	"format": "",
+	"interval": 86400
 },
 
 "power-profiles-daemon": {

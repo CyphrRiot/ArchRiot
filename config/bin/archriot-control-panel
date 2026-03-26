@@ -9,11 +9,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
 gi.require_version("GdkPixbuf", "2.0")
-from gi.repository import Gtk, Gdk, GLib, Pango, GdkPixbuf, Gio
 import os
 import sys
 import time
 from pathlib import Path
+
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
 
 
 class ArchRiotDialog:
@@ -703,10 +704,10 @@ class BlueLightWidget(BaseControlWidget):
     def apply_temperature_change(self, temperature):
         """Apply temperature change immediately to system and update config"""
         try:
-            import subprocess
             import os
-            import time
             import re
+            import subprocess
+            import time
             from pathlib import Path
 
             # Kill any existing hyprsunset processes (ensure only one instance)
@@ -741,8 +742,8 @@ class BlueLightWidget(BaseControlWidget):
     def disable_blue_light_filter(self):
         """Disable blue light filter immediately and update config"""
         try:
-            import subprocess
             import re
+            import subprocess
             from pathlib import Path
 
             # Kill any existing hyprsunset processes (ensure complete shutdown)
@@ -1307,8 +1308,8 @@ class CameraWidget(BaseControlWidget):
     def apply_camera_change(self, enabled):
         """Apply camera access change immediately"""
         try:
-            import subprocess
             import os
+            import subprocess
 
             camera_devices = ["/dev/video0", "/dev/video1"]
 
@@ -1349,11 +1350,12 @@ class CameraWidget(BaseControlWidget):
     def show_camera_preview(self):
         """Show simple GTK camera preview dialog"""
         try:
-            import cv2
             import threading
             import time
-            from gi.repository import GLib
+
+            import cv2
             import numpy as np
+            from gi.repository import GLib
 
             # Create camera preview dialog
             dialog = Gtk.Window()
@@ -1494,8 +1496,8 @@ class DisplayWidget(BaseControlWidget):
     def get_available_resolutions(self):
         """Get available monitor resolutions with smart aspect ratio logic"""
         try:
-            import subprocess
             import os
+            import subprocess
             from fractions import Fraction
 
             # Try hyprctl first
@@ -1606,7 +1608,8 @@ class DisplayWidget(BaseControlWidget):
     def get_current_scaling(self):
         """Get current monitor scaling from hyprctl (focused monitor if present)"""
         try:
-            import subprocess, json
+            import json
+            import subprocess
 
             result = subprocess.run(
                 ["hyprctl", "-j", "monitors"], capture_output=True, text=True, timeout=5
@@ -1799,7 +1802,8 @@ class DisplayWidget(BaseControlWidget):
     def apply_resolution_change(self, resolution):
         """Apply resolution change immediately to system, preserving current scale and persist to kanshi"""
         try:
-            import subprocess, json
+            import json
+            import subprocess
 
             # Read monitors (JSON) and pick focused monitor reliably
             r = subprocess.run(
@@ -1858,19 +1862,28 @@ class DisplayWidget(BaseControlWidget):
 
             # Persist resolution to kanshi: replace existing 'mode' or append if missing
             try:
-                from pathlib import Path as _Path
                 import re as _re
+                from pathlib import Path as _Path
+
                 kanshi_path = _Path.home() / ".config" / "kanshi" / "config"
                 if kanshi_path.exists():
                     content = kanshi_path.read_text()
                     # Replace existing mode value for this output
-                    pattern_mode = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b[^\n]*?\bmode\s+)(\S+)", _re.MULTILINE)
+                    pattern_mode = _re.compile(
+                        rf"(^\s*output\s+{_re.escape(monitor_name)}\b[^\n]*?\bmode\s+)(\S+)",
+                        _re.MULTILINE,
+                    )
                     new_content, n1 = pattern_mode.subn(rf"\g<1>{resolution}", content)
                     if n1 == 0:
                         # Append mode if it's missing on the output line
-                        pattern_no_mode = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b(?![^\n]*\bmode\b)[^\n]*)$", _re.MULTILINE)
+                        pattern_no_mode = _re.compile(
+                            rf"(^\s*output\s+{_re.escape(monitor_name)}\b(?![^\n]*\bmode\b)[^\n]*)$",
+                            _re.MULTILINE,
+                        )
+
                         def _append_mode(m):
                             return m.group(1) + f" mode {resolution}"
+
                         new_content2, n2 = pattern_no_mode.subn(_append_mode, content)
                         if n2 > 0 and new_content2 != content:
                             kanshi_path.write_text(new_content2)
@@ -1885,7 +1898,9 @@ class DisplayWidget(BaseControlWidget):
     def apply_scaling_change(self, scaling):
         """Apply scaling change immediately to system"""
         try:
-            import subprocess, json, re
+            import json
+            import re
+            import subprocess
             from pathlib import Path
 
             scale_factor = scaling / 100.0
@@ -1982,19 +1997,30 @@ class DisplayWidget(BaseControlWidget):
 
             # Persist scale to kanshi: replace existing 'scale' or append if missing
             try:
-                from pathlib import Path as _Path
                 import re as _re
+                from pathlib import Path as _Path
+
                 kanshi_path = _Path.home() / ".config" / "kanshi" / "config"
                 if kanshi_path.exists():
                     content = kanshi_path.read_text()
                     # Replace existing scale value for this output
-                    pattern_scale = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b[^\n]*?\bscale\s+)(\d+(\.\d+)?)", _re.MULTILINE)
-                    new_content, n1 = pattern_scale.subn(rf"\g<1>{scale_factor}", content)
+                    pattern_scale = _re.compile(
+                        rf"(^\s*output\s+{_re.escape(monitor_name)}\b[^\n]*?\bscale\s+)(\d+(\.\d+)?)",
+                        _re.MULTILINE,
+                    )
+                    new_content, n1 = pattern_scale.subn(
+                        rf"\g<1>{scale_factor}", content
+                    )
                     if n1 == 0:
                         # Append scale if it's missing on the output line
-                        pattern_no_scale = _re.compile(rf"(^\s*output\s+{_re.escape(monitor_name)}\b(?![^\n]*\bscale\b)[^\n]*)$", _re.MULTILINE)
+                        pattern_no_scale = _re.compile(
+                            rf"(^\s*output\s+{_re.escape(monitor_name)}\b(?![^\n]*\bscale\b)[^\n]*)$",
+                            _re.MULTILINE,
+                        )
+
                         def _append_scale(m):
                             return m.group(1) + f" scale {scale_factor}"
+
                         new_content2, n2 = pattern_no_scale.subn(_append_scale, content)
                         if n2 > 0 and new_content2 != content:
                             kanshi_path.write_text(new_content2)
@@ -2286,8 +2312,8 @@ class BackgroundWidget(BaseControlWidget):
 
     def scan_backgrounds(self):
         """Scan for available background images"""
-        import os
         import glob
+        import os
 
         # System backgrounds
         system_bg_dir = os.path.expanduser("~/.local/share/archriot/backgrounds")
@@ -2509,20 +2535,14 @@ class BackgroundWidget(BaseControlWidget):
             )
             if os.path.isfile(archriot_bin):
                 try:
-                    print(f"DEBUG: Calling theming system with path: {new_bg}")
-                    result = subprocess.run(
+                    _ = subprocess.run(
                         [archriot_bin, "--apply-wallpaper-theme", new_bg],
                         check=False,
                         capture_output=True,
                         text=True,
                     )
-                    print(f"DEBUG: Theming command result: {result.returncode}")
-                    if result.stdout:
-                        print(f"DEBUG: stdout: {result.stdout}")
-                    if result.stderr:
-                        print(f"DEBUG: stderr: {result.stderr}")
-                except Exception as e:
-                    print(f"DEBUG: Exception calling theming system: {e}")
+                except Exception:
+                    pass
 
             # Update UI
             self.current_bg_label.set_markup(
@@ -2608,8 +2628,8 @@ class BackgroundWidget(BaseControlWidget):
 
     def on_dynamic_theming_changed(self, switch, param):
         """Handle dynamic theming toggle change"""
-        import subprocess
         import os
+        import subprocess
 
         state = switch.get_active()
         self.dynamic_theming_enabled = state

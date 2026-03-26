@@ -1,0 +1,59 @@
+#!/bin/bash
+# WiFi status for waybar - shows signal strength icon only
+
+get_wifi() {
+    # Check if wlan0 exists
+    if ! ip link show wlan0 >/dev/null 2>&1; then
+        echo '{"text": "󰤙", "tooltip": "No adapter"}'
+        return
+    fi
+
+    # Get WiFi connection status using iw
+    info=$(iw dev wlan0 link 2>/dev/null)
+    if [ -z "$info" ] || ! echo "$info" | grep -q "Connected to"; then
+        echo '{"text": "󰤙", "tooltip": "Disconnected", "class": "disconnected"}'
+        return
+    fi
+
+    # Extract signal strength
+    signal=$(echo "$info" | grep "signal:" | awk '{print $2}' | sed 's/ dBm//')
+
+    # Convert dBm to percentage
+    if [ -n "$signal" ]; then
+        percent=$((100 - (signal + 80) * 100 / 50))
+        [ $percent -gt 100 ] && percent=100
+        [ $percent -lt 0 ] && percent=0
+    else
+        percent=50
+    fi
+
+    # Signal strength to icon
+    if [ "$percent" -ge 70 ]; then
+        icon="󰤨"
+    elif [ "$percent" -ge 50 ]; then
+        icon="󰤥"
+    elif [ "$percent" -ge 30 ]; then
+        icon="󰤢"
+    elif [ "$percent" -ge 20 ]; then
+        icon="󰤟"
+    else
+        icon="󰤯"
+    fi
+
+    echo "{\"text\": \"$icon\", \"tooltip\": \"WiFi (${percent}%)\", \"class\": \"network\"}"
+}
+
+get_ethernet() {
+    if ip link show 2>/dev/null | grep -E "eth[0-9]|enp[0-9]|eno[0-9]" | grep -q "state UP"; then
+        echo '{"text": "󰈁", "tooltip": "Ethernet connected", "class": "network"}'
+        return
+    fi
+    echo '{"text": "󰈂", "tooltip": "Ethernet disconnected"}'
+}
+
+# Main: check ethernet first, then WiFi
+if ip link show 2>/dev/null | grep -qE "eth[0-9]|enp[0-9]|eno[0-9]" | grep -q "state UP"; then
+    get_ethernet
+else
+    get_wifi
+fi
