@@ -4,7 +4,7 @@
 
 ### Start A Riot!
 
-![Version](https://img.shields.io/badge/version-4.4.0-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-4.4.1-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -436,7 +436,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.4.0 - Clean up Hyprland window rules, add iwgtk float
+**🔥 Current Release:** v4.4.1 - Clean up Hyprland window rules, add iwgtk float
 
 **🚀 Recent Milestones:**
 
@@ -1355,44 +1355,55 @@ Notes:
     - Script path: `~/.local/share/archriot/install/archriot`
     - Wired in hyprlock: see `config/hypr/hyprlock.conf` (execs with `ROWML` mode)
 
-    Configuration is now in `~/.config/crypto.toml`:
+Configuration is in `~/.config/crypto.toml`:
 
     ```toml
-    # CoinGecko API key (optional but recommended to avoid rate limits)
+    # CoinGecko API key (required for RSI/Bollinger Bands)
     # Get a free API key at: https://www.coingecko.com/en/api
-    # The free tier allows 10-30 calls/minute
-    api_key = ""
+    api_key = "YOUR_API_KEY_HERE"
 
-    # Crypto holdings - leave values at 0 to disable P/L display
+    # Crypto holdings - example
     pairs = [
-        { sym = "XMR", coin = "monero",    held = 0, entry = 0 },
-        { sym = "ZEC", coin = "zcash",     held = 0, entry = 0 },
-        { sym = "BTC", coin = "bitcoin",   held = 0, entry = 0 },
+        { sym = "BTC", coin = "bitcoin",   held = 0.10, entry = 50000 },
+        { sym = "ETH", coin = "ethereum",  held = 1.50, entry = 3000 },
+        { sym = "SOL", coin = "solana",    held = 50.00, entry = 100 },
+        { sym = "XMR", coin = "monero",    held = 10.00, entry = 200 },
+        { sym = "USD", coin = "usd-coin",  held = 1000.00, entry = 1.00 },
     ]
 
     # Display settings
     [display]
-    show_totals = false   # Set to true to show total holdings + gains line
-    max_pairs = 6         # Maximum crypto pairs to display
+    show_totals = false   # Set to true to show total holdings + gains
+    max_pairs = 6
+
+    # Indicator settings (optional - defaults shown)
+    [indicators]
+    rsi_period = 14       # RSI lookback period
+    oversold = 30          # RSI below this = BUY signal
+    overbought = 70        # RSI above this = SELL signal
+    bb_period = 20         # Bollinger Bands period
+    bb_std = 2.0           # Bollinger Bands standard deviations
     ```
 
-    **Getting a CoinGecko API Key** (recommended):
-    1. Visit https://www.coingecko.com/en/api
-    2. Sign up for a free account
-    3. Copy your API key from the dashboard
-    4. Paste it into the `api_key` field above
+    **How It Works:**
+    - RSI (14-period default) determines BUY/SELL/HOLD signals
+    - BUY signal: RSI ≤ oversold (default 30) - position is oversold
+    - SELL signal: RSI ≥ overbought (default 70) - position is overbought
+    - HOLD signal: RSI between oversold/overbought - no action
+    - Rotation only shows when SELL signal exists
 
-    Without an API key, you're limited to 10-30 calls/minute and may see rate limit errors.
+    - Rotates to coin with strongest BUY signal (lowest RSI)
+    - If no BUY signals, rotates to USD
 
-    On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it's preserved (your holdings/config won't be overwritten on reinstall).
+    On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it is preserved (your holdings/config will not be overwritten on reinstall).
 
     Quick rules:
     - Add a token: add a new line to the `pairs` array with your `sym` (symbol), `coin` (CoinGecko ID), `held` (quantity), and `entry` (average entry price).
     - Remove a token: delete its line from the array.
     - Show P/L: set `held > 0` and `entry > 0`. P/L appears only when both are set.
     - Show totals: set `show_totals = true` in the `[display]` section.
-    - Alignment: amounts and percents use fixed widths for clean columns on monospace fonts. When entry is 0, P/L is hidden.
-        - Crypto uses curl + jq + CoinGecko; if dependencies are missing, it simply shows nothing.
+    - Customize indicators: adjust `[indicators]` section values
+
 
 ### Multi‑monitor anomalies after install (ABI mismatch)
 

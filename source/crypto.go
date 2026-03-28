@@ -17,6 +17,7 @@ import (
 
 // Config represents the crypto.toml structure
 type Config struct {
+	Indicators IndicatorsConfig `toml:"indicators"`
 	Pairs   []PairConfig    `toml:"pairs"`
 	Display DisplaySettings `toml:"display"`
 	APIKey  string          `toml:"api_key"`
@@ -27,6 +28,14 @@ type PairConfig struct {
 	Coin  string  `toml:"coin"`
 	Held  float64 `toml:"held"`
 	Entry float64 `toml:"entry"`
+}
+
+type IndicatorsConfig struct {
+	RSIPeriod    int     `toml:"rsi_period"`
+	Oversold     int     `toml:"oversold"`
+	Overbought   int     `toml:"overbought"`
+	BBPeriod     int     `toml:"bb_period"`
+	BBStdDev     float64 `toml:"bb_std"`
 }
 
 type DisplaySettings struct {
@@ -43,6 +52,10 @@ type CryptoItem struct {
 	PrevPrice float64
 	OHLCData  []float64
 	Index     int // Preserve config order
+	RSI       float64
+	BBUpper   float64
+	BBLower   float64
+	Signal    string // BUY, SELL, HOLD
 }
 
 // runCrypto is called from main.go via --crypto flag
@@ -100,6 +113,34 @@ func runCrypto(mode string) error {
 
 	// Load OHLC data for RSI
 	loadOHLCData(items, ohlcFile, config.APIKey)
+
+	// Apply default indicator values if not set in config
+	if config.Indicators.RSIPeriod == 0 {
+		config.Indicators.RSIPeriod = 14
+	}
+	if config.Indicators.Oversold == 0 {
+		config.Indicators.Oversold = 30
+	}
+	if config.Indicators.Overbought == 0 {
+		config.Indicators.Overbought = 70
+	}
+	if config.Indicators.BBPeriod == 0 {
+		config.Indicators.BBPeriod = 20
+	}
+	if config.Indicators.BBStdDev == 0 {
+		config.Indicators.BBStdDev = 2.0
+	}
+
+	// Calculate indicators for each item
+	for i := range items {
+		if len(items[i].OHLCData) > config.Indicators.RSIPeriod {
+			items[i].RSI = calculateRSI(items[i].OHLCData, config.Indicators.RSIPeriod)
+		}
+		if len(items[i].OHLCData) > config.Indicators.BBPeriod {
+			items[i].BBUpper, items[i].BBLower = calculateBollingerBands(items[i].OHLCData, config.Indicators.BBPeriod, config.Indicators.BBStdDev)
+		}
+		items[i].Signal = calculateSignal(items[i].RSI, config.Indicators.Oversold, config.Indicators.Overbought)
+	}
 
 	// Route to output mode
 	mode = strings.ToUpper(mode)
@@ -199,28 +240,19 @@ func loadJSON(path string) map[string]interface{} {
 }
 
 func loadOHLCData(items []CryptoItem, ohlcFile string, apiKey string) {
-	// Check cache age
+	// Check if cache file exists and is valid
 	stat, err := os.Stat(ohlcFile)
+	cacheValid := false
 	cacheAge := 999999
+	
 	if err == nil {
 		cacheAge = int(time.Since(stat.ModTime()).Seconds())
+		if cacheAge < 1800 && stat.Size() > 10 {
+			cacheValid = true
+		}
 	}
 
-	ohlcCache := make(map[string][]float64)
-
-	if cacheAge > 1800 {
-		// Refresh OHLC data
-		for i := range items {
-			prices := fetchOHLC(items[i].CoinID, 90, apiKey)
-			if len(prices) > 0 {
-				ohlcCache[items[i].Sym] = prices
-				items[i].OHLCData = prices
-			}
-		}
-		// Save cache
-		data, _ := json.Marshal(ohlcCache)
-		os.WriteFile(ohlcFile, data, 0644)
-	} else {
+	if cacheValid {
 		// Load from cache
 		raw := loadJSON(ohlcFile)
 		for k, v := range raw {
@@ -231,36 +263,58 @@ func loadOHLCData(items []CryptoItem, ohlcFile string, apiKey string) {
 						prices[j] = f
 					}
 				}
-				ohlcCache[k] = prices
+				if len(prices) > 0 {
+					for i := range items {
+						if items[i].Sym == k {
+							items[i].OHLCData = prices
+						}
+					}
+				}
 			}
 		}
+	} else {
+		// Refresh OHLC data from API
+		ohlcCache := make(map[string][]float64)
 		for i := range items {
-			items[i].OHLCData = ohlcCache[items[i].Sym]
+			prices := fetchOHLC(items[i].CoinID, 90, apiKey)
+			if len(prices) > 0 {
+				ohlcCache[items[i].Sym] = prices
+				items[i].OHLCData = prices
+			}
+		}
+		// Save cache only if we got data
+		if len(ohlcCache) > 0 {
+			data, _ := json.Marshal(ohlcCache)
+			os.WriteFile(ohlcFile, data, 0644)
 		}
 	}
 }
 
 func fetchOHLC(coinID string, days int, apiKey string) []float64 {
-	url := fmt.Sprintf("https://api.coingecko.com/api/v3/coins/%s/market_chart?vs_currencies=usd&days=%d", coinID, days)
+	url := fmt.Sprintf("https://api.coingecko.com/api/v3/coins/%s/market_chart?vs_currency=usd&days=%d", coinID, days)
 	if apiKey != "" {
 		url += "&x_cg_demo_api_key=" + apiKey
 	}
+	// DEBUG: fetchOHLC for %s url=%s")
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("User-Agent", "ArchRiot/hyprlock-crypto")
 
 	client := &http.Client{Timeout: 8 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
+		// DEBUG: fetchOHLC error for %s: %v")
 		return nil
 	}
 	defer resp.Body.Close()
 
 	var data map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		// DEBUG: fetchOHLC json error for %s: %v")
 		return nil
 	}
 
 	if prices, ok := data["prices"].([]interface{}); ok {
+		// DEBUG: got %d prices for %s\n", len(prices), coinID)
 		result := make([]float64, len(prices))
 		for i, p := range prices {
 			if arr, ok := p.([]interface{}); ok && len(arr) > 1 {
@@ -271,6 +325,7 @@ func fetchOHLC(coinID string, days int, apiKey string) []float64 {
 		}
 		return result
 	}
+	// DEBUG: no prices in response for %s, data=%v")
 	return nil
 }
 
@@ -308,54 +363,113 @@ func calculateRSI(prices []float64, period int) float64 {
 	return math.Round(rsi*10) / 10
 }
 
-// Calculate sell limit matching shell script exactly
-func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, ohlcData []float64, items []CryptoItem) string {
-	// For USD/cash: show when to rebalance INTO another coin
+// Calculate signal based on RSI
+func calculateSignal(rsi float64, oversold int, overbought int) string {
+	if rsi == 0 {
+		return "HOLD"
+	}
+	if rsi < float64(oversold) {
+		return "BUY"
+	}
+	if rsi > float64(overbought) {
+		return "SELL"
+	}
+	return "HOLD"
+}
+
+// Calculate Bollinger Bands
+func calculateBollingerBands(prices []float64, period int, stdDev float64) (upper float64, lower float64) {
+	if len(prices) < period {
+		return 0, 0
+	}
+
+	recentPrices := prices[len(prices)-period:]
+
+	sum := 0.0
+	for _, p := range recentPrices {
+		sum += p
+	}
+	sma := sum / float64(period)
+
+	variance := 0.0
+	for _, p := range recentPrices {
+		diff := p - sma
+		variance += diff * diff
+	}
+	std := math.Sqrt(variance / float64(period))
+
+	upper = sma + (stdDev * std)
+	lower = sma - (stdDev * std)
+	return math.Round(upper*100)/100, math.Round(lower*100)/100
+}
+
+// Calculate sell limit with RSI-based signals
+func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item CryptoItem, items []CryptoItem) string {
+	// For USD/cash: find best BUY signal (lowest RSI, oversold)
 	if sym == "USD" || sym == "USDC" {
 		bestBuy := ""
-		bestPrice := 0.0
-		bestGain := 999999.0
+		bestRSI := 999.0
 
-		for _, item := range items {
-			if item.Sym == "USD" || item.Sym == "USDC" {
+		for _, it := range items {
+			if it.Sym == "USD" || it.Sym == "USDC" {
 				continue
 			}
-			if item.Price == 0 || item.Entry == 0 {
-				continue
-			}
-			gainPct := ((item.Price - item.Entry) / item.Entry) * 100
-			if gainPct < bestGain {
-				bestGain = gainPct
-				bestBuy = item.Sym
-				bestPrice = item.Price
+			// Only suggest buying if RSI indicates oversold (BUY signal)
+			if it.Signal == "BUY" && it.RSI > 0 && it.RSI < bestRSI {
+				bestRSI = it.RSI
+				bestBuy = it.Sym
 			}
 		}
 
-		if bestBuy != "" && bestPrice > 0 {
-			buyPrice := bestPrice * 0.95
-			return fmt.Sprintf("Buy %s at $%d", bestBuy, int(buyPrice))
+		if bestBuy != "" {
+			for _, it := range items {
+				if it.Sym == bestBuy && it.Price > 0 {
+					buyPrice := it.Price * 0.95
+					return fmt.Sprintf("Buy %s at $%d", bestBuy, int(buyPrice))
+				}
+			}
 		}
-		return "--"
+		return "HOLD"
 	}
 
-	// For other coins: calculate sell limit
-	if currentPrice == 0 || entryPrice == 0 {
-		return "--"
+	// For other coins: show HOLD or rotation based on signal
+	if item.Signal == "BUY" {
+		return "HOLD (RSI oversold)"
+	}
+	if item.Signal == "HOLD" {
+		// Show reason for HOLD
+		if item.RSI > 0 {
+			if item.RSI > 70 {
+				return "HOLD (RSI overbought)"
+			} else if item.RSI < 30 {
+				return "HOLD (RSI oversold)"
+			}
+		}
+		return "HOLD"
+	}
+	// Only show rotation for SELL signal
+
+	// Find best buy target - highest RSI among BUY signals (least oversold)
+	bestBuy := ""
+	bestRSI := 0.0
+
+	for _, it := range items {
+		if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
+			continue
+		}
+		// Only rotate to coins with BUY signal
+		if it.Signal == "BUY" && it.RSI > bestRSI {
+			bestRSI = it.RSI
+			bestBuy = it.Sym
+		}
 	}
 
-	profitPct := ((currentPrice - entryPrice) / entryPrice) * 100
-
-	// Dynamic sell target
-	var target float64
-	if profitPct >= 50 {
-		target = currentPrice * 1.15
-	} else if profitPct >= 20 {
-		target = currentPrice * 1.20
-	} else {
-		target = currentPrice * 1.25
+	rotation := "USD"
+	if bestBuy != "" {
+		rotation = bestBuy
 	}
 
-	// Calculate units to sell - matching shell exactly
+	// Calculate units to sell (25% of position)
 	var unitsToSell float64
 	if held > 0 {
 		if held < 1.0 {
@@ -369,36 +483,20 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, ohlc
 				unitsToSell = 1
 			}
 		}
-	} else {
-		unitsToSell = 0
 	}
 
-	// Determine rotation target - rotate to coin with best Buy signal (lowest gain %)
-	var rotation string
-	bestBuy := ""
-	bestGain := 999999.0
-	
-	for _, item := range items {
-		if item.Sym == sym || item.Sym == "USD" || item.Sym == "USDC" {
-			continue
-		}
-		if item.Price == 0 || item.Entry == 0 {
-			continue
-		}
-		gainPct := ((item.Price - item.Entry) / item.Entry) * 100
-		if gainPct < bestGain {
-			bestGain = gainPct
-			bestBuy = item.Sym
-		}
-	}
-	
-	if bestBuy != "" {
-		rotation = bestBuy
+	// Calculate target price based on profit
+	profitPct := ((currentPrice - entryPrice) / entryPrice) * 100
+	var target float64
+	if profitPct >= 50 {
+		target = currentPrice * 1.15
+	} else if profitPct >= 20 {
+		target = currentPrice * 1.20
 	} else {
-		rotation = "USD"
+		target = currentPrice * 1.25
 	}
 
-	// Format units: if < 1 use 1 decimal, else integer
+	// Format units
 	var unitsStr string
 	if unitsToSell < 1 {
 		unitsStr = fmt.Sprintf("%.1f", unitsToSell)
@@ -637,7 +735,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 		// Calculate sell limit
 		sellStr := ""
 		if item.Held > 0 {
-			sellStr = fmt.Sprintf("%22s", calculateSellLimit(item.Sym, item.Price, item.Entry, item.Held, item.OHLCData, items))
+			sellStr = fmt.Sprintf("%22s", calculateSellLimit(item.Sym, item.Price, item.Entry, item.Held, item, items))
 		}
 
 		// Build line matching shell format exactly:
