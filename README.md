@@ -1357,53 +1357,54 @@ Notes:
 
 Configuration is in `~/.config/crypto.toml`:
 
-    ```toml
-    # CoinGecko API key (required for RSI/Bollinger Bands)
-    # Get a free API key at: https://www.coingecko.com/en/api
-    api_key = "YOUR_API_KEY_HERE"
+```toml
+# CoinGecko API key (required for RSI/Bollinger Bands)
+# Get a free API key at: https://www.coingecko.com/en/api
+api_key = "YOUR_API_KEY_HERE"
 
-    # Crypto holdings - example
-    pairs = [
-        { sym = "BTC", coin = "bitcoin",   held = 0.10, entry = 50000 },
-        { sym = "ETH", coin = "ethereum",  held = 1.50, entry = 3000 },
-        { sym = "SOL", coin = "solana",    held = 50.00, entry = 100 },
-        { sym = "XMR", coin = "monero",    held = 10.00, entry = 200 },
-        { sym = "USD", coin = "usd-coin",  held = 1000.00, entry = 1.00 },
-    ]
+# Crypto holdings - example
+pairs = [
+    { sym = "BTC", coin = "bitcoin",   held = 0.10, entry = 50000 },
+    { sym = "ETH", coin = "ethereum",  held = 1.50, entry = 3000 },
+    { sym = "SOL", coin = "solana",    held = 50.00, entry = 100 },
+    { sym = "XMR", coin = "monero",    held = 10.00, entry = 200 },
+    { sym = "USD", coin = "usd-coin",  held = 1000.00, entry = 1.00 },
+]
 
-    # Display settings
-    [display]
-    show_totals = false   # Set to true to show total holdings + gains
-    max_pairs = 6
+# Display settings
+[display]
+show_totals = false   # Set to true to show total holdings + gains
+max_pairs = 6
 
-    # Indicator settings (optional - defaults shown)
-    [indicators]
-    rsi_period = 14       # RSI lookback period
-    oversold = 30          # RSI below this = BUY signal
-    overbought = 70        # RSI above this = SELL signal
-    bb_period = 20         # Bollinger Bands period
-    bb_std = 2.0           # Bollinger Bands standard deviations
-    ```
+# Indicator settings (optional - defaults shown)
+[indicators]
+rsi_period = 14       # RSI lookback period
+oversold = 30          # RSI below this = BUY signal
+overbought = 70        # RSI above this = SELL signal
+bb_period = 20         # Bollinger Bands period
+bb_std = 2.0           # Bollinger Bands standard deviations
+```
 
-    **How It Works:**
-    - RSI (14-period default) determines BUY/SELL/HOLD signals
-    - BUY signal: RSI ≤ oversold (default 30) - position is oversold
-    - SELL signal: RSI ≥ overbought (default 70) - position is overbought
-    - HOLD signal: RSI between oversold/overbought - no action
-    - Rotation only shows when SELL signal exists
+**How It Works:**
 
-    - Rotates to coin with strongest BUY signal (lowest RSI)
-    - If no BUY signals, rotates to USD
+- RSI (14-period default) determines BUY/SELL/HOLD signals
+- BUY signal: RSI ≤ oversold (default 30) - position is oversold
+- SELL signal: RSI ≥ overbought (default 70) - position is overbought
+- HOLD signal: RSI between oversold/overbought - no action
+- Rotation only shows when SELL signal exists
 
-    On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it is preserved (your holdings/config will not be overwritten on reinstall).
+- Rotates to coin with strongest BUY signal (lowest RSI)
+- If no BUY signals, rotates to USD
 
-    Quick rules:
-    - Add a token: add a new line to the `pairs` array with your `sym` (symbol), `coin` (CoinGecko ID), `held` (quantity), and `entry` (average entry price).
-    - Remove a token: delete its line from the array.
-    - Show P/L: set `held > 0` and `entry > 0`. P/L appears only when both are set.
-    - Show totals: set `show_totals = true` in the `[display]` section.
-    - Customize indicators: adjust `[indicators]` section values
+On first install, ArchRiot copies `config/crypto.toml` to `~/.config/crypto.toml`. If a config already exists, it is preserved (your holdings/config will not be overwritten on reinstall).
 
+Quick rules:
+
+- Add a token: add a new line to the `pairs` array with your `sym` (symbol), `coin` (CoinGecko ID), `held` (quantity), and `entry` (average entry price).
+- Remove a token: delete its line from the array.
+- Show P/L: set `held > 0` and `entry > 0`. P/L appears only when both are set.
+- Show totals: set `show_totals = true` in the `[display]` section.
+- Customize indicators: adjust `[indicators]` section values
 
 ### Multi‑monitor anomalies after install (ABI mismatch)
 
