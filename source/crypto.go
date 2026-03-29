@@ -18,9 +18,9 @@ import (
 // Config represents the crypto.toml structure
 type Config struct {
 	Indicators IndicatorsConfig `toml:"indicators"`
-	Pairs   []PairConfig    `toml:"pairs"`
-	Display DisplaySettings `toml:"display"`
-	APIKey  string          `toml:"api_key"`
+	Pairs      []PairConfig     `toml:"pairs"`
+	Display    DisplaySettings  `toml:"display"`
+	APIKey     string           `toml:"api_key"`
 }
 
 type PairConfig struct {
@@ -31,11 +31,11 @@ type PairConfig struct {
 }
 
 type IndicatorsConfig struct {
-	RSIPeriod    int     `toml:"rsi_period"`
-	Oversold     int     `toml:"oversold"`
-	Overbought   int     `toml:"overbought"`
-	BBPeriod     int     `toml:"bb_period"`
-	BBStdDev     float64 `toml:"bb_std"`
+	RSIPeriod  int     `toml:"rsi_period"`
+	Oversold   int     `toml:"oversold"`
+	Overbought int     `toml:"overbought"`
+	BBPeriod   int     `toml:"bb_period"`
+	BBStdDev   float64 `toml:"bb_std"`
 }
 
 type DisplaySettings struct {
@@ -244,7 +244,7 @@ func loadOHLCData(items []CryptoItem, ohlcFile string, apiKey string) {
 	stat, err := os.Stat(ohlcFile)
 	cacheValid := false
 	cacheAge := 999999
-	
+
 	if err == nil {
 		cacheAge = int(time.Since(stat.ModTime()).Seconds())
 		if cacheAge < 1800 && stat.Size() > 10 {
@@ -400,7 +400,7 @@ func calculateBollingerBands(prices []float64, period int, stdDev float64) (uppe
 
 	upper = sma + (stdDev * std)
 	lower = sma - (stdDev * std)
-	return math.Round(upper*100)/100, math.Round(lower*100)/100
+	return math.Round(upper*100) / 100, math.Round(lower*100) / 100
 }
 
 // Calculate sell limit with RSI-based signals
@@ -432,79 +432,86 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 		return "HOLD"
 	}
 
-	// For other coins: show HOLD or rotation based on signal
+	// For other coins: show sell targets when overbought or neutral
+	// Show rotation targets for SELL (overbought) or HOLD (neutral) signals
+	if item.Signal == "SELL" || item.Signal == "HOLD" {
+		// Find best buy target - coins with BUY signal (oversold = best entry)
+		bestBuy := ""
+		bestRSI := 999.0
+
+		for _, it := range items {
+			if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
+				continue
+			}
+			// Rotate to coins with BUY signal (oversold = best entry point)
+			if it.Signal == "BUY" && it.RSI > 0 && it.RSI < bestRSI {
+				bestRSI = it.RSI
+				bestBuy = it.Sym
+			}
+		}
+
+		// If no BUY signal found, rotate to lowest RSI (closest to oversold)
+		if bestBuy == "" {
+			for _, it := range items {
+				if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
+					continue
+				}
+				if it.RSI > 0 && it.RSI < bestRSI {
+					bestRSI = it.RSI
+					bestBuy = it.Sym
+				}
+			}
+		}
+
+		rotation := "USD"
+		if bestBuy != "" {
+			rotation = bestBuy
+		}
+
+		// Calculate units to sell (25% of position)
+		var unitsToSell float64
+		if held > 0 {
+			if held < 1.0 {
+				unitsToSell = held * 0.25
+				if unitsToSell < 0.01 {
+					unitsToSell = held
+				}
+			} else {
+				unitsToSell = math.Floor(held * 0.25)
+				if unitsToSell < 1 {
+					unitsToSell = 1
+				}
+			}
+		}
+
+		// Calculate target price based on profit
+		profitPct := ((currentPrice - entryPrice) / entryPrice) * 100
+		var target float64
+		if profitPct >= 50 {
+			target = currentPrice * 1.15
+		} else if profitPct >= 20 {
+			target = currentPrice * 1.20
+		} else {
+			target = currentPrice * 1.25
+		}
+
+		// Format units
+		var unitsStr string
+		if unitsToSell < 1 {
+			unitsStr = fmt.Sprintf("%.1f", unitsToSell)
+		} else {
+			unitsStr = fmt.Sprintf("%.0f", unitsToSell)
+		}
+
+		return fmt.Sprintf("%s @ $%d → %s", unitsStr, int(target), rotation)
+	}
+
+	// For BUY signal (oversold), show HOLD with reason
 	if item.Signal == "BUY" {
 		return "HOLD (RSI oversold)"
 	}
-	if item.Signal == "HOLD" {
-		// Show reason for HOLD
-		if item.RSI > 0 {
-			if item.RSI > 70 {
-				return "HOLD (RSI overbought)"
-			} else if item.RSI < 30 {
-				return "HOLD (RSI oversold)"
-			}
-		}
-		return "HOLD"
-	}
-	// Only show rotation for SELL signal
 
-	// Find best buy target - highest RSI among BUY signals (least oversold)
-	bestBuy := ""
-	bestRSI := 0.0
-
-	for _, it := range items {
-		if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
-			continue
-		}
-		// Only rotate to coins with BUY signal
-		if it.Signal == "BUY" && it.RSI > bestRSI {
-			bestRSI = it.RSI
-			bestBuy = it.Sym
-		}
-	}
-
-	rotation := "USD"
-	if bestBuy != "" {
-		rotation = bestBuy
-	}
-
-	// Calculate units to sell (25% of position)
-	var unitsToSell float64
-	if held > 0 {
-		if held < 1.0 {
-			unitsToSell = held * 0.25
-			if unitsToSell < 0.01 {
-				unitsToSell = held
-			}
-		} else {
-			unitsToSell = math.Floor(held * 0.25)
-			if unitsToSell < 1 {
-				unitsToSell = 1
-			}
-		}
-	}
-
-	// Calculate target price based on profit
-	profitPct := ((currentPrice - entryPrice) / entryPrice) * 100
-	var target float64
-	if profitPct >= 50 {
-		target = currentPrice * 1.15
-	} else if profitPct >= 20 {
-		target = currentPrice * 1.20
-	} else {
-		target = currentPrice * 1.25
-	}
-
-	// Format units
-	var unitsStr string
-	if unitsToSell < 1 {
-		unitsStr = fmt.Sprintf("%.1f", unitsToSell)
-	} else {
-		unitsStr = fmt.Sprintf("%.0f", unitsToSell)
-	}
-
-	return fmt.Sprintf("%s @ $%d → %s", unitsStr, int(target), rotation)
+	return "HOLD"
 }
 
 // Output formatters matching shell script exactly
@@ -774,7 +781,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 			} else {
 				gainStr = "-" + formatNumberWithWidth(-gainTotal, 12)
 			}
-			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 15)) + heldStr)
+			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 15))+heldStr)
 		} else {
 			lines = append(lines, "")
 			var gainStr string

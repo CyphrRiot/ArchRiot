@@ -4,7 +4,7 @@
 
 ### Start A Riot!
 
-![Version](https://img.shields.io/badge/version-4.4.1-blue?labelColor=0052cc)
+![Version](https://img.shields.io/badge/version-4.4.2-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
 ![Platform](https://img.shields.io/badge/platform-linux-4338ca?logo=linux&logoColor=white&labelColor=3730a3)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1e1b4b?logo=arch-linux&logoColor=8b5cf6&labelColor=0f172a)
@@ -436,7 +436,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.4.1 - Clean up Hyprland window rules, add iwgtk float
+**🔥 Current Release:** v4.4.2 - Fix crypto rotation to show sell targets for all coins
 
 **🚀 Recent Milestones:**
 
@@ -1378,7 +1378,7 @@ max_pairs = 6
 
 # Indicator settings (optional - defaults shown)
 [indicators]
-rsi_period = 14       # RSI lookback period
+rsi_period = 14        # RSI lookback period
 oversold = 30          # RSI below this = BUY signal
 overbought = 70        # RSI above this = SELL signal
 bb_period = 20         # Bollinger Bands period
