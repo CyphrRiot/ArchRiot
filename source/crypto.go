@@ -438,10 +438,15 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 		// Find best buy target - coins with BUY signal (oversold = best entry)
 		bestBuy := ""
 		bestRSI := 999.0
+		lowestRSI := 999.0
 
 		for _, it := range items {
-			if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
+			if it.Sym == "USD" || it.Sym == "USDC" {
 				continue
+			}
+			// Track lowest RSI overall
+			if it.RSI > 0 && it.RSI < lowestRSI {
+				lowestRSI = it.RSI
 			}
 			// Rotate to coins with BUY signal (oversold = best entry point)
 			if it.Signal == "BUY" && it.RSI > 0 && it.RSI < bestRSI {
@@ -453,7 +458,7 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 		// If no BUY signal found, rotate to lowest RSI (closest to oversold)
 		if bestBuy == "" {
 			for _, it := range items {
-				if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
+				if it.Sym == "USD" || it.Sym == "USDC" {
 					continue
 				}
 				if it.RSI > 0 && it.RSI < bestRSI {
@@ -463,12 +468,29 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 			}
 		}
 
-		rotation := "USD"
-		if bestBuy != "" {
-			rotation = bestBuy
+		// If current coin has lowest RSI (best buy), don't suggest selling it
+		if item.RSI > 0 && item.RSI <= lowestRSI+5 {
+			return "HOLD"
 		}
 
-		// Calculate units to sell (25% of position)
+		// Find rotation target - avoid always rotating to same coin
+		// Rotate to coin with RSI closest to 50 (neutral, not overbought or oversold)
+		rotation := "USD"
+		bestTargetRSI := 999.0
+
+		for _, it := range items {
+			if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
+				continue
+			}
+			// Target RSI closest to 50 (balanced, not overbought or oversold)
+			targetRSI := math.Abs(50 - it.RSI)
+			if it.RSI > 0 && targetRSI < bestTargetRSI {
+				bestTargetRSI = targetRSI
+				rotation = it.Sym
+			}
+		}
+
+		// Calculate units to sell (25% of position) - but not if too small
 		var unitsToSell float64
 		if held > 0 {
 			if held < 1.0 {
@@ -482,6 +504,11 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 					unitsToSell = 1
 				}
 			}
+		}
+
+		// Don't show sell if units would be 0.0 (tiny position)
+		if unitsToSell < 0.01 {
+			return "HOLD"
 		}
 
 		// Calculate target price based on profit
