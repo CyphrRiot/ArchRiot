@@ -506,8 +506,8 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 			}
 		}
 
-		// Don't show sell if units would be 0.0 (tiny position)
-		if unitsToSell < 0.01 {
+		// Don't show sell if units would be 0.0 (tiny position like BTC 0.10)
+		if unitsToSell < 0.1 {
 			return "HOLD"
 		}
 
