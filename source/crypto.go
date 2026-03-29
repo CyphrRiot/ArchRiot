@@ -506,10 +506,7 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 			}
 		}
 
-		// Don't show sell if units would be 0.0 (tiny position like BTC 0.10)
-		if unitsToSell < 0.1 {
-			return "HOLD"
-		}
+		// Allow selling small amounts - just format with more decimals
 
 		// Calculate target price based on profit
 		profitPct := ((currentPrice - entryPrice) / entryPrice) * 100
@@ -522,9 +519,11 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 			target = currentPrice * 1.25
 		}
 
-		// Format units
+		// Format units - show more decimals for small amounts
 		var unitsStr string
-		if unitsToSell < 1 {
+		if unitsToSell < 0.1 {
+			unitsStr = fmt.Sprintf("%.2f", unitsToSell)
+		} else if unitsToSell < 1 {
 			unitsStr = fmt.Sprintf("%.1f", unitsToSell)
 		} else {
 			unitsStr = fmt.Sprintf("%.0f", unitsToSell)
