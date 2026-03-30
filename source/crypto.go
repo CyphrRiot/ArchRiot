@@ -347,14 +347,15 @@ func calculateRSI(prices []float64, period int) float64 {
 			losses[i] = -d
 		}
 	}
+	// Use ALL prior data, not just last 'period' values
 	avgGain := 0.0
 	avgLoss := 0.0
-	for i := len(gains) - period; i < len(gains); i++ {
+	for i := range gains {
 		avgGain += gains[i]
 		avgLoss += losses[i]
 	}
-	avgGain /= float64(period)
-	avgLoss /= float64(period)
+	avgGain /= float64(len(gains))
+	avgLoss /= float64(len(losses))
 	if avgLoss == 0 {
 		return 100
 	}
@@ -403,156 +404,10 @@ func calculateBollingerBands(prices []float64, period int, stdDev float64) (uppe
 	return math.Round(upper*100) / 100, math.Round(lower*100) / 100
 }
 
-// Calculate sell limit with RSI-based signals
+// Calculate sell limit using the trading module
 func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item CryptoItem, items []CryptoItem) string {
-	// For USD/cash: find best BUY signal (lowest RSI, oversold)
-	if sym == "USD" || sym == "USDC" {
-		bestBuy := ""
-		bestRSI := 999.0
-
-		for _, it := range items {
-			if it.Sym == "USD" || it.Sym == "USDC" {
-				continue
-			}
-			// Only suggest buying if RSI indicates oversold (BUY signal)
-			if it.Signal == "BUY" && it.RSI > 0 && it.RSI < bestRSI {
-				bestRSI = it.RSI
-				bestBuy = it.Sym
-			}
-		}
-
-		if bestBuy != "" {
-			for _, it := range items {
-				if it.Sym == bestBuy && it.Price > 0 {
-					buyPrice := it.Price * 0.95
-					return fmt.Sprintf("Buy %s at $%d", bestBuy, int(buyPrice))
-				}
-			}
-		}
-		return "HOLD"
-	}
-
-	// For other coins: show sell targets when overbought or neutral
-	// Show rotation targets for SELL (overbought) or HOLD (neutral) signals
-	if item.Signal == "SELL" || item.Signal == "HOLD" {
-		// Find best buy target - coins with BUY signal (oversold = best entry)
-		bestBuy := ""
-		bestRSI := 999.0
-		lowestRSI := 999.0
-
-		for _, it := range items {
-			if it.Sym == "USD" || it.Sym == "USDC" {
-				continue
-			}
-			// Track lowest RSI overall
-			if it.RSI > 0 && it.RSI < lowestRSI {
-				lowestRSI = it.RSI
-			}
-			// Rotate to coins with BUY signal (oversold = best entry point)
-			if it.Signal == "BUY" && it.RSI > 0 && it.RSI < bestRSI {
-				bestRSI = it.RSI
-				bestBuy = it.Sym
-			}
-		}
-
-		// If no BUY signal found, rotate to lowest RSI (closest to oversold)
-		if bestBuy == "" {
-			for _, it := range items {
-				if it.Sym == "USD" || it.Sym == "USDC" {
-					continue
-				}
-				if it.RSI > 0 && it.RSI < bestRSI {
-					bestRSI = it.RSI
-					bestBuy = it.Sym
-				}
-			}
-		}
-
-		// Check if current coin is overbought (RSI > 70)
-		isOverbought := item.RSI > 70
-
-		// Find if any coin is oversold (RSI < 30)
-		hasOversold := false
-		oversoldCoin := ""
-		oversoldRSI := 999.0
-		for _, it := range items {
-			if it.Sym == "USD" || it.Sym == "USDC" || it.Sym == sym {
-				continue
-			}
-			if it.RSI > 0 && it.RSI < 30 && it.RSI < oversoldRSI {
-				hasOversold = true
-				oversoldRSI = it.RSI
-				oversoldCoin = it.Sym
-			}
-		}
-
-		// If current coin has lowest RSI (best buy), don't suggest selling it
-		if item.RSI > 0 && item.RSI <= lowestRSI+5 {
-			return "HOLD"
-		}
-
-		// Only rotate to USD if overbought AND no oversold coins exist
-		// Otherwise rotate to the most oversold coin
-		rotation := "USD"
-		if isOverbought && !hasOversold {
-			// Overbought and no oversold coins → sell to USD
-			rotation = "USD"
-		} else if hasOversold {
-			// There's an oversold coin → rotate to it
-			rotation = oversoldCoin
-		} else {
-			// Not overbought, no oversold coins → hold
-			rotation = "USD"
-		}
-
-		// Calculate units to sell (25% of position) - but not if too small
-		var unitsToSell float64
-		if held > 0 {
-			if held < 1.0 {
-				unitsToSell = held * 0.25
-				if unitsToSell < 0.01 {
-					unitsToSell = held
-				}
-			} else {
-				unitsToSell = math.Floor(held * 0.25)
-				if unitsToSell < 1 {
-					unitsToSell = 1
-				}
-			}
-		}
-
-		// Allow selling small amounts - just format with more decimals
-
-		// Calculate target price based on profit
-		profitPct := ((currentPrice - entryPrice) / entryPrice) * 100
-		var target float64
-		if profitPct >= 50 {
-			target = currentPrice * 1.15
-		} else if profitPct >= 20 {
-			target = currentPrice * 1.20
-		} else {
-			target = currentPrice * 1.25
-		}
-
-		// Format units - show more decimals for small amounts
-		var unitsStr string
-		if unitsToSell < 0.1 {
-			unitsStr = fmt.Sprintf("%.2f", unitsToSell)
-		} else if unitsToSell < 1 {
-			unitsStr = fmt.Sprintf("%.1f", unitsToSell)
-		} else {
-			unitsStr = fmt.Sprintf("%.0f", unitsToSell)
-		}
-
-		return fmt.Sprintf("%s @ $%d → %s", unitsStr, int(target), rotation)
-	}
-
-	// For BUY signal (oversold), show HOLD with reason
-	if item.Signal == "BUY" {
-		return "HOLD (RSI oversold)"
-	}
-
-	return "HOLD"
+	config := DefaultTradingConfig()
+	return CalculateTradingSignal(sym, currentPrice, entryPrice, held, item, items, config)
 }
 
 // Output formatters matching shell script exactly

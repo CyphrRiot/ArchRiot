@@ -2,6 +2,14 @@
 # Get a free API key at: https://www.coingecko.com/en/api
 api_key = ""
 
+# Indicator settings
+[indicators]
+rsi_period = 14
+oversold = 30
+overbought = 70
+bb_period = 16
+bb_std = 2.0
+
 # Crypto holdings - leave values at 0 to disable P/L display
 pairs = [
     { sym = "XMR", coin = "monero",    held = 0, entry = 0 },

@@ -52,8 +52,8 @@ _Built on Arch Linux with Hyprland, because compromises are for other distros. T
 - [🎯 Key Customizations](#key-customizations)
 - [🔄 System Management](#system-management)
 - [🧰 Advanced Usage: CLI Flags](#advanced-usage-archriot-cli-flags)
+- [🔐 Crypto Config](#crypto-config)
 - [🔧 Troubleshooting](#troubleshooting)
-    - [🔐 Crypto Config](#lock-screen-weather-and-crypto)
 - [📄 License](#license)
 - [📖 Elements of Nineteenth Century Style](./Language/Style.html)
 
@@ -436,7 +436,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.4.6 - Fix circular crypto rotation (XMR↔ZEC ping-pong)
+**🔥 Current Release:** v4.4.7 - Fix RSI calculation (use all data), add BB support, fix circular rotation
 
 **🚀 Recent Milestones:**
 
@@ -1327,6 +1327,10 @@ Notes:
 - You can still run manual commands when needed:
     - ~/.local/share/archriot/install/archriot --displays-enforce
     - ~/.local/share/archriot/install/archriot --waybar-reload
+
+<a id="crypto-config"></a>
+
+## 🔐 Crypto Config
 
 ### Lock screen: Weather and Crypto
 
