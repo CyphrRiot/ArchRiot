@@ -2,7 +2,7 @@
 
 # :: 𝔸𝕣𝕔𝕙ℝ𝕚𝕠𝕥 ::
 
-### Start A Riot!
+### **One Command. Complete Environment. Zero Compromises.**
 
 ![Version](https://img.shields.io/badge/version-4.4.10-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
@@ -21,8 +21,6 @@
 </div>
 
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted**
-
-### **One Command. Complete Environment. Zero Compromises.**
 
 ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" I've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
 
