@@ -71,7 +71,18 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 			// Has funds to rebalance - show best buy target
 			bestBuy := GetBestBuyTarget(items, config)
 			if bestBuy != "" {
-				return fmt.Sprintf("→ %s", bestBuy)
+				// Find the price of the best buy coin
+				bestBuyPrice := 0.0
+				for _, it := range items {
+					if it.Sym == bestBuy {
+						bestBuyPrice = it.Price
+						break
+					}
+				}
+				if bestBuyPrice > 0 {
+					return fmt.Sprintf("%.0f USD → %s @%.0f", held, bestBuy, bestBuyPrice)
+				}
+				return fmt.Sprintf("%.0f USD → %s", held, bestBuy)
 			}
 		}
 		return ""
@@ -138,6 +149,18 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 	unitsStr := formatUnits(unitsToSell)
 	targetStr := formatPrice(target)
 	sellStr := fmt.Sprintf("%s @ $%s", unitsStr, targetStr)
+
+	// NEW: If current price is below entry, show STOP LOSS instead of Limit
+	if currentPrice < entryPrice && entryPrice > 0 {
+		// Stop loss: 10% below entry, but at least 5% above current to avoid immediate trigger
+		stopPrice := entryPrice * 0.90
+		minStop := currentPrice * 1.05
+		if stopPrice < minStop {
+			stopPrice = minStop
+		}
+		stopStr := formatPrice(stopPrice)
+		return fmt.Sprintf("%s @ $%s (Stop)", unitsStr, stopStr)
+	}
 
 	// Case 1: Current coin is oversold (RSI < oversold OR below BB lower) → HOLD
 	// Others should rotate INTO this coin
