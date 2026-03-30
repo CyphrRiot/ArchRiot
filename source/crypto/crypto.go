@@ -90,12 +90,29 @@ func RunCrypto(mode string) error {
 		})
 	}
 
-	// Try to fetch fresh prices
+	// Load current prices first (becomes "prev")
+	curPrices := loadJSON(curFile)
+
+	// Save current as prev BEFORE fetching new prices
+	prevData := make(map[string]float64)
+	for sym, data := range curPrices {
+		if dataMap, ok := data.(map[string]interface{}); ok {
+			if usd, ok := dataMap["usd"].(float64); ok {
+				prevData[sym] = usd
+			}
+		}
+	}
+	if len(prevData) > 0 {
+		if data, err := json.Marshal(prevData); err == nil {
+			os.WriteFile(prevFile, data, 0644)
+		}
+	}
+
+	// Now fetch fresh prices
 	fetchPrices(ids, curFile, config.APIKey)
 
-	// Load cached prices
-	curPrices := loadJSON(curFile)
-	prevPrices := loadJSON(prevFile)
+	// Load fresh prices
+	curPrices = loadJSON(curFile)
 
 	// Update items with prices
 	for i := range items {
@@ -104,8 +121,9 @@ func RunCrypto(mode string) error {
 				items[i].Price = usd
 			}
 		}
-		if prevData, ok := prevPrices[items[i].Sym]; ok {
-			if f, ok := prevData.(float64); ok {
+		// Use the prev data we saved above
+		if items[i].CoinID != "" {
+			if f, ok := prevData[items[i].CoinID]; ok {
 				items[i].PrevPrice = f
 			}
 		}
