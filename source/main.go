@@ -16,6 +16,7 @@ import (
 	"archriot-installer/backgrounds"
 	"archriot-installer/cleanup"
 	"archriot-installer/cli"
+	"archriot-installer/crypto"
 	"archriot-installer/diagnostics"
 	"archriot-installer/display"
 	"archriot-installer/displays"
@@ -232,14 +233,14 @@ func main() {
 			if len(os.Args) >= 3 {
 				mode = os.Args[2]
 			}
-			_ = runCrypto(mode)
+			_ = crypto.RunCrypto(mode)
 			return
 
 		case "--crypto-refresh":
 			// Clear cache and fetch fresh prices
 			os.RemoveAll(filepath.Join(os.Getenv("HOME"), ".cache", "hyprlock-crypto.json"))
 			os.RemoveAll(filepath.Join(os.Getenv("HOME"), ".cache", "hyprlock-crypto-prev.json"))
-			_ = runCrypto("ROWML")
+			_ = crypto.RunCrypto("ROWML")
 			return
 
 		case "--waybar-status":
@@ -401,7 +402,6 @@ func main() {
 		case "--waybar-update-click":
 			_ = waybar.EmitUpdateClick(os.Args[2:])
 			return
-
 
 		case "--waybar-reload":
 			if self, err := os.Executable(); err == nil {
