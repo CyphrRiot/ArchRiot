@@ -22,7 +22,7 @@
 
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted**
 
-ArchRiot is the answer to every time you've thought "why can't Linux just work correctly from the start?" I've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
+ArchRiot is the answer to every time you've thought "Why can't a Linux installation just work correctly from the start?" I've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
 
 **Curated to be correct:**
 
