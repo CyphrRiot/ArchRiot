@@ -436,7 +436,7 @@ Note: We never restart systemd-logind during install/upgrade; drop-ins take effe
 
 _The relentless march toward Linux perfection_
 
-**🔥 Current Release:** v4.4.5 - Fix BTC 0.03 sell display with proper decimals
+**🔥 Current Release:** v4.4.6 - Fix circular crypto rotation (XMR↔ZEC ping-pong)
 
 **🚀 Recent Milestones:**
 

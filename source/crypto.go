@@ -468,26 +468,41 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 			}
 		}
 
+		// Check if current coin is overbought (RSI > 70)
+		isOverbought := item.RSI > 70
+
+		// Find if any coin is oversold (RSI < 30)
+		hasOversold := false
+		oversoldCoin := ""
+		oversoldRSI := 999.0
+		for _, it := range items {
+			if it.Sym == "USD" || it.Sym == "USDC" || it.Sym == sym {
+				continue
+			}
+			if it.RSI > 0 && it.RSI < 30 && it.RSI < oversoldRSI {
+				hasOversold = true
+				oversoldRSI = it.RSI
+				oversoldCoin = it.Sym
+			}
+		}
+
 		// If current coin has lowest RSI (best buy), don't suggest selling it
 		if item.RSI > 0 && item.RSI <= lowestRSI+5 {
 			return "HOLD"
 		}
 
-		// Find rotation target - avoid always rotating to same coin
-		// Rotate to coin with RSI closest to 50 (neutral, not overbought or oversold)
+		// Only rotate to USD if overbought AND no oversold coins exist
+		// Otherwise rotate to the most oversold coin
 		rotation := "USD"
-		bestTargetRSI := 999.0
-
-		for _, it := range items {
-			if it.Sym == sym || it.Sym == "USD" || it.Sym == "USDC" {
-				continue
-			}
-			// Target RSI closest to 50 (balanced, not overbought or oversold)
-			targetRSI := math.Abs(50 - it.RSI)
-			if it.RSI > 0 && targetRSI < bestTargetRSI {
-				bestTargetRSI = targetRSI
-				rotation = it.Sym
-			}
+		if isOverbought && !hasOversold {
+			// Overbought and no oversold coins → sell to USD
+			rotation = "USD"
+		} else if hasOversold {
+			// There's an oversold coin → rotate to it
+			rotation = oversoldCoin
+		} else {
+			// Not overbought, no oversold coins → hold
+			rotation = "USD"
 		}
 
 		// Calculate units to sell (25% of position) - but not if too small
