@@ -638,7 +638,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 		// Calculate sell limit
 		sellStr := ""
 		if item.Held > 0 {
-			sellStr = fmt.Sprintf("%22s", calculateSellLimit(item.Sym, item.Price, item.Entry, item.Held, item, items))
+			sellStr = fmt.Sprintf("%26s", calculateSellLimit(item.Sym, item.Price, item.Entry, item.Held, item, items))
 		}
 
 		// Build line matching shell format exactly:
