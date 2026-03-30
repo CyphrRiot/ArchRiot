@@ -30,7 +30,7 @@ ArchRiot is the answer to every time you've thought "why can't Linux just work c
 
 - **🪟 Hyprland Tiling** - Makes other Window Managers feel primitive
 - **⚡ Robust Binary** - Atomic operations, run-time, instant rollbacks, zero dependency hell
-- **🛡️ Privacy** - Zero telemetry, zero tracking, zero corporate data harvesting
+- **🛡️ Privacy** - Zero telemetry, zero tracking, zero data harvesting, zero ID requirements
 - **🎨 Aesthetics** - Carefully crafted dark themes that work at any hour
 - **💻 Development** - Zed, Neovim, shell enhancements, and other upgrades
 
