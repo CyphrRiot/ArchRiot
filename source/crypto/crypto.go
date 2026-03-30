@@ -584,6 +584,12 @@ func outputROW(items []CryptoItem) error {
 func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 	lines := []string{}
 
+	// Header row
+	header := "COIN     HELD   ENTRY PRICE  % GAINS       $ GAINS              NEXT SELL PRICE"
+	lines = append(lines, header)
+	separator := "------ ------   -----------  -------  ------------   --------------------------"
+	lines = append(lines, separator)
+
 	// Sort items - preserve config order, move USD to end (matching shell)
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].Sym == "USD" {
@@ -669,7 +675,6 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 
 	if haveGain {
 		if showTotals && haveValue {
-			lines = append(lines, "")
 			heldStr := "$ " + formatNumberWithWidth(heldTotal, 10)
 			var gainStr string
 			if gainTotal >= 0 {
@@ -679,7 +684,6 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 			}
 			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 15))+heldStr)
 		} else {
-			lines = append(lines, "")
 			var gainStr string
 			if gainTotal >= 0 {
 				gainStr = " " + formatNumberWithWidth(gainTotal, 12)

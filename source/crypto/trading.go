@@ -117,8 +117,7 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 			}
 		}
 	}
-
-	// Calculate target price based on 90-day high (10% below high)
+	// Calculate target price: 25% below 90-day HIGH, but at least 10% above current price
 	target := currentPrice * 1.25 // default fallback
 	if len(item.OHLCData) > 0 {
 		high := item.OHLCData[0]
@@ -127,7 +126,12 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 				high = p
 			}
 		}
-		target = high * 0.85
+		// 25% below HIGH, but minimum 10% above current price
+		target = high * 0.75
+		minTarget := currentPrice * 1.10
+		if target < minTarget {
+			target = minTarget
+		}
 	}
 
 	// Format the sell string (units @ price)
