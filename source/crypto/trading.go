@@ -152,12 +152,8 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 
 	// NEW: If current price is below entry, show STOP LOSS instead of Limit
 	if currentPrice < entryPrice && entryPrice > 0 {
-		// Stop loss: 10% below entry, but at least 5% above current to avoid immediate trigger
-		stopPrice := entryPrice * 0.90
-		minStop := currentPrice * 1.05
-		if stopPrice < minStop {
-			stopPrice = minStop
-		}
+		// Stop loss: 10% below current price
+		stopPrice := currentPrice * 0.90
 		stopStr := formatPrice(stopPrice)
 		return fmt.Sprintf("%s @ $%s (Stop)", unitsStr, stopStr)
 	}
