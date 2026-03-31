@@ -603,7 +603,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 	lines := []string{}
 
 	// Header row
-	header := "COIN     HELD   ENTRY PRICE  % GAINS       $ GAINS              NEXT SELL PRICE"
+	header := "COIN     HELD   PRICE        % GAINS       $ GAINS              NEXT REBALANCE"
 	lines = append(lines, header)
 	separator := "------ ------   -----------  -------  ------------   --------------------------"
 	lines = append(lines, separator)
