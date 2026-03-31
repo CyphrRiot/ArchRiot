@@ -171,7 +171,7 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 	// Case 2: Current coin is NOT overbought → HOLD
 	// No sell signal means we don't sell
 	if !isSellSignal {
-		return fmt.Sprintf("%s (Limit)", sellStr)
+		return fmt.Sprintf("%s → USD", sellStr)
 	}
 
 	// Case 3: Current coin is overbought (RSI > overbought OR above BB upper)
@@ -179,7 +179,7 @@ func CalculateTradingSignal(sym string, currentPrice, entryPrice, held float64, 
 	isLowestRSI := item.RSI > 0 && item.RSI <= absoluteLowestRSI
 
 	if isLowestRSI {
-		return fmt.Sprintf("%s (Limit)", sellStr)
+		return fmt.Sprintf("%s → USD", sellStr)
 	}
 
 	// Determine rotation target and reason
