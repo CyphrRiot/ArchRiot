@@ -1,4 +1,6 @@
 # Prevents sensitive information from being committed
+#
+AGENTS.md
 
 # Mail configuration with credentials
 

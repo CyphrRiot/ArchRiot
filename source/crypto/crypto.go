@@ -422,10 +422,60 @@ func calculateBollingerBands(prices []float64, period int, stdDev float64) (uppe
 	return math.Round(upper*100) / 100, math.Round(lower*100) / 100
 }
 
-// Calculate sell limit using the trading module
+// calculateSellLimit computes the optimal sell limit (max 20% of entry value)
 func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item CryptoItem, items []CryptoItem) string {
-	config := DefaultTradingConfig()
-	return CalculateTradingSignal(sym, currentPrice, entryPrice, held, item, items, config)
+	// Calculate max sell value: 20% of entry (entry * held * 0.20)
+	maxSellValue := entryPrice * held * 0.20
+	if maxSellValue <= 0 || currentPrice <= 0 {
+		return ""
+	}
+
+	// Calculate max coins we could sell at current price
+	maxCoins := maxSellValue / currentPrice
+
+	// Determine best number to sell (20% of holdings, within max)
+	var unitsToSell float64
+	if held < 1.0 {
+		unitsToSell = held * 0.20
+		if unitsToSell < 0.01 {
+			unitsToSell = held
+		}
+	} else {
+		unitsToSell = math.Min(held*0.20, maxCoins)
+		unitsToSell = math.Ceil(unitsToSell*100) / 100
+		if unitsToSell < 0.01 {
+			unitsToSell = 0.01
+		}
+	}
+
+	// Calculate target price: entry * 1.20, cap at 90-day high * 0.80
+	targetPrice := entryPrice * 1.20
+	if len(item.OHLCData) > 0 {
+		high := item.OHLCData[0]
+		for _, p := range item.OHLCData {
+			if p > high {
+				high = p
+			}
+		}
+		maxTarget := high * 0.80
+		if targetPrice > maxTarget {
+				targetPrice = maxTarget
+			}
+		}
+	if targetPrice <= currentPrice {
+		targetPrice = currentPrice * 1.20
+	}
+
+	unitsStr := formatUnits(unitsToSell)
+	targetStr := formatPrice(targetPrice)
+
+	if currentPrice < entryPrice && entryPrice > 0 {
+		stopPrice := currentPrice * 0.90
+		stopStr := formatPrice(stopPrice)
+		return fmt.Sprintf("%s @ $%s (Stop)", unitsStr, stopStr)
+	}
+
+	return fmt.Sprintf("%s @ $%s", unitsStr, targetStr)
 }
 
 // Output formatters matching shell script exactly
@@ -603,9 +653,9 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 	lines := []string{}
 
 	// Header row
-	header := "COIN     HELD   PRICE        % GAINS       $ GAINS              NEXT REBALANCE"
+	header := "COIN     HELD   PRICE        % GAINS       $ GAINS           REBALANCE"
 	lines = append(lines, header)
-	separator := "------ ------   -----------  -------  ------------   --------------------------"
+	separator := "------ ------   -----------  -------  ------------   -----------------"
 	lines = append(lines, separator)
 
 	// Sort items - preserve config order, move USD to end (matching shell)
@@ -662,7 +712,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string) error {
 		// Calculate sell limit
 		sellStr := ""
 		if item.Held > 0 {
-			sellStr = fmt.Sprintf("%26s", calculateSellLimit(item.Sym, item.Price, item.Entry, item.Held, item, items))
+			sellStr = fmt.Sprintf("%17s", calculateSellLimit(item.Sym, item.Price, item.Entry, item.Held, item, items))
 		}
 
 		// Build line matching shell format exactly:
