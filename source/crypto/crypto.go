@@ -575,9 +575,9 @@ func calculateSellLimit(sym string, currentPrice, entryPrice, held float64, item
 		}
 		maxTarget := high * 0.80
 		if targetPrice > maxTarget {
-				targetPrice = maxTarget
-			}
+			targetPrice = maxTarget
 		}
+	}
 	if targetPrice <= currentPrice {
 		targetPrice = currentPrice * 1.20
 	}
@@ -867,7 +867,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string, oversold i
 			} else {
 				gainStr = "-" + formatNumberWithWidth(-gainTotal, 12)
 			}
-			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 15))+heldStr)
+			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 13))+heldStr)
 		} else {
 			var gainStr string
 			if gainTotal >= 0 {
@@ -875,7 +875,7 @@ func outputROWML(items []CryptoItem, showTotals bool, curFile string, oversold i
 			} else {
 				gainStr = "-" + formatNumberWithWidth(-gainTotal, 12)
 			}
-			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 23)))
+			lines = append(lines, fmt.Sprintf("%s%s%s", strings.Repeat(" ", 37), gainStr, strings.Repeat(" ", 21)))
 		}
 	}
 
