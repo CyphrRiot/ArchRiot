@@ -51,12 +51,11 @@ If you valued what ArchRiot stood for — sovereignty, control, clean aesthetics
 
 The ArchRiot repository, documentation, and all existing releases will stay up indefinitely. Fork it, modify it, keep using it — it’s yours, do whatever you want with it.
 
-The Riot continues — now on much more solid and secure ground*.
+The Riot continues — now on much more solid and secure ground.
 
 
 > Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda.
 
-* Without the Age Verification nonsense and infighting.
 ---
 
 **CyphrRiot**  
