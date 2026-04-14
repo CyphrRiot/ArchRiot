@@ -28,7 +28,8 @@ ArchRiot was built to give people a clean, fast, beautifully themed, sovereignty
 
 For the last 16 months you all made it worth it. The installs, the feedback, the custom setups, the daily driver energy — real talk, thank you. None of this happens without you.
 
-**ArchRiot still works exactly as it does today.**  
+**ArchRiot still works exactly as it does today.**
+
 Current ISOs, install scripts, everything — they remain fully functional. If you want to keep running it, go for it. It’s solid.
 
 That said, **active development on ArchRiot is over**.  
