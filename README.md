@@ -37,7 +37,6 @@ No more new features. No major releases. Just critical bug fixes and essential s
 
 My full focus and energy have now shifted to **[OpenRiot](https://OpenRiot.org)**.
 
-> Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda.
 
 OpenRiot is the real evolution — the exact same philosophy you loved in ArchRiot (minimal, clean, themed, efficient tiling workflow, privacy-first, “just works” out of the box) — but rebuilt properly on the audited, no-compromise foundation of [OpenBSD](https://OpenBSD.org).
 
@@ -53,6 +52,8 @@ The ArchRiot repository, documentation, and all existing releases will stay up i
 
 The Riot continues — now on much more solid and secure ground*.
 
+
+> Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda.
 
 * Without the Age Verification nonsense and infighting.
 ---
