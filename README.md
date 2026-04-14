@@ -24,6 +24,8 @@
 
 # ArchRiot: End of Active Development
 
+> Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda. [see X post](https://x.com/CyphrRiot/status/2039409143891837297?s=20)
+
 ArchRiot was built to give people a clean, fast, beautifully themed, sovereignty-first Arch Linux experience — no bullshit, just a machine that actually respects its owner.
 
 For the last 16 months you all made it worth it. The installs, the feedback, the custom setups, the daily driver energy — real talk, thank you. None of this happens without you.
@@ -54,7 +56,6 @@ The ArchRiot repository, documentation, and all existing releases will stay up i
 The Riot continues — now on much more solid and secure ground.
 
 
-> Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda.
 
 ---
 
