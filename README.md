@@ -20,6 +20,49 @@
 
 </div>
 
+---
+
+# ArchRiot: End of Active Development
+
+ArchRiot was built to give people a clean, fast, beautifully themed, sovereignty-first Arch Linux experience — no bullshit, just a machine that actually respects its owner.
+
+For the last 16 months you all made it worth it. The installs, the feedback, the custom setups, the daily driver energy — real talk, thank you. None of this happens without you.
+
+**ArchRiot still works exactly as it does today.**  
+Current ISOs, install scripts, everything — they remain fully functional. If you want to keep running it, go for it. It’s solid.
+
+That said, **active development on ArchRiot is over**.  
+
+No more new features. No major releases. Just critical bug fixes and essential security updates when they’re actually needed to keep existing installs stable and secure.
+
+My full focus and energy have now shifted to **[OpenRiot](https://OpenRiot.org)**.
+
+> Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda.
+
+OpenRiot is the real evolution — the exact same philosophy you loved in ArchRiot (minimal, clean, themed, efficient tiling workflow, privacy-first, “just works” out of the box) — but rebuilt properly on the audited, no-compromise foundation of [OpenBSD](https://OpenBSD.org).
+
+No blobs. No distribution drama. No weakening security model. Real stability, real auditability, and a system that actually belongs to you.
+
+If you valued what ArchRiot stood for — sovereignty, control, clean aesthetics, and a machine that doesn’t treat you like the product — this is the stronger, more principled continuation of that vision.
+
+**Start a Riot.**
+
+**[OpenRiot → https://openriot.org](https://openriot.org)**
+
+The ArchRiot repository, documentation, and all existing releases will stay up indefinitely. Fork it, modify it, keep using it — it’s yours, do whatever you want with it.
+
+The Riot continues — now on much more solid and secure ground*.
+
+
+* Without the Age Verification nonsense and infighting.
+---
+
+**CyphrRiot**  
+Creator of ArchRiot & OpenRiot  
+[https://x.com/CyphrRiot](https://x.com/CyphrRiot)
+
+---
+
 ## **ArchRiot: The (Arch) Linux System You've Always Wanted**
 
 ArchRiot is the answer to every time you've thought "Why can't a Linux installation just work correctly from the start?" I've spent hundreds of hours perfecting the details so you get a blazing-fast, secure, beautiful system that actually respects your time and intelligence.
