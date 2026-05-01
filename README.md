@@ -24,7 +24,7 @@
 
 # ArchRiot: End of Active Development
 
-> Linux has become untenable. The politics, infighting, bloat, binary blobs, telemetry creep, and constant security headaches turned what should’ve been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda. [see X post](https://x.com/CyphrRiot/status/2039409143891837297?s=20)
+> Linux has become untenable. Age verification mandates are spreading across distributions, massive proprietary driver blobs are now standard, binary telemetry creep, distribution drama, and a constant stream of CVEs turned what should've been a tool for real control into something else entirely. Even Arch started showing serious cracks and a weird agenda. [see X post](https://x.com/CyphrRiot/status/2039409143891837297?s=20)
 
 ArchRiot was built to give people a clean, fast, beautifully themed, sovereignty-first Arch Linux experience — no bullshit, just a machine that actually respects its owner.
 
@@ -32,26 +32,23 @@ For the last 16 months you all made it worth it. The installs, the feedback, the
 
 **ArchRiot still works exactly as it does today.**
 
-Current ISOs, install scripts, everything — they remain fully functional. If you want to keep running it, go for it. It’s solid.
+Current ISOs, install scripts, everything — they remain fully functional. If you want to keep running it, go for it. It's solid.
 
 That said, **active development on ArchRiot is over**.  
 
-No more new features. No major releases. Just critical bug fixes and essential security updates when they’re actually needed to keep existing installs stable and secure.
+No more new features. No major releases. Just critical bug fixes and essential security updates when they're actually needed to keep existing installs stable and secure.
 
 My full focus and energy have now shifted to **[OpenRiot](https://OpenRiot.org)**.
 
+→ **[OpenRiot](https://OpenRiot.org)** is the continuation. Same philosophy (minimal, clean, themed, efficient tiling, privacy-first) — rebuilt on [OpenBSD](https://OpenBSD.org). No blobs. No verification requirements. No distribution drama. No weakening security model. Real stability, real auditability.
 
-OpenRiot is the real evolution — the exact same philosophy you loved in ArchRiot (minimal, clean, themed, efficient tiling workflow, privacy-first, “just works” out of the box) — but rebuilt properly on the audited, no-compromise foundation of [OpenBSD](https://OpenBSD.org).
-
-No blobs. No distribution drama. No weakening security model. Real stability, real auditability, and a system that actually belongs to you.
-
-If you valued what ArchRiot stood for — sovereignty, control, clean aesthetics, and a machine that doesn’t treat you like the product — this is the stronger, more principled continuation of that vision.
+If you valued what ArchRiot stood for — sovereignty, control, clean aesthetics, and a machine that doesn't treat you like the product — this is the stronger, more principled continuation of that vision.
 
 **Start a Riot.**
 
 **[OpenRiot → https://openriot.org](https://openriot.org)**
 
-The ArchRiot repository, documentation, and all existing releases will stay up indefinitely. Fork it, modify it, keep using it — it’s yours, do whatever you want with it.
+The ArchRiot repository, documentation, and all existing releases will stay up indefinitely. Fork it, modify it, keep using it — it's yours, do whatever you want with it.
 
 The Riot continues — now on much more solid and secure ground.
 
