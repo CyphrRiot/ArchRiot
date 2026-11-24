@@ -4,7 +4,9 @@
 
 ### End of Development
 
-#### Choose [OpenRiot](https://OpenRiot.org)
+#### Choose [OpenRiot](https://OpenRiot.org) for OpenBSD, or [NixRiot](https://nixriot.org) for Linux.
+
+Liked ArchRiot? You will love [NixRiot](https://github.com/CyphrRiot/NixRiot), which replaces it: the same philosophy, rebuilt on a base you can reproduce from a file instead of repairing by hand.
 
 ![Version](https://img.shields.io/badge/version-4.4.10-blue?labelColor=0052cc)
 ![License](https://img.shields.io/github/license/CyphrRiot/ArchRiot?color=4338ca&labelColor=3730a3)
